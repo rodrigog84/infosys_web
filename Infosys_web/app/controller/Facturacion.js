@@ -1,0 +1,1311 @@
+Ext.define('Infosys_web.controller.Facturacion', {
+    extend: 'Ext.app.Controller',
+
+    //asociamos vistas, models y stores al controller
+
+    stores: ['productos.Items',
+             'facturas.Items',
+             'Factura',
+             'Clientes',
+             'Productosf',
+             'Tipo_documento',
+             'Sucursales_clientes',
+             'Tipo_documento.Selector',
+             'facturas.Selector',
+             'Cargadteproveedores',
+             'Contribuyentesautorizados'],
+
+    models: ['Facturas.Item',
+             'Factura',
+             'Tipo_documento',
+             'Sucursales_clientes',
+             'Cargadteproveedores',
+             'Contribuyentesautorizados'],
+
+    views: ['ventas.Ventas', 'ventas.Ejemplo','ventas.Facturas',
+             'clientes.BuscarClientes','productos.BuscarProductos',
+             'ventas.Principalfactura',
+             'ventas.BuscarSucursales',
+             'ventas.Exportar',
+             'ventas.Observaciones',
+             'notacredito.Principal',
+             'facturaelectronica.CargaCertificadoDigital',
+             'facturaelectronica.CargaManualCaf',
+             'facturaelectronica.ParamGeneralesFe',
+             'facturaelectronica.RegistroEmpresa',
+             'facturaelectronica.verEstadoDte',
+             'facturaelectronica.verEstadoEnvio',
+             'facturaelectronica.DteProveedorPrincipal',
+             'facturaelectronica.CargaDteProveedor',
+             'facturaelectronica.LibroCompraVenta',
+             'facturaelectronica.ContribuyentesAutorizados',
+             'facturaelectronica.CargaListaContribuyentes'],
+
+    //referencias, es un alias interno para el controller
+    //podemos dejar el alias de la vista en el ref y en el selector
+    //tambien, asi evitamos enredarnos
+    refs: [{
+       ref: 'panelprincipal',
+        selector: 'panelprincipal'
+    },{
+        ref: 'facturasingresar',
+        selector: 'facturasingresar'
+    },{
+        ref: 'ventasejemplo',
+        selector: 'ventasejemplo'
+    },{
+        ref: 'topmenus',
+        selector: 'topmenus'
+    },{
+        ref: 'facturasprincipal',
+        selector: 'facturasprincipal'
+    },{
+        ref: 'notacreditoprincipal',
+        selector: 'notacreditoprincipal'
+    },{        
+        ref: 'buscarclientes',
+        selector: 'buscarclientes'
+    },{
+        ref: 'buscarproductos',
+        selector: 'buscarproductos'
+    },{
+        ref: 'buscarsucursalesclientes',
+        selector: 'buscarsucursalesclientes'
+    },{
+        ref: 'formularioexportar',
+        selector: 'formularioexportar'
+    },{
+        ref: 'formularioexportarpdf',
+        selector: 'formularioexportarpdf'
+    },{
+        ref: 'observacionesfacturasdirectas',
+        selector: 'observacionesfacturasdirectas'
+    },{
+        ref: 'verestadodte',
+        selector: 'verestadodte'
+    },{
+        ref: 'dteproveeprincipal',
+        selector: 'dteproveeprincipal'
+    },{
+        ref: 'cargadteproveedor',
+        selector: 'cargadteproveedor'
+    },{
+        ref: 'contribuyentesautorizados',
+        selector: 'contribuyentesautorizados'
+    },{
+        ref: 'cargalistacontribuyentes',
+        selector: 'cargalistacontribuyentes'
+    }
+    
+    ],
+    //init es lo primero que se ejecuta en el controller
+    //especia de constructor
+    init: function() {
+    	//el <<control>> es el puente entre la vista y funciones internas
+    	//del controller
+        this.control({
+
+            'facturasingresar #rutId': {
+                specialkey: this.special
+            },
+
+            'facturasprincipal button[action=mfactura]': {
+                click: this.mfactura
+            },
+           
+            'topmenus menuitem[action=mejemplo]': {
+                click: this.mejemplo
+            },
+
+            'topmenus menuitem[action=mregempresa]': {
+                click: this.mregempresa
+            }, 
+
+            'topmenus menuitem[action=mcargacertdigital]': {
+                click: this.mcargacertdigital
+            },       
+
+            'topmenus menuitem[action=mcargamanualcaf]': {
+                click: this.mcargamanualcaf
+            },
+
+            'topmenus menuitem[action=mparamgenerales]': {
+                click: this.mparamgenerales
+            },
+
+            'topmenus menuitem[action=mcargadteprovee]': {
+                click: this.mcargadteprovee
+            },             
+
+            'topmenus menuitem[action=mlibrocompraventa]': {
+                click: this.mlibrocompraventa
+            },                                     
+
+            'topmenus menuitem[action=mcargacontribuyentes]': {
+                click: this.mcargacontribuyentes
+            },                                                 
+            'facturasingresar button[action=buscarclientes]': {
+                click: this.buscarclientes
+            },
+
+
+            'facturasingresar button[action=buscarsucursalfactura]': {
+                click: this.buscarsucursalfactura
+            },
+            'facturasingresar button[action=buscarvendedor]': {
+                click: this.buscarvendedor
+            },
+            'facturasingresar button[action=buscarproductos]': {
+                click: this.buscarproductos
+            },
+            'facturasingresar button[action=validarut]': {
+                click: this.validarut
+            },
+            'facturasingresar button[action=grabarfactura]': {
+                click: this.grabarfactura
+            },
+            'facturasprincipal button[action=cerrarfactura]': {
+                click: this.cerrarfactura
+            },
+            'facturasprincipal button[action=generarfacturapdf]': {
+                click: this.generarfacturapdf
+            },
+
+            'facturasprincipal button[action=generarfacturacediblepdf]': {
+                click: this.generarfacturacediblepdf
+            },
+            'dteproveeprincipal button[action=adddteprovee]': {
+                click: this.adddteprovee
+            },      
+
+            'contribuyentesautorizados button[action=addlistacontribuyentes]': {
+                click: this.addlistacontribuyentes
+            },      
+
+
+
+            'cargadteproveedor button[action=cargar_dte_provee]': {
+                click: this.cargar_dte_provee
+            },                    
+
+            'cargalistacontribuyentes button[action=cargar_listado_contribuyentes]': {
+                click: this.cargar_listado_contribuyentes
+            },                    
+
+
+           /* 'facturasprincipal': {
+                verDte: this.verDte
+            }, */
+
+            'facturasprincipal': {
+                verEstadoDte: this.verEstadoDte
+            }, 
+
+            'notacreditoprincipal': {
+                verEstadoDte: this.verEstadoDte
+            }, 
+
+
+            'dteproveeprincipal': {
+                verxmlprovee: this.verxmlprovee
+            },            
+            'buscarclientes button[action=buscar]': {
+                click: this.buscar
+            },
+            'buscarclientes button[action=seleccionarcliente]': {
+                click: this.seleccionarcliente
+            },
+            'buscarproductos button[action=seleccionarproductos]': {
+                click: this.seleccionarproductos
+            },
+            
+            'buscarproductos button[action=buscar]': {
+                click: this.buscarp
+            },
+            'facturasingresar #tipoDocumentoId': {
+                select: this.selectItemdocuemento
+            },
+            'buscarsucursalesclientes button[action=seleccionarsucursalcliente]': {
+                click: this.seleccionarsucursalcliente
+            },
+            'facturasingresar #tipocondpagoId': {
+                select: this.selecttipocondpago
+            },
+            'facturasprincipal button[action=exportarexcelfacturas]': {
+                click: this.exportarexcelfacturas
+            },
+            'facturasprincipal button[action=generarlibropdf]': {
+                click: this.generarlibropdf
+            },            
+            'formularioexportar button[action=exportarExcelFormulario]': {
+                click: this.exportarExcelFormulario
+            },
+            'formularioexportarpdf button[action=exportarPdfFormulario]': {
+                click: this.exportarPdfFormulario
+            },            
+            'facturasprincipal button[action=buscarfact]': {
+                click: this.buscarfact
+            },
+            'facturasingresar button[action=observaciones]': {
+                click: this.observaciones
+            },
+            'observacionesfacturasdirectas button[action=ingresaobs]': {
+                click: this.ingresaobs
+            },
+             'observacionesfacturasdirectas #rutId': {
+                specialkey: this.special6
+            },
+            'facturasingresar #tipocondpagoId': {
+                select: this.condicionpago
+            },
+            'facturasingresar #DescuentoproId': {
+                change: this.changedctofinal3
+            },
+            'facturasingresar #tipoDescuentoId': {
+                change: this.changedctofinal
+            },
+        });
+    },
+
+    changedctofinal: function(){
+        this.recalculardescuento();
+    },
+
+
+    cargar_dte_provee: function(){
+
+        var view = this.getCargadteproveedor();
+        var win = this.getDteproveeprincipal();
+        var form = view.down('form').getForm();
+    
+        if(form.isValid()){
+            form.submit({
+                url: preurl + 'facturas/cargadteprovee',
+                waitMsg: 'Cargando DTE...',
+                success: function(fp, o) {
+
+                    Ext.Msg.alert('Atencion', o.result.message);
+                    win.store.reload();      
+                    view.close();   
+
+                }
+            });
+        }   
+    },
+
+
+
+cargar_listado_contribuyentes: function(){
+
+        var view = this.getCargalistacontribuyentes();
+        var win = this.getContribuyentesautorizados();
+        var form = view.down('form').getForm();
+    
+        if(form.isValid()){
+            form.submit({
+                url: preurl + 'facturas/cargacontribuyentes',
+                waitMsg: 'Cargando Base...',
+                success: function(fp, o) {
+
+                    Ext.Msg.alert('Atencion', o.result.message);
+                    win.store.reload();      
+                    view.close();   
+
+                }
+            });
+        }   
+    },
+
+    mregempresa: function(){
+
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'registroempresa'});
+        
+    },
+
+    mcargacertdigital: function(){
+
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'cargacertificadodigital'});
+        
+    },
+
+
+    verDte: function(r){
+
+        response = Ext.Ajax.request({
+        async: false,
+        url: preurl + 'facturas/show_dte/'+r.data.id}); 
+        var obj = Ext.decode(response.responseText);
+        window.open(gbl_site + 'core/facturacion_electronica/dte/' + obj.path_dte + obj.archivo_dte,'_blank');
+ 
+    },
+
+    verEstadoDte: function(r,t){
+        if(t == 1){
+
+            Ext.create('Infosys_web.view.facturaelectronica.verEstadoDte', {idfactura: r.data.id});              
+        }else if(t == 2){
+            /*response = Ext.Ajax.request({
+            async: false,
+            url: preurl + 'facturas/show_dte/'+r.data.id}); 
+            var obj = Ext.decode(response.responseText);*/
+            //window.open(gbl_site + 'core/facturacion_electronica/dte/' + obj.path_dte + obj.archivo_dte,'_blank');           
+            url = preurl + 'facturas/ver_dte/'+r.data.id,
+            window.open(url,'_blank');           
+
+
+        }else if(t == 3){
+            Ext.create('Infosys_web.view.facturaelectronica.verEstadoEnvio', {idfactura: r.data.id});                          
+        }
+        
+    },
+
+
+
+    verxmlprovee: function(r,t){
+
+        url = preurl + 'facturas/ver_dte_proveedor/'+t+'/'+r.data.id,
+        window.open(url,'_blank');           
+
+        /*if(t == 1){
+            window.open(gbl_site + 'core/facturacion_electronica/acuse_recibo/' + r.data.path_dte + r.data.arch_rec_dte,'_blank');           
+        }else if(t == 2){
+            window.open(gbl_site + 'core/facturacion_electronica/acuse_recibo/' + r.data.path_dte + r.data.arch_res_dte,'_blank');
+        }else if(t == 3){
+            window.open(gbl_site + 'core/facturacion_electronica/acuse_recibo/' + r.data.path_dte + r.data.arch_env_rec,'_blank');           
+        }*/
+    },
+
+  adddteprovee: function(){
+              Ext.create('Infosys_web.view.facturaelectronica.CargaDteProveedor').show();
+    },
+
+
+  addlistacontribuyentes: function(){
+              Ext.create('Infosys_web.view.facturaelectronica.CargaListaContribuyentes').show();
+    },    
+
+    mcargadteprovee: function(){
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'dteproveeprincipal'});
+    },
+
+
+    mcargacontribuyentes: function(){
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'contribuyentesautorizados'});
+    },
+
+
+    mcargamanualcaf: function(){
+
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'cargamanualcaf'});
+        
+    },    
+
+
+    mparamgenerales: function(){
+
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'paramgeneralesfe'});
+        
+    },    
+
+
+    mlibrocompraventa: function(){
+//
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'librocompraventa'});
+        
+    },  
+    
+
+    recalculardescuento: function(){
+
+        var view = this.getFacturasingresar();
+        var pretotal = view.down('#finalafectoId').getValue();
+        var total = view.down('#finaltotalpostId').getValue();
+        var iva = view.down('#finaltotalivaId').getValue();
+        var neto = view.down('#finaltotalnetoId').getValue();
+        var descuento = view.down('#tipoDescuentoId');
+        var stCombo = descuento.getStore();
+        var record = stCombo.findRecord('id', descuento.getValue()).data;
+        var dcto = (record.porcentaje);
+       
+        pretotalfinal = ((total * dcto)  / 100);
+        total = ((total) - parseInt(pretotalfinal));
+        afecto = (parseInt(total / 1.19));
+        iva = (total - afecto);
+
+        view.down('#finaltotalId').setValue(Ext.util.Format.number(total, '0,000'));
+        view.down('#finaltotalpostId').setValue(Ext.util.Format.number(total, '0'));
+        view.down('#finaltotalnetoId').setValue(Ext.util.Format.number(neto, '0'));
+        view.down('#finaltotalivaId').setValue(Ext.util.Format.number(iva, '0'));
+        view.down('#finalafectoId').setValue(Ext.util.Format.number(afecto, '0'));
+        view.down('#descuentovalorId').setValue(Ext.util.Format.number(pretotalfinal, '0'));
+    },
+
+     changedctofinal3: function(){
+        this.recalculardescuentopro();
+    },
+
+    recalculardescuentopro: function(){
+
+        var view = this.getFacturasingresar();
+        var precio = view.down('#precioId').getValue();
+        var cantidad = view.down('#cantidadId').getValue();
+        var total = (parseInt(precio * cantidad));
+        var desc = view.down('#DescuentoproId').getValue();
+        if (desc){
+        var descuento = view.down('#DescuentoproId');
+        var stCombo = descuento.getStore();
+        var record = stCombo.findRecord('id', descuento.getValue()).data;
+        var dcto = (record.porcentaje);
+        totaldescuento = ((parseInt(total * dcto)  / 100));
+        view.down('#totdescuentoId').setValue(totaldescuento);
+        };         
+    },
+
+    condicionpago: function(){
+
+        var viewIngresa = this.getFacturasingresar();
+        var idpago = viewIngresa.down('#tipocondpagoId').getValue();
+        var bolEnable = false;
+        var bolDisabel = true;
+         
+        if (idpago == 1){
+            viewIngresa.down('#DescuentoproId').setDisabled(bolEnable);
+            viewIngresa.down('#tipoDescuentoId').setDisabled(bolEnable);
+            viewIngresa.down('#descuentovalorId').setDisabled(bolEnable);
+                
+        };
+        if (idpago == 6){
+
+             viewIngresa.down('#DescuentoproId').setDisabled(bolEnable);
+             viewIngresa.down('#tipoDescuentoId').setDisabled(bolEnable);
+             viewIngresa.down('#descuentovalorId').setDisabled(bolEnable);
+            
+        };
+        if (idpago == 7){
+
+             viewIngresa.down('#DescuentoproId').setDisabled(bolEnable);
+             viewIngresa.down('#tipoDescuentoId').setDisabled(bolEnable);
+             viewIngresa.down('#descuentovalorId').setDisabled(bolEnable);
+            
+        };
+        if (idpago == 2){
+
+             viewIngresa.down('#DescuentoproId').setDisabled(bolDisabel);
+             viewIngresa.down('#tipoDescuentoId').setDisabled(bolDisabel);
+             viewIngresa.down('#descuentovalorId').setDisabled(bolDisabel);
+            
+        };
+        if (idpago == 3){
+
+             viewIngresa.down('#DescuentoproId').setDisabled(bolDisabel);
+             viewIngresa.down('#tipoDescuentoId').setDisabled(bolDisabel);
+             viewIngresa.down('#descuentovalorId').setDisabled(bolDisabel);
+            
+        };
+        if (idpago == 4){
+
+             viewIngresa.down('#DescuentoproId').setDisabled(bolDisabel);
+             viewIngresa.down('#tipoDescuentoId').setDisabled(bolDisabel);
+             viewIngresa.down('#descuentovalorId').setDisabled(bolDisabel);
+            
+        };
+        if (idpago == 5){
+
+             viewIngresa.down('#DescuentoproId').setDisabled(bolDisabel);
+             viewIngresa.down('#tipoDescuentoId').setDisabled(bolDisabel);
+             viewIngresa.down('#descuentovalorId').setDisabled(bolDisabel);
+            
+        };        
+
+    },
+
+    special6: function(f,e){
+        if (e.getKey() == e.ENTER) {
+            this.validarut2()
+        }
+    },
+
+    validarut2: function(){
+
+        var view = this.getObservacionesfacturasdirectas();
+        var rut = view.down('#rutId').getValue();
+        var okey = "SI";
+        var cero = " ";
+        
+        if (!rut){
+             Ext.Msg.alert('Alerta', 'Debe Ingresar Rut');
+                 return;
+        };
+
+        Ext.Ajax.request({
+            url: preurl + 'facturasvizualiza/validaRut?valida='+rut,
+            params: {
+                id: 1
+            },
+            
+            success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                if (resp.success == true) {
+                    var rutm = resp.rut;
+                    if (resp.existe == true){
+                        var observa = resp.observa;
+                        if (observa){
+                         view.down("#nombreId").setValue(observa.nombre);
+                         view.down("#rutId").setValue(observa.rut);
+                         view.down("#rutmId").setValue(rut);
+                         view.down("#camionId").setValue(observa.pat_camion);
+                         view.down("#carroId").setValue(observa.pat_carro);
+                         view.down("#fonoId").setValue(observa.fono);
+                         view.down("#validaId").setValue(okey);
+                         view.down("#observaId").focus();
+                    }             
+                    };
+                    if (resp.existe == false){
+                        view.down("#nombreId").focus();
+                         view.down("#rutId").setValue(rutm);
+                         view.down("#rutmId").setValue(rut);
+                         view.down("#validaId").setValue(okey);
+                    }  
+                    
+                }else{
+
+                      Ext.Msg.alert('Informacion', 'Rut Incorrecto');                      
+                      return false;
+                     
+                      
+                }
+               
+            }
+
+        });
+    },
+
+    ingresaobs: function(){
+
+        var view = this.getObservacionesfacturasdirectas();
+        var viewIngresar = this.getFacturasingresar();                
+        var rut = view.down('#rutmId').getValue();
+        var nombre = view.down('#nombreId').getValue();
+        var camion = view.down('#camionId').getValue();
+        var fono = view.down('#fonoId').getValue();
+        var carro = view.down('#carroId').getValue();
+        var observa = view.down('#observaId').getValue();
+        var valida = view.down('#validaId').getValue();
+        var numero = view.down('#FactId').getValue();      
+        
+        var permite = "SI"
+
+        if (valida == "NO"){
+             Ext.Msg.alert('Alerta', 'Debe Validar Rut');
+                 return;
+        };        
+        
+        if (!rut){
+             Ext.Msg.alert('Alerta', 'Debe Ingresar Rut');
+                 return;
+        };
+        if (!nombre){
+             Ext.Msg.alert('Alerta', 'Debe Ingresar Nombre');
+                 return;
+        };       
+       
+        Ext.Ajax.request({
+            url: preurl + 'facturasvizualiza/saveobserva',
+            params: {
+                rut: rut,
+                nombre: nombre,
+                camion: camion,
+                carro : carro,
+                fono : fono,
+                observa : observa,
+                numero: numero
+            },
+            success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                var idobserva = resp.idobserva;         
+                view.close();
+                viewIngresar.down("#observaId").setValue(observa);
+                viewIngresar.down("#permiteId").setValue(permite);
+                viewIngresar.down("#obsId").setValue(idobserva);               
+
+            }
+           
+        });
+    },
+
+    observaciones: function(){
+
+        var viewIngresa = this.getFacturasingresar();
+        var numfactura = viewIngresa.down('#numfacturaId').getValue();
+        var view = Ext.create('Infosys_web.view.ventas.Observaciones').show();
+        view.down("#rutId").focus();
+        view.down("#idfactura").setValue(numfactura);
+
+    },
+
+    exportarexcelfacturas: function(){
+              
+           Ext.create('Infosys_web.view.ventas.Exportar').show();
+    },
+
+    generarlibropdf: function(){
+              
+           Ext.create('Infosys_web.view.ventas.Exportarpdf').show();
+    },    
+
+    exportarExcelFormulario: function(){
+        
+        var jsonCol = new Array()
+        var i = 0;
+        var grid =this.getFacturasprincipal()
+        Ext.each(grid.columns, function(col, index){
+          if(!col.hidden){
+              jsonCol[i] = col.dataIndex;
+          }
+          
+          i++;
+        })
+
+        var view =this.getFormularioexportar()
+        var viewnew =this.getFacturasprincipal()
+        var fecha = view.down('#fechaId').getSubmitValue();
+        var opcion = viewnew.down('#tipoSeleccionId').getValue()
+        var nombre = viewnew.down('#nombreId').getSubmitValue();
+        var fecha2 = view.down('#fecha2Id').getSubmitValue();
+        var opcion = view.down('#tipoId').getSubmitValue();
+
+        console.log(opcion)
+
+        if (fecha > fecha2) {
+        
+               Ext.Msg.alert('Alerta', 'Fechas Incorrectas');
+            return;          
+
+        };
+
+        if (opcion == "LIBRO VENTAS"){
+
+              window.open(preurl + 'adminServicesExcel/exportarExcellibroFacturas?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2);
+            view.close();
+            
+            
+
+        }else{
+
+             window.open(preurl + 'adminServicesExcel/exportarExcelFacturas?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2+'&opcion='+opcion+'&nombre='+nombre);
+        view.close();
+
+          
+
+        }
+
+       
+ 
+    },
+
+    exportarPdfFormulario: function(){
+        
+        var jsonCol = new Array()
+        var i = 0;
+        var grid =this.getFacturasprincipal()
+        Ext.each(grid.columns, function(col, index){
+          if(!col.hidden){
+              jsonCol[i] = col.dataIndex;
+          }
+          
+          i++;
+        })
+
+        var view =this.getFormularioexportarpdf()
+        var viewnew =this.getFacturasprincipal()
+        var fecha = view.down('#fechaId').getSubmitValue();
+        var opcion = viewnew.down('#tipoSeleccionId').getValue()
+        var nombre = viewnew.down('#nombreId').getSubmitValue();
+        var fecha2 = view.down('#fecha2Id').getSubmitValue();
+        var opcion = view.down('#tipoId').getSubmitValue();
+
+        console.log(opcion)
+
+        if (fecha > fecha2) {
+        
+               Ext.Msg.alert('Alerta', 'Fechas Incorrectas');
+            return;          
+
+        };
+
+        if (opcion == "LIBRO VENTAS"){
+
+              window.open(preurl + 'facturas/exportarPdflibroFacturas?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2);
+            view.close();
+            
+            
+
+        }else{
+
+             window.open(preurl + 'facturas/exportarPdfFacturas?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2+'&opcion='+opcion+'&nombre='+nombre);
+        view.close();         
+
+        }
+       
+ 
+    },
+
+    special: function(f,e){
+        if (e.getKey() == e.ENTER) {
+            this.validarut()
+        }
+    },
+
+     selecttipocondpago: function() {
+        
+        var view =this.getFacturasingresar();
+        var condicion = view.down('#tipocondpagoId');
+        var fechafactura = view.down('#fechafacturaId').getValue();
+                
+
+        var stCombo = condicion.getStore();
+        var record = stCombo.findRecord('id', condicion.getValue()).data;
+        dias = record.dias;
+
+        if (dias > 0){
+        
+        Ext.Ajax.request({
+            url: preurl + 'facturas/calculofechas',
+            params: {
+                dias: dias,
+                fechafactura : fechafactura
+            },
+            success: function(response){
+               var resp = Ext.JSON.decode(response.responseText);
+               var fecha_final= resp.fecha_final;
+               view.down("#fechavencId").setValue(fecha_final);
+                           
+            }
+           
+        });
+
+        };
+       
+            
+    },
+
+    seleccionarsucursalcliente: function(){
+
+        var view = this.getBuscarsucursalesclientes();
+        var viewIngresa = this.getFacturasingresar();
+        var grid  = view.down('grid');
+        if (grid.getSelectionModel().hasSelection()) {
+            var row = grid.getSelectionModel().getSelection()[0];
+            viewIngresa.down('#id_sucursalID').setValue(row.data.id);
+            viewIngresa.down('#direccionId').setValue(row.data.direccion);
+            viewIngresa.down('#tipoCiudadId').setValue(row.data.nombre_ciudad);
+            viewIngresa.down('#tipoComunaId').setValue(row.data.nombre_comuna);
+            view.close();
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }
+       
+    },
+
+    buscar: function(){
+
+        var view = this.getBuscarclientes()
+        var st = this.getClientesStore()
+        var nombre = view.down('#nombreId').getValue()
+        st.proxy.extraParams = {nombre : nombre,
+                                opcion : "Nombre"}
+        st.load();
+    },
+
+    buscarsucursalfactura: function(){
+
+       var busca = this.getFacturasingresar()
+       var nombre = busca.down('#id_cliente').getValue();
+       if (nombre){
+         var edit = Ext.create('Infosys_web.view.ventas.BuscarSucursales').show();
+          var st = this.getSucursales_clientesStore();
+          st.proxy.extraParams = {nombre : nombre};
+          st.load();
+       }else {
+          Ext.Msg.alert('Alerta', 'Debe seleccionar ClienteS.');
+            return;
+       }
+      
+    },
+
+    seleccionarcliente: function(){
+
+        var view = this.getBuscarclientes();
+        var viewIngresa = this.getFacturasingresar();
+        var grid  = view.down('grid');
+        if (grid.getSelectionModel().hasSelection()) {
+            var row = grid.getSelectionModel().getSelection()[0];
+            viewIngresa.down('#id_cliente').setValue(row.data.id);
+            viewIngresa.down('#nombre_id').setValue(row.data.nombres);
+            viewIngresa.down('#tipoCiudadId').setValue(row.data.nombre_ciudad);
+            viewIngresa.down('#tipoComunaId').setValue(row.data.nombre_comuna);
+            viewIngresa.down('#tipoVendedorId').setValue(row.data.id_vendedor);
+            viewIngresa.down('#giroId').setValue(row.data.giro);
+            viewIngresa.down('#direccionId').setValue(row.data.direccion);
+            viewIngresa.down('#rutId').setValue(row.data.rut);
+            viewIngresa.down('#tipoVendedorId').setValue(row.data.id_vendedor);
+            viewIngresa.down('#tipocondpagoId').setValue(row.data.id_pago);
+            view.close();
+            var condicion = viewIngresa.down('#tipocondpagoId');
+            var fechafactura = viewIngresa.down('#fechafacturaId').getValue();
+            var stCombo = condicion.getStore();
+            var record = stCombo.findRecord('id', condicion.getValue()).data;
+            dias = record.dias;
+            var bolEnable = false;
+            if (row.data.id_pago == 1){
+
+                viewIngresa.down('#DescuentoproId').setDisabled(bolEnable);
+                viewIngresa.down('#tipoDescuentoId').setDisabled(bolEnable);
+                viewIngresa.down('#descuentovalorId').setDisabled(bolEnable);
+                
+            };
+            if (row.data.id_pago == 6){
+
+                 viewIngresa.down('#DescuentoproId').setDisabled(bolEnable);
+                 viewIngresa.down('#tipoDescuentoId').setDisabled(bolEnable);
+                 viewIngresa.down('#descuentovalorId').setDisabled(bolEnable);
+                
+            };
+            if (row.data.id_pago == 7){
+
+                 view.down('#DescuentoproId').setDisabled(bolEnable);
+                 view.down('#tipoDescuentoId').setDisabled(bolEnable);
+                 view.down('#descuentovalorId').setDisabled(bolEnable);
+                
+            };          
+            
+
+            if (dias > 0){
+        
+            Ext.Ajax.request({
+                url: preurl + 'facturas/calculofechas',
+                params: {
+                    dias: dias,
+                    fechafactura : fechafactura
+                },
+                success: function(response){
+                   var resp = Ext.JSON.decode(response.responseText);
+                   var fecha_final= resp.fecha_final;
+                   viewIngresa.down("#fechavencId").setValue(fecha_final);
+                               
+            }
+           
+        });
+        };
+            
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }
+       
+    },    
+
+    generarfacturapdf: function(){
+        var view = this.getFacturasprincipal();
+        if (view.getSelectionModel().hasSelection()) {
+            var row = view.getSelectionModel().getSelection()[0];
+            if (row.data.id_factura==0){
+                if (row.data.forma==0){
+                    window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id)
+                }else{
+                    window.open(preurl + 'facturaglosa/exportfacturaglosaPDF/?idfactura='+row.data.id);
+                }
+            }else{
+                window.open(preurl +'facturas/exportlotePDF/?idfactura=' + row.data.id)
+            }
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }
+    },
+
+    generarfacturacediblepdf: function(){
+        var view = this.getFacturasprincipal();
+        if (view.getSelectionModel().hasSelection()) {
+            var row = view.getSelectionModel().getSelection()[0];
+            var tipo_documento = row.data.tipo_documento;
+
+            if (tipo_documento==101 || tipo_documento==103){
+                window.open(preurl +'facturas/exportFePDF/' + row.data.id+'/cedible')
+            }else{
+                Ext.Msg.alert('Alerta', 'Solo disponible para facturas electronicas');
+            }
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }
+    },    
+
+    
+    grabarfactura: function() {
+
+        var viewIngresa = this.getFacturasingresar();
+        var tipo_documento = viewIngresa.down('#tipoDocumentoId');
+        var idcliente = viewIngresa.down('#id_cliente').getValue();
+        var idtipo= viewIngresa.down('#tipoDocumentoId').getValue();
+        var idsucursal= viewIngresa.down('#id_sucursalID').getValue();
+        var idcondventa= viewIngresa.down('#tipocondpagoId').getValue();
+        var idfactura = viewIngresa.down('#idfactura').getValue();
+        var vendedor = viewIngresa.down('#tipoVendedorId').getValue();
+        var observa = viewIngresa.down('#observaId').getValue();
+        var idobserva = viewIngresa.down('#obsId').getValue();
+        var numfactura = viewIngresa.down('#numfacturaId').getValue();
+        var formadepago = viewIngresa.down('#tipocondpagoId').getValue();
+        var fechafactura = viewIngresa.down('#fechafacturaId').getValue();
+        var fechavenc = viewIngresa.down('#fechavencId').getValue();
+        var stItem = this.getProductosItemsStore();
+        var stFactura = this.getFacturaStore();
+
+        if(vendedor==0  && tipo_documento.getValue() == 1){
+            Ext.Msg.alert('Ingrese Datos del Vendedor');
+            return;   
+        }
+
+
+        if(numfactura==0){
+            Ext.Msg.alert('Ingrese Datos a La Factura');
+            return;   
+            }
+
+        var dataItems = new Array();
+        stItem.each(function(r){
+            dataItems.push(r.data)
+        });
+
+        Ext.Ajax.request({
+            url: preurl + 'facturas/save',
+            params: {
+                idcliente: idcliente,
+                idfactura: idfactura,
+                idsucursal: idsucursal,
+                idcondventa: idcondventa,
+                idtipo:idtipo,
+                items: Ext.JSON.encode(dataItems),
+                observacion: observa,
+                idobserva: idobserva,
+                vendedor : vendedor,
+                numfactura : numfactura,
+                fechafactura : fechafactura,
+                fechavenc: fechavenc,
+                formadepago: formadepago,
+                tipodocumento : tipo_documento.getValue(),
+                netofactura: viewIngresa.down('#finaltotalnetoId').getValue(),
+                ivafactura: viewIngresa.down('#finaltotalivaId').getValue(),
+                afectofactura: viewIngresa.down('#finalafectoId').getValue(),
+                descuentofactura : viewIngresa.down('#descuentovalorId').getValue(),
+                totalfacturas: viewIngresa.down('#finaltotalpostId').getValue()
+            },
+             success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                var idfactura= resp.idfactura;
+                 viewIngresa.close();
+                 stFactura.load();
+                 window.open(preurl + 'facturas/exportPDF/?idfactura='+idfactura);
+
+            }
+           
+        });
+
+       
+      
+        
+    },
+
+    cerrarfactura: function(){
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+    },
+
+    selectItemdocuemento: function() {
+        
+        var view =this.getFacturasingresar();
+        var tipo_documento = view.down('#tipoDocumentoId');
+        var stCombo = tipo_documento.getStore();
+        var record = stCombo.findRecord('id', tipo_documento.getValue()).data;
+        //console.log(record);
+        var nombre = (record.id);    
+        habilita = false;
+        if(nombre == 101 || nombre == 103){ // FACTURA ELECTRONICA o FACTURA EXENTA
+
+            // se valida que exista certificado
+            response_certificado = Ext.Ajax.request({
+            async: false,
+            url: preurl + 'facturas/existe_certificado/'});
+
+            var obj_certificado = Ext.decode(response_certificado.responseText);
+
+            if(obj_certificado.existe == true){
+
+                //buscar folio factura electronica
+                // se buscan folios pendientes, o ocupados hace más de 4 horas
+
+                response_folio = Ext.Ajax.request({
+                async: false,
+                url: preurl + 'facturas/folio_documento_electronico/'+nombre});  
+                var obj_folio = Ext.decode(response_folio.responseText);
+                //console.log(obj_folio); 
+                nuevo_folio = obj_folio.folio;
+                if(nuevo_folio != 0){
+                    view.down('#numfacturaId').setValue(nuevo_folio);  
+                    habilita = true;
+                }else{
+                    Ext.Msg.alert('Atención','No existen folios disponibles');
+                    view.down('#numfacturaId').setValue('');  
+
+                    //return
+                }
+
+            }else{
+                    Ext.Msg.alert('Atención','No se ha cargado certificado');
+                    view.down('#numfacturaId').setValue('');  
+            }
+
+
+        }else{
+             Ext.Ajax.request({
+
+                url: preurl + 'correlativos/generafact?valida='+nombre,
+                params: {
+                    id: 1
+                },
+                success: function(response){
+                    var resp = Ext.JSON.decode(response.responseText);
+
+                    if (resp.success == true) {
+                        var cliente = resp.cliente;
+                        var correlanue = cliente.correlativo;
+                        correlanue = (parseInt(correlanue)+1);
+                        var correlanue = correlanue;
+                        view.down('#numfacturaId').setValue(correlanue);
+                        
+                    }else{
+                        Ext.Msg.alert('Correlativo YA Existe');
+                        return;
+                    }
+
+                }            
+            });
+        }
+        var grid  = view.down('#itemsgridId');        
+
+
+        //console.log(tipo_documento.getValue())
+        //console.log(habilita)
+
+
+
+        var bolDisabled = tipo_documento.getValue() == 1 || tipo_documento.getValue() == 19 || ((tipo_documento.getValue() == 101 || tipo_documento.getValue() == 103) && habilita) ? false : true; // campos se habilitan sólo en factura o factura electronica
+
+        if(bolDisabled == true){  // limpiar campos
+           view.down('#rutId').setValue('19');
+           this.validaboleta();
+           
+        }
+
+
+        view.down('#rutId').setDisabled(bolDisabled);
+        view.down('#buscarBtn').setDisabled(bolDisabled);
+        view.down('#nombre_id').setDisabled(bolDisabled);
+        view.down('#direccionId').setDisabled(bolDisabled);
+        view.down('#giroId').setDisabled(bolDisabled);
+        view.down('#tipoCiudadId').setDisabled(bolDisabled);
+        view.down('#tipoComunaId').setDisabled(bolDisabled);
+        view.down('#sucursalId').setDisabled(bolDisabled);
+        view.down('#tipoVendedorId').setDisabled(bolDisabled);
+        view.down('#tipocondpagoId').setDisabled(bolDisabled);
+        grid.getStore().removeAll();  
+        var controller = this.getController('Productos');
+        controller.recalcularFinal();
+
+    },
+
+    validaboleta: function(){
+
+        var view =this.getFacturasingresar();
+        var rut = view.down('#rutId').getValue();
+        
+        Ext.Ajax.request({
+            url: preurl + 'clientes/validaRut?valida='+rut,
+            params: {
+                id: 1
+            },
+            success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                var cero = "";
+                if (resp.success == true) {
+                    
+                    if(resp.cliente){
+                        var cliente = resp.cliente;
+                        view.down("#id_cliente").setValue(cliente.id)
+                        view.down("#nombre_id").setValue(cliente.nombres)
+                        view.down("#tipoCiudadId").setValue(cliente.nombre_ciudad)
+                        view.down("#tipoComunaId").setValue(cliente.nombre_comuna)
+                        view.down("#tipoVendedorId").setValue(cliente.id_vendedor)
+                        view.down("#giroId").setValue(cliente.giro)
+                        view.down("#direccionId").setValue(cliente.direccion)
+                        view.down("#tipocondpagoId").setValue(cliente.id_pago)
+                        view.down("#rutId").setValue(rut)                       
+                    }
+                    
+                }
+            }
+
+        });       
+       
+    },
+
+    validarut: function(){
+
+        var view =this.getFacturasingresar();
+        var rut = view.down('#rutId').getValue();
+        var numero = rut.length;
+
+        if(numero==0){
+            var edit = Ext.create('Infosys_web.view.clientes.BuscarClientes');            
+                  
+        }else{
+       
+        if(numero>9){            
+            Ext.Msg.alert('Rut Erroneo Ingrese Sin Puntos');
+            return;            
+        }else{
+            if(numero>13){
+            Ext.Msg.alert('Rut Erroneo Ingrese Sin Puntos');
+            return;   
+            }
+        }
+
+        Ext.Ajax.request({
+            url: preurl + 'clientes/validaRut?valida='+rut,
+            params: {
+                id: 1
+            },
+            success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                var cero = "";
+                if (resp.success == true) {
+                    
+                    if(resp.cliente){
+                        var cliente = resp.cliente;
+                        view.down("#id_cliente").setValue(cliente.id)
+                        view.down("#nombre_id").setValue(cliente.nombres)
+                        view.down("#tipoCiudadId").setValue(cliente.nombre_ciudad)
+                        view.down("#tipoComunaId").setValue(cliente.nombre_comuna)
+                        view.down("#tipoVendedorId").setValue(cliente.id_vendedor)
+                        view.down("#giroId").setValue(cliente.giro)
+                        view.down("#direccionId").setValue(cliente.direccion)    
+                        view.down("#rutId").setValue(rut)
+                        view.down("#btnproductoId").focus()  
+                                             
+                    }else{
+                         Ext.Msg.alert('Rut No Exite');
+                         view.down("#rutId").setValue(cero); 
+                        return;   
+                    }
+                    
+                }else{
+                      Ext.Msg.alert('Informacion', 'Rut Incorrecto');
+                      view.down("#rutId").setValue(cero);
+                      return;
+                      
+                }
+
+              
+            }
+
+        });       
+        }
+    },
+    
+    mfactura: function(){
+
+         Ext.create('Infosys_web.view.ventas.Facturas').show();
+
+     
+    },
+
+    mejemplo: function(){
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'facturasprincipal'});
+    },
+
+    buscarvendedor: function(){
+
+        Ext.create('Infosys_web.view.vendedores.BuscarVendedor').show();
+    },
+
+    buscarproductos: function(){
+
+        Ext.create('Infosys_web.view.productos.BuscarProductos').show();
+    },
+
+    seleccionarproductos: function(){
+
+        var view = this.getBuscarproductos();
+        var viewIngresa = this.getFacturasingresar();
+        var grid  = view.down('grid');
+        if (grid.getSelectionModel().hasSelection()) {
+            var row = grid.getSelectionModel().getSelection()[0];
+            viewIngresa.down('#productoId').setValue(row.data.id);
+            viewIngresa.down('#nombreproductoId').setValue(row.data.nombre);
+            viewIngresa.down('#codigoId').setValue(row.data.codigo);
+            viewIngresa.down('#precioId').setValue(row.data.p_venta);
+            viewIngresa.down('#cantidadOriginalId').setValue(row.data.stock);
+            view.close();
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }
+    },
+
+     buscarp: function(){
+        var view = this.getBuscarproductos();
+        var st = this.getProductosfStore()
+        var nombre = view.down('#nombreId').getValue()
+        st.proxy.extraParams = {nombre : nombre}
+        st.load();
+    },
+
+     buscarfact: function(){
+        
+        var view = this.getFacturasprincipal();
+        var st = this.getFacturaStore()
+        var opcion = view.down('#tipoSeleccionId').getValue()
+        var nombre = view.down('#nombreId').getValue()
+        st.proxy.extraParams = {nombre : nombre,
+                                opcion : opcion}
+        st.load();
+    },
+  
+});
+
+
+
+
+
+
+
+
+
+
