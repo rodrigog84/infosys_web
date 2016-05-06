@@ -1682,12 +1682,43 @@ public function cargacontribuyentes(){
 		$data = array();
 
 		if($nombre){
-		$query = $this->db->query('SELECT acc.*, p.nombre as nombre, p.codigo as codigo,
-		acc.precio as p_venta, acc.cantidad as stock FROM detalle_factura_cliente acc
-		    left join productos p on (acc.id_producto = p.id)
-			WHERE acc.id_factura = '.$nombre.'' 
 
-		);
+			$query = $this->db->query('SELECT * FROM factura_cliente WHERE num_factura like "'.$nombre.'" and tipo_documento = "'.$tipo.'"');
+
+		   if($query->num_rows()>0){
+
+		   	  $row = $query->first_row();
+	   		  $detalle = $row->forma;
+	   		  $idfactura = $row->id;
+
+	   		  if ($detalle==1 & $detalle==2){
+
+	   		  	$query = $this->db->query('SELECT * FROM detalle_factura_glosa 
+	   		  	WHERE num_factura like "'.$idfactura.'');
+
+	   		  	 if($query->num_rows()>0){
+
+				   	  $row = $query->first_row();
+			   		  $guia = $row->id_guia;
+				   	$query = $this->db->query('SELECT acc.*, p.nombre as nombre, p.codigo as codigo, acc.precio as p_venta, acc.cantidad as stock 
+		   		  	FROM factura_cliente acc    
+		   		  	left join productos p on (acc.id_producto = p.id)
+					WHERE acc.id_factura = '.$guia.''
+				    );	   		  	
+
+	   		  }else{
+
+	   		  	$query = $this->db->query('SELECT acc.*, p.nombre as nombre, p.codigo as 		codigo, acc.precio as p_venta, acc.cantidad as stock 
+	   		  	FROM factura_cliente acc    
+	   		  	left join productos p on (acc.id_producto = p.id)
+				WHERE acc.id_factura = '.$nombre.''
+			    );
+	   		  	
+
+
+	   		  }
+
+	   		 };
 
 		
 		  $total = 0;
@@ -1708,6 +1739,48 @@ public function cargacontribuyentes(){
 			
 			$data[] = $row;
 		}
+
+	    }else{
+
+	    	$sql_nombre = "";
+	        $arrayNombre =  explode(" ",$codigo);
+
+	        foreach ($arrayNombre as $codigo) {
+	        	$sql_nombre .= "acc.nombre like '%".$codigo."%' and ";
+	        }
+
+			$query = $this->db->query('SELECT acc.*, c.nombre as nom_ubi_prod, ca.nombre as nom_uni_medida, m.nombre as nom_marca, fa.nombre as nom_familia, bo.nombre as nom_bodega, ag.nombre as nom_agrupacion, sb.nombre as nom_subfamilia,
+			acc.id as id_producto FROM productos acc
+			left join mae_ubica c on (acc.id_ubi_prod = c.id)
+			left join marcas m on (acc.id_marca = m.id)
+			left join mae_medida ca on (acc.id_uni_medida = ca.id)
+			left join familias fa on (acc.id_familia = fa.id)
+			left join agrupacion ag on (acc.id_agrupacion = ag.id)
+			left join subfamilias sb on (acc.id_subfamilia = sb.id)
+			left join bodegas bo on (acc.id_bodega = bo.id)
+			WHERE ' . $sql_nombre . ' 1 = 1');
+
+		
+		  $total = 0;
+
+		  foreach ($query->result() as $row)
+			{
+				$total = $total +1;
+			
+			}
+
+			$countAll = $total;
+
+
+		$data = array();
+		
+		foreach ($query->result() as $row)
+		{
+			
+			$data[] = $row;
+		}
+
+	    	
 
 	    }
         $resp['success'] = true;
