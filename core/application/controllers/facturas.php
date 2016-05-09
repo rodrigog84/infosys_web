@@ -54,9 +54,16 @@ class Facturas extends CI_Controller {
 		$this->load->model('facturaelectronica');
 		$datos_contribuyentes = $this->facturaelectronica->log_libros($start,$limit);
 
+		$data = array();
+		foreach($datos_contribuyentes['data'] as $data_contribuyentes){
+			$data_contribuyentes->mes = month2string($data_contribuyentes->mes);
+			$data[] = $data_contribuyentes;
+
+		}
+
         $resp['success'] = true;
         $resp['total'] = $datos_contribuyentes['total'];
-        $resp['data'] = $datos_contribuyentes['data'];
+        $resp['data'] = $data;
 
         echo json_encode($resp);
 	}	

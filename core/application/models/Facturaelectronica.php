@@ -107,7 +107,7 @@ class Facturaelectronica extends CI_Model
 	 public function log_libros($start = null,$limit = null){
 
 	 	$countAll = $this->db->count_all_results('log_libros');
-		$data = $this->db->select('id, f_nombre_mes(mes) as mes, anno, tipo_libro, archivo, date_format(created_at,"%d/%m/%Y") as fecha_creacion',false)
+		$data = $this->db->select('id, mes, anno, tipo_libro, archivo, date_format(created_at,"%d/%m/%Y") as fecha_creacion',false)
 		  ->from('log_libros')
 		  ->order_by('anno','desc')
 		  ->order_by('mes','desc');
