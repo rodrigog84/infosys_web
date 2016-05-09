@@ -46,6 +46,21 @@ class Facturas extends CI_Controller {
         echo json_encode($resp);
 	}
 
+
+	public function librosgetAll(){
+		$start = $this->input->get('start');
+        $limit = $this->input->get('limit');
+
+		$this->load->model('facturaelectronica');
+		$datos_contribuyentes = $this->facturaelectronica->log_libros($start,$limit);
+
+        $resp['success'] = true;
+        $resp['total'] = $datos_contribuyentes['total'];
+        $resp['data'] = $datos_contribuyentes['data'];
+
+        echo json_encode($resp);
+	}	
+
 	public function get_proveedores_mail(){
 		$this->db->select('p.id, p.nombres as proveedor')
 		  ->from('proveedores p')
@@ -520,6 +535,17 @@ exit;*/
 		readfile($path_archivo.$dte->archivo_dte);			
 	 }
 
+
+	public function ver_libro($idlibro){
+		$this->load->model('facturaelectronica');
+		$libro = $this->facturaelectronica->get_libro_by_id($idlibro);
+		$path_archivo = "./facturacion_electronica/libros/";
+		$data_archivo = basename($path_archivo.$libro->archivo);
+		header('Content-Type: text/plain');
+		header('Content-Disposition: attachment; filename=' . $data_archivo);
+		header('Content-Length: ' . filesize($path_archivo.$libro->archivo));
+		readfile($path_archivo.$libro->archivo);			
+	 }
 
 
 	public function ver_dte_proveedor($tipodte,$iddte){
@@ -1669,6 +1695,7 @@ public function cargacontribuyentes(){
         echo json_encode($resp);
 	}
 
+
 	public function getAllnotap(){
 		
 		$resp = array();
@@ -1720,7 +1747,7 @@ public function cargacontribuyentes(){
 
 	   		 };
 
-		
+		  }		
 		  $total = 0;
 
 		  foreach ($query->result() as $row)

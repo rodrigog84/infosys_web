@@ -13,14 +13,16 @@ Ext.define('Infosys_web.controller.Facturacion', {
              'Tipo_documento.Selector',
              'facturas.Selector',
              'Cargadteproveedores',
-             'Contribuyentesautorizados'],
+             'Contribuyentesautorizados',
+             'Loglibros'],
 
     models: ['Facturas.Item',
              'Factura',
              'Tipo_documento',
              'Sucursales_clientes',
              'Cargadteproveedores',
-             'Contribuyentesautorizados'],
+             'Contribuyentesautorizados',
+             'Loglibros'],
 
     views: ['ventas.Ventas', 'ventas.Ejemplo','ventas.Facturas',
              'clientes.BuscarClientes','productos.BuscarProductos',
@@ -39,7 +41,8 @@ Ext.define('Infosys_web.controller.Facturacion', {
              'facturaelectronica.CargaDteProveedor',
              'facturaelectronica.LibroCompraVenta',
              'facturaelectronica.ContribuyentesAutorizados',
-             'facturaelectronica.CargaListaContribuyentes'],
+             'facturaelectronica.CargaListaContribuyentes',
+             'facturaelectronica.HistLibroCompraVenta'],
 
     //referencias, es un alias interno para el controller
     //podemos dejar el alias de la vista en el ref y en el selector
@@ -95,6 +98,9 @@ Ext.define('Infosys_web.controller.Facturacion', {
     },{
         ref: 'cargalistacontribuyentes',
         selector: 'cargalistacontribuyentes'
+    },{
+        ref: 'histlibrocompraventa',
+        selector: 'histlibrocompraventa'
     }
     
     ],
@@ -144,6 +150,11 @@ Ext.define('Infosys_web.controller.Facturacion', {
             'topmenus menuitem[action=mcargacontribuyentes]': {
                 click: this.mcargacontribuyentes
             },                                                 
+
+            'topmenus menuitem[action=mhistlibrocompraventa]': {
+                click: this.mhistlibrocompraventa
+            },                                                 
+
             'facturasingresar button[action=buscarclientes]': {
                 click: this.buscarclientes
             },
@@ -202,6 +213,11 @@ Ext.define('Infosys_web.controller.Facturacion', {
             }, 
 
             'notacreditoprincipal': {
+                verEstadoDte: this.verEstadoDte
+            }, 
+
+
+            'histlibrocompraventa': {
                 verEstadoDte: this.verEstadoDte
             }, 
 
@@ -348,19 +364,14 @@ cargar_listado_contribuyentes: function(){
 
             Ext.create('Infosys_web.view.facturaelectronica.verEstadoDte', {idfactura: r.data.id});              
         }else if(t == 2){
-            /*response = Ext.Ajax.request({
-            async: false,
-            url: preurl + 'facturas/show_dte/'+r.data.id}); 
-            var obj = Ext.decode(response.responseText);*/
-            //window.open(gbl_site + 'core/facturacion_electronica/dte/' + obj.path_dte + obj.archivo_dte,'_blank');           
             url = preurl + 'facturas/ver_dte/'+r.data.id,
             window.open(url,'_blank');           
-
-
         }else if(t == 3){
             Ext.create('Infosys_web.view.facturaelectronica.verEstadoEnvio', {idfactura: r.data.id});                          
-        }
-        
+        }else if(t == 4){
+            url = preurl + 'facturas/ver_libro/'+r.data.id,
+            window.open(url,'_blank');           
+        }        
     },
 
 
@@ -399,6 +410,12 @@ cargar_listado_contribuyentes: function(){
         var viewport = this.getPanelprincipal();
         viewport.removeAll();
         viewport.add({xtype: 'contribuyentesautorizados'});
+    },
+
+    mhistlibrocompraventa: function(){
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'histlibrocompraventa'});
     },
 
 

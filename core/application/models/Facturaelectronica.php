@@ -88,8 +88,6 @@ class Facturaelectronica extends CI_Model
 		return 1;
 	 }		 
 
-
-
 	 public function contribuyentes_autorizados($start = null,$limit = null){
 
 	 	$tabla_contribuyentes = $this->busca_parametro_fe('tabla_contribuyentes');
@@ -99,6 +97,20 @@ class Facturaelectronica extends CI_Model
 		$data = $this->db->select('rut, dv, concat(rut,"-",dv) as rut_contribuyente, razon_social, nro_resolucion, date_format(fec_resolucion,"%d/%m/%Y") as fec_resolucion, mail, url',false)
 		  ->from($tabla_contribuyentes)
 		  ->order_by('razon_social');
+
+		$data = is_null($start) || is_null($limit) ? $data : $data->limit($limit,$start);
+		$query = $this->db->get();
+		return array('total' => $countAll, 'data' => $query->result());
+
+	 }
+
+	 public function log_libros($start = null,$limit = null){
+
+	 	$countAll = $this->db->count_all_results('log_libros');
+		$data = $this->db->select('id, f_nombre_mes(mes) as mes, anno, tipo_libro, archivo, date_format(created_at,"%d/%m/%Y") as fecha_creacion',false)
+		  ->from('log_libros')
+		  ->order_by('anno','desc')
+		  ->order_by('mes','desc');
 
 		$data = is_null($start) || is_null($limit) ? $data : $data->limit($limit,$start);
 		$query = $this->db->get();
@@ -220,6 +232,15 @@ class Facturaelectronica extends CI_Model
 		return $query->row();
 	}	
 
+
+
+	public function get_libro_by_id($idlibro){
+		$this->db->select('id, mes, anno, tipo_libro, archivo, created_at ')
+		  ->from('log_libros')
+		  ->where('id',$idlibro);
+		$query = $this->db->get();
+		return $query->row();
+	}	
 
 	public function datos_dte_by_trackid($trackid){
 		$this->db->select('f.id, f.folio, f.path_dte, f.archivo_dte, f.dte, f.pdf, f.pdf_cedible, f.trackid, c.tipo_caf, tc.nombre as tipo_doc ')
