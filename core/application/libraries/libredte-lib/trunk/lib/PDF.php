@@ -5,7 +5,7 @@
  * Copyright (C) SASCO SpA (https://sasco.cl)
  *
  * Este programa es software libre: usted puede redistribuirlo y/o
- * modificarlo bajo los términos de la Licencia Pública General GNU
+ * modificarlo bajo los términos de la Licencia Pública General Affero de GNU
  * publicada por la Fundación para el Software Libre, ya sea la versión
  * 3 de la Licencia, o (a su elección) cualquier versión posterior de la
  * misma.
@@ -13,12 +13,12 @@
  * Este programa se distribuye con la esperanza de que sea útil, pero
  * SIN GARANTÍA ALGUNA; ni siquiera la garantía implícita
  * MERCANTIL o de APTITUD PARA UN PROPÓSITO DETERMINADO.
- * Consulte los detalles de la Licencia Pública General GNU para obtener
- * una información más detallada.
+ * Consulte los detalles de la Licencia Pública General Affero de GNU para
+ * obtener una información más detallada.
  *
- * Debería haber recibido una copia de la Licencia Pública General GNU
+ * Debería haber recibido una copia de la Licencia Pública General Affero de GNU
  * junto a este programa.
- * En caso contrario, consulte <http://www.gnu.org/licenses/gpl.html>.
+ * En caso contrario, consulte <http://www.gnu.org/licenses/agpl.html>.
  */
 
 namespace sasco\LibreDTE;
@@ -49,16 +49,16 @@ class PDF extends \TCPDF
      * @param s Tipo de hoja
      * @param top Margen extra (al normal) para la parte de arriba del PDF
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-12-16
+     * @version 2016-03-20
      */
-    public function __construct($o = 'P', $u = 'mm', $s = 'Letter', $top = 0)
+    public function __construct($o = 'P', $u = 'mm', $s = 'LETTER', $top = 0)
     {
         parent::__construct($o, $u, $s);
         $this->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP+$top, PDF_MARGIN_RIGHT);
         $this->SetHeaderMargin(PDF_MARGIN_HEADER+$top);
         $this->SetFooterMargin(PDF_MARGIN_FOOTER+6);
-        $this->SetCreator('LibreDTE (http://libredte.cl)');
-        $this->SetAuthor('LibreDTE (http://libredte.cl)');
+        $this->SetAuthor('Un proyecto de SASCO SpA - https://sasco.cl');
+        $this->SetCreator('LibreDTE - https://libredte.cl');
         $this->setFont('helvetica');
     }
 
@@ -74,18 +74,27 @@ class PDF extends \TCPDF
     /**
      * Método que genera el footer del PDF
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-09-16
+     * @version 2015-03-20
      */
     public function Footer()
     {
         if (is_array($this->footer) and (!empty($this->footer['left']) or !empty($this->footer['right']))) {
             $style = ['width' => 0.5, 'cap' => 'butt', 'join' => 'miter', 'dash' => 0, 'color' => [50, 50, 50]];
-            $this->Line($this->getX(), $this->getY()-1, 201, $this->getY()-2, $style);
+            $this->Line(0, $this->getY()-1, 290, $this->getY()-2, $style);
             $this->SetFont('', 'B', 6);
-            if (!empty($this->footer['left']))
-                $this->Texto($this->footer['left']);
-            if (!empty($this->footer['right']))
-                $this->Texto($this->footer['right'], null, null, 'R');
+            if (empty($this->papelContinuo)) {
+                if (!empty($this->footer['left']))
+                    $this->Texto($this->footer['left']);
+                if (!empty($this->footer['right']))
+                    $this->Texto($this->footer['right'], null, null, 'R');
+            } else {
+                if (!empty($this->footer['left']))
+                    $this->Texto($this->footer['left'], null, null, 'C');
+                if (!empty($this->footer['right'])) {
+                    $this->Ln();
+                    $this->Texto($this->footer['right'], null, null, 'C');
+                }
+            }
         }
     }
 
@@ -93,7 +102,7 @@ class PDF extends \TCPDF
      * Método que asigna el texto que se deberá usar en el footer
      * @param footer =true se asignará texto por defecto. String al lado izquiero o bien arreglo con índices left y right con sus textos
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]delaf.cl)
-     * @version 2015-09-29
+     * @version 2016-03-20
      */
     public function setFooterText($footer = true)
     {
@@ -101,10 +110,8 @@ class PDF extends \TCPDF
             // asignar valor por defecto
             if ($footer===true) {
                 $footer = [
-                    //'left' => 'LibreDTE ¡facturación electrónica libre para Chile!',
-                    //'right' => !$this->papelContinuo ? 'http://libredte.cl' : '',
                     'left' => 'Infosys SPA',
-                    'right' => !$this->papelContinuo ? 'http://www.info-sys.cl' : '',                    
+                    'right' => !$this->papelContinuo ? 'http://www.info-sys.cl' : '',   
                 ];
             }
             // si no es arreglo se convierte en uno
@@ -196,6 +203,11 @@ class PDF extends \TCPDF
         // Definir datos de la tabla
         if ($thead)
             $buffer .= '<tbody>';
+
+
+        $num_filas = count($data);
+
+
         foreach ($data as &$row) {
             $buffer .= '<tr>';
             $i = 0;
@@ -207,6 +219,19 @@ class PDF extends \TCPDF
             }
             $buffer .= '</tr>';
         }
+
+        //RELLENAR CON FILAS EN BLANCO (PERSONALIZADO A INFOSYS)
+        while($num_filas < 30){
+            $buffer .= '<tr>';
+            foreach ($headers as &$col) {
+                $width = ($w and isset($w[$i])) ? (';width:'.$w[$i].'mm') : '';
+                $align = isset($a[$i]) ? $a[$i] : 'center';
+                $buffer .= '<td style="border-right:1px solid #333;text-align:'.$align.$width.'">&nbsp;</td>';
+            }
+            $buffer .= '</tr>';
+            $num_filas++;
+        }
+
         if ($thead)
             $buffer .= '</tbody>';
         // Finalizar tabla

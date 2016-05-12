@@ -268,24 +268,39 @@ class Facturaelectronica extends CI_Model
 
 	 public function exportFePDF($idfactura,$tipo_consulta,$cedible = null){
 
-	 	$this->load->model('facturaelectronica');
-	 	include $this->facturaelectronica->ruta_libredte();
+	 	include $this->ruta_libredte();
 	 	if($tipo_consulta == 'id'){
-	 		$factura = $this->facturaelectronica->datos_dte($idfactura);
+	 		$factura = $this->datos_dte($idfactura);
 	 	}else if($tipo_consulta == 'trackid'){
-	 		$factura = $this->facturaelectronica->datos_dte_by_trackid($idfactura);
+	 		$factura = $this->datos_dte_by_trackid($idfactura);
 	 	}
 	 	$nombre_pdf = is_null($cedible) ? $factura->pdf : $factura->pdf_cedible;
 
-	 	if($nombre_pdf == ''){
+	 	//file_exists 
+	 	$crea_archivo = true;
+	 	if($nombre_pdf != ''){
+			$base_path = __DIR__;
+			$base_path = str_replace("\\", "/", $base_path);
+			$file = $base_path . "/../../facturacion_electronica/pdf/".$factura->path_dte.$nombre_pdf;		 		
+	 		if(file_exists($file)){
+	 			$crea_archivo = false;
+	 		}
+	 	}
+
+	 	if($crea_archivo){
 			// sin límite de tiempo para generar documentos
 			set_time_limit(0);
 		 	// archivo XML de EnvioDTE que se generará
 		 	$archivo = "./facturacion_electronica/dte/".$factura->path_dte.$factura->archivo_dte;
+		 	if(file_exists($archivo)){
+		 		$content_xml = file_get_contents($archivo);
+		 	}else{
+		 		$content_xml = $factura->dte;
+		 	}
 
 		 	// Cargar EnvioDTE y extraer arreglo con datos de carátula y DTEs
 		 	$EnvioDte = new \sasco\LibreDTE\Sii\EnvioDte();
-		 	$EnvioDte->loadXML(file_get_contents($archivo));
+		 	$EnvioDte->loadXML($content_xml);
 			$Caratula = $EnvioDte->getCaratula();
 			$Documentos = $EnvioDte->getDocumentos();	 	
 
@@ -323,10 +338,10 @@ class Facturaelectronica extends CI_Model
 
 		}else{
 
-			$base_path = __DIR__;
+			/*$base_path = __DIR__;
 			$base_path = str_replace("\\", "/", $base_path);
 			
-			$file = $base_path . "/../../facturacion_electronica/pdf/".$factura->path_dte.$nombre_pdf;				
+			$file = $base_path . "/../../facturacion_electronica/pdf/".$factura->path_dte.$nombre_pdf;				*/
 			//echo $file; exit;
 			//$file = '.facturacion_electronica/pdf/'.$factura->path_dte.$factura->pdf;
 			$filename = $nombre_pdf; /* Note: Always use .pdf at the end. */
@@ -375,7 +390,7 @@ class Facturaelectronica extends CI_Model
 		$this->db->insert('log_cargas_bases_contribuyentes',$array_insert); 
 
 
-		$this->facturaelectronica->set_parametro_fe('tabla_contribuyentes',$tabla_inserta);
+		$this->set_parametro_fe('tabla_contribuyentes',$tabla_inserta);
 
 		$this->db->query('truncate '. $tabla_contribuyentes);
 

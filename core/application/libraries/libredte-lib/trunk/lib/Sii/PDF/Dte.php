@@ -5,7 +5,7 @@
  * Copyright (C) SASCO SpA (https://sasco.cl)
  *
  * Este programa es software libre: usted puede redistribuirlo y/o
- * modificarlo bajo los términos de la Licencia Pública General GNU
+ * modificarlo bajo los términos de la Licencia Pública General Affero de GNU
  * publicada por la Fundación para el Software Libre, ya sea la versión
  * 3 de la Licencia, o (a su elección) cualquier versión posterior de la
  * misma.
@@ -13,12 +13,12 @@
  * Este programa se distribuye con la esperanza de que sea útil, pero
  * SIN GARANTÍA ALGUNA; ni siquiera la garantía implícita
  * MERCANTIL o de APTITUD PARA UN PROPÓSITO DETERMINADO.
- * Consulte los detalles de la Licencia Pública General GNU para obtener
- * una información más detallada.
+ * Consulte los detalles de la Licencia Pública General Affero de GNU para
+ * obtener una información más detallada.
  *
- * Debería haber recibido una copia de la Licencia Pública General GNU
+ * Debería haber recibido una copia de la Licencia Pública General Affero de GNU
  * junto a este programa.
- * En caso contrario, consulte <http://www.gnu.org/licenses/gpl.html>.
+ * En caso contrario, consulte <http://www.gnu.org/licenses/agpl.html>.
  */
 
 namespace sasco\LibreDTE\Sii\PDF;
@@ -27,7 +27,7 @@ namespace sasco\LibreDTE\Sii\PDF;
  * Clase para generar el PDF de un documento tributario electrónico (DTE)
  * chileno.
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
- * @version 2015-12-16
+ * @version 2016-03-10
  */
 class Dte extends \sasco\LibreDTE\PDF
 {
@@ -36,8 +36,9 @@ class Dte extends \sasco\LibreDTE\PDF
     private $resolucion; ///< Arreglo con los datos de la resolución (índices: NroResol y FchResol)
     private $cedible = false; ///< Por defecto DTEs no son cedibles
     protected $papelContinuo = false; ///< Indica si se usa papel continuo o no
-    private $sinAcuseRecibo = [39, 41, 56, 61, 111, 112]; ///< Notas de crédito y notas de débito no tienen acuse de recibo
+    private $sinAcuseRecibo = [39, 41, 56, 61, 111, 112]; ///< Boletas, notas de crédito y notas de débito no tienen acuse de recibo
     private $web_verificacion = 'www.sii.cl'; ///< Página web para verificar el documento
+    private $ecl = 8; ///< error correction level para PHP >= 7.0.0
 
     private $tipos = [
         33 => 'FACTURA ELECTRÓNICA',
@@ -61,14 +62,14 @@ class Dte extends \sasco\LibreDTE\PDF
     ]; ///< Glosas de las formas de pago
 
     private $detalle_cols = [
+        'QtyItem' => ['title'=>'Cant.', 'align'=>'right', 'width'=>15],    
         'CdgItem' => ['title'=>'Código', 'align'=>'left', 'width'=>20],
-        'NmbItem' => ['title'=>'Item', 'align'=>'left', 'width'=>0],
-        'QtyItem' => ['title'=>'Cant.', 'align'=>'right', 'width'=>15],
+        'NmbItem' => ['title'=>'Descripcion', 'align'=>'left', 'width'=>0],
         'UnmdItem' => ['title'=>'Unidad', 'align'=>'left', 'width'=>22],
-        'PrcItem' => ['title'=>'P. unitario', 'align'=>'right', 'width'=>22],
+        'PrcItem' => ['title'=>'P. unit.', 'align'=>'right', 'width'=>22],
         'DescuentoMonto' => ['title'=>'Descuento', 'align'=>'right', 'width'=>22],
         'RecargoMonto' => ['title'=>'Recargo', 'align'=>'right', 'width'=>22],
-        'MontoItem' => ['title'=>'Total item', 'align'=>'right', 'width'=>22],
+        'MontoItem' => ['title'=>'Total', 'align'=>'right', 'width'=>22],
     ]; ///< Nombres de columnas detalle, alineación y ancho
 
     private $traslados = [
@@ -87,13 +88,13 @@ class Dte extends \sasco\LibreDTE\PDF
      * Constructor de la clase
      * @param papelContinuo =true indica que el PDF se generará en formato papel continuo (si se pasa un número será el ancho del PDF en mm)
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2015-12-12
+     * @version 2016-03-10
      */
     public function __construct($papelContinuo = false)
     {
         parent::__construct();
         $this->SetTitle('Documento Tributario Electrónico (DTE) de Chile');
-        $this->papelContinuo = $papelContinuo === true ? 74 : $papelContinuo;
+        $this->papelContinuo = $papelContinuo === true ? 80 : $papelContinuo;
     }
 
     /**
@@ -164,25 +165,25 @@ class Dte extends \sasco\LibreDTE\PDF
      * @param dte Arreglo con los datos del XML (tag Documento)
      * @param timbre String XML con el tag TED del DTE
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2015-12-15
+     * @version 2016-02-16
      */
     private function agregarNormal(array $dte, $timbre)
     {
         // agregar página para la factura
         $this->AddPage();
         // agregar cabecera del documento
-        $this->agregarEmisor($dte['Encabezado']['Emisor']);
-        $this->agregarFolio(
+        $y[] = $this->agregarEmisor($dte['Encabezado']['Emisor']);
+        $y[] = $this->agregarFolio(
             $dte['Encabezado']['Emisor']['RUTEmisor'],
             $dte['Encabezado']['IdDoc']['TipoDTE'],
             $dte['Encabezado']['IdDoc']['Folio'],
             $dte['Encabezado']['Emisor']['CmnaOrigen']
         );
         // datos del documento
-        $this->setY(50);
+        $this->setY(max($y));
+        $this->Ln();
         $this->agregarFechaEmision($dte['Encabezado']['IdDoc']['FchEmis']);
-        if (!empty($dte['Encabezado']['IdDoc']['FmaPago']))
-            $this->agregarCondicionVenta($dte['Encabezado']['IdDoc']['FmaPago']);
+        $this->agregarCondicionVenta($dte['Encabezado']['IdDoc']);
         $this->agregarReceptor($dte['Encabezado']['Receptor']);
         $this->agregarTraslado(
             !empty($dte['Encabezado']['IdDoc']['IndTraslado']) ? $dte['Encabezado']['IdDoc']['IndTraslado'] : null,
@@ -212,48 +213,59 @@ class Dte extends \sasco\LibreDTE\PDF
      * @param timbre String XML con el tag TED del DTE
      * @param width Ancho del papel contínuo en mm
      * @author Pablo Reyes (https://github.com/pabloxp)
-     * @version 2015-12-15
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
+     * @version 2016-03-10
      */
     private function agregarContinuo(array $dte, $timbre, $width)
     {
-        // agregar página para la factura
-        $height=count($dte['Detalle'])*40+135;
-        $this->AddPage('P',array($height,$width));
+        $this->logo = null;
+        // determinar alto de la página y agregarla
+        $height = 145;
+        $n_detalle = count($dte['Detalle']);
+        if ($n_detalle>1) $height += $n_detalle*20;
+        if ($this->cedible) $height += 50;
+        $this->AddPage('P',array($height, $width));
         // agregar cabecera del documento
-        $this->agregarEmisorContinuo($dte['Encabezado']['Emisor']);
-        $this->agregarFolioContinuo(
+        $y = $this->agregarFolio(
             $dte['Encabezado']['Emisor']['RUTEmisor'],
             $dte['Encabezado']['IdDoc']['TipoDTE'],
             $dte['Encabezado']['IdDoc']['Folio'],
-            $dte['Encabezado']['Emisor']['CmnaOrigen']
+            $dte['Encabezado']['Emisor']['CmnaOrigen'],
+            3, 3, 68, 10
         );
+        $y = $this->agregarEmisor($dte['Encabezado']['Emisor'], 2, $y+2, 75, 8, 9);
         // datos del documento
-        $this->setY(50);
-        $this->agregarReceptorContinuo($dte['Encabezado']['Receptor']);
-        $this->agregarFechaEmisionContinuo($dte['Encabezado']['IdDoc']['FchEmis']);
-        if (!empty($dte['Encabezado']['IdDoc']['FmaPago']))
-            $this->agregarCondicionVenta($dte['Encabezado']['IdDoc']['FmaPago']);
-        if ($dte['Encabezado']['IdDoc']['TipoDTE']==52)
-            $this->agregarTraslado(
-                $dte['Encabezado']['IdDoc']['IndTraslado'],
-                !empty($dte['Encabezado']['Transporte']) ? $dte['Encabezado']['Transporte'] : null
-            );
-        if (!empty($dte['Referencia']))
-            $this->agregarReferenciaContinuo($dte['Referencia']);
-
+        $this->SetY($y);
+        $this->Ln();
+        $this->setFont('', '', 8);
+        $this->agregarFechaEmision($dte['Encabezado']['IdDoc']['FchEmis'], 2, 14, false);
+        $this->agregarCondicionVenta($dte['Encabezado']['IdDoc'], 2, 14, false);
+        $this->agregarReceptor($dte['Encabezado']['Receptor'], 2, 14);
+        $this->agregarTraslado(
+            !empty($dte['Encabezado']['IdDoc']['IndTraslado']) ? $dte['Encabezado']['IdDoc']['IndTraslado'] : null,
+            !empty($dte['Encabezado']['Transporte']) ? $dte['Encabezado']['Transporte'] : null,
+            2, 14
+        );
+        if (!empty($dte['Referencia'])) {
+            $this->agregarReferencia($dte['Referencia'], 2, 14);
+        }
+        $this->Ln();
         $this->agregarDetalleContinuo($dte['Detalle']);
-        if (!empty($dte['DscRcgGlobal']))
-            $this->agregarDescuentosRecargos($dte['DscRcgGlobal']);
-        $this->agregarTotalesContinuo($dte['Encabezado']['Totales'],$this->y+6);
+        if (!empty($dte['DscRcgGlobal'])) {
+            $this->Ln();
+            $this->Ln();
+            $this->agregarDescuentosRecargos($dte['DscRcgGlobal'], 2);
+        }
+        $this->agregarTotales($dte['Encabezado']['Totales'], $this->y+6, 23, 17);
         // agregar acuse de recibo y leyenda cedible
         if ($this->cedible) {
             if (!in_array($dte['Encabezado']['IdDoc']['TipoDTE'], $this->sinAcuseRecibo)) {
                 $this->agregarAcuseReciboContinuo(3, $this->y+6, 68, 34);
             }
-            $this->agregarLeyendaDestino($dte['Encabezado']['IdDoc']['TipoDTE']);
+            $this->agregarLeyendaDestino($dte['Encabezado']['IdDoc']['TipoDTE'], $this->y+6, 8);
         }
         // agregar timbre
-        $this->agregarTimbreContinuo($timbre,3,$this->y+6,68);
+        $this->agregarTimbre($timbre, 13, 3, $this->y+6, 70, 6);
     }
 
     /**
@@ -269,9 +281,9 @@ class Dte extends \sasco\LibreDTE\PDF
      * @param w Ancho de la información del emisor
      * @param w_img Ancho máximo de la imagen
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2015-12-16
+     * @version 2016-03-10
      */
-    private function agregarEmisor(array $emisor, $x = 10, $y = 15, $w = 75, $w_img = 30)
+    private function agregarEmisor(array $emisor, $x = 10, $y = 15, $w = 75, $w_img = 30, $font_size = null)
     {
         // logo máximo 1/5 del tamaño del documento
         if (isset($this->logo)) {
@@ -282,10 +294,10 @@ class Dte extends \sasco\LibreDTE\PDF
             $w += 40;
         }
         // agregar datos del emisor
-        $this->setFont('', 'B', 20);
+        $this->setFont('', 'B', $font_size ? $font_size : 14);
         $this->SetTextColorArray([32, 92, 144]);
         $this->MultiTexto(isset($emisor['RznSoc']) ? $emisor['RznSoc'] : $emisor['RznSocEmisor'], $x, $this->y+2, 'L', $w);
-        $this->setFont('', 'B', 9);
+        $this->setFont('', 'B', $font_size ? $font_size : 9);
         $this->SetTextColorArray([0,0,0]);
         $this->MultiTexto(isset($emisor['GiroEmis']) ? $emisor['GiroEmis'] : $emisor['GiroEmisor'], $x, $this->y, 'L', $w);
         $this->MultiTexto($emisor['DirOrigen'].', '.$emisor['CmnaOrigen'], $x, $this->y, 'L', $w);
@@ -296,56 +308,13 @@ class Dte extends \sasco\LibreDTE\PDF
             foreach ($emisor['Telefono'] as $t)
                 $contacto[] = $t;
         }
-        if (!empty($emisor['CorreoEmisor']))
+        if (!empty($emisor['CorreoEmisor'])) {
             $contacto[] = $emisor['CorreoEmisor'];
-        if ($contacto)
-            $this->MultiTexto(implode(' / ', $contacto), $x, $this->y, 'L', $w);
-    }
-
-    /**
-     * Método que agrega los datos de la empresa
-     * Orden de los datos:
-     *  - Razón social del emisor
-     *  - Giro del emisor (sin abreviar)
-     *  - Dirección casa central del emisor
-     *  - Dirección sucursales
-     * @param emisor Arreglo con los datos del emisor (tag Emisor del XML)
-     * @param x Posición horizontal de inicio en el PDF
-     * @param y Posición vertical de inicio en el PDF
-     * @param w Ancho de la información del emisor
-     * @param w_img Ancho máximo de la imagen
-     * @author Pablo Reyes (https://github.com/pabloxp)
-     * @version 2015-11-17
-     */
-    private function agregarEmisorContinuo(array $emisor, $x = 3, $y = 35, $w = 75, $w_img = 8)
-    {
-        // logo máximo 1/5 del tamaño del documento
-        if (isset($this->logo)) {
-            $this->Image($this->logo, $x, $y, $w_img, 0, 'PNG', (isset($emisor['url'])?$emisor['url']:''), 'T');
-            $x = $this->x+3;
-        } else {
-            $this->y = $y-2;
-            $w += 40;
         }
-        // agregar datos del emisor
-        $this->setFont('', 'B', 7);
-        $this->SetTextColorArray([32, 92, 144]);
-        $this->MultiTexto(isset($emisor['RznSoc']) ? $emisor['RznSoc'] : $emisor['RznSocEmisor'], $x, $this->y+2, 'L', $w);
-        $this->setFont('', 'B', 5);
-        $this->SetTextColorArray([0,0,0]);
-        $this->MultiTexto("Giro: ".(isset($emisor['GiroEmis']) ? $emisor['GiroEmis'] : $emisor['GiroEmisor']), $x, $this->y, 'L', $w);
-        $this->MultiTexto("Casa Matriz: ".$emisor['DirOrigen'].', '.$emisor['CmnaOrigen'], $x, $this->y, 'L', $w);
-        $contacto = [];
-        if (!empty($emisor['Telefono'])) {
-            if (!isset($emisor['Telefono'][0]))
-                $emisor['Telefono'] = [$emisor['Telefono']];
-            foreach ($emisor['Telefono'] as $t)
-                $contacto[] = $t;
-        }
-        if (!empty($emisor['CorreoEmisor']))
-            $contacto[] = $emisor['CorreoEmisor'];
-        if ($contacto)
+        if ($contacto) {
             $this->MultiTexto(implode(' / ', $contacto), $x, $this->y, 'L', $w);
+        }
+        return $this->y;
     }
 
     /**
@@ -367,67 +336,28 @@ class Dte extends \sasco\LibreDTE\PDF
      * @param y Posición vertical de inicio en el PDF
      * @param w Ancho de la información del emisor
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2015-12-16
+     * @version 2016-02-16
      */
-    private function agregarFolio($rut, $tipo, $folio, $sucursal_sii = null, $x = 130, $y = 15, $w = 70)
+    private function agregarFolio($rut, $tipo, $folio, $sucursal_sii = null, $x = 130, $y = 15, $w = 70, $font_size = null)
     {
         $color = $tipo==52 ? [0,172,140] : [255,0,0];
         $this->SetTextColorArray($color);
         // colocar rut emisor, glosa documento y folio
         list($rut, $dv) = explode('-', $rut);
-        $this->setFont ('', 'B', 15);
+        $this->setFont ('', 'B', $font_size ? $font_size : 15);
         $this->MultiTexto('R.U.T.: '.$this->num($rut).'-'.$dv, $x, $y+4, 'C', $w);
-        $this->setFont('', 'B', 12);
+        $this->setFont('', 'B', $font_size ? $font_size : 12);
         $this->MultiTexto($this->getTipo($tipo), $x, null, 'C', $w);
-        $this->setFont('', 'B', 15);
+        $this->setFont('', 'B', $font_size ? $font_size : 15);
         $this->MultiTexto('N° '.$folio, $x, null, 'C', $w);
         // dibujar rectángulo rojo
         $this->Rect($x, $y, $w, round($this->getY()-$y+3), 'D', ['all' => ['width' => 0.5, 'color' => $color]]);
         // colocar unidad del SII
-        $this->setFont('', 'B', 10);
+        $this->setFont('', 'B', $font_size ? $font_size : 10);
         $this->Texto('S.I.I. - '.$this->getSucursalSII($sucursal_sii), $x, $this->getY()+4, 'C', $w);
         $this->SetTextColorArray([0,0,0]);
-    }
-
-    /**
-     * Método que agrega el recuadro con el folio
-     * Recuadro:
-     *  - Tamaño mínimo 1.5x5.5 cms
-     *  - En lado derecho (negro o rojo)
-     *  - Enmarcado por una línea de entre 0.5 y 1 mm de espesor
-     *  - Tamaño máximo 4x8 cms
-     *  - Letras tamaño 10 o superior en mayúsculas y negritas
-     *  - Datos del recuadro: RUT emisor, nombre de documento en 2 líneas,
-     *    folio.
-     *  - Bajo el recuadro indicar la Dirección regional o Unidad del SII a la
-     *    que pertenece el emisor
-     * @param rut RUT del emisor
-     * @param tipo Código o glosa del tipo de documento
-     * @param sucursal_sii Código o glosa de la sucursal del SII del Emisor
-     * @param x Posición horizontal de inicio en el PDF
-     * @param y Posición vertical de inicio en el PDF
-     * @param w Ancho de la información del emisor
-     * @author Pablo Reyes (https://github.com/pabloxp)
-     * @version 2015-11-17
-     */
-    private function agregarFolioContinuo($rut, $tipo, $folio, $sucursal_sii = null, $x = 3, $y = 3, $w = 68)
-    {
-        $color = $tipo==52 ? [0,172,140] : [255,0,0];
-        $this->SetTextColorArray($color);
-        // colocar rut emisor, glosa documento y folio
-        list($rut, $dv) = explode('-', $rut);
-        $this->setFont ('', 'B', 10);
-        $this->MultiTexto('R.U.T.: '.$this->num($rut).'-'.$dv, $x, $y+4, 'C', $w);
-        $this->setFont('', 'B', 10);
-        $this->MultiTexto($this->getTipo($tipo), $x, null, 'C', $w);
-        $this->setFont('', 'B', 10);
-        $this->MultiTexto('N° '.$folio, $x, null, 'C', $w);
-        // dibujar rectángulo rojo
-        $this->Rect($x, $y, $w, round($this->getY()-$y+3), 'D', ['all' => ['width' => 0.5, 'color' => $color]]);
-        // colocar unidad del SII
-        $this->setFont('', 'B', 10);
-        $this->Texto('S.I.I. - '.$this->getSucursalSII($sucursal_sii), $x, $this->getY()+4, 'C', $w);
-        $this->SetTextColorArray([0,0,0]);
+        $this->Ln();
+        return $this->y;
     }
 
     /**
@@ -449,12 +379,12 @@ class Dte extends \sasco\LibreDTE\PDF
      * @param codigo de la sucursal del SII
      * @return Sucursal del SII
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2015-09-09
+     * @version 2016-03-11
      */
     private function getSucursalSII($codigo)
     {
         if (!is_numeric($codigo)) {
-            $sucursal = strtoupper($codigo);
+            $sucursal = mb_strtoupper($codigo, 'UTF-8');
             return $sucursal=='SANTIAGO' ? 'SANTIAGO CENTRO' : $sucursal;
         }
         return 'SUC '.$codigo;
@@ -465,52 +395,50 @@ class Dte extends \sasco\LibreDTE\PDF
      * @param date Fecha de emisión de la boleta en formato AAAA-MM-DD
      * @param x Posición horizontal de inicio en el PDF
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2015-09-09
+     * @version 2016-04-28
      */
-    private function agregarFechaEmision($date, $x = 10)
+    private function agregarFechaEmision($date, $x = 10, $offset = 22, $mostrar_dia = true)
     {
-        $dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-        $meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
-        $unixtime = strtotime($date);
-        $fecha = date('\D\I\A j \d\e \M\E\S \d\e\l Y', $unixtime);
-        $dia = $dias[date('w', $unixtime)];
-        $mes = $meses[date('n', $unixtime)-1];
+        $this->setFont('', 'B', 8);
         $this->Texto('Emisión', $x);
-        $this->Texto(':', $x+22);
-        $this->MultiTexto(str_replace(array('DIA', 'MES'), array($dia, $mes), $fecha), $x+26);
-    }
-
-    /**
-     * Método que agrega la fecha de emisión de la factura
-     * @param date Fecha de emisión de la boleta en formato AAAA-MM-DD
-     * @param x Posición horizontal de inicio en el PDF
-     * @author Pablo Reyes (https://github.com/pabloxp)
-     * @version 2015-11-17
-     */
-    private function agregarFechaEmisionContinuo($date, $x = 3,$y = 50,$w = 68)
-    {
-        $dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-        $meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
-        $unixtime = strtotime($date);
-        $fecha = date('\D\I\A j \d\e \M\E\S \d\e\l Y', $unixtime);
-        $dia = $dias[date('w', $unixtime)];
-        $mes = $meses[date('n', $unixtime)-1];
-       // $this->MultiTexto("Fecha de Emisión: ".str_replace(array('DIA', 'MES'), array($dia, $mes), $fecha), $x, $this->y, 'L', $w);
-        $this->MultiTexto("Fecha de Emisión: 2015-08-17", $x, $this->y, 'L', $w);
+        $this->Texto(':', $x+$offset);
+        $this->setFont('', 'C', 8);
+        $this->MultiTexto($this->date($date, $mostrar_dia), $x+$offset+2);
     }
 
     /**
      * Método que agrega la condición de venta del documento
-     * @param condicion_venta Código de la condición de venta (tag FmaPago XML)
+     * @param IdDoc Información general del documento
      * @param x Posición horizontal de inicio en el PDF
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2015-09-09
+     * @version 2016-04-28
      */
-    private function agregarCondicionVenta($condicion_venta, $x = 10)
+    private function agregarCondicionVenta($IdDoc, $x = 10, $offset = 22, $mostrar_dia = true)
     {
-        $this->Texto('Venta', $x);
-        $this->Texto(':', $x+22);
-        $this->MultiTexto($this->formas_pago[$condicion_venta], $x+26);
+        // forma de pago
+        if (!empty($IdDoc['FmaPago'])) {
+            $this->setFont('', 'B', 8);
+            $this->Texto('Venta', $x);
+            $this->setFont('', 'C', 8);
+            $this->Texto(':', $x+$offset);
+            $this->MultiTexto($this->formas_pago[$IdDoc['FmaPago']], $x+$offset+2);
+        }
+        // pago anticicado
+        if (!empty($IdDoc['FchCancel'])) {
+            $this->setFont('', 'B', 8);
+            $this->Texto('Pagado el', $x);
+            $this->setFont('', 'C', 8);
+            $this->Texto(':', $x+$offset);
+            $this->MultiTexto($this->date($IdDoc['FchCancel'], $mostrar_dia), $x+$offset+2);
+        }
+        // fecha vencimiento
+        if (!empty($IdDoc['FchVenc'])) {
+            $this->setFont('', 'B', 8);
+            $this->Texto('Vencimiento', $x);
+            $this->setFont('', 'C', 8);
+            $this->Texto(':', $x+$offset);
+            $this->MultiTexto($this->date($IdDoc['FchVenc'], $mostrar_dia), $x+$offset+2);
+        }
     }
 
     /**
@@ -518,64 +446,44 @@ class Dte extends \sasco\LibreDTE\PDF
      * @param receptor Arreglo con los datos del receptor (tag Receptor del XML)
      * @param x Posición horizontal de inicio en el PDF
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2015-11-12
+     * @version 2016-03-10
      */
-    private function agregarReceptor(array $receptor, $x = 10)
+    private function agregarReceptor(array $receptor, $x = 10, $offset = 22)
     {
         list($rut, $dv) = explode('-', $receptor['RUTRecep']);
+        $this->setFont('', 'B', 8);
         $this->Texto('Señor(es)', $x);
-        $this->Texto(':', $x+22);
-        $this->MultiTexto($receptor['RznSocRecep'], $x+26);
+        $this->Texto(':', $x+$offset);
+        $this->setFont('', 'C', 8);
+        $this->MultiTexto($receptor['RznSocRecep'], $x+$offset+2);
+        $this->setFont('', 'B', 8);
         $this->Texto('R.U.T.', $x);
-        $this->Texto(':', $x+22);
-        $this->MultiTexto($this->num($rut).'-'.$dv, $x+26);
+        $this->Texto(':', $x+$offset);
+        $this->setFont('', 'C', 8);
+        $this->MultiTexto($this->num($rut).'-'.$dv, $x+$offset+2);
         if (!empty($receptor['GiroRecep'])) {
+            $this->setFont('', 'B', 8);
             $this->Texto('Giro', $x);
-            $this->Texto(':', $x+22);
-            $this->MultiTexto($receptor['GiroRecep'], $x+26);
+            $this->Texto(':', $x+$offset);
+            $this->setFont('', 'C', 8);
+            $this->MultiTexto($receptor['GiroRecep'], $x+$offset+2);
         }
+        $this->setFont('', 'B', 8);
         $this->Texto('Dirección', $x);
-        $this->Texto(':', $x+22);
-        $this->MultiTexto($receptor['DirRecep'].', '.$receptor['CmnaRecep'], $x+26);
+        $this->Texto(':', $x+$offset);
+        $this->setFont('', 'C', 8);
+        $this->MultiTexto($receptor['DirRecep'].', '.$receptor['CmnaRecep'], $x+$offset+2);
         $contacto = [];
         if (!empty($receptor['Contacto']))
             $contacto[] = $receptor['Contacto'];
         if (!empty($receptor['CorreoRecep']))
             $contacto[] = $receptor['CorreoRecep'];
         if (!empty($contacto)) {
+            $this->setFont('', 'B', 8);
             $this->Texto('Contacto', $x);
-            $this->Texto(':', $x+22);
-            $this->MultiTexto(implode(' / ', $contacto), $x+26);
-        }
-    }
-
-    /**
-     * Método que agrega los datos del receptor
-     * @param receptor Arreglo con los datos del receptor (tag Receptor del XML)
-     * @param x Posición horizontal de inicio en el PDF
-     * @author Pablo Reyes (https://github.com/pabloxp)
-     * @version 2015-12-12
-     */
-    private function agregarReceptorContinuo(array $receptor, $x = 3, $y = 45, $w = 68)
-    {
-        list($rut, $dv) = explode('-', $receptor['RUTRecep']);
-        $this->setFont('', 'B', 5);
-        $this->SetTextColorArray([0,0,0]);
-        $this->MultiTexto($receptor['RznSocRecep'], $x, $y, 'L', $w);
-        $this->MultiTexto('RUT: '.$this->num($rut).'-'.$dv, $x, $this->y, 'L', $w);
-        if (!empty($receptor['GiroRecep'])) {
-            $this->MultiTexto('Giro: '.$receptor['GiroRecep'], $x, $this->y, 'L', $w);
-        }
-        $this->MultiTexto('Dirección: '.$receptor['DirRecep'].', '.$receptor['CmnaRecep'], $x, $this->y, 'L', $w);
-        $contacto = [];
-        if (!empty($receptor['Contacto']))
-            $contacto[] = $receptor['Contacto'];
-        if (!empty($receptor['CorreoRecep']))
-            $contacto[] = $receptor['CorreoRecep'];
-        if (!empty($contacto)) {
-            $this->Texto('Contacto', $x);
-            $this->Texto(':', $x+22);
-            $this->MultiTexto(implode(' / ', $contacto), $x+26);
+            $this->Texto(':', $x+$offset);
+            $this->setFont('', 'C', 8);
+            $this->MultiTexto(implode(' / ', $contacto), $x+$offset+2);
         }
     }
 
@@ -585,15 +493,17 @@ class Dte extends \sasco\LibreDTE\PDF
      * @param Transporte
      * @param x Posición horizontal de inicio en el PDF
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2015-12-25
+     * @version 2016-03-10
      */
-    private function agregarTraslado($IndTraslado, array $Transporte = null, $x = 10)
+    private function agregarTraslado($IndTraslado, array $Transporte = null, $x = 10, $offset = 22)
     {
         // agregar tipo de traslado
         if ($IndTraslado) {
+            $this->setFont('', 'B', 8);
             $this->Texto('Traslado', $x);
-            $this->Texto(':', $x+22);
-            $this->MultiTexto($this->traslados[$IndTraslado], $x+26);
+            $this->Texto(':', $x+$offset);
+            $this->setFont('', 'C', 8);
+            $this->MultiTexto($this->traslados[$IndTraslado], $x+$offset+2);
         }
         // agregar información de transporte
         if ($Transporte) {
@@ -612,9 +522,11 @@ class Dte extends \sasco\LibreDTE\PDF
                     $transporte .= ' ('.$Transporte['Chofer']['RUTChofer'].')';
             }
             if ($transporte) {
+                $this->setFont('', 'B', 8);
                 $this->Texto('Transporte', $x);
-                $this->Texto(':', $x+22);
-                $this->MultiTexto(ucfirst(trim($transporte)), $x+26);
+                $this->Texto(':', $x+$offset);
+                $this->setFont('', 'C', 8);
+                $this->MultiTexto(ucfirst(trim($transporte)), $x+$offset+2);
             }
         }
     }
@@ -624,9 +536,9 @@ class Dte extends \sasco\LibreDTE\PDF
      * @param referencias Arreglo con las referencias del documento (tag Referencia del XML)
      * @param x Posición horizontal de inicio en el PDF
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2015-09-08
+     * @version 2016-03-10
      */
-    private function agregarReferencia($referencias, $x = 10)
+    private function agregarReferencia($referencias, $x = 10, $offset = 22)
     {
         if (!isset($referencias[0]))
             $referencias = [$referencias];
@@ -634,51 +546,11 @@ class Dte extends \sasco\LibreDTE\PDF
             $texto = $r['NroLinRef'].' - '.$this->getTipo($r['TpoDocRef']).' N° '.$r['FolioRef'].' del '.$r['FchRef'];
             if (isset($r['RazonRef']) and $r['RazonRef']!==false)
                 $texto = $texto.': '.$r['RazonRef'];
+            $this->setFont('', 'B', 8);
             $this->Texto('Referenc.', $x);
-            $this->Texto(':', $x+22);
-            $this->MultiTexto($texto, $x+26);
-        }
-    }
-
-    /**
-     * Método que agrega las referencias del documento
-     * @param referencias Arreglo con las referencias del documento (tag Referencia del XML)
-     * @param x Posición horizontal de inicio en el PDF
-     * @author Pablo Reyes (https://github.com/pabloxp)
-     * @version 2015-11-17
-     */
-    private function agregarReferenciaContinuo($referencias, $x = 3,$y=60,$w=68)
-    {
-        if (!isset($referencias[0]))
-            $referencias = [$referencias];
-        $this->SetY($y+1);
-        $this->setFont('', 'B', 7);
-        $this->Texto('Documentos de referencia', $x,$this->y);
-
-        $style = array('width' => 0.2,'color' => array(0, 0, 0));
-
-        $this->setFont('', 'B', 5);
-        foreach($referencias as $r) {
-            $texto = $r['NroLinRef'].' - '.$this->getTipo($r['TpoDocRef']).' N° '.$r['FolioRef'].' del '.$r['FchRef'];
-            if (isset($r['RazonRef']) and $r['RazonRef']!==false)
-                $texto = $texto.': '.$r['RazonRef'];
-            $p1x = 3;
-            $p1y   = $this->y+3;
-            //$p2x   = $px2;
-            $p2x = 71;
-            $p2y   = $p1y;  // Use same y for a straight line
-            $this->Line($p1x, $p1y, $p2x, $p2y, $style);
-            $this->SetY($this->GetY()+4);
-            $this->MultiTexto('TIPO DOCUMENTO: '.$r['TpoDocRef'], $x, $this->y, 'L', $w);
-            $this->MultiTexto('FOLIO: '.$r['FolioRef'], $x, $this->y, 'L', $w);
-            $this->MultiTexto('FECHA: '.$r['FchRef'], $x, $this->y, 'L', $w);
-            //$this->MultiTexto('FECHA: 2015-08-17', $x, $this->y, 'L', $w);
-            $this->MultiTexto('RAZON: '.$r['RazonRef'], $x, $this->y, 'L', $w);
-           /* $this->Texto('Referenc.', $x);
-            $this->Texto(':', $x+22);
-            $this->MultiTexto($texto, $x+26);
-            *
-            */
+            $this->Texto(':', $x+$offset);
+            $this->setFont('', 'C', 8);
+            $this->MultiTexto($texto, $x+$offset+2);
         }
     }
 
@@ -745,7 +617,8 @@ class Dte extends \sasco\LibreDTE\PDF
      * @param x Posición horizontal de inicio en el PDF
      * @param y Posición vertical de inicio en el PDF
      * @author Pablo Reyes (https://github.com/pabloxp)
-     * @version 2015-11-17
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
+     * @version 2016-03-10
      */
     private function agregarDetalleContinuo($detalle, $x = 3,$y=64)
     {
@@ -753,32 +626,28 @@ class Dte extends \sasco\LibreDTE\PDF
         $pageMargins  = $this->getMargins();
         $headerMargin = $pageMargins['header'];
         $px2          = $pageWidth - $headerMargin;
-
         $this->SetY($this->getY()+1);
         $p1x = 3;
-        $p1y   = $this->y;
+        $p1y = $this->y;
         $p2x = 71;
-        $p2y   = $p1y;  // Use same y for a straight line
+        $p2y = $p1y;  // Use same y for a straight line
         $style = array('width' => 0.2,'color' => array(0, 0, 0));
         $this->Line($p1x, $p1y, $p2x, $p2y, $style);
-        $this->Texto("Item", $x+1,$this->y);
-        $this->Texto("Precio Unitario", $x+10,$this->y+2);
-        $this->Texto("Cantidad", $x+40,$this->y);
-        $this->Texto("Valor", $x+60,$this->y);
-        $this->Line($p1x, $p1y+5, $p2x, $p2y+5, $style);
+        $this->Texto($this->detalle_cols['NmbItem']['title'], $x+1, $this->y, ucfirst($this->detalle_cols['NmbItem']['align'][0]), $this->detalle_cols['NmbItem']['width']);
+        $this->Texto($this->detalle_cols['PrcItem']['title'], $x+15, $this->y, ucfirst($this->detalle_cols['PrcItem']['align'][0]), $this->detalle_cols['PrcItem']['width']);
+        $this->Texto($this->detalle_cols['QtyItem']['title'], $x+35, $this->y, ucfirst($this->detalle_cols['QtyItem']['align'][0]), $this->detalle_cols['QtyItem']['width']);
+        $this->Texto($this->detalle_cols['MontoItem']['title'], $x+45, $this->y, ucfirst($this->detalle_cols['MontoItem']['align'][0]), $this->detalle_cols['MontoItem']['width']);
+        $this->Line($p1x, $p1y+4, $p2x, $p2y+4, $style);
         if (!isset($detalle[0]))
             $detalle = [$detalle];
-
-        $this->SetY($this->getY()+4);
+        $this->SetY($this->getY()+2);
         foreach($detalle as  &$d) {
-            $this->Texto($d["NmbItem"], $x+1,$this->y+3);
-            $this->Texto("($ ".number_format($d["PrcItem"],0,',','.')." c/u)", $x+5,$this->y+3);
-            $this->Texto(number_format($d["QtyItem"],0,',','.'), $x+40,$this->y);
-            $this->Texto(number_format($d["MontoItem"],0,',','.'), $x+60,$this->y);
+            $this->Texto($d['NmbItem'], $x+1, $this->y+4, ucfirst($this->detalle_cols['NmbItem']['align'][0]), $this->detalle_cols['NmbItem']['width']);
+            $this->Texto(number_format($d['PrcItem'],0,',','.'), $x+15, $this->y+3, ucfirst($this->detalle_cols['PrcItem']['align'][0]), $this->detalle_cols['PrcItem']['width']);
+            $this->Texto($this->num($d['QtyItem']), $x+35, $this->y, ucfirst($this->detalle_cols['QtyItem']['align'][0]), $this->detalle_cols['QtyItem']['width']);
+            $this->Texto($this->num($d['MontoItem']), $x+45, $this->y, ucfirst($this->detalle_cols['MontoItem']['align'][0]), $this->detalle_cols['MontoItem']['width']);
         }
-
         $this->Line($p1x, $this->y+4, $p2x, $this->y+4, $style);
-
     }
 
     /**
@@ -803,9 +672,9 @@ class Dte extends \sasco\LibreDTE\PDF
      * Método que agrega los totales del documento
      * @param totales Arreglo con los totales (tag Totales del XML)
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2015-09-09
+     * @version 2016-03-10
      */
-    private function agregarTotales(array $totales, $y = 190)
+    private function agregarTotales(array $totales, $y = 200, $x = 145, $offset = 25)
     {
         // normalizar totales
         $totales = array_merge([
@@ -819,53 +688,38 @@ class Dte extends \sasco\LibreDTE\PDF
         $glosas = [
             'MntNeto' => 'Neto $',
             'MntExe' => 'Exento $',
-            'IVA' => 'I.V.A. ('.$totales['TasaIVA'].'%)',
+            'IVA' => 'IVA ('.$totales['TasaIVA'].'%) $',
             'MntTotal' => 'Total $',
         ];
-        // agregar cada uno de los totales
-        $this->setY($y);
-        foreach ($totales as $key => $total) {
-            if ($total!==false and isset($glosas[$key])) {
-                $x = 175;
-                $this->Texto($glosas[$key].' :', $x, null, 'R', 1);
-                $this->Texto($this->num($total), $x+25, null, 'R', 1);
-                $this->Ln();
+        // agregar impuestos adicionales y retenciones
+        if (!empty($totales['ImptoReten'])) {
+            $ImptoReten = $totales['ImptoReten'];
+            $MntTotal = $totales['MntTotal'];
+            unset($totales['ImptoReten'], $totales['MntTotal']);
+            if (!isset($ImptoReten[0])) {
+                $ImptoReten = [$ImptoReten];
             }
+            foreach($ImptoReten as $i) {
+                $totales['ImptoReten_'.$i['TipoImp']] = $i['MontoImp'];
+                $glosas['ImptoReten_'.$i['TipoImp']] = \sasco\LibreDTE\Sii\ImpuestosAdicionales::getGlosa($i['TipoImp']).' ('.$i['TasaImp'].'%) $';
+            }
+            $totales['MntTotal'] = $MntTotal;
         }
-    }
-
-    /**
-     * Método que agrega los totales del documento
-     * @param totales Arreglo con los totales (tag Totales del XML)
-     * @author Pablo Reyes (https://github.com/pabloxp)
-     * @version 2015-11-17
-     */
-    private function agregarTotalesContinuo(array $totales,$y)
-    {
-        // normalizar totales
-        $totales = array_merge([
-            'MntNeto' => false,
-            'MntExe' => false,
-            'TasaIVA' => false,
-            'IVA' => false,
-            'MntTotal' => false,
-        ], $totales);
-        // glosas
-        $glosas = [
-            'MntNeto' => 'TOTAL NETO',
-            'MntExe' => 'EXENTO ',
-            'IVA' => 'IVA ('.$totales['TasaIVA'].'%)',
-            'MntTotal' => 'Total',
-        ];
         // agregar cada uno de los totales
         $this->setY($y);
         foreach ($totales as $key => $total) {
             if ($total!==false and isset($glosas[$key])) {
-                $x = 3;
-                $this->Texto($glosas[$key], $x,$this->y+1);
-                $this->Texto("$", $x+40,$this->y);
-                $this->Texto($this->num($total), $x+60,$this->y);
-                $this->Ln();
+                $y = $this->GetY();
+                if (!$this->cedible or $this->papelContinuo) {
+                    $this->Texto($glosas[$key].' :', $x, null, 'R', 30);
+                    $this->Texto($this->num($total), $x+$offset, $y, 'R', 30);
+                    $this->Ln();
+                } else {
+                    $this->MultiTexto($glosas[$key].' :', $x, null, 'R', 30);
+                    $y_new = $this->GetY();
+                    $this->Texto($this->num($total), $x+$offset, $y, 'R', 30);
+                    $this->SetY($y_new);
+                }
             }
         }
     }
@@ -879,9 +733,9 @@ class Dte extends \sasco\LibreDTE\PDF
      * @param y Posición vertical de inicio en el PDF
      * @param w Ancho del timbre
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2015-12-11
+     * @version 2016-03-10
      */
-    private function agregarTimbre($timbre, $x = 20, $y = 190, $w = 70)
+    private function agregarTimbre($timbre, $x_timbre = 20, $x = 20, $y = 200, $w = 70, $font_size = 8)
     {
         $style = [
             'border' => false,
@@ -892,40 +746,14 @@ class Dte extends \sasco\LibreDTE\PDF
             'module_width' => 1, // width of a single module in points
             'module_height' => 1 // height of a single module in points
         ];
-        $this->write2DBarcode($timbre, 'PDF417', $x, $y, $w, 0, $style, 'B');
-        $this->setFont('', 'B', 8);
-        $this->Texto('Timbre Electrónico SII', $x, $this->y, 'C', $w);
-        $this->Texto('Resolución '.$this->resolucion['NroResol'].' de '.explode('-', $this->resolucion['FchResol'])[0], $x, $this->y+4, 'C', $w);
-        $this->Texto('Verifique documento: '.$this->web_verificacion, $x, $this->y+4, 'C', $w);
-    }
-
-    /**
-     * Método que agrega el timbre de la factura
-     *  - Se imprime en el tamaño mínimo: 2x5 cms
-     *  - En el lado de abajo con margen izquierdo mínimo de 2 cms
-     * @param timbre String con los datos del timbre
-     * @param x Posición horizontal de inicio en el PDF
-     * @param y Posición vertical de inicio en el PDF
-     * @param w Ancho del timbre
-     * @author Pablo Reyes (https://github.com/pabloxp)
-     * @version 2015-12-11
-     */
-    private function agregarTimbreContinuo($timbre, $x = 3, $y = null, $w = 68)
-    {
-        $style = [
-            'border' => false,
-            'vpadding' => 0,
-            'hpadding' => 0,
-            'fgcolor' => [0,0,0],
-            'bgcolor' => false, // [255,255,255]
-            'module_width' => 1, // width of a single module in points
-            'module_height' => 1 // height of a single module in points
-        ];
-        $this->write2DBarcode($timbre, 'PDF417', $x+10, $y, $w, 0, $style, 'B');
-        $this->setFont('', 'B', 6);
-        $this->Texto('Timbre Electrónico SII', $x, $this->y, 'C', $w);
-        $this->Texto('Resolución '.$this->resolucion['NroResol'].' de '.explode('-', $this->resolucion['FchResol'])[0], $x, $this->y+4, 'C', $w);
-        $this->Texto('Verifique documento: '.$this->web_verificacion, $x, $this->y+2, 'C', $w);
+        $ecl = version_compare(phpversion(), '7.0.0', '<') ? -1 : $this->ecl;
+        $this->write2DBarcode($timbre, 'PDF417,,'.$ecl, $x_timbre, $y, $w, 0, $style, 'B');
+        $this->setFont('', 'C', $font_size);
+        $this->Texto('Timbre Electrónico SII', $x, null, 'C', $w);
+        $this->Ln();
+        $this->Texto('Resolución '.$this->resolucion['NroResol'].' de '.explode('-', $this->resolucion['FchResol'])[0], $x, null, 'C', $w);
+        $this->Ln();
+        $this->Texto('Verifique documento: '.$this->web_verificacion, $x, null, 'C', $w);
     }
 
     /**
@@ -937,7 +765,7 @@ class Dte extends \sasco\LibreDTE\PDF
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
      * @version 2015-09-08
      */
-    private function agregarAcuseRecibo($x = 93, $y = 190, $w = 50, $h = 40)
+    private function agregarAcuseRecibo($x = 93, $y = 200, $w = 55, $h = 40)
     {
         $this->SetTextColorArray([0,0,0]);
         $this->Rect($x, $y, $w, $h, 'D', ['all' => ['width' => 0.1, 'color' => [0, 0, 0]]]);
@@ -954,7 +782,7 @@ class Dte extends \sasco\LibreDTE\PDF
         $this->Texto('________________', $x+18);
         $this->Texto('Firma', $x+2, $this->y+8);
         $this->Texto('________________', $x+18);
-        $this->setFont('', 'B', 7);
+        $this->setFont('', 'C', 7);
         $this->MultiTexto('El acuse de recibo que se declara en este acto, de acuerdo a lo dispuesto en la letra b) del Art. 4°, y la letra c) del Art. 5° de la Ley 19.983, acredita que la entrega de mercaderías o servicio (s) prestado (s) ha (n) sido recibido (s).'."\n", $x, $this->y+6, 'J', $w);
     }
 
@@ -990,14 +818,15 @@ class Dte extends \sasco\LibreDTE\PDF
         $this->setFont('', 'B', 5);
         $this->MultiTexto('El acuse de recibo que se declara en este acto, de acuerdo a lo dispuesto en la letra b) del Art. 4°, y la letra c) del Art. 5° de la Ley 19.983, acredita que la entrega de mercaderías o servicio (s) prestado (s) ha (n) sido recibido (s).'."\n", $x+2, $this->y+8, 'J', $w-3);
     }
+
     /**
      * Método que agrega la leyenda de destino
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
-     * @version 2015-10-02
+     * @version 2016-03-10
      */
-    private function agregarLeyendaDestino($tipo, $y = 245)
+    private function agregarLeyendaDestino($tipo, $y = 245, $font_size = 10)
     {
-        $this->setFont('', 'B', 10);
+        $this->setFont('', 'B', $font_size);
         $this->Texto('CEDIBLE'.($tipo==52?' CON SU FACTURA':''), null, $y, 'R');
     }
 
@@ -1015,6 +844,22 @@ class Dte extends \sasco\LibreDTE\PDF
         if (isset($broken_number[1]))
             return number_format($broken_number[0], 0, ',', '.').','.$broken_number[1];
         return number_format($broken_number[0], 0, ',', '.');
+    }
+
+    /**
+     * Método que formatea una fecha en formato YYYY-MM-DD a un string
+     * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
+     * @version 2016-04-28
+     */
+    public function date($date, $mostrar_dia = true)
+    {
+        $dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+        $meses = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+        $unixtime = strtotime($date);
+        $fecha = date(($mostrar_dia?'\D\I\A ':'').'j \d\e \M\E\S \d\e\l Y', $unixtime);
+        $dia = $dias[date('w', $unixtime)];
+        $mes = $meses[date('n', $unixtime)-1];
+        return str_replace(array('DIA', 'MES'), array($dia, $mes), $fecha);
     }
 
 }
