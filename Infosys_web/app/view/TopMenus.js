@@ -579,6 +579,12 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                         itemId: 'vyf_carga_contribuyentes',
                         disabled: '',   
                         action: 'mcargacontribuyentes'
+                },{
+                        text: 'Registro Emails',
+                        iconCls: '',
+                        itemId: 'vyf_email',
+                        disabled: '',   
+                        action: 'memail'
                 }]
              
 

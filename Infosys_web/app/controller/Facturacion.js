@@ -42,7 +42,8 @@ Ext.define('Infosys_web.controller.Facturacion', {
              'facturaelectronica.LibroCompraVenta',
              'facturaelectronica.ContribuyentesAutorizados',
              'facturaelectronica.CargaListaContribuyentes',
-             'facturaelectronica.HistLibroCompraVenta'],
+             'facturaelectronica.HistLibroCompraVenta',
+             'facturaelectronica.Emails'],
 
     //referencias, es un alias interno para el controller
     //podemos dejar el alias de la vista en el ref y en el selector
@@ -101,6 +102,9 @@ Ext.define('Infosys_web.controller.Facturacion', {
     },{
         ref: 'histlibrocompraventa',
         selector: 'histlibrocompraventa'
+    },{
+        ref: 'emails',
+        selector: 'emails'
     }
     
     ],
@@ -154,6 +158,11 @@ Ext.define('Infosys_web.controller.Facturacion', {
             'topmenus menuitem[action=mhistlibrocompraventa]': {
                 click: this.mhistlibrocompraventa
             },                                                 
+
+            'topmenus menuitem[action=memail]': {
+                click: this.memail
+            }, 
+
 
             'facturasingresar button[action=buscarclientes]': {
                 click: this.buscarclientes
@@ -339,6 +348,16 @@ cargar_listado_contribuyentes: function(){
         viewport.add({xtype: 'registroempresa'});
         
     },
+
+
+    memail: function(){
+
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'emails'});
+        
+    },
+
 
     mcargacertdigital: function(){
 
