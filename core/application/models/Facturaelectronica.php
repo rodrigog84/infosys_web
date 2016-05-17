@@ -398,4 +398,32 @@ class Facturaelectronica extends CI_Model
 
 	 }	 
 
+
+	 public function registro_email($data){
+
+		$this->db->select('id')
+		  ->from('email_fe');
+		$query = $this->db->get();
+		$email = $query->row();	 		
+
+        	if(count($email) > 0){ //actualizar
+        		$this->db->where('id',1);
+        		$this->db->update('email_fe',$data);
+        	}else{ //insertar
+        		$data['created_at'] = date("Y-m-d H:i:s");
+				$this->db->insert('email_fe',$data);
+        	}	 	
+        return true;
+	 }
+
+	public function get_email(){
+		$this->db->select('email_contacto, pass_contacto, tserver_contacto, port_contacto, host_contacto, email_intercambio, pass_intercambio, tserver_intercambio, port_intercambio, host_intercambio ')
+		  ->from('email_fe')
+		  ->limit(1);
+		$query = $this->db->get();
+		return $query->row();
+	 }
+
+
+
 }

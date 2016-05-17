@@ -531,6 +531,15 @@ exit;*/
 	 }
 
 
+	public function get_email(){
+		$this->load->model('facturaelectronica');
+		$email = $this->facturaelectronica->get_email();
+		$resp['data'] = count($email) > 0 ? json_encode($email) : false;
+   		echo json_encode($resp);
+	 }
+
+
+
 	public function ver_dte($idfactura){
 		$this->load->model('facturaelectronica');
 		$dte = $this->facturaelectronica->datos_dte($idfactura);
@@ -681,6 +690,27 @@ exit;*/
    		$resp['message'] = $error ? $message : "Carga realizada correctamente";
    		echo json_encode($resp);
 	 }
+
+
+	public function registro_email(){
+    	$this->load->model('facturaelectronica');
+		$data = array(
+					'email_contacto' => $this->input->post('email_contacto'),
+					'pass_contacto' => $this->input->post('pass_contacto'),
+					'tserver_contacto' => $this->input->post('tipoServer_contacto'),
+					'port_contacto' => $this->input->post('port_contacto'),
+					'host_contacto' => $this->input->post('host_contacto'),
+					'email_intercambio' => $this->input->post('email_intercambio'),
+					'pass_intercambio' => $this->input->post('pass_intercambio'),
+					'tserver_intercambio' => $this->input->post('tipoServer_intercambio'),
+					'port_intercambio' => $this->input->post('port_intercambio'),
+					'host_intercambio' => $this->input->post('host_intercambio'),
+			);
+		$this->facturaelectronica->registro_email($data);
+   		$resp['success'] = true;
+   		$resp['message'] = "Datos actualizados correctamente";
+   		echo json_encode($resp);
+	 }	 
 
 
 	 public function recepciondte($xml_content,$RutEmisor_esperado,$RutReceptor_esperado,$archivo_recibido){

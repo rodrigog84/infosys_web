@@ -254,3 +254,25 @@ CREATE TABLE `log_libros` (
 COLLATE='latin1_swedish_ci'
 ENGINE=InnoDB
 ;
+
+
+/**************************************************************/
+CREATE TABLE `email_fe` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`email_contacto` VARCHAR(50) NOT NULL DEFAULT '0',
+	`pass_contacto` VARCHAR(50) NOT NULL DEFAULT '0',
+	`tserver_contacto` ENUM('SMTP','IMAP') NOT NULL,
+	`port_contacto` INT(11) NOT NULL DEFAULT '0',
+	`host_contacto` VARCHAR(250) NOT NULL DEFAULT '0',
+	`email_intercambio` VARCHAR(50) NOT NULL DEFAULT '0',
+	`pass_intercambio` VARCHAR(50) NOT NULL DEFAULT '0',
+	`tserver_intercambio` ENUM('SMTP','IMAP') NOT NULL,
+	`port_intercambio` INT(11) NOT NULL DEFAULT '0',
+	`host_intercambio` VARCHAR(250) NOT NULL DEFAULT '0',
+	`created_at` DATETIME NOT NULL DEFAULT '0000-00-00 00:00:00',
+	`updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	PRIMARY KEY (`id`)
+)
+COLLATE='latin1_swedish_ci'
+ENGINE=InnoDB
+;

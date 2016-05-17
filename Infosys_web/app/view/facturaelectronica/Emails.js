@@ -22,40 +22,39 @@ Ext.define('Infosys_web.view.facturaelectronica.Emails' ,{
     });
 
 
-        response_rut = Ext.Ajax.request({
+        response_email = Ext.Ajax.request({
         async: false,
-        url: preurl + 'facturas/existe_empresa/'});
-        var obj_rut = Ext.decode(response_rut.responseText);
-        var existe_empresa = obj_rut.existe ? true : false;
+        url: preurl + 'facturas/get_email/'});
+        var obj_email = Ext.decode(response_email.responseText);
+        var email = obj_email.data ? obj_email.data : false;
+        if(!email){
+            var email_contacto = "";
+            var pass_contacto = "";
+            var tserver_contacto = "";
+            var port_contacto = 0;
+            var host_contacto = "";
 
-        if(existe_empresa){
 
-            response_empresa = Ext.Ajax.request({
-            async: false,
-            url: preurl + 'facturas/get_empresa_json/'});
-            var obj_empresa = Ext.decode(response_empresa.responseText);
-            console.log(obj_empresa);
-
-            var rut = obj_empresa.rut+"-"+obj_empresa.dv;
-            var razon_social = obj_empresa.razon_social;
-            var giro = obj_empresa.giro;
-            var cod_actividad = obj_empresa.cod_actividad;
-            var direccion = obj_empresa.dir_origen;
-            var comuna = obj_empresa.comuna_origen;
-            var fec_resolucion = obj_empresa.fec_resolucion;
-            var nro_resolucion = obj_empresa.nro_resolucion;
-            var logo = gbl_site + 'core/facturacion_electronica/images/' + obj_empresa.logo;
+            var email_intercambio = "";
+            var pass_intercambio = "";
+            var tserver_intercambio = "";
+            var port_intercambio = 0;
+            var host_intercambio = "";
 
         }else{
-            var rut = "";
-            var razon_social = "";
-            var giro = "";
-            var cod_actividad = 0;
-            var direccion = "";
-            var comuna = "";
-            var fec_resolucion = "";
-            var nro_resolucion = 0;
-            var logo = gbl_site + 'core/facturacion_electronica/images/sinimagen.jpg';
+            var obj_email = Ext.decode(email);
+            var email_contacto = obj_email.email_contacto;
+            var pass_contacto = obj_email.pass_contacto;
+            var tserver_contacto = obj_email.tserver_contacto;
+            var port_contacto = obj_email.port_contacto;
+            var host_contacto = obj_email.host_contacto;
+
+
+            var email_intercambio = obj_email.email_intercambio;
+            var pass_intercambio = obj_email.pass_intercambio;
+            var tserver_intercambio = obj_email.tserver_intercambio;
+            var port_intercambio = obj_email.port_intercambio;
+            var host_intercambio = obj_email.host_intercambio;
 
         }
 
@@ -69,104 +68,36 @@ Ext.define('Infosys_web.view.facturaelectronica.Emails' ,{
                 style: 'background-color: #fff;',
                 items: [
                         {
-                        xtype: 'fieldcontainer',
-                        fieldLabel: '',
-                        labelWidth: 1500,
-                        layout: {
-                            type: 'hbox',
-                            align: 'stretch'
-                        },
-                        items: [ 
-                                {
                                     xtype: 'displayfield',
                                     fieldLabel : 'Email Contacto SII',
                                     labelStyle: ' font-weight:bold',
                                     value : "",
                                     width: 340,
                                     labelWidth: 200,
-                                },{
-                                    xtype: 'displayfield',
-                                    itemId : 'estado_certificado',
-                                    fieldLabel : 'Email Intercambio',
-                                    labelStyle: 'font-weight:bold',
-                                    value : "",
-                                    labelWidth: 200,
-                                }
-                        ]
-                    },{
-                        xtype: 'fieldcontainer',
-                        fieldLabel: '',
-                        layout: {
-                            type: 'hbox',
-                            align: 'stretch'
                         },
-                        items: [ 
-                            {
+                        {
                             xtype: 'textfield',
                             name: 'email_contacto',
                             itemId : 'email_contacto',
                             fieldLabel : 'Email',
                             labelStyle: ' font-weight:bold',
-                            value : rut,
                             labelWidth: 150,
                             inputType: 'email',
-                            allowBlank : false
+                            allowBlank : false,
+                            value : email_contacto
                    
-                            },                        
-                            {
-                            xtype: 'textfield',
-                            labelWidth: 150,
-                            name: 'email_intercambio',
-                            itemId : 'email_intercambio',
-                            fieldLabel: '&nbsp;&nbsp;Email',
-                            labelStyle: ' font-weight:bold',
-                            value : giro,
-                            allowBlank : false
-                   
-                            }
-                        ]
-                    },{
-                        xtype: 'fieldcontainer',
-                        fieldLabel: '',
-                        layout: {
-                            type: 'hbox',
-                            align: 'stretch'
-                        },
-                        items: [ 
-                            {
+                        },{
                             xtype: 'textfield',
                             name: 'pass_contacto',
                             itemId : 'pass_contacto',
                             fieldLabel : 'Contrase&ntilde;a',
                             labelStyle: ' font-weight:bold',
-                            value : rut,
                             labelWidth: 150,
                             inputType: 'password',
-                            allowBlank : false
+                            allowBlank : false,
+                            value : pass_contacto
                    
-                            },                        
-                            {
-                            xtype: 'textfield',
-                            labelWidth: 150,
-                            name: 'pass_intercambio',
-                            itemId : 'pass_intercambio',
-                            fieldLabel: '&nbsp;&nbsp;Contrase&ntilde;a',
-                            labelStyle: ' font-weight:bold',
-                            inputType: 'password',
-                            value : giro,
-                            allowBlank : false
-                   
-                            }
-                        ]
-                    },{
-                        xtype: 'fieldcontainer',
-                        fieldLabel: '',
-                        layout: {
-                            type: 'hbox',
-                            align: 'stretch'
-                        },
-                        items: [ 
-                            {
+                        },{
                             xtype: 'combobox',
                             store : tipoServer,
                             fieldLabel: 'Tipo Server',
@@ -179,10 +110,62 @@ Ext.define('Infosys_web.view.facturaelectronica.Emails' ,{
                             forceSelection: true, 
                             allowBlank : false,
                             displayField : 'nombre',
-                            valueField : 'value'                            
+                            valueField : 'value',
+                            value: tserver_contacto                         
 
-                            },                        
-                            {
+                        },{
+                            xtype: 'numberfield',
+                            name: 'port_contacto',
+                            itemId : 'port_contacto',
+                            fieldLabel : 'Puerto',
+                            labelStyle: ' font-weight:bold',
+                            labelWidth: 150,
+                            allowBlank : false,
+                            value: port_contacto
+                   
+                        },{
+                            xtype: 'textfield',
+                            name: 'host_contacto',
+                            itemId : 'host_contacto',
+                            fieldLabel : 'Host',
+                            labelStyle: ' font-weight:bold',
+                            labelWidth: 150,
+                            allowBlank : false,
+                            value: host_contacto
+                   
+                        },{
+                            xtype: 'button',
+                            action: 'adddteprovee',
+                            text : 'Probar Email Contacto'
+                            },{
+                                    xtype: 'displayfield',
+                                    itemId : 'estado_certificado',
+                                    fieldLabel : 'Email Intercambio',
+                                    labelStyle: 'font-weight:bold',
+                                    value : "",
+                                    labelWidth: 200,
+                        },{
+                            xtype: 'textfield',
+                            labelWidth: 150,
+                            name: 'email_intercambio',
+                            itemId : 'email_intercambio',
+                            fieldLabel: 'Email',
+                            labelStyle: ' font-weight:bold',
+                            allowBlank : false,
+                            value: email_intercambio
+                   
+                        },{
+                            xtype: 'textfield',
+                            labelWidth: 150,
+                            name: 'pass_intercambio',
+                            itemId : 'pass_intercambio',
+                            fieldLabel: 'Contrase&ntilde;a',
+                            labelStyle: ' font-weight:bold',
+                            inputType: 'password',
+                            value : pass_intercambio,
+                            allowBlank : false
+                   
+                        },{
                             xtype: 'combobox',
                             store : tipoServer,
                             fieldLabel: 'Tipo Server',
@@ -195,75 +178,35 @@ Ext.define('Infosys_web.view.facturaelectronica.Emails' ,{
                             forceSelection: true, 
                             allowBlank : false,
                             displayField : 'nombre',
-                            valueField : 'value'                            
+                            valueField : 'value',
+                            value: tserver_intercambio                            
 
-                            }
-                        ]
-                    },{
-                        xtype: 'fieldcontainer',
-                        fieldLabel: '',
-                        layout: {
-                            type: 'hbox',
-                            align: 'stretch'
-                        },
-                        items: [ 
-                            {
-                            xtype: 'numberfield',
-                            name: 'port_contacto',
-                            itemId : 'port_contacto',
-                            fieldLabel : 'Puerto',
-                            labelStyle: ' font-weight:bold',
-                            value : rut,
-                            labelWidth: 150,
-                            inputType: 'email',
-                            allowBlank : false
-                   
-                            },{
+                        },{
                                 xtype: 'numberfield',
                                 fieldCls: 'required',
                                 labelWidth: 150,
                                 name: 'port_intercambio',
                                 itemId: 'port_intercambio',
-                                fieldLabel: '&nbsp;&nbsp;Puerto',
+                                fieldLabel: 'Puerto',
                                 labelStyle: ' font-weight:bold',
-                                inputType: 'email',
-                                value : razon_social,
+                                value : port_intercambio,
                                 allowBlank : false
-                           }
-                        ]
-                    },{
-                        xtype: 'fieldcontainer',
-                        fieldLabel: '',
-                        layout: {
-                            type: 'hbox',
-                            align: 'stretch'
                         },
-                        items: [ 
-                            {
-                            xtype: 'textfield',
-                            name: 'host_contacto',
-                            itemId : 'host_contacto',
-                            fieldLabel : 'Host',
-                            labelStyle: ' font-weight:bold',
-                            value : rut,
-                            labelWidth: 150,
-                            allowBlank : false
-                   
-                            },                        
-                            {
-                            xtype: 'textfield',
-                            labelWidth: 150,
-                            name: 'host_intercambio',
-                            itemId : 'host_intercambio',
-                            fieldLabel: '&nbsp;&nbsp;Host',
-                            labelStyle: ' font-weight:bold',
-                            value : giro,
-                            allowBlank : false
-                   
-                            }
-                        ]
-                    },
-                    {
+                        {
+                        xtype: 'textfield',
+                        labelWidth: 150,
+                        name: 'host_intercambio',
+                        itemId : 'host_intercambio',
+                        fieldLabel: 'Host',
+                        labelStyle: ' font-weight:bold',
+                        value : host_intercambio,
+                        allowBlank : false
+               
+                        },{
+                            xtype: 'button',
+                            action: 'adddteprovee',
+                            text : 'Probar Email Intercambio'
+                            },{
                         xtype: 'toolbar',
                         dock: 'bottom',
                         items: [{
@@ -274,7 +217,7 @@ Ext.define('Infosys_web.view.facturaelectronica.Emails' ,{
                                 var form = this.up('form').getForm();
                                 if(form.isValid()){
                                     form.submit({
-                                        url: preurl + 'facturas/put_empresa',
+                                        url: preurl + 'facturas/registro_email',
                                         waitMsg: 'Guardando...',
                                         success: function(fp, o) {
 
