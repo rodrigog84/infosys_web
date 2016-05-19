@@ -820,36 +820,52 @@ class Cotizaciones extends CI_Controller {
 			//echo $html; exit;
 
 			$this->mpdf->WriteHTML($html);
-			$content = $this->mpdf->Output('', 'S');
+			$file = date("YmdHis").".pdf";
+			$this->mpdf->Output('./tmp/'.$file, 'F');
 
-			$content = chunk_split(base64_encode($content));
-			$mailto = $email;
-			$from_name = 'Ferrital';
-			$from_mail = 'contacto@ferrital.cl';
-			$replyto = 'contacto@ferrital.cl';
-			$uid = md5(uniqid(time())); 
-			$subject = 'Envio de Cotizacion';
-			$message = $mensaje;
-			$filename = 'CotizacionFerrital.pdf';
+			$this->load->model('facturaelectronica');
+			$email_data = $this->facturaelectronica->get_email();
 
-			$header = "From: ".$from_name." <".$from_mail.">\r\n";
-			$header .= "Reply-To: ".$replyto."\r\n";
-			$header .= "MIME-Version: 1.0\r\n";
-			$header .= "Content-Type: multipart/mixed; boundary=\"".$uid."\"\r\n\r\n";
-			$header .= "This is a multi-part message in MIME format.\r\n";
-			$header .= "--".$uid."\r\n";
-			$header .= "Content-type:text/plain; charset=iso-8859-1\r\n";
-			$header .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
-			$header .= $message."\r\n\r\n";
-			$header .= "--".$uid."\r\n";
-			$header .= "Content-Type: application/pdf; name=\"".$filename."\"\r\n";
-			$header .= "Content-Transfer-Encoding: base64\r\n";
-			$header .= "Content-Disposition: attachment; filename=\"".$filename."\"\r\n\r\n";
-			$header .= $content."\r\n\r\n";
-			$header .= "--".$uid."--";
+			if(count($email_data) > 0){
+				$this->load->library('email');
+				$config['protocol']    = $email_data->tserver_intercambio;
+				$config['smtp_host']    = $email_data->host_intercambio;
+				$config['smtp_port']    = $email_data->port_intercambio;
+				$config['smtp_timeout'] = '7';
+				$config['smtp_user']    = $email_data->email_intercambio;
+				$config['smtp_pass']    = $email_data->pass_intercambio;
+				$config['charset']    = 'utf-8';
+				$config['newline']    = "\r\n";
+				$config['mailtype'] = 'html'; // or html
+				$config['validation'] = TRUE; // bool whether to validate email or not      			
 
-			$is_sent = @mail($mailto, $subject, "", $header);
-	
+				$this->email->initialize($config);		  		
+
+			    $this->email->from($email_data->email_intercambio, NOMBRE_EMPRESA);
+			    $this->email->to($email);
+
+			    //$this->email->bcc(array('rodrigo.gonzalez@info-sys.cl','cesar.moraga@info-sys.cl','sergio.arriagada@info-sys.cl','rene.gonzalez@info-sys.cl')); 
+			    $this->email->subject('Envio de Cotizacion');
+			    $this->email->message($mensaje);
+
+			    $this->email->attach('./tmp/'.$file,'attachment', 'Cotizacion.pdf');			
+
+
+			    try {
+			      $this->email->send();
+			      //var_dump($this->email->print_debugger()); exit;
+			      unlink('./tmp/'.$file);
+			      	        exit;
+			    } catch (Exception $e) {
+			      echo $e->getMessage() . '<br />';
+			      echo $e->getCode() . '<br />';
+			      echo $e->getFile() . '<br />';
+			      echo $e->getTraceAsString() . '<br />';
+			      echo "no";
+
+			    }
+		    }
+
 		exit;
 	}
 }

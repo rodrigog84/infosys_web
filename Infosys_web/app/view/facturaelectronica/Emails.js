@@ -16,8 +16,8 @@ Ext.define('Infosys_web.view.facturaelectronica.Emails' ,{
      var tipoServer = Ext.create('Ext.data.Store', {
         fields: ['value', 'nombre'],
         data : [
-            {"value":"SMTP", "nombre":"SMTP"},
-            {"value":"IMAP", "nombre":"IMAP"}
+            {"value":"smtp", "nombre":"smtp"},
+            {"value":"imap", "nombre":"imap"}
         ]
     });
 
@@ -136,7 +136,16 @@ Ext.define('Infosys_web.view.facturaelectronica.Emails' ,{
                         },{
                             xtype: 'button',
                             action: 'adddteprovee',
-                            text : 'Probar Email Contacto'
+                            text : 'Probar Email Contacto',
+                            handler: function(){
+
+                                    response_email = Ext.Ajax.request({
+                                    async: false,
+                                    url: preurl + 'facturas/prueba_email/contacto'});
+                                    //obj_email = Ext.decode(response_email.responseText);
+                                    //Ext.Msg.alert('Atención', obj_email.message);
+                                    Ext.Msg.alert('Atención', "Email enviado. Favor verificar casilla de correos");
+                            }                            
                             },{
                                     xtype: 'displayfield',
                                     itemId : 'estado_certificado',
@@ -205,7 +214,16 @@ Ext.define('Infosys_web.view.facturaelectronica.Emails' ,{
                         },{
                             xtype: 'button',
                             action: 'adddteprovee',
-                            text : 'Probar Email Intercambio'
+                            text : 'Probar Email Intercambio',
+                            handler: function(){
+
+                                    response_email = Ext.Ajax.request({
+                                    async: false,
+                                    url: preurl + 'facturas/prueba_email/intercambio'});
+                                    //obj_email = Ext.decode(response_email.responseText);
+                                    //Ext.Msg.alert('Atención', obj_email.message);
+                                    Ext.Msg.alert('Atención', "Email enviado. Favor verificar casilla de correos");
+                            }
                             },{
                         xtype: 'toolbar',
                         dock: 'bottom',
