@@ -137,7 +137,6 @@ class Facturaglosa extends CI_Controller {
 
 		/*****************************************/
 
-
 		if($tipodocumento == 101 || $tipodocumento == 103){  // SI ES FACTURA ELECTRONICA O FACTURA EXENTA ELECTRONICA
 
 			$tipo_caf = $tipodocumento == 101 ? 33 : 34;
@@ -152,7 +151,6 @@ class Facturaglosa extends CI_Controller {
 			$datos_empresa_factura = $this->facturaelectronica->get_empresa_factura($idfactura);
 
 			$detalle_factura = $this->facturaelectronica->get_detalle_factura_glosa($idfactura);
-
 
 			$lista_detalle = array();
 			$i = 0;
@@ -187,18 +185,18 @@ class Facturaglosa extends CI_Controller {
 			        ],
 			        'Emisor' => [
 			            'RUTEmisor' => $empresa->rut.'-'.$empresa->dv,
-			            'RznSoc' => $empresa->razon_social,
-			            'GiroEmis' => $empresa->giro,
+			            'RznSoc' => substr($empresa->razon_social,0,100), //LARGO DE RAZON SOCIAL NO PUEDE SER SUPERIOR A 100 CARACTERES,
+			            'GiroEmis' => substr($empresa->giro,0,80), //LARGO DE GIRO DEL EMISOR NO PUEDE SER SUPERIOR A 80 CARACTERES
 			            'Acteco' => $empresa->cod_actividad,
-			            'DirOrigen' => $empresa->dir_origen,
-			            'CmnaOrigen' => $empresa->comuna_origen,
+			            'DirOrigen' => substr($empresa->dir_origen,0,70), //LARGO DE DIRECCION DE ORIGEN NO PUEDE SER SUPERIOR A 70 CARACTERES
+			            'CmnaOrigen' => substr($empresa->comuna_origen,0,20), //LARGO DE COMUNA DE ORIGEN NO PUEDE SER SUPERIOR A 20 CARACTERES
 			        ],
 			        'Receptor' => [
 			            'RUTRecep' => substr($datos_empresa_factura->rut_cliente,0,strlen($datos_empresa_factura->rut_cliente) - 1)."-".substr($datos_empresa_factura->rut_cliente,-1),
-			            'RznSocRecep' => $datos_empresa_factura->nombre_cliente,
-			            'GiroRecep' => $datos_empresa_factura->giro,
-			            'DirRecep' => $datos_empresa_factura->direccion,
-			            'CmnaRecep' => $datos_empresa_factura->nombre_comuna,
+			            'RznSocRecep' => substr($datos_empresa_factura->nombre_cliente,0,100), //LARGO DE RAZON SOCIAL NO PUEDE SER SUPERIOR A 100 CARACTERES
+			            'GiroRecep' => substr($datos_empresa_factura->giro,0,40),  //LARGO DEL GIRO NO PUEDE SER SUPERIOR A 40 CARACTERES
+			            'DirRecep' => substr($datos_empresa_factura->direccion,0,70), //LARGO DE DIRECCION NO PUEDE SER SUPERIOR A 70 CARACTERES
+			            'CmnaRecep' => substr($datos_empresa_factura->nombre_comuna,0,20), //LARGO DE COMUNA NO PUEDE SER SUPERIOR A 20 CARACTERES
 			        ],
 			    ],
 				'Detalle' => $lista_detalle
@@ -218,6 +216,7 @@ class Facturaglosa extends CI_Controller {
 			//exit;
 			// Objetos de Firma y Folios
 			$Firma = new sasco\LibreDTE\FirmaElectronica($config['firma']); //lectura de certificado digital		
+
 			$caf = $this->facturaelectronica->get_content_caf_folio($numdocuemnto,$tipo_caf);
 			$Folios = new sasco\LibreDTE\Sii\Folios($caf->caf_content);
 
@@ -229,11 +228,11 @@ class Facturaglosa extends CI_Controller {
 
 			// generar sobre con el envío del DTE y enviar al SII
 			$EnvioDTE = new \sasco\LibreDTE\Sii\EnvioDte();
-
 			$EnvioDTE->agregar($DTE);
 			$EnvioDTE->setFirma($Firma);
 			$EnvioDTE->setCaratula($caratula);
-			$EnvioDTE->generar();
+			$xml_dte = $EnvioDTE->generar();
+
 			if ($EnvioDTE->schemaValidate()) { // REVISAR PORQUÉ SE CAE CON ESTA VALIDACION
 				
 				$track_id = 0;
@@ -267,65 +266,13 @@ class Facturaglosa extends CI_Controller {
 																						  'trackid' => $track_id
 																						  )); 
 				if($track_id != 0 && $datos_empresa_factura->e_mail != ''){ //existe track id, se envía correo
-
-					$this->load->library('email');
-
-			        $messageBody  = 'Envío de DTE<br><br>';
-			        $messageBody .= '<b>Datos Emisor:</b><br>';
-			        $messageBody .= $empresa->razon_social.'<br>';
-			        $messageBody .= 'RUT:'.$empresa->rut.'-'.$empresa->dv .'<br><br>';
-
-			        $messageBody .= '<b>Datos Receptor:</b><br>';
-			        $messageBody .= $datos_empresa_factura->nombre_cliente.'<br>';
-			        $messageBody .= 'RUT:'.substr($datos_empresa_factura->rut_cliente,0,strlen($datos_empresa_factura->rut_cliente) - 1)."-".substr($datos_empresa_factura->rut_cliente,-1) .'<br><br>';			        
-
-			        $messageBody .= '<a href="'. base_url() .'facturas/exportFePDF_mail/'.$track_id.'" >Ver Factura</a><br><br>';
-
-			        $messageBody .= 'Este correo adjunta Documentos Tributarios Electrónicos (DTE) para el receptor electrónico indicado. Por favor responda con un acuse de recibo (RespuestaDTE) conforme al modelo de intercambio de Factura Electrónica del SII.<br><br>';
-			        $messageBody .= 'Facturación Electrónica Infosys SPA.';
-
-					$config['protocol']    = 'smtp';
-			        $config['smtp_host']    = 'ssl://smtp.gmail.com';
-			        $config['smtp_port']    = '465';
-			        $config['smtp_timeout'] = '7';
-			        $config['smtp_user']    = 'factura.infosys@gmail.com';
-			        $config['smtp_pass']    = 'Info1965';
-			        $config['charset']    = 'utf-8';
-			        $config['newline']    = "\r\n";
-			        $config['mailtype'] = 'html'; // or html
-			        $config['validation'] = TRUE; // bool whether to validate email or not      
-
-			        $this->email->initialize($config);		  		
-					
-				    $this->email->from('factura.infosys@gmail.com', 'Factura Electrónica');
-				    $this->email->to($datos_empresa_factura->e_mail);
-
-				    $this->email->bcc(array('rodrigo.gonzalez@info-sys.cl','cesar.moraga@info-sys.cl','sergio.arriagada@info-sys.cl','rene.gonzalez@info-sys.cl')); 
-				    $this->email->subject('Envio de DTE ' .$track_id . '_'.$empresa->rut.'-'.$empresa->dv."_".substr($datos_empresa_factura->rut_cliente,0,strlen($datos_empresa_factura->rut_cliente) - 1)."-".substr($datos_empresa_factura->rut_cliente,-1));
-				    $this->email->message($messageBody);
-
-				    $this->email->attach('./facturacion_electronica/dte/'.$path.$nombre_dte);
-
-				    try {
-				      $this->email->send();
-				      //var_dump($this->email->print_debugger());
-				      	        //exit;
-				    } catch (Exception $e) {
-				      echo $e->getMessage() . '<br />';
-				      echo $e->getCode() . '<br />';
-				      echo $e->getFile() . '<br />';
-				      echo $e->getTraceAsString() . '<br />';
-				      echo "no";
-
-				    }
-
+					$this->facturaelectronica->envio_mail_dte($idfactura);
 				}
 
 
 
 
 			}
-
 
 		}
 

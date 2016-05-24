@@ -7,7 +7,7 @@ Ext.define('Infosys_web.view.facturaelectronica.verEstadoEnvio' ,{
 
     autoShow: true,
     width: 800,
-    height: 195,
+    height: 225,
     initComponent: function() {
         me = this;
         var idfactura = me.idfactura;
@@ -18,17 +18,17 @@ Ext.define('Infosys_web.view.facturaelectronica.verEstadoEnvio' ,{
         async: false,
         url: preurl + 'facturas/datos_dte_json/'+idfactura});
         var obj_datos = Ext.decode(response_datos.responseText);
-
         if(obj_datos.length == 0){
             var tipo_doc = "";
             var folio = "";
             var trackid = "N/A";
+            var email_envio = "";
 
         }else{
             var tipo_doc = obj_datos.tipo_doc;
             var folio = obj_datos.folio;
             var trackid = obj_datos.trackid;
-
+            var email_envio = obj_datos.e_mail;
         }
 
 
@@ -41,6 +41,7 @@ Ext.define('Infosys_web.view.facturaelectronica.verEstadoEnvio' ,{
         var estado_dte = obj_estado.error ? obj_estado.message : obj_estado.glosa_estado + " - " + obj_estado.glosa_err;      
 
         var disabled_envio = obj_estado.glosa_estado == 'DTE No Recibido' ? false : true;
+        var disabled_mail = obj_estado.glosa_estado == 'DTE No Recibido' ? true : false;
         this.items = [
             {
                 xtype: 'form',
@@ -90,6 +91,15 @@ Ext.define('Infosys_web.view.facturaelectronica.verEstadoEnvio' ,{
                         value : trackid,
                         labelWidth: 200,
                         allowBlank : false           
+                    },   
+                    {
+                        xtype: 'displayfield',
+                        itemId : 'email',
+                        fieldLabel : 'Email Env&iacute;o',
+                        labelStyle: ' font-weight:bold',
+                        value : email_envio,
+                        labelWidth: 200,
+                    
                     },
                     {
                         xtype: 'numberfield',
@@ -136,7 +146,7 @@ Ext.define('Infosys_web.view.facturaelectronica.verEstadoEnvio' ,{
                                 }
                             }                            
                         },
-{
+                        {
                             iconCls: 'icon-save',
                             text: 'Actualizar Identificador Env&iacute;o',
                             handler: function() {
@@ -149,6 +159,30 @@ Ext.define('Infosys_web.view.facturaelectronica.verEstadoEnvio' ,{
 
                                             Ext.Msg.alert('Atención', o.result.message);
                                             this.close;
+
+                                        }
+                                    });
+                                }
+                            }                            
+                        },
+                        {
+                            iconCls: 'icon-email',
+                            text: 'Env&iacute;o DTE email',
+                            disabled : disabled_mail,  
+                            handler: function() {
+                                var form = this.up('form').getForm();
+                                if(form.isValid()){
+                                    form.submit({
+                                        url: preurl + 'facturas/envio_mail_dte',
+                                        waitMsg: 'Enviando...',
+                                        success: function(fp, o) {
+
+                                            Ext.Msg.alert('Atención', o.result.message);
+                                            this.close;
+
+                                        },
+                                        error: function(fp, o){
+                                            Ext.Msg.alert('Atención', o.result.message);
 
                                         }
                                     });

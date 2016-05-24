@@ -265,58 +265,7 @@ class Notacredito extends CI_Controller {
 
 
 				if($track_id != 0 && $datos_empresa_factura->e_mail != ''){ //existe track id, se envía correo
-
-					$this->load->library('email');
-
-			        $messageBody  = 'Envío de DTE<br><br>';
-			        $messageBody .= '<b>Datos Emisor:</b><br>';
-			        $messageBody .= $empresa->razon_social.'<br>';
-			        $messageBody .= 'RUT:'.$empresa->rut.'-'.$empresa->dv .'<br><br>';
-
-			        $messageBody .= '<b>Datos Receptor:</b><br>';
-			        $messageBody .= $datos_empresa_factura->nombre_cliente.'<br>';
-			        $messageBody .= 'RUT:'.substr($datos_empresa_factura->rut_cliente,0,strlen($datos_empresa_factura->rut_cliente) - 1)."-".substr($datos_empresa_factura->rut_cliente,-1) .'<br><br>';			        
-
-			        $messageBody .= '<a href="'. base_url() .'facturas/exportFePDF_mail/'.$track_id.'" >Ver Documento</a><br><br>';
-
-			        $messageBody .= 'Este correo adjunta Documentos Tributarios Electrónicos (DTE) para el receptor electrónico indicado. Por favor responda con un acuse de recibo (RespuestaDTE) conforme al modelo de intercambio de Factura Electrónica del SII.<br><br>';
-			        $messageBody .= 'Facturación Electrónica Infosys SPA.';
-
-					$config['protocol']    = 'smtp';
-			        $config['smtp_host']    = 'ssl://smtp.gmail.com';
-			        $config['smtp_port']    = '465';
-			        $config['smtp_timeout'] = '7';
-			        $config['smtp_user']    = 'factura.infosys@gmail.com';
-			        $config['smtp_pass']    = 'Info1965';
-			        $config['charset']    = 'utf-8';
-			        $config['newline']    = "\r\n";
-			        $config['mailtype'] = 'html'; // or html
-			        $config['validation'] = TRUE; // bool whether to validate email or not      
-
-			        $this->email->initialize($config);		  		
-					
-				    $this->email->from('factura.infosys@gmail.com', 'Factura Electrónica');
-				    $this->email->to($datos_empresa_factura->e_mail);
-
-				    $this->email->bcc(array('rodrigo.gonzalez@info-sys.cl','cesar.moraga@info-sys.cl','sergio.arriagada@info-sys.cl','rene.gonzalez@info-sys.cl')); 
-				    $this->email->subject('Envio de DTE ' .$track_id . '_'.$empresa->rut.'-'.$empresa->dv."_".substr($datos_empresa_factura->rut_cliente,0,strlen($datos_empresa_factura->rut_cliente) - 1)."-".substr($datos_empresa_factura->rut_cliente,-1));
-				    $this->email->message($messageBody);
-
-				    $this->email->attach('./facturacion_electronica/dte/'.$path.$nombre_dte);
-
-				    try {
-				      $this->email->send();
-				      //var_dump($this->email->print_debugger());
-				      	        //exit;
-				    } catch (Exception $e) {
-				      echo $e->getMessage() . '<br />';
-				      echo $e->getCode() . '<br />';
-				      echo $e->getFile() . '<br />';
-				      echo $e->getTraceAsString() . '<br />';
-				      echo "no";
-
-				    }
-
+						$this->facturaelectronica->envio_mail_dte($idfactura);
 				}
 
             }                   
@@ -681,7 +630,9 @@ class Notacredito extends CI_Controller {
 																						  'trackid' => $track_id
 																						  )); 
 
-
+				if($track_id != 0 && $datos_empresa_factura->e_mail != ''){ //existe track id, se envía correo
+						$this->facturaelectronica->envio_mail_dte($idfactura);
+				}
 
 			}					
 			

@@ -178,12 +178,16 @@ class Facturaelectronica extends CI_Model
 
 
 	public function get_empresa_factura($id_factura){
-		$this->db->select('c.nombres as nombre_cliente, c.rut as rut_cliente, c.direccion, m.nombre as nombre_comuna, s.nombre as nombre_ciudad, c.fono, e.nombre as giro, c.e_mail')
+
+		$tabla_contribuyentes = $this->busca_parametro_fe('tabla_contribuyentes');
+
+		$this->db->select('c.nombres as nombre_cliente, c.rut as rut_cliente, c.direccion, m.nombre as nombre_comuna, s.nombre as nombre_ciudad, c.fono, e.nombre as giro, ifnull(ca.mail,c.e_mail) as e_mail',false)
 		  ->from('factura_clientes acc')
 		  ->join('clientes c','acc.id_cliente = c.id','left')
 		  ->join('cod_activ_econ e','c.id_giro = e.id','left')
 		  ->join('comuna m','c.id_comuna = m.id','left')		  
 		  ->join('ciudad s','c.id_ciudad = s.id','left')	
+		  ->join($tabla_contribuyentes . ' ca','c.rut = concat(ca.rut,ca.dv)','left')
 		  ->where('acc.id',$id_factura)
 		  ->limit(1);
 		$query = $this->db->get();
@@ -222,6 +226,7 @@ class Facturaelectronica extends CI_Model
 	 }	 
 
 	public function datos_dte($idfactura){
+
 		$this->db->select('f.id, f.folio, f.path_dte, f.archivo_dte, f.dte, f.pdf, f.pdf_cedible, f.trackid, c.tipo_caf, tc.nombre as tipo_doc ')
 		  ->from('folios_caf f')
 		  ->join('caf c','f.idcaf = c.id')
@@ -423,6 +428,81 @@ class Facturaelectronica extends CI_Model
 		$query = $this->db->get();
 		return $query->row();
 	 }
+
+
+
+	public function envio_mail_dte($idfactura){
+
+
+			$factura = $this->datos_dte($idfactura);
+			$track_id = $factura->trackid;
+			$path = $factura->path_dte;
+			$nombre_dte = $factura->archivo_dte;
+
+			$empresa = $this->get_empresa();
+			$datos_empresa_factura = $this->get_empresa_factura($idfactura);
+
+			$messageBody  = 'Envío de DTE<br><br>';
+	        $messageBody .= '<b>Datos Emisor:</b><br>';
+	        $messageBody .= $empresa->razon_social.'<br>';
+	        $messageBody .= 'RUT:'.$empresa->rut.'-'.$empresa->dv .'<br><br>';
+
+	        $messageBody .= '<b>Datos Receptor:</b><br>';
+	        $messageBody .= $datos_empresa_factura->nombre_cliente.'<br>';
+	        $messageBody .= 'RUT:'.substr($datos_empresa_factura->rut_cliente,0,strlen($datos_empresa_factura->rut_cliente) - 1)."-".substr($datos_empresa_factura->rut_cliente,-1) .'<br><br>';			        
+
+	        $messageBody .= '<a href="'. base_url() .'facturas/exportFePDF_mail/'.$track_id.'" >Ver Factura</a><br><br>';
+
+	        $messageBody .= 'Este correo adjunta Documentos Tributarios Electrónicos (DTE) para el receptor electrónico indicado. Por favor responda con un acuse de recibo (RespuestaDTE) conforme al modelo de intercambio de Factura Electrónica del SII.<br><br>';
+	        $messageBody .= 'Facturación Electrónica Infosys SPA.';
+
+
+	        $email_data = $this->facturaelectronica->get_email();
+		    if(count($email_data) > 0 && !is_null($datos_empresa_factura->e_mail)){ //MAIL SE ENVÍA SÓLO EN CASO QUE TENGAMOS REGISTRADOS EMAIL DE ORIGEN Y DESTINO
+		    	$this->load->library('email');
+				$config['protocol']    = $email_data->tserver_intercambio;
+				$config['smtp_host']    = $email_data->host_intercambio;
+				$config['smtp_port']    = $email_data->port_intercambio;
+				$config['smtp_timeout'] = '7';
+				$config['smtp_user']    = $email_data->email_intercambio;
+				$config['smtp_pass']    = $email_data->pass_intercambio;
+				$config['charset']    = 'utf-8';
+				$config['newline']    = "\r\n";
+				$config['mailtype'] = 'html'; // or html
+				$config['validation'] = TRUE; // bool whether to validate email or not      			
+
+
+		        $this->email->initialize($config);		  		
+				
+			    $this->email->from($email_data->email_intercambio, 'Factura Electrónica '. NOMBRE_EMPRESA);
+			    $this->email->to($datos_empresa_factura->e_mail);
+
+			    #$this->email->bcc(array('rodrigo.gonzalez@info-sys.cl','cesar.moraga@info-sys.cl','sergio.arriagada@info-sys.cl','rene.gonzalez@info-sys.cl')); 
+			    $this->email->subject('Envio de DTE ' .$track_id . '_'.$empresa->rut.'-'.$empresa->dv."_".substr($datos_empresa_factura->rut_cliente,0,strlen($datos_empresa_factura->rut_cliente) - 1)."-".substr($datos_empresa_factura->rut_cliente,-1));
+			    $this->email->message($messageBody);
+
+			    $this->email->attach('./facturacion_electronica/dte/'.$path.$nombre_dte);
+
+			    try {
+			      $this->email->send();
+			      //var_dump($this->email->print_debugger());
+			      	        //exit;
+			    } catch (Exception $e) {
+			      echo $e->getMessage() . '<br />';
+			      echo $e->getCode() . '<br />';
+			      echo $e->getFile() . '<br />';
+			      echo $e->getTraceAsString() . '<br />';
+			      echo "no";
+
+			    }
+			    return true;
+
+			}else{
+
+				return false;
+			}
+
+	}
 
 
 
