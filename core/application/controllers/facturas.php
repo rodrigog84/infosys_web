@@ -1829,14 +1829,15 @@ public function cargacontribuyentes(){
         $limit = $this->input->get('limit');
         $nombre = $this->input->get('nombre');        
         $tipo = "1";
+        $tipo2 = "101";
+        $tipo3 = "103";
 
 
 		$countAll = $this->db->count_all_results("detalle_factura_cliente");
 		$data = array();
 
 		if($nombre){
-
-			$query = $this->db->query('SELECT * FROM factura_cliente WHERE num_factura like "'.$nombre.'" and tipo_documento = "'.$tipo.'"');
+			$query = $this->db->query('SELECT * FROM factura_clientes WHERE num_factura = "'.$nombre.'" and tipo_documento in ("'.$tipo.'","'.$tipo2.'","'.$tipo3.'")');
 
 		   if($query->num_rows()>0){
 
@@ -1844,7 +1845,7 @@ public function cargacontribuyentes(){
 	   		  $detalle = $row->forma;
 	   		  $idfactura = $row->id;
 
-	   		  if ($detalle==1 & $detalle==2){
+	   		  if ($detalle==1 || $detalle==2){
 
 	   		  	$query = $this->db->query('SELECT * FROM detalle_factura_glosa 
 	   		  	WHERE num_factura like "'.$idfactura.'');
@@ -1854,7 +1855,7 @@ public function cargacontribuyentes(){
 				   	  $row = $query->first_row();
 			   		  $guia = $row->id_guia;
 				   	$query = $this->db->query('SELECT acc.*, p.nombre as nombre, p.codigo as codigo, acc.precio as p_venta, acc.cantidad as stock 
-		   		  	FROM factura_cliente acc    
+		   		  	FROM factura_clientes acc    
 		   		  	left join productos p on (acc.id_producto = p.id)
 					WHERE acc.id_factura = '.$guia.''
 				    );	   		  	
@@ -1862,7 +1863,7 @@ public function cargacontribuyentes(){
 	   		  }else{
 
 	   		  	$query = $this->db->query('SELECT acc.*, p.nombre as nombre, p.codigo as 		codigo, acc.precio as p_venta, acc.cantidad as stock 
-	   		  	FROM factura_cliente acc    
+	   		  	FROM factura_clientes acc    
 	   		  	left join productos p on (acc.id_producto = p.id)
 				WHERE acc.id_factura = '.$nombre.''
 			    );
@@ -1871,7 +1872,14 @@ public function cargacontribuyentes(){
 
 	   		  }
 
-	   		 };
+	   		 }else{
+					$query = $this->db->query('SELECT acc.*, p.nombre as nombre, p.codigo as codigo,
+					acc.precio as p_venta, acc.cantidad as stock FROM detalle_factura_cliente acc
+					    left join productos p on (acc.id_producto = p.id)
+						WHERE acc.id_factura = '.$nombre.'' 
+
+					);
+	   		 }
 
 		  }		
 		  $total = 0;
@@ -1896,10 +1904,13 @@ public function cargacontribuyentes(){
 	    }else{
 
 	    	$sql_nombre = "";
-	        $arrayNombre =  explode(" ",$codigo);
 
-	        foreach ($arrayNombre as $codigo) {
-	        	$sql_nombre .= "acc.nombre like '%".$codigo."%' and ";
+	    	if(isset($codigo)){
+		        $arrayNombre =  explode(" ",$codigo);
+
+		        foreach ($arrayNombre as $codigo) {
+		        	$sql_nombre .= "acc.nombre like '%".$codigo."%' and ";
+		        }
 	        }
 
 			$query = $this->db->query('SELECT acc.*, c.nombre as nom_ubi_prod, ca.nombre as nom_uni_medida, m.nombre as nom_marca, fa.nombre as nom_familia, bo.nombre as nom_bodega, ag.nombre as nom_agrupacion, sb.nombre as nom_subfamilia,
