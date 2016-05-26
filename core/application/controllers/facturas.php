@@ -710,7 +710,8 @@ exit;*/
 
 	public function put_empresa(){
 		//print_r($this->input->post(NULL,true)); exit;
-		
+		$this->load->model('facturaelectronica');
+		$empresa = $this->facturaelectronica->get_empresa();
 		$tipo_caf = $this->input->post('tipoCaf');
         $config['upload_path'] = "./facturacion_electronica/images/"	;
         $config['file_name'] = 'logo_empresa';
@@ -723,14 +724,14 @@ exit;*/
 
         $error = false;
         $carga = false;
-        if (!$this->upload->do_upload("logo")) {
+        if (!$this->upload->do_upload("logo") && is_null($empresa->logo)) { // si no hay descarga y no tiene archivo cargado
             print_r($this->upload->data()); 
             print_r($this->upload->display_errors());
             $error = true;
             $message = "Error en subir archivo.  Intente nuevamente";
         }else{
-        	$this->load->model('facturaelectronica');
-        	$empresa = $this->facturaelectronica->get_empresa();
+        	
+        	//$empresa = $this->facturaelectronica->get_empresa();
     		$rut = $this->input->post('rut');
     		$array_rut = explode("-",$rut);
     		$fecha_resolucion = $this->input->post('fec_resolucion');
@@ -1837,7 +1838,7 @@ public function cargacontribuyentes(){
 		$data = array();
 
 		if($nombre){
-			$query = $this->db->query('SELECT * FROM factura_clientes WHERE num_factura = "'.$nombre.'" and tipo_documento in ("'.$tipo.'","'.$tipo2.'","'.$tipo3.'")');
+			$query = $this->db->query('SELECT * FROM factura_clientes WHERE id = "'.$nombre.'" and tipo_documento in ("'.$tipo.'","'.$tipo2.'","'.$tipo3.'")');
 
 		   if($query->num_rows()>0){
 
