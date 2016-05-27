@@ -133,7 +133,7 @@ class Notadebito extends CI_Controller {
 		        'numdocumento' => $numdocuemnto,
 		        'tipodocumento_asoc' => $tipodocumento_asoc,
 		        'numdocumento_asoc' => $numfactura_asoc,
-		        'glosa' => 'Registro de Nota de Dédito en Cuenta Corriente',
+		        'glosa' => 'Registro de Nota de Débito en Cuenta Corriente',
 		        'fecvencimiento' => $fechavenc,
 		        'valor' => $ftotal,
 		        'origen' => 'VENTA',
