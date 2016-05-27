@@ -66,6 +66,9 @@ Ext.define('Infosys_web.controller.Facturacion', {
     },{
         ref: 'notacreditoprincipal',
         selector: 'notacreditoprincipal'
+    },{
+        ref: 'notadebitoprincipal',
+        selector: 'notadebitoprincipal'
     },{        
         ref: 'buscarclientes',
         selector: 'buscarclientes'
@@ -225,6 +228,10 @@ Ext.define('Infosys_web.controller.Facturacion', {
                 verEstadoDte: this.verEstadoDte
             }, 
 
+
+            'notadebitoprincipal': {
+                verEstadoDte: this.verEstadoDte
+            }, 
 
             'histlibrocompraventa': {
                 verEstadoDte: this.verEstadoDte
