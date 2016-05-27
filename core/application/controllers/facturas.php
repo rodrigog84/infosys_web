@@ -1419,8 +1419,6 @@ public function cargacontribuyentes(){
 			$tipo_caf = 61;
 		}else if($tipo_doc == 103){
 			$tipo_caf = 34;
-		}else if($tipo_doc == 104){
-			$tipo_caf = 56;
 		}
 
 		$nuevo_folio = 0;
