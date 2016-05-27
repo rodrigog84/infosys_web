@@ -166,9 +166,6 @@ INSERT INTO `tipo_documento` (`id`, `descripcion`) VALUES (103, 'FACTURA EXENTA 
 INSERT INTO `param_fe` (`nombre`, `valor`) VALUES ('envio_sii', 'manual');
 
 
-/******************************************************************************************/
-INSERT INTO `tipo_documento` (`id`, `descripcion`, `correlativo`) VALUES (104, 'NOTA DE DEBITO ELECTRONICA', 0);
-
 
 /******************************************************************************************/
 CREATE TABLE `contribuyentes_autorizados_1` (
@@ -276,3 +273,6 @@ CREATE TABLE `email_fe` (
 COLLATE='latin1_swedish_ci'
 ENGINE=InnoDB
 ;
+ /******************************************************************/
+ INSERT INTO `tipo_documento` (`id`, `descripcion`, `correlativo`) VALUES (104, 'NOTA DE DEBITO ELECTRONICA', 0);
+ INSERT INTO `tipo_documento` (`id`, `descripcion`, `correlativo`) VALUES (16, 'NOTAS DE DEBITO', 0);
