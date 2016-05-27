@@ -152,7 +152,7 @@ class Notadebito extends CI_Controller {
             include $this->facturaelectronica->ruta_libredte();
 
             $tipo_nota_debito = 2; //tenemos sólo nota de crédito glosa
-            $glosa = 'Correccion factura '. $numfactura;
+            $glosa = 'Correccion factura '. $numfactura_asoc;
 
             $empresa = $this->facturaelectronica->get_empresa();
             $datos_empresa_factura = $this->facturaelectronica->get_empresa_factura($idfactura);

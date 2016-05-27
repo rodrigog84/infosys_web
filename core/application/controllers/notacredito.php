@@ -153,7 +153,7 @@ class Notacredito extends CI_Controller {
             include $this->facturaelectronica->ruta_libredte();
 
             $tipo_nota_credito = 2;
-            $glosa = 'Correccion factura '. $numfactura;
+            $glosa = 'Correccion factura '. $numfactura_asoc;
 
             $empresa = $this->facturaelectronica->get_empresa();
             $datos_empresa_factura = $this->facturaelectronica->get_empresa_factura($idfactura);
@@ -522,7 +522,7 @@ class Notacredito extends CI_Controller {
 			include $this->facturaelectronica->ruta_libredte();
 
 			$tipo_nota_credito = $this->input->post('tipo_nota_credito');
-			$glosa = $tipo_nota_credito == 1 ? 'Anula factura '. $numfactura : 'Correccion factura '. $numfactura;
+			$glosa = $tipo_nota_credito == 1 ? 'Anula factura '. $numfactura_asoc : 'Correccion factura '. $numfactura_asoc;
 
 			$empresa = $this->facturaelectronica->get_empresa();
 			$datos_empresa_factura = $this->facturaelectronica->get_empresa_factura($idfactura);
