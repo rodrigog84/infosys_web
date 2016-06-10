@@ -1421,6 +1421,8 @@ public function cargacontribuyentes(){
 			$tipo_caf = 34;
 		}else if($tipo_doc == 104){
 			$tipo_caf = 56;
+		}else if($tipo_doc == 105){
+			$tipo_caf = 52;
 		}
 
 		$nuevo_folio = 0;
@@ -1605,7 +1607,8 @@ public function cargacontribuyentes(){
 			left join correlativos co on (acc.tipo_documento = co.id)
 			left join tipo_documento td on (acc.tipo_documento = td.id)
 			WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.','.$tipo3.','.$tipo4.','.$tipo5.','.$tipo6.')
-			order by acc.id desc'	
+			order by acc.id desc
+			limit '.$start.', '.$limit.''	
 			
 			);
 
@@ -1964,6 +1967,7 @@ public function cargacontribuyentes(){
         $limit = $this->input->get('limit');
         $nombre = $this->input->get('nombre');        
         $tipo = "1";
+        $tipo2 = "101";
 
 
 
@@ -1974,7 +1978,7 @@ public function cargacontribuyentes(){
 		$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id_cliente = '.$nombre.' AND acc.tipo_documento = '.$tipo.'
+			WHERE acc.id_cliente = '.$nombre.' AND acc.tipo_documento in ('.$tipo.','.$tipo2.')
 			limit '.$start.', '.$limit.' ' 
 
 		);
@@ -2038,19 +2042,30 @@ public function cargacontribuyentes(){
         $limit = $this->input->get('limit');
         $nombre = $this->input->get('nombre');        
         $tipo = "1";
+        $tipo2 = "101";
 
 
 		$countAll = $this->db->count_all_results("factura_clientes");
 		$data = array();
 
 		if($nombre){
-		$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
+
+					$query = $this->db->query('SELECT acc.*, p.nombre as nombre, p.codigo as codigo,
+					acc.precio as p_venta, acc.cantidad as stock, c.rut as rut_cliente FROM detalle_factura_cliente acc
+						left join factura_clientes f on acc.id_factura = f.id
+						left join clientes c on (f.id_cliente = c.id)
+					    left join productos p on (acc.id_producto = p.id)
+						WHERE acc.id_factura = '.$nombre.'' 
+
+					);		
+
+		/*$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id_cliente = '.$nombre.' AND acc.tipo_documento = '.$tipo.'
+			WHERE acc.id = '.$nombre.' AND acc.tipo_documento in ('.$tipo.','.$tipo2.')
 			limit '.$start.', '.$limit.' ' 
 
-		);
+		);*/
 
 		
 		  $total = 0;
@@ -3826,7 +3841,9 @@ font-family: Arial, Helvetica, sans-serif;
             list($dia, $mes, $anio) = explode("/",$fecha2);
             $fecha4 = $anio ."-". $mes ."-". $dia;
             $tipo = 1;
-            $tipo2 = 2;
+            $tipo2 = 19;
+            $tipo3 = 101;
+            $tipo4 = 103;
                         
 
             $data = array();
@@ -3840,7 +3857,7 @@ font-family: Arial, Helvetica, sans-serif;
                 $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor  FROM factura_clientes acc
                 left join clientes c on (acc.id_cliente = c.id)
                 left join vendedores v on (acc.id_vendedor = v.id)
-                WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.') and c.rut = '.$nombres.' and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
+                WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.','.$tipo3.','.$tipo4.') and c.rut = '.$nombres.' and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
                 order by acc.id desc'    
 
               );
@@ -3858,7 +3875,7 @@ font-family: Arial, Helvetica, sans-serif;
                 $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor  FROM factura_clientes acc
                 left join clientes c on (acc.id_cliente = c.id)
                 left join vendedores v on (acc.id_vendedor = v.id)
-                WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.') ' . $sql_nombre . ' and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'" 
+                WHERE acc.tipo_documento in (  '.$tipo.','.$tipo2.','.$tipo3.','.$tipo4.') ' . $sql_nombre . ' and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'" 
                 order by acc.id desc' 
                 
                 );
@@ -3870,7 +3887,7 @@ font-family: Arial, Helvetica, sans-serif;
                 $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor  FROM factura_clientes acc
                 left join clientes c on (acc.id_cliente = c.id)
                 left join vendedores v on (acc.id_vendedor = v.id)
-                WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.') and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
+                WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.','.$tipo3.','.$tipo4.') and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
                 order by acc.id desc' 
                 
                 );
@@ -3883,7 +3900,7 @@ font-family: Arial, Helvetica, sans-serif;
               $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor  FROM factura_clientes acc
                 left join clientes c on (acc.id_cliente = c.id)
                 left join vendedores v on (acc.id_vendedor = v.id)
-                WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.') and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
+                WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.','.$tipo3.','.$tipo4.') and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
                 order by acc.id desc' 
 
                 );
