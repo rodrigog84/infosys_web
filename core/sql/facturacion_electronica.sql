@@ -234,7 +234,7 @@ ROW_FORMAT=COMPACT
 
 
 
-post_max_size 30
+#post_max_size 30
 
 
 /********************************************************/
@@ -276,3 +276,9 @@ ENGINE=InnoDB
  /******************************************************************/
  INSERT INTO `tipo_documento` (`id`, `descripcion`, `correlativo`) VALUES (104, 'NOTA DE DEBITO ELECTRONICA', 0);
  INSERT INTO `tipo_documento` (`id`, `descripcion`, `correlativo`) VALUES (16, 'NOTAS DE DEBITO', 0);
+
+
+ /************************************* DESDE AQUI ******************************************/
+
+ INSERT INTO `tipo_caf` (`id`, `nombre`) VALUES (52, 'Guia de Despacho Electrónica');
+INSERT INTO `tipo_documento` (`id`, `descripcion`) VALUES (105, 'GUIA DE DESPACHO ELECTRONICA');
