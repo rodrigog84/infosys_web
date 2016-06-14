@@ -1539,6 +1539,7 @@ public function cargacontribuyentes(){
         $tipo4 = 101; // FACTURA ELECTRONICA
         $tipo5 = 18; // FACTURA EXENTA
         $tipo6 = 103; // FACTURA EXENTA ELECTRONICA        
+        $tipo7 = 105; // FACTURA EXENTA ELECTRONICA   
 
         $countAll = $this->db->count_all_results("factura_clientes");
 		$data = array();
@@ -1551,7 +1552,7 @@ public function cargacontribuyentes(){
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join tipo_documento td on (acc.tipo_documento = td.id)
-			WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.','.$tipo3.','.$tipo4.','.$tipo5.','.$tipo6.') and c.rut = '.$nombres.'
+			WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.','.$tipo3.','.$tipo4.','.$tipo5.','.$tipo6.','.$tipo7.') and c.rut = '.$nombres.'
 			order by acc.id desc		
 			limit '.$start.', '.$limit.''		 
 
@@ -1581,7 +1582,7 @@ public function cargacontribuyentes(){
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join tipo_documento td on (acc.tipo_documento = td.id)
-			WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.','.$tipo3.','.$tipo4.','.$tipo5.','.$tipo6.') ' . $sql_nombre . '
+			WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.','.$tipo3.','.$tipo4.','.$tipo5.','.$tipo6.','.$tipo7.') ' . $sql_nombre . '
 			order by acc.id desc		
 			limit '.$start.', '.$limit.''
 						
@@ -1606,7 +1607,7 @@ public function cargacontribuyentes(){
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join correlativos co on (acc.tipo_documento = co.id)
 			left join tipo_documento td on (acc.tipo_documento = td.id)
-			WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.','.$tipo3.','.$tipo4.','.$tipo5.','.$tipo6.')
+			WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.','.$tipo3.','.$tipo4.','.$tipo5.','.$tipo6.','.$tipo7.')
 			order by acc.id desc
 			limit '.$start.', '.$limit.''	
 			
@@ -1633,7 +1634,7 @@ public function cargacontribuyentes(){
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join correlativos co on (acc.tipo_documento = co.id)
 			left join tipo_documento td on (acc.tipo_documento = td.id)
-			WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.','.$tipo3.','.$tipo4.','.$tipo5.','.$tipo6.')
+			WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.','.$tipo3.','.$tipo4.','.$tipo5.','.$tipo6.','.$tipo7.')
 			order by acc.id desc		
 			limit '.$start.', '.$limit.''	
 
@@ -2336,7 +2337,7 @@ public function cargacontribuyentes(){
     	
 		}
 
-		if ($tipodocumento != 3){
+		if ($tipodocumento != 3 && $tipodocumento != 105){  // NO ES GUIA DE DESPACHO
 
 
 		/******* CUENTAS CORRIENTES ****/
@@ -2396,11 +2397,24 @@ public function cargacontribuyentes(){
 
 		$this->db->insert('cartola_cuenta_corriente', $cartola_cuenta_corriente); 			
 
+        $resp['success'] = true;
+		$resp['idfactura'] = $idfactura;
+
+		$this->Bitacora->logger("I", 'factura_clientes', $idfactura);
+		}
+
 		/*****************************************/
 
-		if($tipodocumento == 101 || $tipodocumento == 103){  // SI ES FACTURA ELECTRONICA O FACTURA EXENTA ELECTRONICA
+		if($tipodocumento == 101 || $tipodocumento == 103 || $tipodocumento == 105){  // SI ES FACTURA ELECTRONICA O FACTURA EXENTA ELECTRONICA
 
-			$tipo_caf = $tipodocumento == 101 ? 33 : 34;
+			if($tipodocumento == 101){
+				$tipo_caf = 33;
+			}else if($tipodocumento == 103){
+				$tipo_caf = 34;
+			}else if($tipodocumento == 105){
+				$tipo_caf = 52;
+			}
+			//$tipo_caf = $tipodocumento == 101 ? 33 : 34;
 
 			header('Content-type: text/plain; charset=ISO-8859-1');
 			$this->load->model('facturaelectronica');
@@ -2537,11 +2551,7 @@ public function cargacontribuyentes(){
 		}
 
 		
-        $resp['success'] = true;
-		$resp['idfactura'] = $idfactura;
 
-		$this->Bitacora->logger("I", 'factura_clientes', $idfactura);
-		}
         echo json_encode($resp);
 	}
 
@@ -2560,7 +2570,7 @@ public function cargacontribuyentes(){
 		if($tipodocumento == 1){
 				$this->exportFacturaPDF($idfactura,$numero);
 
-		}else if($tipodocumento ==  101 || $tipodocumento == 103){ // FACTURA ELECTRONICA O FACTURA EXENTA ELECTRONCA
+		}else if($tipodocumento ==  101 || $tipodocumento == 103 || $tipodocumento == 105){ // FACTURA ELECTRONICA O FACTURA EXENTA ELECTRONCA O GUIA DE DESPACHO
 				//$es_cedible = is_null($cedible) ? false : true;
 				$this->load->model('facturaelectronica');
 				$this->facturaelectronica->exportFePDF($idfactura,'id');
