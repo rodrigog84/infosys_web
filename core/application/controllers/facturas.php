@@ -962,7 +962,8 @@ class Facturas extends CI_Controller {
     	    	$datos3 = array(
 				'id_producto' => $producto,
 		        'stock' =>  $saldo,
-		        'fecha_ultimo_movimiento' =>$fechafactura				
+		        'fecha_ultimo_movimiento' =>$fechafactura,
+		        'id_bodega' => 1				
 				);
 				$this->db->insert('existencia', $datos3);
 	    	 	}
@@ -970,7 +971,8 @@ class Facturas extends CI_Controller {
     	    	$datos3 = array(
 				'id_producto' => $producto,
 		        'stock' =>  $saldo,
-		        'fecha_ultimo_movimiento' =>$fechafactura			
+		        'fecha_ultimo_movimiento' =>$fechafactura,
+		        'id_bodega' => 1			
 				);
 				$this->db->insert('existencia', $datos3);
 		    }

@@ -218,7 +218,8 @@ class Ordencompra extends CI_Controller {
 	    	    	$datos3 = array(
 					'id_producto' => $producto,
 			        'stock' =>  $saldo,
-			        'fecha_ultimo_movimiento' =>date('Y-m-d H:i:s')
+			        'fecha_ultimo_movimiento' =>date('Y-m-d H:i:s'),
+			        'id_bodega' => 1,
 				
 					);
 					$this->db->insert('existencia', $datos3);
@@ -228,8 +229,8 @@ class Ordencompra extends CI_Controller {
 		    	    	$datos3 = array(
 						'id_producto' => $producto,
 				        'stock' =>  $saldo,
-				        'fecha_ultimo_movimiento' =>date('Y-m-d H:i:s')
-					
+				        'fecha_ultimo_movimiento' =>date('Y-m-d H:i:s'),
+					    'id_bodega' => 1
 						);
 						$this->db->insert('existencia', $datos3);
 			    	
@@ -419,7 +420,8 @@ class Ordencompra extends CI_Controller {
 	    	    	$datos3 = array(
 					'id_producto' => $producto,
 			        'stock' =>  $saldo,
-			        'fecha_ultimo_movimiento' =>date('Y-m-d H:i:s')
+			        'fecha_ultimo_movimiento' =>date('Y-m-d H:i:s'),
+			        'id_bodega' => 1
 				
 					);
 					$this->db->insert('existencia', $datos3);
@@ -429,7 +431,8 @@ class Ordencompra extends CI_Controller {
 		    	    	$datos3 = array(
 						'id_producto' => $producto,
 				        'stock' =>  $saldo,
-				        'fecha_ultimo_movimiento' =>date('Y-m-d H:i:s')
+				        'fecha_ultimo_movimiento' =>date('Y-m-d H:i:s'),
+				        'id_bodega' => 1
 					
 						);
 						$this->db->insert('existencia', $datos3);
