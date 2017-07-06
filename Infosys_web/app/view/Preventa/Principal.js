@@ -64,23 +64,28 @@ Ext.define('Infosys_web.view.Preventa.Principal' ,{
         flex: 1,
         dataIndex: 'nom_vendedor'
     },{
+        header: "Id_Vendedor",
+        flex: 1,
+        dataIndex: 'id_vendedor',
+        hidden: true
+    },{
         header: "Neto",
         flex: 1,
         dataIndex: 'neto',
         hidden: true,
-        renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00")},
+        renderer: function(valor){return Ext.util.Format.number((valor),"0,00")},
         aling: 'rigth'
     },{
         header: "Descuento",
         flex: 1,
         dataIndex: 'desc',
-        renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00")},
+        renderer: function(valor){return Ext.util.Format.number((valor),"0,00")},
         hidden: true
     },{
         header: "Total Venta",
         flex: 1,
         dataIndex: 'total',       
-        renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00")},
+        renderer: function(valor){return Ext.util.Format.number((valor),"0,00")},
         align: 'right'        
     },{
         header: "Id Sucursal",
@@ -133,23 +138,40 @@ Ext.define('Infosys_web.view.Preventa.Principal' ,{
                 action:'exportarexcelpreventa'
             },'->',{
                 xtype: 'combo',
+                align: 'center',
+                width: 260,
+                labelWidth: 85,
+                maxHeight: 25,
+                matchFieldWidth: false,
+                listConfig: {
+                    width: 175
+                },
+                itemId: 'tipoDocumentoId',
+                fieldLabel: '<b>DOCUMENTO</b>',
+                fieldCls: 'required',
+                store: 'Tipo_documento.Selector',
+                valueField: 'id',
+                displayField: 'nombre'
+            },{
+                xtype: 'combo',
                 itemId: 'tipoSeleccionId',
                 fieldLabel: '',
+                width: 100,
                 forceSelection : true,
                 editable : false,
                 valueField : 'id',
                 displayField : 'nombre',
                 emptyText : "Seleccione",
-                store : 'clientes.Selector'
+                store : 'facturas.Selector2'
             },{
-                width: 250,
+                width: 200,
                 xtype: 'textfield',
                 itemId: 'nombreId',
                 fieldLabel: ''
-            },{
+            },'-',{
                 xtype: 'button',
                 iconCls: 'icon-search',
-                action: '',
+                action: 'buscarpreventa',
                 text : 'Buscar'
             },{
                 xtype: 'button',

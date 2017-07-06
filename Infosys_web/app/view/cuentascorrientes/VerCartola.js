@@ -76,7 +76,7 @@ Ext.define('Infosys_web.view.cuentascorrientes.VerCartola' ,{
                 labelStyle: ' font-weight:bold',
                 fieldStyle: 'font-weight:bold'
             },'->',{
-                width: 150,
+                width: 180,
                 xtype: 'displayfield',
                 labelStyle: ' font-weight:bold',
                 fieldStyle: 'font-weight:bold',
@@ -85,7 +85,7 @@ Ext.define('Infosys_web.view.cuentascorrientes.VerCartola' ,{
                 align: 'right',
                 renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00")}          
             },'-',{
-                width: 150,
+                width: 180,
                 xtype: 'displayfield',
                 labelStyle: ' font-weight:bold',
                 fieldStyle: 'font-weight:bold',
@@ -94,11 +94,6 @@ Ext.define('Infosys_web.view.cuentascorrientes.VerCartola' ,{
                 align: 'right',
                 renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00")}
             }]      
-        },{
-            xtype: 'pagingtoolbar',
-            dock:'bottom',
-            store: 'Cuentacorriente',
-            displayInfo: true
         }];
         this.items = {
             xtype: 'grid',

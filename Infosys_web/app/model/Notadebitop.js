@@ -3,6 +3,7 @@ Ext.define('Infosys_web.model.Notadebitop', {
     extend: 'Ext.data.Model',
     fields: [
         {name: 'id'},
+        {name: 'id_factura'},
         {name: 'id_producto'},
         {name: 'nombre'},
         {name: 'codigo'},

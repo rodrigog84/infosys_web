@@ -17,6 +17,7 @@ Ext.define('Infosys_web.model.Proveedor', {
         {name: 'nombre_vendedor'},
         {name: 'nombre_comuna'},
         {name: 'rut'},
+        {name: 'rutgraba'},
         {name: 'descuento'},
         {name: 'e_mail'},
         {name: 'fecha_incripcion', type:'date',dateFormat:"Y-m-d"},

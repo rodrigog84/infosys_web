@@ -238,12 +238,13 @@ Ext.define('Infosys_web.view.ordencompra.Ingresar', {
                                 maxHeight: 25,
                                 width: 140,
                                 allowBlank: true,
-                                icon: gbl_site + 'Infosys_web/resources/images/search.png',
-                                tooltip: 'Buscar',
-                                handler: function (grid, rowIndex, colIndex, id) {
-                                    var view = Ext.create('Infosys_web.view.ordencompra.BuscarProductos');
-                                    view.down("#nombreId").focus();
-                                }
+                                action: 'buscarproductosl',
+                                //icon: gbl_site + 'Infosys_web/resources/images/search.png',
+                                //tooltip: 'Buscar',
+                                //handler: function (grid, rowIndex, colIndex, id) {
+                                //    var view = Ext.create('Infosys_web.view.ordencompra.BuscarProductos');
+                                //    view.down("#nombreId").focus();
+                                //}
                             },
                             {xtype: 'splitter'},
                             {

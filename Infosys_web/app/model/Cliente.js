@@ -3,6 +3,7 @@ Ext.define('Infosys_web.model.Cliente', {
     extend: 'Ext.data.Model',
     fields: [
         {name: 'id'},
+        {name: 'idctacte'},
         {name: 'nombres'},
         {name: 'fono'},
         {name: 'direccion'},

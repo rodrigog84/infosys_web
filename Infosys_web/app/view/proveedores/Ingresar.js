@@ -22,7 +22,7 @@ Ext.define('Infosys_web.view.proveedores.Ingresar', {
                 fieldDefaults: {
                     anchor: '100%',
                     labelAlign: 'left',
-                    allowBlank: false,
+                    //allowBlank: false,
                     combineErrors: true,
                     labelWidth: 150,
                     msgTarget: 'side'
@@ -67,7 +67,7 @@ Ext.define('Infosys_web.view.proveedores.Ingresar', {
                         name : 'id',
                         itemId: 'id_proveedor',
                         fieldLabel: 'id',
-                        allowBlank: true,
+                        //allowBlank: true,
                         hidden: true
                     },{
                         xtype: 'textfield',
@@ -152,7 +152,7 @@ Ext.define('Infosys_web.view.proveedores.Ingresar', {
                         displayField : 'nombre',
                         emptyText : "Estado",
                         store : 'vendedores.Activo',
-                        allowBlank: false
+                        //allowBlank: false
                     }
                 ]
             }

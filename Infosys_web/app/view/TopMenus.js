@@ -190,7 +190,8 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                             disabled: true,
                             action: ''
                 }]
-           },{
+                
+            },{
                 text: 'Cierre',
                 iconCls: '',
                 menu: [{
@@ -514,6 +515,18 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                             text: 'Libro Ventas',
                             iconCls: '',
                             action: 'mejemplo'
+                        },{
+                            text: 'Resumen Ventas',
+                            iconCls: '',
+                            action: 'resumenventas'
+                        },{
+                            text: 'Informe Stock',
+                            iconCls: '',
+                            action: 'informestock'
+                        },{
+                            text: 'Estad&iacute;stica de Ventas',
+                            iconCls: '',
+                            action: 'estadisticasventas'
                         }]
                 },]
 
@@ -528,68 +541,8 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                         action: ''
                 }]
              
-            },{
-                text: 'Facturaci&oacute;n Electr&oacute;nica',
-                iconCls: '',
-                menu: [{
-                        text: 'Registro de Empresa',
-                        iconCls: '',
-                        itemId: 'vyf_registro_empresa',
-                        disabled: '',
-                        action: 'mregempresa'
-                },{
-                        text: 'Par&aacute;metros Generales',
-                        iconCls: '',
-                        itemId: 'vyf_param_generales',
-                        disabled: '',
-                        action: 'mparamgenerales'
-                },{
-                        text: 'Carga Certificado Digital',
-                        iconCls: '',
-                        itemId: 'vyf_cert_digital',
-                        disabled: '',
-                        action: 'mcargacertdigital'
-                },{
-                        text: 'Carga Manual CAF',
-                        iconCls: '',
-                        itemId: 'vyf_carga_manual_caf',
-                        disabled: '',
-                        action: 'mcargamanualcaf'
-                },{
-                        text: 'Carga DTE Compras',
-                        iconCls: '',
-                        itemId: 'vyf_carga_dte_provee',
-                        disabled: '',
-                        action: 'mcargadteprovee'
-                },{
-                        text: 'Generaci&oacute;n Nuevo Libro Compra/Venta',
-                        iconCls: '',
-                        itemId: 'vyf_libro_compra_venta',
-                        disabled: '',
-                        action: 'mlibrocompraventa'
-                },{
-                        text: 'Hist&oacute;rico Libros Compra/Venta',
-                        iconCls: '',
-                        itemId: 'vyf_hist_libro_compra_venta',
-                        disabled: '',
-                        action: 'mhistlibrocompraventa'
-                },{
-                        text: 'Carga Contribuyentes Autorizados',
-                        iconCls: '',
-                        itemId: 'vyf_carga_contribuyentes',
-                        disabled: '',   
-                        action: 'mcargacontribuyentes'
-                },{
-                        text: 'Registro Emails',
-                        iconCls: '',
-                        itemId: 'vyf_email',
-                        disabled: '',   
-                        action: 'memail'
-                }]
-             
 
             }],           
-
         },{
             xtype: 'button',
             iconCls: 'icon-proveedores',
@@ -812,7 +765,7 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                     Ext.Ajax.request({
                         url: preurl + 'login/salir',
                         success: function(response){
-                            window.location = preurl_js;
+                            window.location = "/Infosys_web/Infosys_web/";
                         },
                         failure: function(){
                             target.setLoading(false);

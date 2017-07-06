@@ -38,14 +38,14 @@ Ext.define('Infosys_web.view.productos.Principal' ,{
         flex: 1,
         dataIndex: 'p_venta',
         align: 'right',
-        renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")}
+        renderer: function(valor){return Ext.util.Format.number((valor),"0,00.00")}
 
     },{
         header: "Stock",
         flex: 1,
         dataIndex: 'stock',
         align: 'right',
-        renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")}
+        renderer: function(valor){return Ext.util.Format.number((valor),"0,00.00")}
 
     },{
         header: "Ubicacion Fisica",

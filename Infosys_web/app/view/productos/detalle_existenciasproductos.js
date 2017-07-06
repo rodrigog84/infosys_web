@@ -80,6 +80,16 @@ Ext.define('Infosys_web.view.productos.detalle_existenciasproductos' ,{
                 iconCls : 'icon-exel',
                 text: 'Exportar EXCEL',
                 action:'exportarexcelexistenciadetalleproducto'
+            },'->',{
+                xtype: 'numberfield',
+                itemId: 'stockId',
+                name : 'stock',
+                renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")},
+                width: 160,
+                fieldLabel: '<b>Stock</b>',
+                labelAlign: 'right',
+                align: 'top',
+                readOnly: true
             }
             ]      
         },

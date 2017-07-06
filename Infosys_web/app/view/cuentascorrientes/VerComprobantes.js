@@ -34,11 +34,6 @@ Ext.define('Infosys_web.view.cuentascorrientes.VerComprobantes' ,{
                 fieldLabel: 'Rut',
                 value : rut
             }]      
-        },{
-            xtype: 'pagingtoolbar',
-            dock:'bottom',
-            store: 'Cuentacorriente',
-            displayInfo: true
         }];
         this.items = {
             xtype: 'grid',

@@ -16,6 +16,12 @@ Ext.define('Infosys_web.view.clientes.Principal' ,{
     columns: [{
         header: "Id",
         width: 390,
+        dataIndex: 'idctacte',
+        hidden:true
+        
+    },{
+        header: "Id",
+        width: 390,
         dataIndex: 'id',
         hidden:true
         
@@ -44,7 +50,8 @@ Ext.define('Infosys_web.view.clientes.Principal' ,{
     },{
         header: "Comuna",
         flex: 1,
-        dataIndex: 'nombre_comuna'
+        dataIndex: 'nombre_comuna',
+        hidden: true
     },{
         header: "Telefono",
         flex: 1,
@@ -105,6 +112,30 @@ Ext.define('Infosys_web.view.clientes.Principal' ,{
                return 'AUTORIZADO';   
             }
         }
+    },{
+            header: "Ver Cartola",
+            xtype:'actioncolumn',
+            width:50,
+            items: [{
+                icon: 'images/search_page.png',  // Use a URL in the icon config
+                tooltip: 'Ver Cartola',
+                handler: function(grid, rowIndex, colIndex) {
+
+                    var rec = grid.getStore().getAt(rowIndex);
+                    console.log(rec);
+                    //salert("Edit " + rec.get('firstname'));
+                    var vista = this.up('clientesprincipal');
+                    vista.fireEvent('verCartola',rec,2)
+                },
+                isDisabled: function(view, rowIndex, colIndex, item, record) {
+                    // Returns true if 'editable' is false (, null, or undefined)
+                    if(record.get('idctacte') == ""){
+                        return false;
+                    }else{
+                        return true;
+                    }
+                }                 
+            }]
     }
    
     ],

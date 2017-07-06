@@ -36,6 +36,8 @@ Ext.define('Infosys_web.controller.CuentasCorrientes', {
             'cuentascorrientes.LibroDiarioPrincipal',
             'cuentascorrientes.SaldoDocumentosPrincipal',
             'cuentascorrientes.SaldoDocumentosMail',
+            'clientes.Principal'
+
             ],
 
     //referencias, es un alias interno para el controller
@@ -86,7 +88,13 @@ Ext.define('Infosys_web.controller.CuentasCorrientes', {
         },{
             ref: 'saldodocumentosmail',
             selector: 'saldodocumentosmail'
+        },{
+            ref: 'clientesprincipal',
+            selector: 'clientesprincipal'
         }
+
+
+
 
     ],
     //init es lo primero que se ejecuta en el controller
@@ -130,6 +138,9 @@ Ext.define('Infosys_web.controller.CuentasCorrientes', {
             },
             'cartolaprincipal': {
                 verCartola: this.verCartola
+            },
+            'clientesprincipal': {
+                verCartola: this.verCartola2
             },      
             'vercomprobantes': {
                 verComprobante: this.verComprobantes
@@ -291,6 +302,47 @@ Ext.define('Infosys_web.controller.CuentasCorrientes', {
 
               Ext.create('Infosys_web.view.cuentascorrientes.VerCartola', {ctacte: r.data.id, 
                                                                             cliente: r.data.cliente,
+                                                                            rut : r.data.rut,
+                                                                            saldo_cta_cte: saldo_cta_cte,
+                                                                            total_debe: total_debe,
+                                                                            total_haber: total_haber});
+
+           },
+           failure: function(response, opts) {
+              console.log('server-side failure with status code ' + response.status);
+           }
+        });          
+
+        }else{
+          Ext.create('Infosys_web.view.cuentascorrientes.VerComprobantes', {ctacte: r.data.id, 
+                                                                        cliente: r.data.cliente,
+                                                                        rut : r.data.rut});
+
+        }
+        //Ext.create('Infosys_web.view.cuentascorrientes.VerCartola').show();
+
+    },
+
+     verCartola2: function(r,t){
+        if(t == 2){
+          var total_debe = 0;
+          var total_haber = 0;
+        Ext.Ajax.request({
+           //url: preurl + 'cuentacorriente/getCuentaCorriente/' + record.get('cuenta') + '/' + editor.value ,
+           url: preurl + 'cuentacorriente/getTotalCartola?idcuentacorriente='+r.data.idctacte,
+           success: function(response, opts) {                         
+                console.log(response)
+              var obj = Ext.decode(response.responseText);
+              total_debe = obj.data.debe;
+              total_haber = obj.data.haber;
+              saldo_cta_cte = obj.data.saldo;
+              
+              //edit.down('#numeroId').setValue(obj.data[0].correlativo);
+                         // editor.record.set({saldo: obj.data[0].saldo});  
+              console.log(total_debe)
+
+              Ext.create('Infosys_web.view.cuentascorrientes.VerCartola', {ctacte: r.data.idctacte, 
+                                                                            cliente: r.data.nombres,
                                                                             rut : r.data.rut,
                                                                             saldo_cta_cte: saldo_cta_cte,
                                                                             total_debe: total_debe,

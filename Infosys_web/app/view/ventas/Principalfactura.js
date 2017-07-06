@@ -28,25 +28,19 @@ Ext.define('Infosys_web.view.ventas.Principalfactura' ,{
         hidden: true
                
     },{
-        header: "Id Factura",
+        header: "Id Cliente",
         flex: 1,
-        dataIndex: 'id_factura',
+        dataIndex: 'id_cliente',
         align: 'right',
         hidden: true
                
     },{
-        header: "Num Docto",
+        header: "Numero Documento",
         flex: 1,
         dataIndex: 'num_factura',
         align: 'right'
                
     },{
-        header: "Tipo Documento",
-        dataIndex: 'tipo_doc',
-        width:300,
-        align: 'left'
-               
-    },{        
         header: "Fecha Emision ",
         flex: 1,
         dataIndex: 'fecha_factura',
@@ -70,7 +64,7 @@ Ext.define('Infosys_web.view.ventas.Principalfactura' ,{
 
     },{
         header: "Razon Social",
-         width: 300,
+         width: 390,
         dataIndex: 'nombre_cliente'
     },{
         header: "Vendedor",
@@ -83,14 +77,14 @@ Ext.define('Infosys_web.view.ventas.Principalfactura' ,{
         dataIndex: 'sub_total',
         hidden: true,
         align: 'right',
-        renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00")}     
+        renderer: function(valor){return Ext.util.Format.number((valor),"0,00")}     
     },{
         header: "Descuento",
         flex: 1,
         dataIndex: 'descuento',
         hidden: true,
         align: 'right',
-        renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00")}
+        renderer: function(valor){return Ext.util.Format.number((valor),"0,00")}
      
     },{
         header: "Afecto",
@@ -98,7 +92,7 @@ Ext.define('Infosys_web.view.ventas.Principalfactura' ,{
         dataIndex: 'neto',
          hidden: true,
          align: 'right',
-        renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00")}
+        renderer: function(valor){return Ext.util.Format.number((valor),"0,00")}
      
     },{
         header: "I.V.A",
@@ -114,75 +108,7 @@ Ext.define('Infosys_web.view.ventas.Principalfactura' ,{
         dataIndex: 'totalfactura',
         align: 'right',
         renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00")}
-    },{
-            header: "Estado DTE",
-            xtype:'actioncolumn',
-            width:90,
-            align: 'center',
-            items: [{
-                icon: 'images/search_page.png',  // Use a URL in the icon config
-                tooltip: 'Ver Estado DTE',
-                handler: function(grid, rowIndex, colIndex) {
-                    var rec = grid.getStore().getAt(rowIndex);
-                    //salert("Edit " + rec.get('firstname'));
-                    var vista = this.up('facturasprincipal');
-                    vista.fireEvent('verEstadoDte',rec,1)
-                },
-                isDisabled: function(view, rowIndex, colIndex, item, record) {
-                    // Returns true if 'editable' is false (, null, or undefined)
-                    if(record.get('tipo_documento') == 101 || record.get('tipo_documento') == 103 || record.get('tipo_documento') == 105){
-                        return false;
-                    }else{
-                        return true;
-                    }
-                }                
-            }]
-    },{
-            header: "Ver DTE",
-            xtype:'actioncolumn',
-            width:70,
-            align: 'center',
-            items: [{
-                icon: 'images/download-icon.png',  // Use a URL in the icon config
-                tooltip: 'Descargar DTE',
-                handler: function(grid, rowIndex, colIndex) {
-                    var rec = grid.getStore().getAt(rowIndex);
-                    //salert("Edit " + rec.get('firstname'));
-                    var vista = this.up('facturasprincipal');
-                    vista.fireEvent('verEstadoDte',rec,2)
-                },
-                isDisabled: function(view, rowIndex, colIndex, item, record) {
-                    // Returns true if 'editable' is false (, null, or undefined)
-                    if(record.get('tipo_documento') == 101 || record.get('tipo_documento') == 103 || record.get('tipo_documento') == 105){
-                        return false;
-                    }else{
-                        return true;
-                    }
-                }                
-            }]
-    },{
-            header: "Env&iacute;o SII",
-            xtype:'actioncolumn',
-            width:70,
-            align: 'center',
-            items: [{
-                iconCls: 'icon-upload',  // Use a URL in the icon config
-                tooltip: 'Ver Estado Env&iacute;o',
-                handler: function(grid, rowIndex, colIndex) {
-                    var rec = grid.getStore().getAt(rowIndex);
-                    //salert("Edit " + rec.get('firstname'));
-                    var vista = this.up('facturasprincipal');
-                    vista.fireEvent('verEstadoDte',rec,3)
-                },
-                isDisabled: function(view, rowIndex, colIndex, item, record) {
-                    // Returns true if 'editable' is false (, null, or undefined)
-                    if(record.get('tipo_documento') == 101 || record.get('tipo_documento') == 103 || record.get('tipo_documento') == 105){
-                        return false;
-                    }else{
-                        return true;
-                    }
-                }                
-            }]     
+     
         
     }],
     
@@ -200,37 +126,59 @@ Ext.define('Infosys_web.view.ventas.Principalfactura' ,{
                 xtype: 'button',
                 iconCls: 'icon-add',
                 action: 'mfacturaglosa',
-                text : 'Venta Glosa'
+                text : 'Glosa'
+            },{
+                xtype: 'button',
+                iconCls: 'icon-add',
+                action: 'mfacturaganado',
+                text : 'Ganado'
+            },{
+                xtype: 'button',
+                iconCls : 'icon-add',
+                text: 'Edita Factura',
+                action:'editafactura'
             },{
                 xtype: 'button',
                 iconCls : 'icon-pdf',
-                text: 'Edita / Imprimir PDF',
+                text: 'Impr. PDF',
                 action:'generarfacturapdf'
             },{
                 xtype: 'button',
-                iconCls : 'icon-pdf',
-                text: 'Copia Cedible',
-                action:'generarfacturacediblepdf'
-            },{                
-                xtype: 'button',
                 iconCls : 'icon-exel',
-                text: 'Exportar EXCEL',
+                text: 'EXCEL',
                 action:'exportarexcelfacturas'
             },{
                 xtype: 'button',
                 iconCls : 'icon-pdf',
-                text: 'PDF Libro Ventas',
+                text: 'PDF Libro',
                 action:'generarlibropdf'
             },'->',{
                 xtype: 'combo',
+                align: 'center',
+                width: 260,
+                labelWidth: 85,
+                maxHeight: 25,
+                matchFieldWidth: false,
+                listConfig: {
+                    width: 175
+                },
+                itemId: 'tipoDocumentoId',
+                fieldLabel: '<b>DOCUMENTO</b>',
+                fieldCls: 'required',
+                store: 'Tipo_documento.Selector',
+                valueField: 'id',
+                displayField: 'nombre'
+            },{
+                xtype: 'combo',
                 itemId: 'tipoSeleccionId',
                 fieldLabel: '',
+                width: 100,
                 forceSelection : true,
                 editable : false,
                 valueField : 'id',
                 displayField : 'nombre',
                 emptyText : "Seleccione",
-                store : 'clientes.Selector'
+                store : 'facturas.Selector2'
             },{
                 width: 200,
                 xtype: 'textfield',

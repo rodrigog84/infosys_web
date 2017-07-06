@@ -8,6 +8,7 @@ Ext.define('Infosys_web.model.Vendedor', {
     	{name: 'direccion'},
     	{name: 'fono'},
     	{name: 'comision'},
-    	{name: 'estado'}
+    	{name: 'estado'},
+        {name: 'cod_interno'}
     	]
 });

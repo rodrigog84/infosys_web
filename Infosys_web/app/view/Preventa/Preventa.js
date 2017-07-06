@@ -20,7 +20,7 @@ Ext.define('Infosys_web.view.Preventa.Preventa', {
 
     autoShow: true,
     height: 660,
-    width: 1200,
+    width: 1350,
     layout: 'fit',
     title: 'Ticket Preventa',
 
@@ -126,7 +126,7 @@ Ext.define('Infosys_web.view.Preventa.Preventa', {
                                             fieldLabel: '<b>RUT</b>',
                                             itemId: 'rutId',
                                             name : 'rut',
-                                            disabled : true                                            
+                                            //disabled : true                                            
                                         }, {xtype: 'splitter'},
                                         {
                                             xtype: 'button',
@@ -134,7 +134,7 @@ Ext.define('Infosys_web.view.Preventa.Preventa', {
                                             maxHeight: 25,
                                             width: 80,
                                             allowBlank: true,
-                                            disabled : true,                                            
+                                            //disabled : true,                                            
                                             action: 'validarut',
                                             itemId: 'buscarBtn'
                                         },{xtype: 'splitter'},{
@@ -146,7 +146,7 @@ Ext.define('Infosys_web.view.Preventa.Preventa', {
                                             width: 835,
                                             itemId: 'nombre_id',
                                             name : 'nombre',
-                                            disabled : true,                                            
+                                            //disabled : true,                                            
                                             readOnly: true
                                             
                                         }
@@ -179,7 +179,7 @@ Ext.define('Infosys_web.view.Preventa.Preventa', {
                                             width: 580,
                                             itemId: 'direccionId',
                                             name : 'direccion',
-                                            disabled : true,                                            
+                                            //disabled : true,                                            
                                             readOnly: true
                                         },{xtype: 'splitter'},{
                                             xtype: 'button',
@@ -188,19 +188,24 @@ Ext.define('Infosys_web.view.Preventa.Preventa', {
                                             maxHeight: 25,
                                             width: 70,
                                             allowBlank: true,
-                                            action: 'buscarsucursalpreventa',
-                                            disabled : true  
+                                            action: 'buscarsucursalpreventa'
+                                            //disabled : true  
                                         },{xtype: 'splitter'},{
-                                            xtype: 'textfield',
-                                            fieldCls: 'required',
-                                            fieldLabel: '<b>GIRO</b>',
-                                            maxHeight: 25,
-                                            width: 495,
+                                            xtype: 'combo',
                                             itemId: 'giroId',
-                                            readOnly: true,
-                                            disabled : true,                                           
-                                            name : 'giro'
-                                          
+                                            maxHeight: 25,
+                                            fieldLabel: 'Giro',
+                                            name: 'id_giro',
+                                            store: 'Cod_activ',
+                                            queryMode: 'local',
+                                            forceSelection: true,
+                                            displayField: 'nombre',
+                                            valueField: 'id',
+                                            listConfig: {
+                                                minWidth: 500
+                                            },
+                                            width: 520
+                                                
                                         }
                                     ]
                                 },{
@@ -285,7 +290,7 @@ Ext.define('Infosys_web.view.Preventa.Preventa', {
                             align: 'center',     
                             items: [{
                                 xtype: 'textfield',
-                                width: 140,
+                                width: 135,
                                 labelWidth: 40,
                                 fieldLabel: 'Codigo',
                                 itemId: 'codigoId',
@@ -324,11 +329,32 @@ Ext.define('Infosys_web.view.Preventa.Preventa', {
                                 labelWidth: 40,
                                 fieldLabel: 'Precio',
                                 itemId: 'precioId',
-                                style: 'font-weight: bold;'
+                                style: 'font-weight: bold;',
+                                disabled : true
+
+                            },
+                            {
+                                xtype: 'numberfield',
+                                width: 130,
+                                labelWidth: 40,
+                                fieldLabel: 'Estado',
+                                itemId: 'estadoId',
+                                style: 'font-weight: bold;',
+                                hidden: true
+                            },
+                            {xtype: 'splitter'},
+                            {
+                                xtype: 'button',
+                                text: 'Seleccionar',
+                                maxHeight: 25,
+                                width: 120,
+                                allowBlank: true,
+                                action: 'buscarprecios',
+                                itemId: 'buscarprec'
                             },{xtype: 'splitter'},
                             {
                                 xtype: 'textfield',
-                                width: 80,
+                                width: 120,
                                 labelWidth: 40,
                                 minValue: 0,
                                 fieldLabel: 'Stock',
@@ -353,7 +379,7 @@ Ext.define('Infosys_web.view.Preventa.Preventa', {
                                 width: 120,
                                 labelWidth: 60,
                                 minValue: 0,
-                                value: 0,
+                                value: 1,
                                 fieldLabel: 'Cantidad',
                                 itemId: 'cantidadId'
                             },{
@@ -368,17 +394,16 @@ Ext.define('Infosys_web.view.Preventa.Preventa', {
                             },
                             {xtype: 'splitter'},
                             {
-                            xtype: 'combo',
-                            width: 220,
-                            queryMode: 'local',
-                            itemId: 'DescuentoproId',
-                            fieldLabel: 'Descto %',
-                            store: 'Tabladescuento',
-                            emptyText : "Seleccione",
-                            valueField: 'id',
-                            disabled : true,
-                            displayField: 'nombre'
-                            },
+                                xtype: 'combo',
+                                width: 210,
+                                queryMode: 'local',
+                                itemId: 'DescuentoproId',
+                                fieldLabel: 'Descto %',
+                                store: 'Tabladescuento',
+                                emptyText : "Seleccione",
+                                valueField: 'id',
+                                displayField: 'nombre'
+                                },
                             {xtype: 'splitter'},
                             {
                                 xtype: 'button',
@@ -420,12 +445,12 @@ Ext.define('Infosys_web.view.Preventa.Preventa', {
                                 { text: 'Id descuento',  dataIndex: 'id_descuento', width: 250, hidden : true },
                                 { text: 'codigo',  dataIndex: 'codigo', width: 250, hidden : true },
                                 { text: 'Producto',  dataIndex: 'nombre', width: 250 },
-                                { text: 'Precio Unitario',  dataIndex: 'precio', align: 'right',flex:1, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} },
+                                { text: 'Precio Unitario',  dataIndex: 'precio', align: 'right',flex:1, renderer: function(valor){return Ext.util.Format.number((valor),"0,000")} },
                                 { text: 'Cantidad',  dataIndex: 'cantidad', align: 'right',width: 100},
-                                { text: 'Descuento',  dataIndex: 'dcto', align: 'right',flex:1, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} },
-                                { text: 'Neto',  dataIndex: 'neto', align: 'right',flex:1,renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} },
-                                { text: 'Iva',  dataIndex: 'iva', align: 'right',flex:1,renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} },
-                                { text: 'Total',  dataIndex: 'total', align: 'right',flex:1, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} }
+                                { text: 'Descuento',  dataIndex: 'dcto', align: 'right',flex:1, renderer: function(valor){return Ext.util.Format.number((valor),"0,000")} },
+                                { text: 'Neto',  dataIndex: 'neto', align: 'right',flex:1,renderer: function(valor){return Ext.util.Format.number((valor),"0,000")} },
+                                { text: 'Iva',  dataIndex: 'iva', align: 'right',flex:1,renderer: function(valor){return Ext.util.Format.number((valor),"0,000")} },
+                                { text: 'Total',  dataIndex: 'total', align: 'right',flex:1, renderer: function(valor){return Ext.util.Format.number((valor),"0,000")} }
                             ]
                             },{
                         xtype: 'fieldset',
@@ -501,7 +526,7 @@ Ext.define('Infosys_web.view.Preventa.Preventa', {
                             readOnly: true,
                             fieldLabel: '<b>IVA</b>',
                             labelAlign: 'top'
-                            //renderer: function(valor){return Ext.util.Format.number(parseInt(iva),"0.000")} 
+                            //renderer: function(valor){return Ext.util.Format.number((iva),"0.000")} 
                         },{xtype: 'splitter'},{
                             xtype: 'textfield',
                             fieldCls: 'required',

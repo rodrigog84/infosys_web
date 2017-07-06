@@ -59,7 +59,7 @@
                 }    
 
                 sform.submit({
-                    url:  preurl + 'login/changePass',
+                    url:  '/Infosys_web/core/index.php/login/changePass',
                     waitMsg: 'Grabando...',
                     success: function(fp, o) {
                         var objs = Ext.JSON.decode(o.response.responseText);

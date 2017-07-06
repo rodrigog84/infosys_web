@@ -1123,8 +1123,7 @@ Ext.define('Infosys_web.controller.General', {
         var me = this
 
         form.submit({
-            //url: '/Gotru_web/core/index.php/login/ingreso',
-            url: preurl+'login/ingreso',
+            url: '/Infosys_web/core/index.php/login/ingreso',
             success: function(s, o) {
                 var objs = Ext.JSON.decode(o.response.responseText);
 
@@ -1605,7 +1604,13 @@ Ext.define('Infosys_web.controller.General', {
         var direccion = win.down('#direccionId').getValue();
         var fono = win.down('#fonoId').getValue();
         var comision = win.down('#comisionId').getValue();
-        var estado = win.down('#tipoEstadoId').getValue();       
+        var codigo = win.down('#codinternoId').getValue();
+        var estado = win.down('#tipoEstadoId').getValue(); 
+        
+        if (!codigo){
+             Ext.Msg.alert('Alerta', 'Debe Ingresar Codigo Vendedor');
+                 return;
+        };      
 
         if (!rut){
              Ext.Msg.alert('Alerta', 'Debe Ingresar Rut');
@@ -2357,7 +2362,7 @@ Ext.define('Infosys_web.controller.General', {
            //console.log("aqui");
            var viewport = this.getPanelprincipal();
            viewport.removeAll();
-           url: preurl_js;
+           url: 'http://angus.agricultorestalca.cl/Infosys_web/Infosys_web/';
     },
 
     cerrarciudades: function(){

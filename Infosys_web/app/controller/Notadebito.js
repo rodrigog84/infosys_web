@@ -11,8 +11,7 @@ Ext.define('Infosys_web.controller.Notadebito', {
              'Productosf',
              'Tipo_documento',
              'Sucursales_clientes',
-             'Tipo_documento.Selector',
-             'Tipo_documento.Selectornd'],
+             'Tipo_documento.Selector'],
 
     models: ['Nota.Item',
              'Notadebito',
@@ -93,12 +92,6 @@ Ext.define('Infosys_web.controller.Notadebito', {
             'notadebitoingresar button[action=buscarsucursalnotadebito]': {
                 click: this.buscarsucursalnotadebito
             },
-
-            'notadebitoingresar #tipodocumentoId': {
-                select: this.selectItemdocuemento
-            },
-
-
             'notadebitoingresar button[action=buscarvendedor]': {
                 click: this.buscarvendedor
             },
@@ -173,92 +166,6 @@ Ext.define('Infosys_web.controller.Notadebito', {
         }
     },
 
-
-    selectItemdocuemento: function() {
-        
-
-        var view =this.getNotadebitoingresar();
-        var tipo_documento = view.down('#tipodocumentoId');
-        var stCombo = tipo_documento.getStore();
-
-        var record = stCombo.findRecord('id', tipo_documento.getValue()).data;
-        //console.log(record);
-        var nombre = (record.id);    
-        if(nombre == 104){ // NOTA DE DEBITO ELECTRONICA
-
-            // se valida que exista certificado
-            response_certificado = Ext.Ajax.request({
-            async: false,
-            url: preurl + 'facturas/existe_certificado/'});
-
-            var obj_certificado = Ext.decode(response_certificado.responseText);
-
-            if(obj_certificado.existe == true){
-
-
-                //buscar folio factura electronica
-                // se buscan folios pendientes, o ocupados hace más de 4 horas
-
-                response_folio = Ext.Ajax.request({
-                async: false,
-                url: preurl + 'facturas/folio_documento_electronico/'+nombre});  
-                var obj_folio = Ext.decode(response_folio.responseText);
-                nuevo_folio = obj_folio.folio;
-                if(nuevo_folio != 0){
-                    view.down('#numfacturaId').setValue(nuevo_folio);  
-                    //habilita = true;
-                }else{
-                    Ext.Msg.alert('Atención','No existen folios disponibles');
-                    view.down('#numfacturaId').setValue('');  
-
-                    //return
-                }
-
-            }else{
-                    Ext.Msg.alert('Atención','No se ha cargado certificado');
-                    view.down('#numfacturaId').setValue('');  
-            }
-
-
-        }else{
-
-            Ext.Ajax.request({
-
-                url: preurl + 'correlativos/generancred?valida='+nombre,
-                params: {
-                    id: 1
-                },
-                success: function(response){
-                    var resp = Ext.JSON.decode(response.responseText);
-
-                    if (resp.success == true) {
-                        var cliente = resp.cliente;
-                        var correlanue = cliente.correlativo;
-                        //var descripcion = cliente.nombre;
-                        //var id = cliente.id;
-                        correlanue = (parseInt(correlanue)+1);
-                        var correlanue = correlanue;
-                        //var view = Ext.create('Infosys_web.view.notacredito.Notacredito').show();
-                        view.down('#numfacturaId').setValue(correlanue);
-                        //view.down('#nomdocumentoId').setValue(descripcion);
-                        //view.down('#tipodocumentoId').setValue(id);
-                        
-                    }else{
-                        Ext.Msg.alert('Correlativo YA Existe');
-                        return;
-                    }
-
-
-
-                }            
-            });            
-        }
-        var grid  = view.down('#itemsgridId');        
-        grid.getStore().removeAll();  
-        //var controller = this.getController('Productos');
-        this.recalcularFinal();
-
-    },
     
     calculaiva: function(){
         var view = this.getNotadebitoingresar();
@@ -647,12 +554,7 @@ Ext.define('Infosys_web.controller.Notadebito', {
         var view = this.getNotadebitoprincipal();
         if (view.getSelectionModel().hasSelection()) {
             var row = view.getSelectionModel().getSelection()[0];
-             if(row.data.tipo_documento == 104){ // NOTA DE DEBITO ELECTRONICA
-                window.open(preurl +'facturas/exportFePDF/' + row.data.id);   
-             }else{
-               window.open(preurl +'notadebito/exportnotadebitoPDF/?idfactura=' + row.data.id)
-             }               
-            
+            window.open(preurl +'notadebito/exportnotadebitoPDF/?idfactura=' + row.data.id)
         }else{
             Ext.Msg.alert('Alerta', 'Selecciona un registro.');
             return;
@@ -690,8 +592,6 @@ Ext.define('Infosys_web.controller.Notadebito', {
             dataItems.push(r.data)
         });
 
-
-
         Ext.Ajax.request({
             url: preurl + 'notadebito/save',
             params: {
@@ -718,11 +618,8 @@ Ext.define('Infosys_web.controller.Notadebito', {
                 var idfactura= resp.idfactura;
                  viewIngresa.close();
                  stnotadebito.load();
-                 if(tipo_documento == 104){ // NOTA DE CREDITO ELECTRONICA
-                    window.open(preurl +'facturas/exportFePDF/' + idfactura);   
-                 }else{
-                    window.open(preurl + 'notadebito/exportnotadebitoPDF/?idfactura='+idfactura);
-                 }
+                 window.open(preurl + 'notadebito/exportnotadebitoPDF/?idfactura='+idfactura);
+
             }
            
         });      
@@ -798,8 +695,8 @@ Ext.define('Infosys_web.controller.Notadebito', {
         }
     },
     mnotadebito: function(){
-        var view = Ext.create('Infosys_web.view.notadebito.Notadebito').show();
-        /*var nombre = 16;    
+
+        var nombre = 16;    
         Ext.Ajax.request({
 
             url: preurl + 'correlativos/generancred?valida='+nombre,
@@ -829,7 +726,7 @@ Ext.define('Infosys_web.controller.Notadebito', {
 
 
             }            
-        });*/
+        });
     },
 
     buscarvendedor: function(){

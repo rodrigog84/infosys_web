@@ -387,6 +387,7 @@ Ext.define('Infosys_web.controller.Proveedores', {
                         view.down("#direccionId").setValue(proveedor.direccion)
                         view.down("#fonoId").setValue(proveedor.fono)
                         view.down("#e_mailId").setValue(proveedor.e_mail)
+                        view.down("#tipoEstadoId").setValue(proveedor.estado)
                         view.down("#fecha_ult_actualizId").setValue(proveedor.fecha_ult_actualiz)
                         view.down("#rutId").setValue(rutdes)
                         view.down("#rutgrabaId").setValue(rutgraba)
@@ -456,9 +457,10 @@ Ext.define('Infosys_web.controller.Proveedores', {
             record = form.getRecord(),
             values = form.getValues();
 
-        var fecha1 = win.down('#fecha_ult_actualizId').getSubmitValue();
+        //var fecha1 = win.down('#fecha_incripcionId').getSubmitValue();
         var fecha2 = win.down('#fecha_ult_actualizId').getSubmitValue();
         var rutgraba = win.down('#rutgrabaId').getValue();
+       
    
         if(!form.getForm().isValid()){
             Ext.Msg.alert('Informacion', 'Rellene todo los campos');
@@ -467,16 +469,52 @@ Ext.define('Infosys_web.controller.Proveedores', {
         
         var st = this.getProveedoresStore();
 
-        st.proxy.extraParams = {fecha1 : fecha1,
-                                fecha2 : fecha2,
+        st.proxy.extraParams = {fecha2 : fecha2,
                                 rutgraba: rutgraba}
 
         
         var nuevo = false;
         
         if (values.id > 0){
-            record.set(values);
-        } else{
+
+        var view = this.getProveedoringresar();
+        var nombre = view.down('#nombre_id').getValue();
+        var idcliente = view.down('#id_proveedor').getValue();
+        var direccion = view.down('#direccionId').getValue();
+        var ciudad = view.down('#tipoCiudadId').getValue();
+        var comuna = view.down('#tipoComunaId').getValue();
+        var giro = view.down('#giroId').getValue();
+        var fono = view.down('#fonoId').getValue();
+        var mail = view.down('#e_mailId').getValue();
+        var fechaactualiza = view.down('#fecha_ult_actualizId').getValue();
+        var estado = view.down('#tipoEstadoId').getValue();
+        var tipocliente = 1;        
+        var st = this.getProveedoresStore();
+
+         Ext.Ajax.request({
+            url: preurl + 'proveedores/update',
+            params: {               
+                nombre: nombre,
+                idcliente: idcliente,
+                direccion: direccion,
+                ciudad: ciudad,
+                comuna: comuna,
+                giro : giro,
+                fono : fono,
+                mail : mail,
+                fechaactualiza : fechaactualiza,
+                estado : estado,
+                tipocliente : tipocliente
+            },
+            success: function(response){
+            st.load();
+            view.close();
+            }
+           
+        });
+        st.load();
+            //record.set(values);
+        }else{
             record = Ext.create('Infosys_web.model.Proveedor');
             record.set(values);
             st.add(record);
@@ -492,9 +530,6 @@ Ext.define('Infosys_web.controller.Proveedores', {
         }
 
         );
-
-        var st = this.getProveedoresStore();
-        st.load();
     },
 
     grabareditarproveedor: function(){

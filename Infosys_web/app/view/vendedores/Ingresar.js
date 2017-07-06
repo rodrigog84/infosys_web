@@ -43,6 +43,12 @@ Ext.define('Infosys_web.view.vendedores.Ingresar', {
                     },
                     {
                         xtype: 'textfield',
+                        name : 'cod_interno',
+                        itemId: 'codinternoId',
+                        fieldLabel: 'Codigo Interno'
+                    },
+                    {
+                        xtype: 'textfield',
                         name : 'nombre',
                         itemId: 'nombreId',
                         fieldLabel: 'Nombre Vendedor'

@@ -31,7 +31,7 @@ Ext.define('Infosys_web.view.roles.AdminRoles', {
             proxy: {
                 type: 'ajax',
                 api: {
-                    read: preurl + 'roles/getAll'
+                    read: '/Infosys_web/core/index.php/roles/getAll'
                 },
                 reader: {
                     type: 'json',
@@ -81,7 +81,7 @@ Ext.define('Infosys_web.view.roles.AdminRoles', {
 	            proxy: {
 	                type: 'ajax',
 	                api: {
-	                    read: preurl + 'roles/getAllWithNotFilter'
+	                    read: '/Infosys_web/core/index.php/roles/getAllWithNotFilter'
 	                },
 	                reader: {
 	                    type: 'json',
@@ -129,7 +129,7 @@ Ext.define('Infosys_web.view.roles.AdminRoles', {
                     if (grid.getSelectionModel().hasSelection()) {
                         var row = grid.getSelectionModel().getSelection()[0];
                         Ext.Ajax.request({
-                            url: preurl + 'roles/enabled',
+                            url: '/Infosys_web/core/index.php/roles/enabled',
                             waitMsg: 'Actualizando...',
                             params: {
                                 id: row.data.id
@@ -162,7 +162,7 @@ Ext.define('Infosys_web.view.roles.AdminRoles', {
                     if (grid.getSelectionModel().hasSelection()) {
                         var row = grid.getSelectionModel().getSelection()[0];
                         Ext.Ajax.request({
-                            url: preurl + 'roles/delete',
+                            url: '/Infosys_web/core/index.php/roles/delete',
                             waitMsg: 'Actualizando...',
                             params: {
                                 id: row.data.id

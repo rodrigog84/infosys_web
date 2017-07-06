@@ -9,6 +9,7 @@ Ext.define('Infosys_web.view.facturaelectronica.LibroCompraVenta' ,{
     autoShow: true,
     width: 700,
     height: 200,
+
     initComponent: function() {
         me = this;
         var tipo_libro = Ext.create('Ext.data.Store', {
@@ -50,6 +51,20 @@ Ext.define('Infosys_web.view.facturaelectronica.LibroCompraVenta' ,{
             },
             autoLoad: true
         }); 
+
+
+         var libros_pendientes = Ext.create('Ext.data.Store', {
+            fields: ['nro','id','mes','anno','tipo_libro','fecha_solicita'],
+            proxy: {
+              type: 'ajax',
+                url : preurl +'facturas/get_libros_pendientes',
+                reader: {
+                    type: 'json',
+                    root: 'data'
+                }
+            },
+            autoLoad: true
+        });          
 
         this.items = [
             {
@@ -118,16 +133,17 @@ Ext.define('Infosys_web.view.facturaelectronica.LibroCompraVenta' ,{
                                 var form = this.up('form').getForm();
                                 if(form.isValid()){
                                     form.submit({
-                                        url: preurl + 'facturas/genera_libro',
+                                        url: preurl + 'facturas/programa_genera_libro',
                                         //standardSubmit: true,//true, <---------
                                         waitMsg: 'Generando XML Libro...',
                                         success: function(fp, o) {
+                                        	me.down('#itemsgridId').store.reload();
                                             Ext.Msg.alert('Atención', o.result.message);
 
-                                            if(o.result.valido){
+                                            /*if(o.result.valido){
                                                 // muestra archivo generado
                                                 window.open(gbl_site + 'core/facturacion_electronica/libros/' + o.result.nombre_archivo,'_blank');
-                                            }
+                                            }*/
                                             // borra archivo generado
                                             /*Ext.Ajax.request({
                                             async: false,
@@ -138,9 +154,36 @@ Ext.define('Infosys_web.view.facturaelectronica.LibroCompraVenta' ,{
                                 }
                             }                            
                         }]
-                    }
-                ]
-            }
+                    },
+                    ]
+
+            },{
+                xtype: 'form',
+                padding: '5 5 0 5',
+                border: true,
+                frame: false,
+                style: 'background-color: #fff;',
+                items: [
+                {
+
+                            xtype: 'grid',
+                            itemId: 'itemsgridId',
+                            title: 'Detalle Libros Pendientes de generar',
+                            labelWidth: 50,
+                            store: libros_pendientes,
+                            height: 210,
+                            columns: [
+                                { text: 'Id Libro',  dataIndex: 'id', flex: 1, hidden : true },
+                                { text: '#',  dataIndex: 'nro', width: 50  },
+                                { text: 'Mes',  dataIndex: 'mes', flex: 1, align: 'left'},
+                                { text: 'A&ntilde;o',  dataIndex: 'anno', flex: 1 },
+                                { text: 'Tipo Libro',  dataIndex: 'tipo_libro', flex: 1},
+                                { text: 'Fecha Solicitud',  dataIndex: 'fecha_solicita', flex: 1},
+                                ]
+
+                }    
+                ]    
+               }    
         ];
         
         this.callParent(arguments);

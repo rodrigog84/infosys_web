@@ -149,8 +149,8 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                                             width: 220,
                                             fieldLabel: '<b>RUT</b>',
                                             itemId: 'rutId',
-                                            name : 'rut',
-                                            disabled : true                                            
+                                            name : 'rut'
+                                            //disabled : true                                            
                                         },{
                                             xtype: 'displayfield',
                                             width: 20
@@ -162,7 +162,7 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                                             maxHeight: 25,
                                             width: 80,
                                             allowBlank: true,
-                                            disabled : true,                                            
+                                            //disabled : true,                                            
                                             action: 'validarut',
                                             itemId: 'buscarBtn'
                                         },{
@@ -178,7 +178,7 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                                             width: 885,
                                             itemId: 'nombre_id',
                                             name : 'nombre',
-                                            disabled : true,                                            
+                                            //disabled : true,                                            
                                             readOnly: true
                                             
                                         }
@@ -222,7 +222,7 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                                             width: 580,
                                             itemId: 'direccionId',
                                             name : 'direccion',
-                                            disabled : true,                                            
+                                            //disabled : true,                                            
                                             readOnly: true
                                         },{xtype: 'splitter'},{
                                             xtype: 'button',
@@ -231,8 +231,8 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                                             maxHeight: 25,
                                             width: 70,
                                             allowBlank: true,
-                                            action: 'buscarsucursalfactura',
-                                            disabled : true  
+                                            action: 'buscarsucursalfactura'
+                                            //disabled : true  
                                         },{
                                             xtype: 'displayfield',
                                             width: 50
@@ -245,7 +245,7 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                                             width: 550,
                                             itemId: 'giroId',
                                             readOnly: true,
-                                            disabled : true,                                           
+                                            //disabled : true,                                           
                                             name : 'giro'
                                           
                                         },{
@@ -276,15 +276,15 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                                             itemId: 'tipoCiudadId',
                                             name : 'nombre_ciudad',
                                             maxHeight: 25,
-                                            width: 210,
+                                            width: 200,
+                                            labelWidth: 60,
                                             readOnly: true,
-                                            disabled : true,                                            
+                                            //disabled : true,                                            
                                             fieldLabel: '<b>CIUDAD</b>'
                                         },{
                                             xtype: 'displayfield',
-                                            flex: 1,
-                                            maxWidth: 25,
-                                            labelWidth: 50
+                                            width: 15
+                                            //labelWidth: 50
                                         },{
                                             xtype: 'textfield',
                                             fieldCls: 'required',
@@ -292,20 +292,21 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                                             name : 'nombre_comuna',
                                             readOnly: true,
                                             maxHeight: 25,
-                                            width: 210,
-                                            disabled : true,                                           
+                                            width: 200,
+                                            labelWidth: 60,
+                                            //disabled : true,                                           
                                             fieldLabel: '<b>COMUNA</b>'
                                         },{
                                             xtype: 'displayfield',
-                                            flex: 1,
-                                            maxWidth: 25,
-                                            labelWidth: 50
+                                            width: 15
+                                            //labelWidth: 50
                                         },{
                                             xtype: 'combo',
                                             itemId: 'tipoVendedorId',
-                                            width: 350,
+                                            width: 300,
                                             fieldCls: 'required',
                                             maxHeight: 25,
+                                            labelWidth: 80,
                                             fieldLabel: '<b>VENDEDOR</b>',
                                             forceSelection : true,
                                             name : 'id_vendedor',
@@ -313,14 +314,14 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                                             displayField : 'nombre',
                                             emptyText : "Seleccione",
                                             store : 'Vendedores',
-                                            disabled : true, 
+                                            //disabled : true, 
                                         },{
                                             xtype: 'displayfield',
-                                            width: 105
+                                            width: 10
                                         },{
                                             xtype: 'combo',
                                             itemId: 'tipocondpagoId',
-                                            width: 330,
+                                            width: 300,
                                             fieldCls: 'required',
                                             maxHeight: 25,
                                             fieldLabel: '<b>COND.PAGO</b>',
@@ -330,7 +331,16 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                                             displayField : 'nombre',
                                             emptyText : "Seleccione",
                                             store : 'Cond_pago',
-                                            disabled : true, 
+                                            //disabled : true, 
+                                        },{xtype: 'splitter'},{
+                                            xtype: 'textfield',
+                                            width: 200,
+                                            labelWidth: 85,
+                                            maxHeight: 25,
+                                            fieldLabel: '<b>O. COMPRA</b>',
+                                            name: 'orden_compra',
+                                            itemId: 'ordencompraId',
+                                            style: 'font-weight: bold;'
                                         }
                                     ]
                                     },{
@@ -397,6 +407,14 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                                 fieldLabel: 'Precio',
                                 itemId: 'precioId',
                                 style: 'font-weight: bold;'
+                            },{
+                                xtype: 'numberfield',
+                                width: 180,
+                                labelWidth: 40,
+                                fieldLabel: 'PrecioP',
+                                itemId: 'preciopromId',
+                                style: 'font-weight: bold;',
+                                hidden: true
                             },{xtype: 'splitter'},
                             {
                                 xtype: 'textfield',
@@ -482,6 +500,7 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                                 { text: 'codigo',  dataIndex: 'codigo', width: 250, hidden : true },
                                 { text: 'Producto',  dataIndex: 'nombre', width: 250 },
                                 { text: 'Precio Unitario',  dataIndex: 'precio', align: 'right',flex:1, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} },
+                                { text: 'Precio Promedio',  dataIndex: 'p_promedio', align: 'right',flex:1,hidden: true },
                                 { text: 'Cantidad',  dataIndex: 'cantidad', align: 'right',width: 150},
                                 { text: 'Descuento',  dataIndex: 'dcto', align: 'right',width: 100, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} },
                                 { text: 'Neto',  dataIndex: 'neto', align: 'right',flex:1,renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} },

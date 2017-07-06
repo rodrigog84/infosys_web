@@ -5,6 +5,7 @@ Ext.define('Infosys_web.model.Facturaglo', {
         {name: 'id_factura'},
         {name: 'id_cliente'},
         {name: 'nombre_cliente'},
+        {name: 'orden_compra'},
         {name: 'rut_cliente'},
         {name: 'num_factura'},
         {name: 'id_vendedor'},

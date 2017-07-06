@@ -19,8 +19,8 @@ Ext.define('Infosys_web.view.Preventa.EditarPreventa', {
     ],
 
     autoShow: true,
-    height: 640,
-    width: 1200,
+    height: 660,
+    width: 1350,
     layout: 'fit',
     title: 'Editar Preventa',
 
@@ -136,16 +136,27 @@ Ext.define('Infosys_web.view.Preventa.EditarPreventa', {
                                             fieldLabel: '<b>RUT</b>',
                                             itemId: 'rutId',
                                             name : 'rut',
-                                            readOnly: true                                            
+                                            //disabled : true                                            
+                                        }, {xtype: 'splitter'},
+                                        {
+                                            xtype: 'button',
+                                            text: 'Buscar',
+                                            maxHeight: 25,
+                                            width: 80,
+                                            allowBlank: true,
+                                            //disabled : true,                                            
+                                            action: 'validarutedita',
+                                            itemId: 'buscarBtn'
                                         },{xtype: 'splitter'},{
                                             xtype: 'textfield',
                                             fieldCls: 'required',
                                             fieldLabel: '<b>RAZON SOCIAL</b>',
                                             maxHeight: 25,
-                                            labelWidth: 140,
-                                            width: 845,
+                                            labelWidth: 90,
+                                            width: 835,
                                             itemId: 'nombre_id',
                                             name : 'nombre',
+                                            //disabled : true,                                            
                                             readOnly: true
                                             
                                         }
@@ -268,13 +279,14 @@ Ext.define('Infosys_web.view.Preventa.EditarPreventa', {
                             flex: 1
                         },
                         items: [
+
                         {
                             xtype: 'fieldcontainer',
                             layout: 'hbox',
                             align: 'center',     
                             items: [{
                                 xtype: 'textfield',
-                                width: 140,
+                                width: 135,
                                 labelWidth: 40,
                                 fieldLabel: 'Codigo',
                                 itemId: 'codigoId',
@@ -313,11 +325,32 @@ Ext.define('Infosys_web.view.Preventa.EditarPreventa', {
                                 labelWidth: 40,
                                 fieldLabel: 'Precio',
                                 itemId: 'precioId',
-                                style: 'font-weight: bold;'
+                                style: 'font-weight: bold;',
+                                disabled : true
+
+                            },
+                            {
+                                xtype: 'numberfield',
+                                width: 130,
+                                labelWidth: 40,
+                                fieldLabel: 'Estado',
+                                itemId: 'estadoId',
+                                style: 'font-weight: bold;',
+                                hidden: true
+                            },
+                            {xtype: 'splitter'},
+                            {
+                                xtype: 'button',
+                                text: 'Seleccionar',
+                                maxHeight: 25,
+                                width: 120,
+                                allowBlank: true,
+                                action: 'buscarprecios2',
+                                itemId: 'buscarprec'
                             },{xtype: 'splitter'},
                             {
                                 xtype: 'textfield',
-                                width: 80,
+                                width: 120,
                                 labelWidth: 40,
                                 minValue: 0,
                                 fieldLabel: 'Stock',
@@ -342,7 +375,7 @@ Ext.define('Infosys_web.view.Preventa.EditarPreventa', {
                                 width: 120,
                                 labelWidth: 60,
                                 minValue: 0,
-                                value: 0,
+                                value: 1,
                                 fieldLabel: 'Cantidad',
                                 itemId: 'cantidadId'
                             },{
@@ -357,17 +390,16 @@ Ext.define('Infosys_web.view.Preventa.EditarPreventa', {
                             },
                             {xtype: 'splitter'},
                             {
-                            xtype: 'combo',
-                            width: 220,
-                            queryMode: 'local',
-                            itemId: 'DescuentoproId',
-                            fieldLabel: 'Descto %',
-                            store: 'Tabladescuento',
-                            emptyText : "Seleccione",
-                            valueField: 'id',
-                            disabled : true,
-                            displayField: 'nombre'
-                            },
+                                xtype: 'combo',
+                                width: 210,
+                                queryMode: 'local',
+                                itemId: 'DescuentoproId',
+                                fieldLabel: 'Descto %',
+                                store: 'Tabladescuento',
+                                emptyText : "Seleccione",
+                                valueField: 'id',
+                                displayField: 'nombre'
+                                },
                             {xtype: 'splitter'},
                             {
                                 xtype: 'button',
@@ -404,16 +436,16 @@ Ext.define('Infosys_web.view.Preventa.EditarPreventa', {
                             ],
                             height: 210,
                             columns: [
-                                { text: 'No',  dataIndex: 'secuencia', width: 50},
+                                { text: 'No',  dataIndex: 'secuencia', width: 50, hidden: true},
                                 { text: 'Id Producto',  dataIndex: 'id_producto', width: 250, hidden: true },
                                 { text: 'Id descuento',  dataIndex: 'id_descuento', width: 250, hidden: true },
                                 { text: 'Producto',  dataIndex: 'nombre', width: 250 },
-                                { text: 'Precio Unitario',  dataIndex: 'precio', align: 'right',flex:1, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} },
+                                { text: 'Precio Unitario',  dataIndex: 'precio', align: 'right',flex:1, renderer: function(valor){return Ext.util.Format.number((valor),"0,000")} },
                                 { text: 'Cantidad',  dataIndex: 'cantidad', align: 'right',width: 100 },
-                                { text: 'Descuento',  dataIndex: 'dcto', align: 'right',flex:1, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} },
-                                { text: 'Neto',  dataIndex: 'neto', align: 'right',flex:1,renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} },
-                                { text: 'Iva',  dataIndex: 'iva', align: 'right',flex:1,renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} },
-                                { text: 'Total',  dataIndex: 'total', align: 'right',flex:1, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} }
+                                { text: 'Descuento',  dataIndex: 'dcto', align: 'right',flex:1, renderer: function(valor){return Ext.util.Format.number((valor),"0,000")} },
+                                { text: 'Neto',  dataIndex: 'neto', align: 'right',flex:1,renderer: function(valor){return Ext.util.Format.number((valor),"0,000")} },
+                                { text: 'Iva',  dataIndex: 'iva', align: 'right',flex:1,renderer: function(valor){return Ext.util.Format.number((valor),"0,000")} },
+                                { text: 'Total',  dataIndex: 'total', align: 'right',flex:1, renderer: function(valor){return Ext.util.Format.number((valor),"0,000")} }
                             ]
                             },{
                         xtype: 'fieldset',
@@ -486,7 +518,7 @@ Ext.define('Infosys_web.view.Preventa.EditarPreventa', {
                             readOnly: true,
                             fieldLabel: '<b>IVA</b>',
                             labelAlign: 'top'
-                            //renderer: function(valor){return Ext.util.Format.number(parseInt(iva),"0.000")} 
+                            //renderer: function(valor){return Ext.util.Format.number((iva),"0.000")} 
                         },{xtype: 'splitter'},{
                             xtype: 'textfield',
                             fieldCls: 'required',

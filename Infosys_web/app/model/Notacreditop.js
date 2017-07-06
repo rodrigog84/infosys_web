@@ -4,6 +4,7 @@ Ext.define('Infosys_web.model.Notacreditop', {
     fields: [
         {name: 'id'},
         {name: 'id_producto'},
+        {name: 'id_factura'},
         {name: 'nombre'},
         {name: 'codigo'},
         {name: 'p_ult_compra'},

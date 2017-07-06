@@ -4,7 +4,7 @@ Ext.define('Infosys_web.model.Productos.Item', {
     fields: [
         {name: 'id'},
         {name: 'nombre'},
-        {name: 'idproducto'},
+        {name: 'id_producto'},
         {name: 'id_descuento'},
         {name: 'codigo'},
         {name: 'p_ult_compra'},

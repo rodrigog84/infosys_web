@@ -36,7 +36,7 @@ Ext.define('Infosys_web.view.usuarios.AdminUsuarios', {
             proxy: {
                 type: 'ajax',
                 api: {
-                    read: preurl + 'usuarios/getAll'
+                    read: '/Infosys_web/core/index.php/usuarios/getAll'
                 },
                 reader: {
                     type: 'json',
@@ -85,7 +85,7 @@ Ext.define('Infosys_web.view.usuarios.AdminUsuarios', {
 	            proxy: {
 	                type: 'ajax',
 	                api: {
-	                    read: preurl + 'usuarios/getAllWithNotFilter'
+	                    read: '/Infosys_web/core/index.php/usuarios/getAllWithNotFilter'
 	                },
 	                reader: {
 	                    type: 'json',
@@ -133,8 +133,7 @@ Ext.define('Infosys_web.view.usuarios.AdminUsuarios', {
                     if (grid.getSelectionModel().hasSelection()) {
                         var row = grid.getSelectionModel().getSelection()[0];
                         Ext.Ajax.request({
-                            url: preurl + 'usuarios/enabled',
-
+                            url: '/Infosys_web/core/index.php/usuarios/enabled',
                             waitMsg: 'Actualizando...',
                             params: {
                                 id: row.data.id
@@ -167,7 +166,7 @@ Ext.define('Infosys_web.view.usuarios.AdminUsuarios', {
                     if (grid.getSelectionModel().hasSelection()) {
                         var row = grid.getSelectionModel().getSelection()[0];
                         Ext.Ajax.request({
-                            url: preurl + 'usuarios/delete',
+                            url: '/Infosys_web/core/index.php/usuarios/delete',
                             waitMsg: 'Actualizando...',
                             params: {
                                 id: row.data.id

@@ -14,21 +14,9 @@ Ext.define('Infosys_web.view.notadebito.Principal' ,{
 
     },
     columns: [{
-        header: "Num Docto",
+        header: "Documento",
         flex: 1,
         dataIndex: 'num_factura',
-        align: 'right'
-               
-    },{
-        header: "Tipo Documento",
-        dataIndex: 'tipo_doc',
-        width:280,
-        align: 'center'
-               
-    },{
-        header: "Docto Asociado",
-        width:120,
-        dataIndex: 'id_factura',
         align: 'right'
                
     },{
@@ -49,13 +37,13 @@ Ext.define('Infosys_web.view.notadebito.Principal' ,{
         
     },{
         header: "Rut",
-        width:120,
+        flex: 1,
         dataIndex: 'rut_cliente',
         align: 'right'
 
     },{
         header: "Razon Social",
-         width: 280,
+         width: 390,
         dataIndex: 'nombre_cliente'
     },{
         header: "Vendedor",
@@ -95,83 +83,13 @@ Ext.define('Infosys_web.view.notadebito.Principal' ,{
         renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00")}
      
     },{
-        header: "Total",
+        header: "Total Documento",
         flex: 1,
         dataIndex: 'totalfactura',
         align: 'right',
         renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00")}
      
         
-    },{
-            header: "Estado DTE",
-            xtype:'actioncolumn',
-            width:90,
-            align: 'center',
-            items: [{
-                icon: 'images/search_page.png',  // Use a URL in the icon config
-                tooltip: 'Ver Estado DTE',
-                handler: function(grid, rowIndex, colIndex) {
-                    var rec = grid.getStore().getAt(rowIndex);
-                    //salert("Edit " + rec.get('firstname'));
-                    var vista = this.up('notadebitoprincipal');
-                    vista.fireEvent('verEstadoDte',rec,1)
-                },
-                isDisabled: function(view, rowIndex, colIndex, item, record) {
-                    // Returns true if 'editable' is false (, null, or undefined)
-                    if(record.get('tipo_documento') == 104){
-                        return false;
-                    }else{
-                        return true;
-                    }
-                }                
-            }]
-    },{
-            header: "Ver DTE",
-            xtype:'actioncolumn',
-            width:70,
-            align: 'center',
-            items: [{
-                icon: 'images/download-icon.png',  // Use a URL in the icon config
-                tooltip: 'Descargar DTE',
-                handler: function(grid, rowIndex, colIndex) {
-                    var rec = grid.getStore().getAt(rowIndex);
-                    //salert("Edit " + rec.get('firstname'));
-                    var vista = this.up('notadebitoprincipal');
-                    vista.fireEvent('verEstadoDte',rec,2)
-                },
-                isDisabled: function(view, rowIndex, colIndex, item, record) {
-                    // Returns true if 'editable' is false (, null, or undefined)
-                    if(record.get('tipo_documento') == 104){
-                        return false;
-                    }else{
-                        return true;
-                    }
-                }                
-            }]
-    },{
-            header: "Env&iacute;o SII",
-            xtype:'actioncolumn',
-            width:70,
-            align: 'center',
-            items: [{
-                iconCls: 'icon-upload',  // Use a URL in the icon config
-                tooltip: 'Ver Estado Env&iacute;o',
-                handler: function(grid, rowIndex, colIndex) {
-                    var rec = grid.getStore().getAt(rowIndex);
-                    //salert("Edit " + rec.get('firstname'));
-                    var vista = this.up('notadebitoprincipal');
-                    vista.fireEvent('verEstadoDte',rec,3)
-                },
-                isDisabled: function(view, rowIndex, colIndex, item, record) {
-                    console.log(record.get('tipo_documento'));
-                    // Returns true if 'editable' is false (, null, or undefined)
-                    if(record.get('tipo_documento') == 104){
-                        return false;
-                    }else{
-                        return true;
-                    }
-                }                
-            }]        
     }],
     
     initComponent: function() {

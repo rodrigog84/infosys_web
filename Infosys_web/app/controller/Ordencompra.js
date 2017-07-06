@@ -4,6 +4,7 @@ Ext.define('Infosys_web.controller.Ordencompra', {
     stores: ['Orden_compra',
              'Orden_compratodas',
              'Proveedores',
+             'Productosf',
              'ordencompra.Items',
               'Recepcion', 'Orden_compradetalle', 
               'Ordencomprarecepcion',
@@ -130,8 +131,8 @@ Ext.define('Infosys_web.controller.Ordencompra', {
             'ordencompraingresar #finaldescuentoId': {
                 change: this.changedctofinal
             },
-            'ordencompraingresar button[action=buscarproductos]': {
-                click: this.buscarproductos
+            'ordencompraingresar button[action=buscarproductosl]': {
+                click: this.buscarproductosl
             },
             'ordencompraingresar #codigoId': {
                 specialkey: this.special3
@@ -785,7 +786,7 @@ Ext.define('Infosys_web.controller.Ordencompra', {
                     view.down('#finaltotalivaId').setValue(Ext.util.Format.number(iva, '0'));
                     view.down('#finalafectoId').setValue(Ext.util.Format.number(neto, '0'));
                     view.down('#descuentovalorId').setValue(Ext.util.Format.number(cliente.desc, '0'));
-                    view.down('#observacionesId').setValue(cliente.observaciones);
+                    //view.down('#observacionesId').setValue(cliente.observaciones);
                                                        
                 }
             }
@@ -797,9 +798,22 @@ Ext.define('Infosys_web.controller.Ordencompra', {
         }       
     },
 
+     buscarproductosl: function(){
+
+        var st = this.getProductosfStore()
+        st.load();
+        var view = Ext.create('Infosys_web.view.ordencompra.BuscarProductos').show();
+        view.down("#nombreId").focus();
+
+
+    },
+
 
     buscarproductos: function(){
 
+
+        var st = this.getProductosfStore()
+        st.load();
         var view = Ext.create('Infosys_web.view.ordencompra.BuscarProductos2').show();
         view.down("#nombreId").focus();
 

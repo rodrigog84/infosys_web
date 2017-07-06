@@ -33,7 +33,13 @@ Ext.define('Infosys_web.view.Preventa.BuscarClientes' ,{
         header: "Rut",
         flex: 1,
         itemId: 'rutId',
-        dataIndex: 'rut'
+        dataIndex: 'rut',
+        hidden: true
+    },{
+        header: "Rut",
+        flex: 1,
+        itemId: 'rutmuestraId',
+        dataIndex: 'rutmuestra'
     },{
         header: "Direccion",
          width: 390,

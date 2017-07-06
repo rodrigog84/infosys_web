@@ -6,7 +6,7 @@ Ext.define('Infosys_web.view.guiasdespacho.Principalguiaspendientes' ,{
     
     iconCls: 'icon-grid',
 
-    title : 'GUIAS DESPACHO',
+    title : 'FACTURAR GUIAS DESPACHO',
     store: 'Guiasdespachopendientes2',
     height: 500,
     viewConfig: {
@@ -109,6 +109,12 @@ Ext.define('Infosys_web.view.guiasdespacho.Principalguiaspendientes' ,{
                 iconCls: 'icon-add',
                 action: 'factguia',
                 text : 'Facturar Guias'
+            },{
+                xtype: 'button',
+                iconCls: 'icon-add',
+                action: 'marcaguia',
+                text : 'Marcar Guias',
+                hidden:true
             },{
                 xtype: 'button',
                 iconCls : 'icon-pdf',

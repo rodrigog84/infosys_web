@@ -52,10 +52,6 @@ Ext.define('Infosys_web.controller.Productos', {
         selector: 'eliminarproductos'
     }
 
-
-
-
-
     ],
     //init es lo primero que se ejecuta en el controller
     //especia de constructor
@@ -66,8 +62,7 @@ Ext.define('Infosys_web.controller.Productos', {
 
             'productosprincipal button[action=buscarproductos]': {
                 click: this.buscarproductos
-            },
-            
+            },            
             'productosprincipal button[action=exportarexcelproductos]': {
                 click: this.exportarexcelproductos
             },
@@ -120,6 +115,38 @@ Ext.define('Infosys_web.controller.Productos', {
                 click: this.eliminarprod
             }
         });
+    },
+
+    editarproductos2: function(){
+
+        Ext.Ajax.request({
+            url: preurl + 'productos/actualiza',
+            params: {
+
+                id: 1
+                
+            },
+            success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                if (resp.success == true) {
+                    view.close();
+                    st.load(); 
+                    Ext.Msg.alert('Datos Corregidos Exitosamente');
+                    return; 
+                                   
+
+                 }else{
+
+                    view.close();
+                    st.load();
+                    Ext.Msg.alert('Datos No Corregidos Producto con Movimientos');
+                    return;
+                     
+                 };
+        }
+        });
+
+        
     },
 
     eliminarprod: function(){
@@ -190,7 +217,9 @@ Ext.define('Infosys_web.controller.Productos', {
             var row = view.getSelectionModel().getSelection()[0];
             var edit = Ext.create('Infosys_web.view.productos.detalle_existenciasproductos').show();
             var nombre = (row.get('id'));
+            var stock = (row.get('stock'));
             edit.down('#productoId').setValue(nombre);
+            edit.down('#stockId').setValue(stock);
             var st = this.getExistencias2Store()
             st.proxy.extraParams = {nombre : nombre}
             st.load();
@@ -237,22 +266,25 @@ Ext.define('Infosys_web.controller.Productos', {
         var neto = 0;
         var dcto = view.down('#finaldescuentoId').getValue();
 
-        stItem.each(function(r){
-            pretotal = pretotal + r.data.total
-            iva = iva + r.data.iva
-            neto = neto + r.data.neto
-        });
-        pretotalfinal = ((pretotal * dcto)  / 100);
-        total = ((pretotal) - parseInt(pretotalfinal));
-        afecto = neto;
         
-        //iva = (total - afecto);
-        view.down('#finaltotalId').setValue(Ext.util.Format.number(total, '0,000'));
-        view.down('#finaltotalpostId').setValue(Ext.util.Format.number(total, '0'));
+        stItem.each(function(r){
+            pretotal = pretotal + (parseInt(r.data.total))
+            //iva = iva + r.data.iva
+            //neto = neto + r.data.neto
+        });
+
+        neto = (Math.round(pretotal /1.19));
+        iva = ((pretotal - neto));
+        afecto = neto;
+        neto = neto;
+        pretotalfinal = pretotal;
+        
+        view.down('#finaltotalId').setValue(Ext.util.Format.number(pretotalfinal, '0,000'));
+        view.down('#finaltotalpostId').setValue(Ext.util.Format.number(pretotalfinal, '0'));
         view.down('#finaltotalnetoId').setValue(Ext.util.Format.number(neto, '0'));
         view.down('#finaltotalivaId').setValue(Ext.util.Format.number(iva, '0'));
         view.down('#finalafectoId').setValue(Ext.util.Format.number(afecto, '0'));
-        view.down('#descuentovalorId').setValue(Ext.util.Format.number(pretotalfinal, '0'));
+        view.down('#descuentovalorId').setValue(Ext.util.Format.number(dcto, '0'));
           
     },
 
@@ -276,12 +308,11 @@ Ext.define('Infosys_web.controller.Productos', {
         var rut = view.down('#rutId').getValue();
         var stItem = this.getProductosItemsStore();
         var producto = view.down('#productoId').getValue();
-        //var stCombo = producto.getStore();
         var nombre = view.down('#nombreproductoId').getValue();
-        //var stCombo = producto.getStore();
         var cantidad = view.down('#cantidadId').getValue();
         var cantidadori = view.down('#cantidadOriginalId').getValue();
         var precio = ((view.down('#precioId').getValue()));
+        var precioprom  = ((view.down('#preciopromId').getValue()));
         var precioun = ((view.down('#precioId').getValue())/ 1.19);
         var descuento = view.down('#totdescuentoId').getValue(); 
         var iddescuento = view.down('#DescuentoproId').getValue();
@@ -296,15 +327,24 @@ Ext.define('Infosys_web.controller.Productos', {
             view.down('#tipoDescuentoId').setDisabled(bolEnable);
             view.down('#descuentovalorId').setDisabled(bolEnable);
         };
-        
-        var neto = ((cantidad * precio) - descuento);
-        var tot = ((cantidad * precio) - descuento);
-        var neto = (parseInt(neto / 1.19));
-        var exists = 0;
-        var iva = (tot - neto );
-        var total = ((neto + iva ));
 
+        if (tipo_documento.getValue() == 2){
+
+             var neto = (Math.round(cantidad * precio) - descuento);
+             var iva = 0;
+             var total = neto;
+
+        }else{
         
+        var neto = ((cantidad * precio));
+        var tot = (Math.round(neto * 1.19));
+        var exists = 0;
+        var iva = (tot - neto);
+        var neto = (tot - iva);
+        var total = ((neto + iva ));        
+
+        };
+                
         if(!producto){
             
             Ext.Msg.alert('Alerta', 'Debe Seleccionar un Producto');
@@ -364,6 +404,7 @@ Ext.define('Infosys_web.controller.Productos', {
             id_descuento: iddescuento,
             nombre: nombre,
             precio: precio,
+            p_promedio: precioprom,
             cantidad: cantidad,
             neto: neto,
             total: total,
@@ -519,6 +560,8 @@ Ext.define('Infosys_web.controller.Productos', {
 
         });
     },
+
+   
 
         
     editarproductos: function(){

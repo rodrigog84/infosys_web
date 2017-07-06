@@ -23,6 +23,11 @@ Ext.define('Infosys_web.view.facturaelectronica.HistLibroCompraVenta' ,{
         hidden: true
                
     },{
+        header: "#",
+        width : 50,
+        dataIndex: 'nro',
+        align: 'left'
+    },{
         header: "Mes",
         flex : 1,
         dataIndex: 'mes',
@@ -32,9 +37,17 @@ Ext.define('Infosys_web.view.facturaelectronica.HistLibroCompraVenta' ,{
         flex : 1,
         dataIndex: 'anno'
     },{         
+        header: "Estado",
+        flex : 1,
+        dataIndex: 'estado'
+    },{         
         header: "Tipo Libro",
         flex : 1,
         dataIndex: 'tipo_libro'
+    },{         
+        header: "Fecha Solicitud",
+        flex : 1,
+        dataIndex: 'fecha_solicita'
     },{         
         header: "Fecha Creaci&oacute;n",
         flex : 1,
@@ -52,8 +65,40 @@ Ext.define('Infosys_web.view.facturaelectronica.HistLibroCompraVenta' ,{
                     //salert("Edit " + rec.get('firstname'));
                     var vista = this.up('histlibrocompraventa');
                     vista.fireEvent('verEstadoDte',rec,4)
-                }
+                },
+                isDisabled: function(view, rowIndex, colIndex, item, record) {
+                    // Returns true if 'editable' is false (, null, or undefined)
+                    if(record.get('estado') == 'Pendiente'){
+                        return true;
+                    }else{
+                        return false;
+                    }
+                }                  
             }]
+    },{
+            header: "Env&iacute;o SII",
+            xtype:'actioncolumn',
+            width:70,
+            align: 'center',
+            items: [{
+                iconCls: 'icon-upload',  // Use a URL in the icon config
+                tooltip: 'Ver Estado Env&iacute;o',
+                handler: function(grid, rowIndex, colIndex) {
+                    var rec = grid.getStore().getAt(rowIndex);
+                    //salert("Edit " + rec.get('firstname'));
+                    var vista = this.up('histlibrocompraventa');
+                    vista.fireEvent('verEstadoDte',rec,6)
+                },
+                isDisabled: function(view, rowIndex, colIndex, item, record) {
+                    // Returns true if 'editable' is false (, null, or undefined)
+                    if(record.get('estado') == 'Pendiente'){
+                        return true;
+                    }else{
+                        return false;
+                    }
+                }                
+            }]     
+        
     }],
     
     initComponent: function() {

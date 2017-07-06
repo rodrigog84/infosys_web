@@ -13,15 +13,14 @@ Ext.define('Infosys_web.view.guiasdespacho.BuscarGuias' ,{
     y: 10,
     initComponent: function() {
         var me = this
-        var opcion = "Id"; 
+        /*var opcion = "Numero";
         var st = Ext.getStore('Guiasdespachopendientes');        
-        st.proxy.extraParams = {nombre : 'id',
+        st.proxy.extraParams = {nombre : '',
                                 opcion : opcion};
-        st.load();
+        st.load();/*/
         this.items = {
             xtype: 'grid',
             iconCls: 'icon-grid',
-
             title : '<b>Guias Despacho</b>',
             store: 'Guiasdespachopendientes',
             autoHeight: true,
@@ -87,15 +86,16 @@ Ext.define('Infosys_web.view.guiasdespacho.BuscarGuias' ,{
             },
             {
                 width: 450,
-                xtype: 'textfield',
+                xtype: 'numberfield',
                 itemId: 'nombreId',
+                name: 'numero',
                 fieldLabel: 'Numero'
             },
             '-',
             {
                 xtype: 'button',
                 iconCls: 'icon-search',
-                action: 'buscarguias',
+                action: 'buscarguiasdespacho',
                 text : 'Buscar'
             },
             '-',

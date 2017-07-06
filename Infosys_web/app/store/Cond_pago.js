@@ -2,7 +2,7 @@ Ext.define('Infosys_web.store.Cond_pago', {
     extend: 'Ext.data.Store',
     model: 'Infosys_web.model.Cond_pag',
     autoLoad: true,
-    pageSize: 14,
+    //pageSize: 14,
     
     proxy: {
         type: 'ajax',

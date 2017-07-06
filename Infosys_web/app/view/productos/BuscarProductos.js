@@ -55,6 +55,12 @@ Ext.define('Infosys_web.view.productos.BuscarProductos' ,{
                 align: 'right',
                 renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00")}
             },{
+                header: "Precio Promedio",
+                flex: 1,
+                dataIndex: 'p_promedio',
+                align: 'right',
+                hidden: true
+            },{
                 header: "Stock",
                 flex: 1,
                 align: 'right',

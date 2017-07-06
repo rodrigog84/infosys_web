@@ -13,21 +13,31 @@ Ext.define('Infosys_web.controller.Preventa', {
             'Clientes',
             'Sucursales_clientes',
             'Tabladescuento',
-            'Tipo_documento.Selector'
+            'Tipo_documento.Selector',
+            'Preciosdescuentos',
+            'facturas.Selector2'
              ],
 
     models: ['Preventa',
-             'preventa.Item'],
+             'preventa.Item',
+             'Preciosdescuentos'],
 
     views: ['Preventa.Preventa',
             'Preventa.Principal',
             'Preventa.BuscarClientes',
+            'Preventa.BuscarClientes2',
             'Preventa.EditarPreventa',
             'Preventa.BuscarProductos2',
             'Preventa.BuscarSucursales',
             'Preventa.BuscarSucursales2',
             'Preventa.Observaciones',
-            'Preventa.Observaciones2'
+            'Preventa.Observaciones2',
+            'Preventa.BuscarPrecios',
+            'Preventa.BuscarPrecios2',
+            'Preventa.Autoriza',
+            'Preventa.Autoriza3',
+            'Preventa.Autoriza2',
+            'Preventa.IngresarClientes'
 
             ],
 
@@ -50,6 +60,9 @@ Ext.define('Infosys_web.controller.Preventa', {
     },{    
         ref: 'buscarclientespreventa',
         selector: 'buscarclientespreventa'
+    },{    
+        ref: 'buscarclientespreventa2',
+        selector: 'buscarclientespreventa2'
     },{
         ref: 'buscarproductospreventa',
         selector: 'buscarproductospreventa'
@@ -71,11 +84,25 @@ Ext.define('Infosys_web.controller.Preventa', {
     },{
         ref: 'observacionespreventa2',
         selector: 'observacionespreventa2'
-    }
-
-
-
-
+    },{
+        ref: 'buscarprecios',
+        selector: 'buscarprecios'
+    },{
+        ref: 'autorizacion',
+        selector: 'autorizacion'
+    },{
+        ref: 'autorizacion2',
+        selector: 'autorizacion2'
+    },{
+        ref: 'autorizacion3',
+        selector: 'autorizacion3'
+    },{
+        ref: 'buscarprecios2',
+        selector: 'buscarprecios2'
+    },{
+        ref: 'clientesingresarpreventa',
+        selector: 'clientesingresarpreventa'
+    }    
   
     ],
     
@@ -83,11 +110,11 @@ Ext.define('Infosys_web.controller.Preventa', {
     	
         this.control({
 
-            'preventaprincipal button[action=buscarpreventa]': {
-                click: this.buscarpreventa
-            },
             'preventaprincipal button[action=exportarexcelpreventa]': {
                 click: this.exportarexcelpreventa
+            },
+            'preventaprincipal button[action=buscarpreventa]': {
+                click: this.buscarpreventa
             },
             'topmenus menuitem[action=mpreventa]': {
                 click: this.mpreventa
@@ -119,14 +146,32 @@ Ext.define('Infosys_web.controller.Preventa', {
             'buscarclientespreventa button[action=seleccionarcliente]': {
                 click: this.seleccionarcliente
             },
+            'buscarclientespreventa2 button[action=seleccionarcliente2]': {
+                click: this.seleccionarcliente2
+            },
             'preventaingresar button[action=buscarproductos]': {
                 click: this.buscarproductos
             },
             'preventaeditar button[action=buscarproductos2]': {
                 click: this.buscarproductos2
             },
+            'preventaingresar button[action=buscarproductos]': {
+                click: this.buscarproductos
+            },
+            'preventaeditar button[action=buscarprecios2]': {
+                click: this.buscarprecios2
+            },
+            'preventaingresar button[action=buscarprecios]': {
+                click: this.buscarprecios
+            },
             'buscarproductospreventa button[action=seleccionarproductos]': {
                 click: this.seleccionarproductos
+            },
+            'buscarprecios button[action=seleccionarprecios]': {
+                click: this.seleccionarprecios
+            },
+            'buscarprecios2 button[action=seleccionarprecios2]': {
+                click: this.seleccionarprecios2
             },
 
             'buscarproductospreventa #nombreId': {
@@ -134,6 +179,9 @@ Ext.define('Infosys_web.controller.Preventa', {
             },
             'preventaingresar #codigoId': {
                 specialkey: this.special3
+            },
+            'preventaingresar #giroId': {
+                select: this.grabarGiro
             },
             
             'preventaingresar #tipocondpagoId': {
@@ -221,8 +269,282 @@ Ext.define('Infosys_web.controller.Preventa', {
             },
             'observacionespreventa2 button[action=ingresaobs2]': {
                 click: this.ingresaobs2
-            }
+            },
+            'autorizacion button[action=autoriza]': {
+                click: this.autorizaprecios
+            },
+            'autorizacion3 button[action=autoriza3]': {
+                click: this.autorizaprecios3
+            },
+            'preventaingresar #tipoVendedorId': {
+                select: this.autorizavendedor
+            },
+            'autorizacion2 button[action=autoriza1]': {
+                click: this.autorizaprecios2
+            },
+            'clientesingresarpreventa button[action=grabarclientespreventa]': {
+                click: this.grabarclientes
+            },
+            'preventaingresar #rutId': {
+                specialkey: this.special7
+            },
+            'preventaeditar button[action=validarutedita]': {
+                click: this.validarutedita
+            },
         });
+    },
+
+    buscarpreventa: function(){
+        
+        var view = this.getPreventaprincipal();
+        var st = this.getPreventaStore()
+        var tipo = view.down('#tipoDocumentoId').getValue();
+        var opcion = view.down('#tipoSeleccionId').getValue()
+        var nombre = view.down('#nombreId').getValue()
+        st.proxy.extraParams = {nombre : nombre,
+                                opcion : opcion,
+                                documento: tipo}
+        st.load();
+    },
+
+    validarutedita: function(){
+
+        var view = this.getPreventaeditar();
+        var rut = view.down('#rutId').getValue();
+        var idvendedor = view.down('#tipoVendedorId').getValue();
+        var numero = rut.length;
+        var cero = "";
+
+                  
+        if(numero==0){
+            var edit = Ext.create('Infosys_web.view.Preventa.BuscarClientes2');
+        }else{
+       
+         if(numero>9){            
+            Ext.Msg.alert('Rut Erroneo Ingrese Sin Puntos');
+            return;            
+        }else{
+            if(numero>13){
+            Ext.Msg.alert('Rut Erroneo Ingrese Sin Puntos');
+            return;   
+            }
+        }        
+
+        Ext.Ajax.request({
+            url: preurl + 'clientes/validaRut?valida='+rut,
+            params: {
+                id: 1,
+                tipo: 1
+            },
+            success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                
+                if (resp.success == true) {                    
+                    if(resp.cliente){
+                        var cliente = resp.cliente;
+                        view.down("#rutId").setValue(rut);
+                        view.down("#id_cliente").setValue(cliente.id)
+                        view.down("#nombre_id").setValue(cliente.nombres)
+                        view.down("#tipoVendedorId").setValue(idvendedor)
+                        view.down("#giroId").setValue(cliente.id_giro)
+                        view.down("#direccionId").setValue(cliente.direccion)    
+                        view.down("#rutId").setValue(rut)
+                        view.down("#tipocondpagoId").setValue(cliente.id_pago)                        
+                        view.down("#buscarproc").focus()  
+                        var bolEnable = false;
+                        if (cliente.id_pago == 1){
+                            view.down('#DescuentoproId').setDisabled(bolEnable);
+                            view.down('#tipoDescuentoId').setDisabled(bolEnable);
+                            view.down('#descuentovalorId').setDisabled(bolEnable);
+                                
+                        };
+                        if (cliente.id_pago == 2){
+                            view.down('#DescuentoproId').setDisabled(bolEnable);
+                            view.down('#tipoDescuentoId').setDisabled(bolEnable);
+                            view.down('#descuentovalorId').setDisabled(bolEnable);
+                                
+                        };
+                        if (cliente.id_pago == 4){
+                            view.down('#DescuentoproId').setDisabled(bolEnable);
+                            view.down('#tipoDescuentoId').setDisabled(bolEnable);
+                            view.down('#descuentovalorId').setDisabled(bolEnable);
+                                
+                        };
+                        if (cliente.id_pago == 6){
+
+                             view.down('#DescuentoproId').setDisabled(bolEnable);
+                             view.down('#tipoDescuentoId').setDisabled(bolEnable);
+                             view.down('#descuentovalorId').setDisabled(bolEnable);
+                            
+                        };
+                        if (cliente.id_pago == 7){
+
+                             view.down('#DescuentoproId').setDisabled(bolEnable);
+                             view.down('#tipoDescuentoId').setDisabled(bolEnable);
+                             view.down('#descuentovalorId').setDisabled(bolEnable);
+                            
+                        };                      
+                    }else{
+                        var viewedit = Ext.create('Infosys_web.view.clientes.Ingresar').show();                        
+                        viewedit.down("#rutId").setValue(rut);                         
+                    }
+                    
+                }else{
+                      Ext.Msg.alert('Informacion', 'Rut Incorrecto');
+                      view.down("#rutId").setValue(cero);
+                      return;
+                      
+                }
+            }
+
+        }); 
+        
+        }      
+       
+    },
+
+    grabarGiro: function(){
+
+        var busca = this.getPreventaingresar();
+        var id = busca.down('#id_cliente').getValue();
+        var idgiro = busca.down('#giroId').getValue();
+       
+        Ext.Ajax.request({
+            url: preurl + 'clientes/grabargiro',
+            params: {
+                id: id,
+                idgiro: idgiro
+            },
+            success: function(response){
+                 var resp = Ext.JSON.decode(response.responseText);
+                            
+            }
+           
+        });
+    },
+
+    special7: function(f,e){
+        if (e.getKey() == e.ENTER) {
+            this.validarut()
+        }
+    },
+
+    grabarclientes: function(){
+        var win    = this.getClientesingresarpreventa(),
+            form   = win.down('form'),
+            record = form.getRecord(),
+            values = form.getValues();
+
+             
+        if(!form.getForm().isValid()){
+            Ext.Msg.alert('Informacion', 'Rellene todo los campos');
+            return false;
+        };
+
+        var st = this.getClientesStore();
+        
+        var nuevo = false;
+        
+        if (values.id > 0){
+            record.set(values);
+        }else{
+            record = Ext.create('Infosys_web.model.Cliente');
+            record.set(values);
+            st.add(record);
+            nuevo = true;
+        }
+        
+        win.close();
+        st.sync({
+            success: function(){
+                st.load();
+               
+            }
+        }
+
+        );
+        this.validarut();
+    },
+
+    autorizaprecios2: function(){
+
+       var busca = this.getPreventaingresar()
+       var autor = this.getAutorizacion2()
+       var usua = autor.down('#enter1Id').getValue();
+       var id = busca.down('#tipoVendedorId').getValue();
+       var vendedor = "";
+       var valida = "";
+       Ext.Ajax.request({
+            url: preurl + 'vendedores/busca',
+            params: {
+                nombre: id
+            },
+            success: function(response){
+                 var resp = Ext.JSON.decode(response.responseText);
+                 if (resp.success == true){
+                     var cliente= resp.cliente;
+                     var estado = resp.estado;
+                     var clave = (cliente);
+
+                    if (clave == usua){
+                        autor.close();
+                        if (estado == 3){
+                        var bolEnable = false;
+                        busca.down('#precioId').setDisabled(bolEnable);
+                        busca.down('#estadoId').setValue(estado);
+                        }else{
+                        var bolEnable = true;
+                        busca.down('#precioId').setDisabled(bolEnable);
+                        busca.down('#estadoId').setValue(estado);                            
+                        }
+                     }else{
+                        Ext.Msg.alert('Alerta', 'Clave No Autorizada');
+                        busca.down('#tipoVendedorId').setValue(vendedor);
+                        busca.down('#estadoId').setValue(vendedor);
+                        autor.close();
+                     }
+                    
+                 }else{
+
+                    Ext.Msg.alert('Alerta', 'Clave no Autorizada');
+                    autor.close();
+                                   
+                }
+                               
+            }
+           
+        });
+
+              
+    },
+
+    autorizavendedor: function(){
+
+        var busca = this.getPreventaingresar()
+        var id = busca.down('#tipoVendedorId').getValue();
+       
+        Ext.Ajax.request({
+            url: preurl + 'vendedores/busca',
+            params: {
+                nombre: id
+            },
+            success: function(response){
+                 var resp = Ext.JSON.decode(response.responseText);
+                 if (resp.success == true){
+                     var cliente= resp.cliente;
+                     var estado = resp.estado;
+                     var clave = (cliente);
+
+                    if (clave){                        
+                           var view = Ext.create('Infosys_web.view.Preventa.Autoriza2').show();
+                           var view = this.getAutorizacion2();
+                           view.down('#enter1Id').focus(); 
+                    }                    
+                 }                                   
+            }                              
+                     
+        });      
+            
     },
 
     ingresaobs2: function(){
@@ -231,6 +553,7 @@ Ext.define('Infosys_web.controller.Preventa', {
         var observa = viewIngresa.down('#observaId').getValue();
         if (observa){
              view.down('#observacionesId').setValue(observa);
+
         };
         viewIngresa.close();
     },
@@ -239,10 +562,11 @@ Ext.define('Infosys_web.controller.Preventa', {
 
          var viewIngresa = this.getPreventaeditar();
          var observa = viewIngresa.down('#observacionesId').getValue();        
-         Ext.create('Infosys_web.view.Preventa.Observaciones2').show();
+         var edit = Ext.create('Infosys_web.view.Preventa.Observaciones2').show();
          var view = this.getObservacionespreventa2();
          if (!observa){             
              observa= "";
+             edit.down('#observaId').focus(); 
          };
          view.down('#observaId').setValue(observa);
         
@@ -306,21 +630,51 @@ Ext.define('Infosys_web.controller.Preventa', {
             success: function(response){
                  var resp = Ext.JSON.decode(response.responseText);
                  if (resp.success == true){
-                     var cliente= resp.cliente;
-                     viewIngresa.down('#productoId').setValue(cliente.id);
-                     viewIngresa.down('#nombreproductoId').setValue(cliente.nombre);
-                     viewIngresa.down('#codigoId').setValue(cliente.codigo);
-                     viewIngresa.down('#precioId').setValue(cliente.p_venta);
-                     viewIngresa.down('#cantidadOriginalId').setValue(cliente.stock);
-                     viewIngresa.down("#cantidadId").focus();
-                 }else{
+                    var cliente= resp.cliente;
+                    viewIngresa.down('#productoId').setValue(cliente.id);
+                    viewIngresa.down('#nombreproductoId').setValue(cliente.nombre);
+                    viewIngresa.down('#codigoId').setValue(cliente.codigo);
+                    var precioventa = (cliente.p_venta);
+                    if (cliente.stock < 0){
+                        Ext.Msg.alert('Alerta', 'Producto Sin Stock');
+                        viewIngresa.down('#codigoId').setValue(cero);
+                        viewIngresa.down('#productoId').setValue(cero);
+                        viewIngresa.down('#nombreproductoId').setValue(cero);
+                        viewIngresa.down('#cantidadId').setValue(cero2);
+                        viewIngresa.down('#DescuentoproId').setValue(cero1);
+                        viewIngresa.down('#precioId').setValue(cero1);
+                        viewIngresa.down('#cantidadOriginalId').setValue(cero1);
+                        return;
 
+                    }else{
+                    if (precioventa == 0){
+                        var bolEnable = false;
+                        viewIngresa.down('#precioId').setDisabled(bolEnable);
+                        viewIngresa.down('#precioId').setValue(precioventa);
+                        viewIngresa.down('#cantidadOriginalId').setValue(cliente.stock);
+                        viewIngresa.down("#precioId").focus();
+                        
+                    }else{
+                        
+                        if (cliente.estado == 3){
+                        viewIngresa.down('#precioId').setValue(cero);
+                        viewIngresa.down('#cantidadOriginalId').setValue(cliente.stock);
+                        viewIngresa.down("#precioId").focus();              
+                        }else{
+                            viewIngresa.down('#precioId').setValue(cliente.p_venta);
+                            viewIngresa.down('#cantidadOriginalId').setValue(cliente.stock);
+                            viewIngresa.down("#cantidadId").focus();
+                        }
+                    }
+
+                    }
+                 }else{
                     Ext.Msg.alert('Alerta', 'Codigo producto no existe');
                     viewIngresa.down('#codigoId').setValue(cero);
                     viewIngresa.down('#productoId').setValue(cero);
                     viewIngresa.down('#nombreproductoId').setValue(cero);
                     viewIngresa.down('#cantidadId').setValue(cero2);
-                    viewIngresa.down('#descuentoId').setValue(cero1);
+                    viewIngresa.down('#DescuentoproId').setValue(cero1);
                     viewIngresa.down('#precioId').setValue(cero1);
                     viewIngresa.down('#cantidadOriginalId').setValue(cero1);
                     return;
@@ -488,6 +842,7 @@ Ext.define('Infosys_web.controller.Preventa', {
         var view = this.getPreventaeditar();
         var tipo_documento = view.down('#tipoDocumentoId');
         var rut = view.down('#rutId').getValue();
+        var direccion = view.down('#direccionId').getValue();
         var stItem = this.getPreventaeditarStore();
         var producto = view.down('#productoId').getValue();
         var nombre = view.down('#nombreproductoId').getValue();
@@ -515,47 +870,37 @@ Ext.define('Infosys_web.controller.Preventa', {
         var cero1= 0;
         var cero2= 0;
         
-        var neto = ((cantidad * precio) - descuento);
         var tot = ((cantidad * precio) - descuento);
-        var neto = (parseInt(neto / 1.19));
+        var neto = ((tot / 1.19));
         var exists = 0;
-        var iva = (tot - neto );
+        var iva = (tot - neto);
+        var neto = (tot - iva);
         var total = ((neto + iva ));
 
         
-        if(!producto){
-            
+        if(!producto){            
             Ext.Msg.alert('Alerta', 'Debe Seleccionar un Producto');
             return false;
-
         }
 
         if(precio==0){
-
             Ext.Msg.alert('Alerta', 'Debe Ingresar Precio Producto');
             return false;
-            
-
         }
 
         if(cantidad>cantidadori){
-
             Ext.Msg.alert('Alerta', 'Cantidad Ingresada de Productos Supera El Stock');
             return false;
-            
-
         }
 
         if(cantidad==0){
             Ext.Msg.alert('Alerta', 'Debe Ingresar Cantidad.');
             return false;
         }
-
         
-        if(rut.length==0 ){  // se validan los datos sólo si es factura
+        if(!direccion){  // se validan los datos sólo si es factura
             Ext.Msg.alert('Alerta', 'Debe Ingresar Datos a la Factura.');
-            return false;
-           
+            return false;           
         }
 
         stItem.each(function(r){
@@ -619,6 +964,7 @@ Ext.define('Infosys_web.controller.Preventa', {
             var view = this.getPreventaeditar();
             var stItem = this.getPreventaeditarStore();
             var idpreventa = row.data.id;
+            var idvendedor = row.data.id_vendedor;
             stItem.proxy.extraParams = {idpreventa : idpreventa};
             stItem.load();
 
@@ -648,8 +994,8 @@ Ext.define('Infosys_web.controller.Preventa', {
                     view.down("#rutId").setValue(cliente.rut_cliente);
                     view.down("#rutId").setValue(cliente.rut_cliente);
                     view.down("#nombre_id").setValue(cliente.nom_cliente);
-                    view.down("#tipoVendedorId").setValue(cliente.id_vendedor);
                     view.down("#tipocondpagoId").setValue(cliente.id_pago);
+                    view.down("#tipoVendedorId").setValue(idvendedor);
                     var total = (cliente.total);
                     var neto = (cliente.neto);
                     var iva = (cliente.total - cliente.neto);
@@ -722,9 +1068,9 @@ Ext.define('Infosys_web.controller.Preventa', {
         if (grid.getSelectionModel().hasSelection()) {
             var row = grid.getSelectionModel().getSelection()[0];
          
-            var total = (parseInt(total) - parseInt(row.data.total));
-            var neto = (parseInt(neto) - parseInt(row.data.neto));
-            var iva = (parseInt(iva) - parseInt(row.data.iva));
+            var total = ((total) - (row.data.total));
+            var neto = ((neto) - (row.data.neto));
+            var iva = ((iva) - (row.data.iva));
             var afecto = neto;
             view.down('#finaltotalId').setValue(Ext.util.Format.number(total, '0,000'));
             view.down('#finaltotalpostId').setValue(Ext.util.Format.number(total, '0'));
@@ -763,6 +1109,7 @@ Ext.define('Infosys_web.controller.Preventa', {
         if (grid.getSelectionModel().hasSelection()) {
             var row = grid.getSelectionModel().getSelection()[0];
             var id_producto = row.data.id_producto;
+
             
             Ext.Ajax.request({
             url: preurl + 'productos/buscarp?nombre='+id_producto,
@@ -802,11 +1149,20 @@ Ext.define('Infosys_web.controller.Preventa', {
 
     editaritem2: function() {
         var view = this.getPreventaeditar();
+        var total = view.down('#finaltotalpostId').getValue();
+        var neto = view.down('#finaltotalnetoId').getValue();
+        var afecto = view.down('#finalafectoId').getValue();
+        var iva = view.down('#finaltotalivaId').getValue();
         var grid  = view.down('#itemsgridId');
         var cero = "";
         if (grid.getSelectionModel().hasSelection()) {
             var row = grid.getSelectionModel().getSelection()[0];
             var id_producto = row.data.id_producto;
+            var totalnue = total - (row.data.total);
+            var ivanue = iva - (row.data.iva);
+            var afectonue = afecto - (row.data.neto);
+            var netonue = neto - (row.data.neto);
+
             Ext.Ajax.request({
             url: preurl + 'productos/buscarp?nombre='+id_producto,
             params: {
@@ -828,14 +1184,22 @@ Ext.define('Infosys_web.controller.Preventa', {
                             view.down('#DescuentoproId').setValue(cero);
                         }else{
                             view.down('#DescuentoproId').setValue(row.data.id_descuento);
-                        }       
+                        }
+                        
+                        view.down('#finaltotalId').setValue(Ext.util.Format.number(totalnue, '0,000'));
+                        view.down('#finaltotalpostId').setValue(Ext.util.Format.number(totalnue, '0'));
+                        view.down('#finaltotalnetoId').setValue(Ext.util.Format.number(netonue, '0'));
+                        view.down('#finaltotalivaId').setValue(Ext.util.Format.number(ivanue, '0'));
+                        view.down('#finalafectoId').setValue(Ext.util.Format.number(afectonue, '0'));
+                        view.down('#descuentovalorId').setValue(Ext.util.Format.number(cero));
+       
                     }
                 }
             }
 
         });
         grid.getStore().remove(row);
-        this.recalcularFinal();
+        //this.recalcularFinal();
         }else{
             Ext.Msg.alert('Alerta', 'Selecciona un registro.');
             return;
@@ -926,12 +1290,12 @@ Ext.define('Infosys_web.controller.Preventa', {
            view.down('#rutId').setValue('19');
            this.validaboleta();           
         }
-        view.down('#rutId').setDisabled(bolDisabled);
-        view.down('#buscarBtn').setDisabled(bolDisabled);
-        view.down('#nombre_id').setDisabled(bolDisabled);
-        view.down('#giroId').setDisabled(bolDisabled);
-        view.down('#sucursalId').setDisabled(bolDisabled);
-        view.down('#direccionId').setDisabled(bolDisabled);        
+        //view.down('#rutId').setDisabled(bolDisabled);
+        //view.down('#buscarBtn').setDisabled(bolDisabled);
+        //view.down('#nombre_id').setDisabled(bolDisabled);
+        //view.down('#giroId').setDisabled(bolDisabled);
+        //view.down('#sucursalId').setDisabled(bolDisabled);
+        //view.down('#direccionId').setDisabled(bolDisabled);        
         view.down("#rutId").focus();
 
     },
@@ -969,14 +1333,14 @@ Ext.define('Infosys_web.controller.Preventa', {
         var view = this.getPreventaingresar();
         var precio = view.down('#precioId').getValue();
         var cantidad = view.down('#cantidadId').getValue();
-        var total = (parseInt(precio * cantidad));
+        var total = ((precio * cantidad));
         var desc = view.down('#DescuentoproId').getValue();
         if (desc){
         var descuento = view.down('#DescuentoproId');
         var stCombo = descuento.getStore();
         var record = stCombo.findRecord('id', descuento.getValue()).data;
         var dcto = (record.porcentaje);
-        totaldescuento = ((parseInt(total * dcto)  / 100));
+        totaldescuento = (((total * dcto)  / 100));
         view.down('#totdescuentoId').setValue(totaldescuento);
         };         
     },
@@ -996,7 +1360,7 @@ Ext.define('Infosys_web.controller.Preventa', {
         var stCombo = descuento.getStore();
         var record = stCombo.findRecord('id', descuento.getValue()).data;
         var dcto = (record.porcentaje);
-        totaldescuento = ((parseInt(total * dcto)  / 100));
+        totaldescuento = (((total * dcto)  / 100));
         view.down('#totdescuentoId').setValue(totaldescuento);
         };   
     },
@@ -1017,21 +1381,23 @@ Ext.define('Infosys_web.controller.Preventa', {
         var dcto = view.down('#finaldescuentoId').getValue();
 
         stItem.each(function(r){
-            pretotal = (parseInt(pretotal) + parseInt(r.data.total))
-            iva = (parseInt(iva) + parseInt(r.data.iva))
-            neto = (parseInt(neto) + parseInt(r.data.neto))
+            pretotal = ((pretotal) + (r.data.total))
+            //iva = (parseInt(iva) + parseInt(r.data.iva))
+            //neto = (parseInt(neto) + parseInt(r.data.neto))
         });
-        pretotalfinal = ((pretotal * dcto)  / 100);
-        total = ((pretotal) - parseInt(pretotalfinal));
+
+        neto = ((pretotal /1.19));
+        iva = ((pretotal - neto));
         afecto = neto;
-        
-        //iva = (total - afecto);
-        view.down('#finaltotalId').setValue(Ext.util.Format.number(total, '0,000'));
-        view.down('#finaltotalpostId').setValue(Ext.util.Format.number(total, '0'));
+        neto = neto;
+        pretotalfinal = pretotal;
+
+        view.down('#finaltotalId').setValue(Ext.util.Format.number(pretotalfinal, '0,000'));
+        view.down('#finaltotalpostId').setValue(Ext.util.Format.number(pretotalfinal, '0'));
         view.down('#finaltotalnetoId').setValue(Ext.util.Format.number(neto, '0'));
         view.down('#finaltotalivaId').setValue(Ext.util.Format.number(iva, '0'));
         view.down('#finalafectoId').setValue(Ext.util.Format.number(afecto, '0'));
-        //view.down('#finalpretotalId').setValue(Ext.util.Format.number(pretotal, '0,000'));
+        view.down('#finalpretotalId').setValue(Ext.util.Format.number(pretotalfinal, '0,000'));
     },
 
     
@@ -1048,20 +1414,22 @@ Ext.define('Infosys_web.controller.Preventa', {
 
         stItem.each(function(r){
             pretotal = pretotal + r.data.total
-            iva = iva + r.data.iva
-            neto = neto + r.data.neto
+            //iva = iva + r.data.iva
+            //neto = neto + r.data.neto
         });
-        pretotalfinal = ((pretotal * dcto)  / 100);
-        total = ((pretotal) - parseInt(pretotalfinal));
+
+        neto = ((pretotal /1.19));
+        iva = ((pretotal - neto));
         afecto = neto;
+        neto = neto;
+        pretotalfinal = pretotal;
         
-        //iva = (total - afecto);
-        view.down('#finaltotalId').setValue(Ext.util.Format.number(total, '0,000'));
-        view.down('#finaltotalpostId').setValue(Ext.util.Format.number(total, '0'));
+        view.down('#finaltotalId').setValue(Ext.util.Format.number(pretotalfinal, '0,000'));
+        view.down('#finaltotalpostId').setValue(Ext.util.Format.number(pretotalfinal, '0'));
         view.down('#finaltotalnetoId').setValue(Ext.util.Format.number(neto, '0'));
         view.down('#finaltotalivaId').setValue(Ext.util.Format.number(iva, '0'));
         view.down('#finalafectoId').setValue(Ext.util.Format.number(afecto, '0'));
-        view.down('#descuentovalorId').setValue(Ext.util.Format.number(pretotalfinal, '0'));
+        //view.down('#descuentovalorId').setValue(Ext.util.Format.number(pretotalfinal, '0'));
     },
 
     recalculardescuento: function(){
@@ -1075,18 +1443,22 @@ Ext.define('Infosys_web.controller.Preventa', {
         var stCombo = descuento.getStore();
         var record = stCombo.findRecord('id', descuento.getValue()).data;
         var dcto = (record.porcentaje);
-       
-        pretotalfinal = ((total * dcto)  / 100);
-        total = ((total) - parseInt(pretotalfinal));
-        afecto = (parseInt(total / 1.19));
-        iva = (total - afecto);
 
-        view.down('#finaltotalId').setValue(Ext.util.Format.number(total, '0,000'));
-        view.down('#finaltotalpostId').setValue(Ext.util.Format.number(total, '0'));
+        afecto = (total / 1.19);
+        descuentopesos = ((neto * dcto) / 100);
+        afecto = neto - descuentopesos;
+        pretotal = (((afecto * 19) / 100) + afecto);
+        iva = (pretotal - afecto);
+        afecto = afecto;
+        neto = neto;
+        pretotalfinal = afecto + iva;
+
+        view.down('#finaltotalId').setValue(Ext.util.Format.number(pretotalfinal, '0,000'));
+        view.down('#finaltotalpostId').setValue(Ext.util.Format.number(pretotalfinal, '0'));
         view.down('#finaltotalnetoId').setValue(Ext.util.Format.number(neto, '0'));
         view.down('#finaltotalivaId').setValue(Ext.util.Format.number(iva, '0'));
         view.down('#finalafectoId').setValue(Ext.util.Format.number(afecto, '0'));
-        view.down('#descuentovalorId').setValue(Ext.util.Format.number(pretotalfinal, '0'));
+        view.down('#descuentovalorId').setValue(Ext.util.Format.number(descuentopesos, '0'));
     },
 
     recalculardescuento2: function(){
@@ -1101,17 +1473,21 @@ Ext.define('Infosys_web.controller.Preventa', {
         var record = stCombo.findRecord('id', descuento.getValue()).data;
         var dcto = (record.porcentaje);
        
-        pretotalfinal = ((total * dcto)  / 100);
-        total = ((total) - parseInt(pretotalfinal));
-        afecto = (parseInt(total / 1.19));
-        iva = (total - afecto);
+        afecto = (total / 1.19);
+        descuentopesos = ((neto * dcto) / 100);
+        afecto = neto - descuentopesos;
+        pretotal = (((afecto * 19) / 100) + afecto);
+        iva = (pretotal - afecto);
+        afecto = afecto;
+        neto = neto;
+        pretotalfinal = afecto + iva;
 
-        view.down('#finaltotalId').setValue(Ext.util.Format.number(total, '0,000'));
-        view.down('#finaltotalpostId').setValue(Ext.util.Format.number(total, '0'));
+        view.down('#finaltotalId').setValue(Ext.util.Format.number(pretotalfinal, '0,000'));
+        view.down('#finaltotalpostId').setValue(Ext.util.Format.number(pretotalfinal, '0'));
         view.down('#finaltotalnetoId').setValue(Ext.util.Format.number(neto, '0'));
         view.down('#finaltotalivaId').setValue(Ext.util.Format.number(iva, '0'));
         view.down('#finalafectoId').setValue(Ext.util.Format.number(afecto, '0'));
-        view.down('#descuentovalorId').setValue(Ext.util.Format.number(pretotalfinal, '0'));
+        view.down('#descuentovalorId').setValue(Ext.util.Format.number(descuentopesos, '0'));
     },
 
     recalcularFinal2: function(){
@@ -1125,22 +1501,24 @@ Ext.define('Infosys_web.controller.Preventa', {
         var neto = 0;
         var dcto = view.down('#finaldescuentoId').getValue();
 
-        stItem.each(function(r){
+         stItem.each(function(r){
             pretotal = pretotal + r.data.total
             iva = iva + r.data.iva
             neto = neto + r.data.neto
         });
-        pretotalfinal = ((pretotal * dcto)  / 100);
-        total = ((pretotal) - parseInt(pretotalfinal));
+
+        neto = ((pretotal /1.19));
+        iva = ((pretotal - neto));
         afecto = neto;
+        neto = neto;
+        pretotalfinal = pretotal;
         
-        //iva = (total - afecto);
-        view.down('#finaltotalId').setValue(Ext.util.Format.number(total, '0,000'));
-        view.down('#finaltotalpostId').setValue(Ext.util.Format.number(total, '0'));
+        view.down('#finaltotalId').setValue(Ext.util.Format.number(pretotalfinal, '0,000'));
+        view.down('#finaltotalpostId').setValue(Ext.util.Format.number(pretotalfinal, '0'));
         view.down('#finaltotalnetoId').setValue(Ext.util.Format.number(neto, '0'));
         view.down('#finaltotalivaId').setValue(Ext.util.Format.number(iva, '0'));
         view.down('#finalafectoId').setValue(Ext.util.Format.number(afecto, '0'));
-        //view.down('#finalpretotalId').setValue(Ext.util.Format.number(pretotal, '0,000'));
+        view.down('#descuentovalorId').setValue(Ext.util.Format.number(pretotalfinal, '0'));
     },
 
 
@@ -1149,6 +1527,7 @@ Ext.define('Infosys_web.controller.Preventa', {
         var view = this.getPreventaingresar();
         var tipo_documento = view.down('#tipoDocumentoId');
         var rut = view.down('#rutId').getValue();
+        var direccion = view.down('#direccionId').getValue();
         var stItem = this.getPreventaItemsStore();
         var producto = view.down('#productoId').getValue();
         var nombre = view.down('#nombreproductoId').getValue();
@@ -1157,7 +1536,6 @@ Ext.define('Infosys_web.controller.Preventa', {
         var precio = ((view.down('#precioId').getValue()));
         var precioun = ((view.down('#precioId').getValue())/ 1.19);
         var descuento = view.down('#totdescuentoId').getValue(); 
-        var iddescuento = view.down('#DescuentoproId').getValue();
         var secuencia = view.down('#secuenciaId').getValue();
         var bolEnable = true;
         var secuencia = secuencia + 1;
@@ -1188,35 +1566,26 @@ Ext.define('Infosys_web.controller.Preventa', {
             view.down('#descuentovalorId').setDisabled(bolEnable);
         };
         
-        var neto = ((cantidad * precio) - descuento);
         var tot = ((cantidad * precio) - descuento);
-        var neto = (parseInt(neto / 1.19));
+        var neto = ((tot / 1.19));
         var exists = 0;
-        var iva = (tot - neto );
+        var iva = (tot - neto);
+        var neto = (tot - iva);
         var total = ((neto + iva ));
-
         
-        if(!producto){
-            
+        if(!producto){            
             Ext.Msg.alert('Alerta', 'Debe Seleccionar un Producto');
             return false;
-
         }
 
         if(precio==0){
-
             Ext.Msg.alert('Alerta', 'Debe Ingresar Precio Producto');
             return false;
-            
-
         }
 
         if(cantidad>cantidadori){
-
             Ext.Msg.alert('Alerta', 'Cantidad Ingresada de Productos Supera El Stock');
             return false;
-            
-
         }
 
         if(cantidad==0){
@@ -1224,14 +1593,11 @@ Ext.define('Infosys_web.controller.Preventa', {
             return false;
         }
 
-        
-        if(rut.length==0 ){  // se validan los datos sólo si es factura
+       
+        if(!direccion){  // se validan los datos sólo si es factura
             Ext.Msg.alert('Alerta', 'Debe Ingresar Datos a la Factura.');
-            return false;
-           
+            return false;           
         }
-
-
         stItem.each(function(r){
             if(r.data.id_producto == producto){
                 Ext.Msg.alert('Alerta', 'El registro ya existe.');
@@ -1272,8 +1638,6 @@ Ext.define('Infosys_web.controller.Preventa', {
         view.down('#cantidadId').setValue(cero2);
         view.down('#precioId').setValue(cero);
         view.down('#cantidadOriginalId').setValue(cero);
-        view.down('#totdescuentoId').setValue(cero1);
-        view.down('#DescuentoproId').setValue(cero);
         view.down('#secuenciaId').setValue(secuencia);
         
         view.down("#buscarproc").focus();
@@ -1313,19 +1677,90 @@ Ext.define('Infosys_web.controller.Preventa', {
         st.load();
     },
 
+    seleccionarprecios: function(){
+
+        var view = this.getBuscarprecios();
+        var viewIngresa = this.getPreventaingresar();
+        var grid  = view.down('grid');
+        if (grid.getSelectionModel().hasSelection()) {
+            var row = grid.getSelectionModel().getSelection()[0];
+            viewIngresa.down('#precioId').setValue(row.data.valor);
+            view.close();
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }
+       
+    },
+
+    seleccionarprecios2: function(){
+
+        var view = this.getBuscarprecios2();
+        var viewIngresa = this.getPreventaeditar();
+        var grid  = view.down('grid');
+        if (grid.getSelectionModel().hasSelection()) {
+            var row = grid.getSelectionModel().getSelection()[0];
+            viewIngresa.down('#precioId').setValue(row.data.valor);
+            view.close();
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }
+       
+    },
+
     seleccionarproductos: function(){
 
         var view = this.getBuscarproductospreventa();
         var viewIngresa = this.getPreventaingresar();
+        var estado = viewIngresa.down('#estadoId').getValue();        
+        var cero = 0;
+        var cero2 = "";
+        var cero1 = "";
         var grid  = view.down('grid');
         if (grid.getSelectionModel().hasSelection()) {
             var row = grid.getSelectionModel().getSelection()[0];
             viewIngresa.down('#productoId').setValue(row.data.id);
             viewIngresa.down('#nombreproductoId').setValue(row.data.nombre);
             viewIngresa.down('#codigoId').setValue(row.data.codigo);
-            viewIngresa.down('#precioId').setValue(row.data.p_venta);
-            viewIngresa.down('#cantidadOriginalId').setValue(row.data.stock);
-            view.close();
+            var precioventa = (row.data.p_venta);
+            if (row.data.stock < 0){
+                        view.close();
+                        Ext.Msg.alert('Alerta', 'Producto Sin Stock');
+                        viewIngresa.down('#codigoId').setValue(cero);
+                        viewIngresa.down('#productoId').setValue(cero);
+                        viewIngresa.down('#nombreproductoId').setValue(cero);
+                        viewIngresa.down('#cantidadId').setValue(cero2);
+                        viewIngresa.down('#DescuentoproId').setValue(cero1);
+                        viewIngresa.down('#precioId').setValue(cero1);
+                        viewIngresa.down('#cantidadOriginalId').setValue(cero1);
+                        return;
+
+                           
+            }else{
+            if (precioventa == 0){
+                var bolEnable = false;
+                viewIngresa.down('#precioId').setDisabled(bolEnable);
+                viewIngresa.down('#precioId').setValue(precioventa);
+                viewIngresa.down('#cantidadOriginalId').setValue(row.data.stock);
+                view.close();
+                viewIngresa.down("#precioId").focus();
+                
+            }else{
+                
+                if (estado == 3){
+                viewIngresa.down('#precioId').setValue(cero);
+                viewIngresa.down('#cantidadOriginalId').setValue(row.data.stock);
+                view.close();  
+                viewIngresa.down("#precioId").focus();              
+                }else{
+                    viewIngresa.down('#precioId').setValue(row.data.p_venta);
+                    viewIngresa.down('#cantidadOriginalId').setValue(row.data.stock);
+                    view.close();
+                    viewIngresa.down("#cantidadId").focus();
+                }
+            }
+        }  
         }else{
             Ext.Msg.alert('Alerta', 'Selecciona un registro.');
             return;
@@ -1337,30 +1772,142 @@ Ext.define('Infosys_web.controller.Preventa', {
 
         var view = this.getBuscarproductospreventa2();
         var viewIngresa = this.getPreventaeditar();
+        var estado = viewIngresa.down('#estadoId').getValue();        
+        var cero = 0;
         var grid  = view.down('grid');
         if (grid.getSelectionModel().hasSelection()) {
             var row = grid.getSelectionModel().getSelection()[0];
             viewIngresa.down('#productoId').setValue(row.data.id);
             viewIngresa.down('#nombreproductoId').setValue(row.data.nombre);
             viewIngresa.down('#codigoId').setValue(row.data.codigo);
-            viewIngresa.down('#precioId').setValue(row.data.p_venta);
-            viewIngresa.down('#cantidadOriginalId').setValue(row.data.stock);
-            view.close();
+            var precioventa = (row.data.p_venta);
+            if (precioventa == 0){
+                var bolEnable = false;
+                viewIngresa.down('#precioId').setDisabled(bolEnable);
+                viewIngresa.down('#cantidadOriginalId').setValue(row.data.stock);
+                view.close();
+                viewIngresa.down("#precioId").focus();                
+            }else{                
+                if (estado == 3){
+                viewIngresa.down('#precioId').setValue(cero);
+                viewIngresa.down('#cantidadOriginalId').setValue(row.data.stock);
+                view.close();  
+                viewIngresa.down("#precioId").focus();              
+                }else{
+                    viewIngresa.down('#precioId').setValue(row.data.p_venta);
+                    viewIngresa.down('#cantidadOriginalId').setValue(row.data.stock);
+                    view.close();
+                    viewIngresa.down("#cantidadId").focus();
+                }
+            }
         }else{
             Ext.Msg.alert('Alerta', 'Selecciona un registro.');
             return;
         }
+             
        
     },
 
     buscarproductos: function(){
 
+        var st = this.getProductosfStore();
+        st.load();
         Ext.create('Infosys_web.view.Preventa.BuscarProductos').show();
+      
     },
 
     buscarproductos2: function(){
 
+        var st = this.getProductosfStore();
+        st.load();
         Ext.create('Infosys_web.view.Preventa.BuscarProductos2').show();
+    },
+
+    buscarprecios: function(){
+
+       var busca = this.getPreventaingresar()
+       var id = busca.down('#productoId').getValue();
+       var nombre = busca.down('#nombreproductoId').getValue();
+
+       if (id){
+              var edit =  Ext.create('Infosys_web.view.Preventa.BuscarPrecios').show();
+              var st = this.getPreciosdescuentosStore();
+              st.proxy.extraParams = {nombre : id};
+              st.load();
+              edit.down('#nombreId').setValue(nombre);
+             
+           }else {
+              Ext.Msg.alert('Alerta', 'Debe seleccionar Producto.');
+              return;
+             
+        };
+      
+    },
+    
+    buscarprecios2: function(){
+
+       var busca = this.getPreventaeditar();
+       var id = busca.down('#productoId').getValue();
+       if (id){
+       var edit = Ext.create('Infosys_web.view.Preventa.Autoriza3').show();
+       var view = this.getAutorizacion();
+       view.down("#enterId").focus();
+       }else{
+        Ext.Msg.alert('Alerta', 'Debe seleccionar Producto.');
+        return;
+           
+       }
+      
+    },    
+
+    autorizaprecios: function(){
+
+       var busca = this.getPreventaingresar()
+       var id = busca.down('#productoId').getValue();
+       var nombre = busca.down('#nombreproductoId').getValue();
+
+       if (id){
+              var edit =  Ext.create('Infosys_web.view.Preventa.BuscarPrecios').show();
+              var st = this.getPreciosdescuentosStore();
+              st.proxy.extraParams = {nombre : id};
+              st.load();
+              edit.down('#nombreId').setValue(nombre);
+              clave.close();
+           }else {
+              Ext.Msg.alert('Alerta', 'Debe seleccionar Producto.');
+              return;
+              clave.close();
+        };  
+    },
+
+    autorizaprecios3: function(){
+
+       var busca = this.getPreventaeditar()
+       var clave = this.getAutorizacion3()
+       var usua = clave.down('#enterId').getValue();
+       var id = busca.down('#productoId').getValue();
+       var nombre = busca.down('#nombreproductoId').getValue();
+
+       if (usua == "12345"){       
+           if (id){
+              var edit =  Ext.create('Infosys_web.view.Preventa.BuscarPrecios2').show();
+              var st = this.getPreciosdescuentosStore();
+              st.proxy.extraParams = {nombre : id};
+              st.load();
+              edit.down('#nombreId').setValue(nombre);
+              clave.close();
+           }else {
+              Ext.Msg.alert('Alerta', 'Debe seleccionar Producto.');
+              return;
+              clave.close();
+           };
+           
+        }else{
+            Ext.Msg.alert('Alerta', 'Clave no Autorizada');
+            return;
+            
+        }; 
+        clave.close();       
     },
 
     buscarp: function(){
@@ -1371,7 +1918,7 @@ Ext.define('Infosys_web.controller.Preventa', {
         st.load();
     },
 
-     buscarp2: function(){
+    buscarp2: function(){
         var view = this.getBuscarproductospreventa2();
         var st = this.getProductosfStore()
         var nombre = view.down('#nombreId').getValue()
@@ -1434,9 +1981,6 @@ Ext.define('Infosys_web.controller.Preventa', {
              viewIngresa.down('#descuentovalorId').setDisabled(bolDisabel);
             
         };
-            
-        
-        
 
     },
 
@@ -1532,7 +2076,7 @@ Ext.define('Infosys_web.controller.Preventa', {
             view.close();
             viewIngresa.down("#tipoVendedorId").focus();
             var bolEnable = true;
-            if (cliente.id_pago == 1){
+            /*if (cliente.id_pago == 1){
                 view.down('#DescuentoproId').setDisabled(bolEnable);
                 view.down('#tipoDescuentoId').setDisabled(bolEnable);
                 view.down('#descuentovalorId').setDisabled(bolEnable);
@@ -1563,7 +2107,84 @@ Ext.define('Infosys_web.controller.Preventa', {
                  view.down('#tipoDescuentoId').setDisabled(bolEnable);
                  view.down('#descuentovalorId').setDisabled(bolEnable);
                 
+            };*/
+    
             };
+           
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }
+       
+    },
+
+    seleccionarcliente2: function(){
+
+        var view = this.getBuscarclientespreventa2();
+        var viewIngresa = this.getPreventaeditar();
+        var grid  = view.down('grid');
+        if (grid.getSelectionModel().hasSelection()) {
+            var row = grid.getSelectionModel().getSelection()[0];
+            
+            var estado = (row.data.estado);
+            if (estado == 3) {
+
+                Ext.Msg.alert('Cliente Bloqueado');
+                 view.close();
+
+                return;   
+                 
+                
+            }else if (estado == 4){
+
+                 Ext.Msg.alert('Cliente protestos Vigentes');
+                 view.close();
+            return;
+              
+                
+            }else {
+
+            viewIngresa.down('#id_cliente').setValue(row.data.id);
+            viewIngresa.down('#nombre_id').setValue(row.data.nombres);
+            viewIngresa.down('#rutId').setValue(row.data.rut);
+            viewIngresa.down('#tipocondpagoId').setValue(row.data.id_pago);
+            viewIngresa.down('#direccionId').setValue(row.data.direccion);
+            viewIngresa.down('#giroId').setValue(row.data.giro);
+            view.close();
+            viewIngresa.down("#tipoVendedorId").focus();
+            var bolEnable = true;
+            /*if (cliente.id_pago == 1){
+                view.down('#DescuentoproId').setDisabled(bolEnable);
+                view.down('#tipoDescuentoId').setDisabled(bolEnable);
+                view.down('#descuentovalorId').setDisabled(bolEnable);
+                    
+            };
+            if (cliente.id_pago == 2){
+                view.down('#DescuentoproId').setDisabled(bolEnable);
+                view.down('#tipoDescuentoId').setDisabled(bolEnable);
+                view.down('#descuentovalorId').setDisabled(bolEnable);
+                    
+            };
+            if (cliente.id_pago == 4){
+                view.down('#DescuentoproId').setDisabled(bolEnable);
+                view.down('#tipoDescuentoId').setDisabled(bolEnable);
+                view.down('#descuentovalorId').setDisabled(bolEnable);
+                    
+            };
+            if (cliente.id_pago == 6){
+
+                 view.down('#DescuentoproId').setDisabled(bolEnable);
+                 view.down('#tipoDescuentoId').setDisabled(bolEnable);
+                 view.down('#descuentovalorId').setDisabled(bolEnable);
+                
+            };
+            if (cliente.id_pago == 7){
+
+                 view.down('#DescuentoproId').setDisabled(bolEnable);
+                 view.down('#tipoDescuentoId').setDisabled(bolEnable);
+                 view.down('#descuentovalorId').setDisabled(bolEnable);
+                
+            };*/
     
             };
            
@@ -1578,14 +2199,19 @@ Ext.define('Infosys_web.controller.Preventa', {
 
         var view = this.getPreventaingresar();
         var rut = view.down('#rutId').getValue();
-        var numero = rut.length;
+        if (rut == ""){
 
-        if(numero==0){
             var edit = Ext.create('Infosys_web.view.Preventa.BuscarClientes');            
-                  
+
+        }else{
+        var numero = rut.length;
+        var cero = "";
+                
+        if(numero==0 ){
+            var edit = Ext.create('Infosys_web.view.Preventa.BuscarClientes');
         }else{
        
-        if(numero>9){            
+         if(numero>9){            
             Ext.Msg.alert('Rut Erroneo Ingrese Sin Puntos');
             return;            
         }else{
@@ -1593,24 +2219,30 @@ Ext.define('Infosys_web.controller.Preventa', {
             Ext.Msg.alert('Rut Erroneo Ingrese Sin Puntos');
             return;   
             }
-        }
+        }        
 
         Ext.Ajax.request({
             url: preurl + 'clientes/validaRut?valida='+rut,
             params: {
-                id: 1
+                id: 1,
+                tipo: 1
             },
             success: function(response){
                 var resp = Ext.JSON.decode(response.responseText);
-                var cero = "";
-                if (resp.success == true) {
-                    
+                
+                if (resp.success == true) {                    
                     if(resp.cliente){
                         var cliente = resp.cliente;
+                        view.down("#rutId").setValue(rut);
                         view.down("#id_cliente").setValue(cliente.id)
-                        view.down("#nombre_id").setValue(cliente.nombres)                        
+                        view.down("#nombre_id").setValue(cliente.nombres)
+                        view.down("#tipoVendedorId").setValue(cliente.id_vendedor)
+                        view.down("#giroId").setValue(cliente.id_giro)
+                        view.down("#direccionId").setValue(cliente.direccion)    
                         view.down("#rutId").setValue(rut)
-                        var bolEnable = true;
+                        view.down("#tipocondpagoId").setValue(cliente.id_pago)                        
+                        view.down("#buscarproc").focus()  
+                        var bolEnable = false;
                         if (cliente.id_pago == 1){
                             view.down('#DescuentoproId').setDisabled(bolEnable);
                             view.down('#tipoDescuentoId').setDisabled(bolEnable);
@@ -1644,9 +2276,8 @@ Ext.define('Infosys_web.controller.Preventa', {
                             
                         };                      
                     }else{
-                         Ext.Msg.alert('Rut No Exite');
-                         view.down("#rutId").setValue(cero); 
-                        return;   
+                        var viewedit = Ext.create('Infosys_web.view.clientes.Ingresar').show();                        
+                        viewedit.down("#rutId").setValue(rut);                         
                     }
                     
                 }else{
@@ -1657,8 +2288,12 @@ Ext.define('Infosys_web.controller.Preventa', {
                 }
             }
 
-        });       
+        }); 
+        
         }
+        
+        }      
+       
     },
 
     mpreventa: function(){
@@ -1669,17 +2304,7 @@ Ext.define('Infosys_web.controller.Preventa', {
     },
 
 
-    buscarpreventa: function(){
-        
-        var view = this.getPreventaprincipal()
-        var st = this.getPreventaStore()
-        var nombre = view.down('#nombreId').getValue()
-        st.proxy.extraParams = {nombre : nombre}
-        st.load();
-
-
-    },
-
+    
     grabarpreventa: function(){
 
         var viewIngresa = this.getPreventaingresar();
@@ -1758,7 +2383,9 @@ Ext.define('Infosys_web.controller.Preventa', {
     agregarpreventa: function(){
 
          //var view = this.getPreventaingresar();
-         var nombre = "6";    
+         var nombre = "6";
+         var tipo = "2";
+
          Ext.Ajax.request({
 
             url: preurl + 'correlativos/genera?valida='+nombre,
@@ -1775,6 +2402,8 @@ Ext.define('Infosys_web.controller.Preventa', {
                     correlanue = (parseInt(correlanue)+1);
                     var correlanue = correlanue;
                     view.down("#ticketId").setValue(correlanue);
+                    view.down("#tipoDocumento2Id").setValue(tipo);
+                    view.down("#rutId").focus();
                 }else{
                     Ext.Msg.alert('Correlativo YA Existe');
                     return;

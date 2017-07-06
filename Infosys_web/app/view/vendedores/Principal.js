@@ -22,6 +22,10 @@ Ext.define('Infosys_web.view.vendedores.Principal' ,{
                 flex: 1,
                 dataIndex: 'rut'
             },{
+                header: "Codigo",
+                flex: 1,
+                dataIndex: 'cod_interno'
+            },{
                 header: "Direccion",
                 flex: 1,
                 dataIndex: 'direccion'
@@ -39,11 +43,11 @@ Ext.define('Infosys_web.view.vendedores.Principal' ,{
                 dataIndex: 'estado',
                 renderer: function(value){
                 if (value == 1) {
-                    return '<img src="http://localhost/Infosys_web/Infosys_web/resources/images/add.png"/>';
+                    return '<img src="http://angus.agricultorestalca.cl/Infosys_web/Infosys_web/resources/images/add.png"/>';
                  }
                 if (value == 2) {
                  //return '<img src="http://localhost:999/rutaimg.jpg" />'
-                   return '<img src="http://localhost/Infosys_web/Infosys_web/resources/images/stop.png"/>';   
+                   return '<img src="http://angus.agricultorestalca.cl/Infosys_web/Infosys_web/resources/images/stop.png"/>';   
                 }
         }
             }],
