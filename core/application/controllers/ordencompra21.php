@@ -611,13 +611,13 @@ class Ordencompra extends CI_Controller {
 		<body>
 		<table width="987px" height="602" border="0">
 		  <tr>
-		    <td width="197px"><img src="http://localhost/Infosys_web/Infosys_web/resources/images/logoinfo&sys.jpg" width="150" height="136" /></td>
+		    <td width="197px"><img src="http://angus.agricultorestalca.cl/Infosys_web/Infosys_web/resources/images/logo.jpg" width="150" height="136" /></td>
 		    <td width="493px" style="font-size: 14px;text-align:center;vertical-align:text-top"	>
-		    <p>GOTRU ALIMENTOS SPA.</p>
-		    <p>RUT:78.549.450-4</p>
-		    <p>8 ORIENTE, TALCA</p>
-		    <p>Fonos: </p>
-		    <p>http://www.gotru.cl</p>
+		    <p>AGRICOLA Y COMERCIAL LIRCAY SPA</p>
+		    <p>RUT:96.516.320-4</p>
+		    <p>Avda San Miguel Cruce Las Rastras S/N- Talca - Chile</p>
+		    <p>Fonos: (71)2 245932-2 2245933</p>
+		    <p>http://www.lircay.cl</p>
 		    </td>
 		    <td width="296px" style="font-size: 16px;text-align:left;vertical-align:text-top"	>
 		          <p>COTIZACION N°: '.$codigo.'</p>

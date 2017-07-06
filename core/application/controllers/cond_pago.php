@@ -68,10 +68,10 @@ class Cond_pago extends CI_Controller {
 
 		if($nombre){
 			$query = $this->db->query('SELECT * FROM cond_pago WHERE nombre like "%'.$nombre.'%"
-			limit '.$start.', '.$limit.'');
+			');
 		}else{
 			
-			$query = $this->db->query('SELECT * FROM cond_pago limit '.$start.', '.$limit.'');
+			$query = $this->db->query('SELECT * FROM cond_pago ');
 			
 		}
 

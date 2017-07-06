@@ -437,7 +437,7 @@ class Cuentacorriente extends CI_Controller {
 							$query = $this->db->query("UPDATE detalle_cuenta_corriente SET saldo = saldo - " . $valor . " where id = " .  $arrayCuentasCorrientes[$i]['iddoctocta'] );
 						}
 
-					}else if($arrayCuentasCorrientes[$i]['tipodocumento'] == 16 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 104){ // SI ES NOTA DE DEBITO, SÓLO SE ABONA A LA FACTURA
+					}else if($arrayCuentasCorrientes[$i]['tipodocumento'] == 16){ // SI ES NOTA DE DEBITO, SÓLO SE ABONA A LA FACTURA
 						// ESTO ES UN TRUCO, SOLO PARA QUE AL REBAJAR POR FACTURA, EL MOVIMIENTO QUEDE EN CERO
 						$query = $this->db->query("UPDATE cuenta_corriente SET saldo = saldo - " . $valor . " where id = " .  $arrayCuentasCorrientes[$i]['id'] );
 						$query = $this->db->query("UPDATE detalle_cuenta_corriente SET saldo = saldo - " . $valor . " where id = " .  $arrayCuentasCorrientes[$i]['iddoctocta'] );
@@ -607,7 +607,7 @@ class Cuentacorriente extends CI_Controller {
 							$query = $this->db->query("UPDATE detalle_cuenta_corriente SET saldo = saldo - " . $valor . " where id = " .  $arrayCuentasCorrientes[$i]['iddoctocta'] );
 						}
 
-					}else if($arrayCuentasCorrientes[$i]['tipodocumento'] == 16 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 104){ // SI ES NOTA DE DEBITO, SÓLO SE ABONA A LA FACTURA
+					}else if($arrayCuentasCorrientes[$i]['tipodocumento'] == 16){ // SI ES NOTA DE DEBITO, SÓLO SE ABONA A LA FACTURA
 						// ESTO ES UN TRUCO, SOLO PARA QUE AL REBAJAR POR FACTURA, EL MOVIMIENTO QUEDE EN CERO
 						$query = $this->db->query("UPDATE cuenta_corriente SET saldo = saldo - " . $valor . " where id = " .  $arrayCuentasCorrientes[$i]['id'] );
 						$query = $this->db->query("UPDATE detalle_cuenta_corriente SET saldo = saldo - " . $valor . " where id = " .  $arrayCuentasCorrientes[$i]['iddoctocta'] );
@@ -694,13 +694,13 @@ class Cuentacorriente extends CI_Controller {
 		$sqlCuentaCorriente = $idcuentacorriente != '' && $idcuentacorriente != 0 ? " c.idctacte = '" . $idcuentacorriente . "' ": "";
 		// si son cancelaciones, el valor es negativo
 		$query = $this->db->query("select 
-									(select COALESCE(sum(if(dm.debe is not null,dm.debe,if((c.origen='VENTA' and c.tipodocumento in (1,2,19,101,103,16,104)) or (c.origen = 'CTACTE' and c.tipodocumento not in (1,2,19,101,103,16,104)),c.valor,0))),0) as valor 
+									(select COALESCE(sum(if(dm.debe is not null,dm.debe,if((c.origen='VENTA' and c.tipodocumento in (1,2,19,101,103,16)) or (c.origen = 'CTACTE' and c.tipodocumento not in (1,2,19,101,103,16)),c.valor,0))),0) as valor 
 																	  from cartola_cuenta_corriente c 
 																	  left join detalle_mov_cuenta_corriente dm on c.idmovimiento = dm.idmovimiento and c.idcuenta = dm.idcuenta and c.tipodocumento = dm.tipodocumento and c.numdocumento = dm.numdocumento
 																	where ". $sqlCuentaCorriente . " )
 																	
 									as debe,
-									(select COALESCE(SUM(if(dm.haber is not null,dm.haber,if((c.origen='CTACTE' and c.tipodocumento in (1,2,19,101,103,16,104)) or (c.origen = 'VENTA' and c.tipodocumento not in (1,2,19,101,103,16,104)),c.valor,0))),0) as valor
+									(select COALESCE(SUM(if(dm.haber is not null,dm.haber,if((c.origen='CTACTE' and c.tipodocumento in (1,2,19,101,103,16)) or (c.origen = 'VENTA' and c.tipodocumento not in (1,2,19,101,103,16)),c.valor,0))),0) as valor
 																	  from cartola_cuenta_corriente c 
 																	  left join detalle_mov_cuenta_corriente dm on c.idmovimiento = dm.idmovimiento and c.idcuenta = dm.idcuenta and c.tipodocumento = dm.tipodocumento and c.numdocumento = dm.numdocumento
 																	where ". $sqlCuentaCorriente . " )
@@ -724,7 +724,7 @@ class Cuentacorriente extends CI_Controller {
 		$sqlCuentaCorriente = $idcuentacorriente != '' && $idcuentacorriente != 0 ? " where c.idctacte = '" . $idcuentacorriente . "'": "";
 		$resp = array();
 		// si son cancelaciones, el valor es negativo
-		$query = $this->db->query("select concat(tc.descripcion,' ',c.numdocumento) as origen, concat(tc2.descripcion,' ',c.numdocumento_asoc) as referencia, if(dm.debe is not null,dm.debe,if((c.origen='VENTA' and c.tipodocumento in (1,2,19,101,103,16,104)) or (c.origen = 'CTACTE' and c.tipodocumento not in (1,2,19,101,103,16,104)),c.valor,0)) as debe, if(dm.haber is not null,dm.haber,if((c.origen='CTACTE' and c.tipodocumento in (1,2,19,101,103,16,104)) or (c.origen = 'VENTA' and c.tipodocumento not in (1,2,19,101,103,16,104)),c.valor,0)) as haber, c.glosa, DATE_FORMAT(c.fecvencimiento,'%d/%m/%Y') as fecvencimiento, DATE_FORMAT(c.fecha,'%d/%m/%Y') as fecha, concat(m.tipo,' ',m.numcomprobante) as comprobante, m.id as idcomprobante
+		$query = $this->db->query("select concat(tc.descripcion,' ',c.numdocumento) as origen, concat(tc2.descripcion,' ',c.numdocumento_asoc) as referencia, if(dm.debe is not null,dm.debe,if((c.origen='VENTA' and c.tipodocumento in (1,2,19,101,103,16)) or (c.origen = 'CTACTE' and c.tipodocumento not in (1,2,19,101,103,16)),c.valor,0)) as debe, if(dm.haber is not null,dm.haber,if((c.origen='CTACTE' and c.tipodocumento in (1,2,19,101,103,16)) or (c.origen = 'VENTA' and c.tipodocumento not in (1,2,19,101,103,16)),c.valor,0)) as haber, c.glosa, DATE_FORMAT(c.fecvencimiento,'%d/%m/%Y') as fecvencimiento, DATE_FORMAT(c.fecha,'%d/%m/%Y') as fecha, concat(m.tipo,' ',m.numcomprobante) as comprobante, m.id as idcomprobante
 								  from cartola_cuenta_corriente c 
 								  inner join tipo_documento tc on c.tipodocumento = tc.id
 								  left join tipo_documento tc2 on c.tipodocumento_asoc = tc2.id
@@ -949,15 +949,14 @@ class Cuentacorriente extends CI_Controller {
 		</head>
 
 		<body>
-		<table width="987px" height="602" border="0">
-		  <tr>
-		    <td width="197px"><img src="http://localhost/Infosys_web/Infosys_web/resources/images/logoinfo&sys.jpg" width="150" height="136" /></td>
+		<td width="197px"><img src="http://angus.agricultorestalca.cl/Infosys_web/Infosys_web/resources/images/logo.jpg" width="150" height="136" /></td>
 		    <td width="493px" style="font-size: 14px;text-align:center;vertical-align:text-top"	>
-		    <p>GOTRU ALIMENTOS SPA.</p>
-		    <p>RUT:78.549.450-4</p>
-		    <p>8 ORIENTE, TALCA</p>
-		    <p>Fonos: </p>
-		    <p>http://www.gotru.cl</p>
+		    <p>AGRICOLA Y COMERCIAL LIRCAY SPA</p>
+		    <p>RUT:96.516.320-4</p>
+		    <p>Avda San Miguel Cruce Las Rastras S/N- Talca - Chile</p>
+		    <p>Fonos: (71)2 245932-2 2245933</p>
+		    <p>http://www.lircay.cl</p>
+		    </td>
 		    </td>
 		    <td width="296px" style="font-size: 16px;text-align:left;vertical-align:text-top"	>
 		          <p>FECHA EMISION : '.date('d/m/Y').'</p>
@@ -1096,13 +1095,13 @@ $header = '
 		<body>
 		<table width="987px" height="602" border="0">
 		  <tr>
-		    <td width="197px"><img src="http://localhost/Infosys_web/Infosys_web/resources/images/logoinfo&sys.jpg" width="150" height="136" /></td>
+		    <td width="197px"><img src="http://angus.agricultorestalca.cl/Infosys_web/Infosys_web/resources/images/logo.jpg" width="150" height="136" /></td>
 		    <td width="493px" style="font-size: 14px;text-align:center;vertical-align:text-top"	>
-		    <p>GOTRU ALIMENTOS SPA.</p>
-		    <p>RUT:78.549.450-4</p>
-		    <p>8 ORIENTE, TALCA</p>
-		    <p>Fonos: </p>
-		    <p>http://www.gotru.cl</p>
+		    <p>AGRICOLA Y COMERCIAL LIRCAY SPA</p>
+		    <p>RUT:96.516.320-4</p>
+		    <p>Avda San Miguel Cruce Las Rastras S/N- Talca - Chile</p>
+		    <p>Fonos: (71)2 245932-2 2245933</p>
+		    <p>http://www.lircay.cl</p>
 		    </td>
 		    <td width="296px" style="font-size: 16px;text-align:left;vertical-align:text-top"	>
 		          <p>FECHA EMISION : '.date('d/m/Y').'</p>
@@ -1375,15 +1374,13 @@ $header = '
 		</head>
 
 		<body>
-		<table width="987px" height="602" border="0">
-		  <tr>
-		    <td width="197px"><img src="http://localhost/Infosys_web/Infosys_web/resources/images/logoinfo&sys.jpg" width="150" height="136" /></td>
+		<td width="197px"><img src="http://angus.agricultorestalca.cl/Infosys_web/Infosys_web/resources/images/logo.jpg" width="150" height="136" /></td>
 		    <td width="493px" style="font-size: 14px;text-align:center;vertical-align:text-top"	>
-		    <p>GOTRU ALIMENTOS SPA.</p>
-		    <p>RUT:78.549.450-4</p>
-		    <p>8 ORIENTE, TALCA</p>
-		    <p>Fonos: </p>
-		    <p>http://www.gotru.cl</p>
+		    <p>AGRICOLA Y COMERCIAL LIRCAY SPA</p>
+		    <p>RUT:96.516.320-4</p>
+		    <p>Avda San Miguel Cruce Las Rastras S/N- Talca - Chile</p>
+		    <p>Fonos: (71)2 245932-2 2245933</p>
+		    <p>http://www.lircay.cl</p>
 		    </td>
 		    <td width="296px" style="font-size: 16px;text-align:left;vertical-align:text-top"	>
 		          <p>FECHA EMISION : '.date('d/m/Y').'</p>
@@ -1584,15 +1581,13 @@ $header = '
 		</head>
 
 		<body>
-		<table width="987px" height="602" border="0">
-		  <tr>
-		    <td width="197px"><img src="http://localhost/Infosys_web/Infosys_web/resources/images/logoinfo&sys.jpg" width="150" height="136" /></td>
+		<td width="197px"><img src="http://angus.agricultorestalca.cl/Infosys_web/Infosys_web/resources/images/logo.jpg" width="150" height="136" /></td>
 		    <td width="493px" style="font-size: 14px;text-align:center;vertical-align:text-top"	>
-		    <p>GOTRU ALIMENTOS SPA.</p>
-		    <p>RUT:78.549.450-4</p>
-		    <p>8 ORIENTE, TALCA</p>
-		    <p>Fonos: </p>
-		    <p>http://www.gotru.cl</p>
+		    <p>AGRICOLA Y COMERCIAL LIRCAY SPA</p>
+		    <p>RUT:96.516.320-4</p>
+		    <p>Avda San Miguel Cruce Las Rastras S/N- Talca - Chile</p>
+		    <p>Fonos: (71)2 245932-2 2245933</p>
+		    <p>http://www.lircay.cl</p>
 		    </td>
 		    <td width="296px" style="font-size: 16px;text-align:left;vertical-align:text-top"	>
 		          <p>FECHA EMISION : '.date('d/m/Y').'</p>
@@ -1721,51 +1716,37 @@ $header = '
 				);  
 			//echo $html; exit;
 			$this->mpdf->WriteHTML($html);
-			$file = date("YmdHis").".pdf";
-			$this->mpdf->Output('./tmp/'.$file, 'F');
+			$content = $this->mpdf->Output('', 'S');
+			//print_r($content); exit;
 
-			$this->load->model('facturaelectronica');
-			$email_data = $this->facturaelectronica->get_email();
+			$content = chunk_split(base64_encode($content));
+			$mailto = $email;
+			$from_name = 'Ferrital';
+			$from_mail = 'contacto@ferrital.cl';
+			$replyto = 'contacto@ferrital.cl';
+			$uid = md5(uniqid(time())); 
+			$subject = 'Envio de Saldo de Documentos';
+			$message = $mensaje;
+			$filename = 'SaldoDocumentos.pdf';
 
-			if(count($email_data) > 0){
-				$this->load->library('email');
-				$config['protocol']    = $email_data->tserver_intercambio;
-				$config['smtp_host']    = $email_data->host_intercambio;
-				$config['smtp_port']    = $email_data->port_intercambio;
-				$config['smtp_timeout'] = '7';
-				$config['smtp_user']    = $email_data->email_intercambio;
-				$config['smtp_pass']    = $email_data->pass_intercambio;
-				$config['charset']    = 'utf-8';
-				$config['newline']    = "\r\n";
-				$config['mailtype'] = 'html'; // or html
-				$config['validation'] = TRUE; // bool whether to validate email or not      			
+			$header = "From: ".$from_name." <".$from_mail.">\r\n";
+			$header .= "Reply-To: ".$replyto."\r\n";
+			$header .= "MIME-Version: 1.0\r\n";
+			$header .= "Content-Type: multipart/mixed; boundary=\"".$uid."\"\r\n\r\n";
+			$header .= "This is a multi-part message in MIME format.\r\n";
+			$header .= "--".$uid."\r\n";
+			$header .= "Content-type:text/plain; charset=iso-8859-1\r\n";
+			$header .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
+			$header .= $message."\r\n\r\n";
+			$header .= "--".$uid."\r\n";
+			$header .= "Content-Type: application/pdf; name=\"".$filename."\"\r\n";
+			$header .= "Content-Transfer-Encoding: base64\r\n";
+			$header .= "Content-Disposition: attachment; filename=\"".$filename."\"\r\n\r\n";
+			$header .= $content."\r\n\r\n";
+			$header .= "--".$uid."--";
+			$is_sent = @mail($mailto, $subject, "", $header);
 
-				$this->email->initialize($config);		  		
-
-			    $this->email->from($email_data->email_intercambio, NOMBRE_EMPRESA);
-			    $this->email->to($email);
-
-			    //$this->email->bcc(array('rodrigo.gonzalez@info-sys.cl','cesar.moraga@info-sys.cl','sergio.arriagada@info-sys.cl','rene.gonzalez@info-sys.cl')); 
-			    $this->email->subject('Envio de Saldo de Documentos');
-			    $this->email->message($mensaje);
-
-			    $this->email->attach('./tmp/'.$file,'attachment', 'SaldoDocumentos.pdf');			
-
-
-			    try {
-			      $this->email->send();
-			      //var_dump($this->email->print_debugger());
-			      unlink('./tmp/'.$file);
-			      	        exit;
-			    } catch (Exception $e) {
-			      echo $e->getMessage() . '<br />';
-			      echo $e->getCode() . '<br />';
-			      echo $e->getFile() . '<br />';
-			      echo $e->getTraceAsString() . '<br />';
-			      echo "no";
-
-			    }
-		    }
+			//$this->$mpdf->Output();			
 			exit;  
 
         }
@@ -1820,15 +1801,13 @@ $header = '
 		</head>
 
 		<body>
-		<table width="987px" height="602" border="0">
-		  <tr>
-		    <td width="197px"><img src="http://localhost/Infosys_web/Infosys_web/resources/images/logoinfo&sys.jpg" width="150" height="136" /></td>
+		<td width="197px"><img src="http://angus.agricultorestalca.cl/Infosys_web/Infosys_web/resources/images/logo.jpg" width="150" height="136" /></td>
 		    <td width="493px" style="font-size: 14px;text-align:center;vertical-align:text-top"	>
-		    <p>GOTRU ALIMENTOS SPA.</p>
-		    <p>RUT:78.549.450-4</p>
-		    <p>8 ORIENTE, TALCA</p>
-		    <p>Fonos: </p>
-		    <p>http://www.gotru.cl</p>
+		    <p>AGRICOLA Y COMERCIAL LIRCAY SPA</p>
+		    <p>RUT:96.516.320-4</p>
+		    <p>Avda San Miguel Cruce Las Rastras S/N- Talca - Chile</p>
+		    <p>Fonos: (71)2 245932-2 2245933</p>
+		    <p>http://www.lircay.cl</p>
 		    </td>
 		    <td width="296px" style="font-size: 16px;text-align:left;vertical-align:text-top"	>
 		          <p>COMPROBANTE N°: '.$datas_encabezado['numcomprobante'].'</p>
@@ -1969,7 +1948,7 @@ $body_header = '<tr>
 
             $this->load->database();
 
-            $query = $this->db->query("select concat(tc.descripcion,' ',c.numdocumento) as origen, concat(tc2.descripcion,' ',c.numdocumento_asoc) as referencia, if(dm.debe is not null,dm.debe,if((c.origen='VENTA' and c.tipodocumento in (1,2,19,101,103,16,104)) or (c.origen = 'CTACTE' and c.tipodocumento not in (1,2,19,101,103,16,104)),c.valor,0)) as debe, if(dm.haber is not null,dm.haber,if((c.origen='CTACTE' and c.tipodocumento in (1,2,19,101,103,16,104)) or (c.origen = 'VENTA' and c.tipodocumento not in (1,2,19,101,103,16,104)),c.valor,0)) as haber, c.glosa, DATE_FORMAT(c.fecvencimiento,'%d/%m/%Y') as fecvencimiento, DATE_FORMAT(c.fecha,'%d/%m/%Y') as fecha, concat(m.tipo,' ',m.numcomprobante) as comprobante, m.id as idcomprobante
+            $query = $this->db->query("select concat(tc.descripcion,' ',c.numdocumento) as origen, concat(tc2.descripcion,' ',c.numdocumento_asoc) as referencia, if(dm.debe is not null,dm.debe,if((c.origen='VENTA' and c.tipodocumento in (1,2,19,101,103,16)) or (c.origen = 'CTACTE' and c.tipodocumento not in (1,2,19,101,103,16)),c.valor,0)) as debe, if(dm.haber is not null,dm.haber,if((c.origen='CTACTE' and c.tipodocumento in (1,2,19,101,103,16)) or (c.origen = 'VENTA' and c.tipodocumento not in (1,2,19,101,103,16)),c.valor,0)) as haber, c.glosa, DATE_FORMAT(c.fecvencimiento,'%d/%m/%Y') as fecvencimiento, DATE_FORMAT(c.fecha,'%d/%m/%Y') as fecha, concat(m.tipo,' ',m.numcomprobante) as comprobante, m.id as idcomprobante
                           from cartola_cuenta_corriente c 
                           inner join tipo_documento tc on c.tipodocumento = tc.id
                           left join tipo_documento tc2 on c.tipodocumento_asoc = tc2.id
@@ -2008,13 +1987,13 @@ $body_header = '<tr>
 		<body>
 		<table width="987px" height="602" border="0">
 		  <tr>
-		   <td width="197px"><img src="http://localhost/Infosys_web/Infosys_web/resources/images/logoinfo&sys.jpg" width="150" height="136" /></td>
+		   <td width="197px"><img src="http://angus.agricultorestalca.cl/Infosys_web/Infosys_web/resources/images/logo.jpg" width="150" height="136" /></td>
 		    <td width="493px" style="font-size: 14px;text-align:center;vertical-align:text-top"	>
-		    <p>GOTRU ALIMENTOS SPA.</p>
-		    <p>RUT:78.549.450-4</p>
-		    <p>8 ORIENTE, TALCA</p>
-		    <p>Fonos: </p>
-		    <p>http://www.gotru.cl</p>
+		    <p>AGRICOLA Y COMERCIAL LIRCAY SPA</p>
+		    <p>RUT:96.516.320-4</p>
+		    <p>Avda San Miguel Cruce Las Rastras S/N- Talca - Chile</p>
+		    <p>Fonos: (71)2 245932-2 2245933</p>
+		    <p>http://www.lircay.cl</p>
 		    </td>
 		    <td width="296px" style="font-size: 16px;text-align:left;vertical-align:text-top"	>
 		          <p>FECHA EMISION : '.date('d/m/Y').'</p>

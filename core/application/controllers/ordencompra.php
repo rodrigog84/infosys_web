@@ -149,29 +149,29 @@ class Ordencompra extends CI_Controller {
 		foreach($data as $v){
 
 		   $producto = $v->id_producto;
-
+		   $puc = ($v->precio / 1.19);
+		   $cero=0;
+		
 		   $query = $this->db->query('SELECT * FROM productos WHERE id="'.$producto.'"');
 		   if($query->num_rows()>0){
-
-			 	$row = $query->first_row();
-
+			 $row = $query->first_row();
+			 $query2 = $this->db->query('SELECT * FROM existencia_detalle WHERE id_producto='.$producto.' and cantidad_entrada > '.$cero.'');	    	 
+	    	 $ppm=0;
+	    	 $cal = 1;
+			 if ($query2->num_rows()>0){
+			 	foreach ($query2->result() as $r){			 	
+				 	$ppm = $ppm + ($r->valor_producto);
+				 	$cal = $cal +1;
+			    };
+			    $ppm = $ppm + $puc;
+                $ppm = ($ppm / $cal);
 			 	$saldo = ($row->stock)+($v->stock);
-			 	$ppm = ($row->p_promedio);
 			 	$pmc = ($row->p_may_compra);
-			 	$pco = ($row->p_costo);
-			 	
-
+			 	if ($pmc < $puc){			 		
+			 		$pmc = $puc;
+			 	};			 
+			};                
 		   };
-	         $puc = ($v->valor);
-	         if ($pmc < $v->valor){
-	         	
-	         	$pmc = ($v->valor);
-
-	         };
-
-             $ppm = (($pco+$puc)/2);
-
-
 		   $prod = array(
 	         'stock' => $saldo,
 	         'p_ult_compra' => $puc,
@@ -187,11 +187,11 @@ class Ordencompra extends CI_Controller {
 	    	///GRABAR EXISTENCIA DETALL
 
 	    	$datos2 = array(
-
 				'num_movimiento' => $numdoc,
 		        'id_producto' => $v->id_producto,
 		        'id_tipo_movimiento' => $tipdoc,
 		        'valor_producto' =>  $v->valor,
+		        'p_promedio' =>  $ppm,
 		        'cantidad_entrada' => $v->cantidad,
 		        'fecha_movimiento' => $fecha
 			);
@@ -239,7 +239,7 @@ class Ordencompra extends CI_Controller {
 
 	    		$data4 = array(
 		        'cant_final' => $v->stock,
-		        'valor_prom' => $v->valor,
+		        'valor_prom' => $ppm,
 		        'id_bodega' => $idbodega
 		    	);
 
@@ -270,15 +270,15 @@ class Ordencompra extends CI_Controller {
 	    	$orden_compra_item = array(
 		        'id_producto' => $v->id_producto,
 		        'id_ordencompra' => $id,
-		        'subtotal' => $v->precio_base,
-		        'cantidad' => $cantidad,
-		        'total' => $total,
+		        'subtotal' => $v->precio,
+		        'cantidad' => $v->cantidad,
+		        'total' => $v->total,
 		        'descuento' => $v->dcto,
-		        'id_bodega' => $idbodega,
-		        'afecto' => $neto,
-		        'total' => $total,
-		        'neto' => $neto,
-		        'iva' => $iva
+		        'afecto' => $v->neto,
+		        'total' => $v->total,
+		        'neto' => $v->neto,
+		        'iva' => $v->iva,
+		        'valor_prom' => $v->precio
 			);
 
 
@@ -348,23 +348,29 @@ class Ordencompra extends CI_Controller {
 
 		   $producto = $v->id_producto;
 
+		   $puc = ($v->valor_prom / 1.19);
+		   $cero=0;
+
 		   $query = $this->db->query('SELECT * FROM productos WHERE id="'.$producto.'"');
 		   if($query->num_rows()>0){
-
-			 	$row = $query->first_row();
+			 $row = $query->first_row();
+			 $query2 = $this->db->query('SELECT * FROM existencia_detalle WHERE id_producto='.$producto.' and cantidad_entrada > '.$cero.'');	    	 
+	    	 $ppm=0;
+	    	 $cal = 1;
+			 if ($query2->num_rows()>0){
+			 	foreach ($query2->result() as $r){			 	
+				 	$ppm = $ppm + ($r->valor_producto);
+				 	$cal = $cal +1;
+			    };
+			    $ppm = $ppm + $puc;
+                $ppm = ($ppm / $cal);
 			 	$saldo = ($row->stock)+($v->stock);
-			 	$ppm = ($row->p_promedio);
 			 	$pmc = ($row->p_may_compra);
-			 	$pco = ($row->p_costo);
-			};
-	         $puc = ($v->valor);
-	         if ($pmc < $v->valor){
-	         	
-	         	$pmc = ($v->valor);
-
-	         };
-
-             $ppm = (($pco+$puc)/2);
+			 	if ($pmc < $puc){			 		
+			 		$pmc = $puc;
+			 	};			 
+			};                
+		   };
 
 
 		   $prod = array(
@@ -387,7 +393,8 @@ class Ordencompra extends CI_Controller {
 		        'id_tipo_movimiento' => $tipdoc,
 		        'valor_producto' =>  $v->valor,
 		        'cantidad_entrada' => $v->stock,
-		        'fecha_movimiento' => $fecha
+		        'fecha_movimiento' => $fecha,
+		        'p_promedio' => $ppm
 			);
 
 			$this->db->insert('existencia_detalle', $datos2);
@@ -516,6 +523,7 @@ class Ordencompra extends CI_Controller {
 	   	}
 
         $resp['success'] = true;
+        $resp['ppm'] = $ppm;
 
         $this->Bitacora->logger("M", 'orden_compra', $id);
         $this->Bitacora->logger("M", 'orden_compra_item', $id);
@@ -912,14 +920,15 @@ class Ordencompra extends CI_Controller {
 			$orden_compra_item = array(
 				'id_producto' => $v->id_producto,
 		        'id_ordencompra' => $idorden,
-		        'subtotal' => $v->precio_base,
+		        'subtotal' => $v->precio,
 		        'cantidad' => $v->cantidad,
 		        'total' => $v->total,
 		        'descuento' => $v->dcto,
 		        'afecto' => $v->neto,
 		        'total' => $v->total,
 		        'neto' => $v->neto,
-		        'iva' => $v->iva
+		        'iva' => $v->iva,
+		        'valor_prom' => $v->precio
 			);
 
 			$this->db->insert('orden_compra_item', $orden_compra_item); 
@@ -1083,13 +1092,13 @@ class Ordencompra extends CI_Controller {
 		<body>
 		<table width="987px" height="602" border="0">
 		  <tr>
-		    <td width="197px"><img src="http://localhost/Infosys_web/Infosys_web/resources/images/logoinfo&sys.jpg" width="150" height="136" /></td>
+		    <td width="197px"><img src="http://angus.agricultorestalca.cl/Infosys_web/Infosys_web/resources/images/logo.jpg" width="150" height="136" /></td>
 		    <td width="493px" style="font-size: 14px;text-align:center;vertical-align:text-top"	>
-		    <p>GOTRU ALIMENTOS SPA.</p>
-		    <p>RUT:78.549.450-4</p>
-		    <p>8 ORIENTE, TALCA</p>
-		    <p>Fonos: </p>
-		    <p>http://www.gotru.cl</p>
+		    <p>AGRICOLA Y COMERCIAL LIRCAY SPA</p>
+		    <p>RUT:96.516.320-4</p>
+		    <p>Avda San Miguel Cruce Las Rastras S/N- Talca - Chile</p>
+		    <p>Fonos: (71)2 245932-2 2245933</p>
+		    <p>http://www.lircay.cl</p>
 		    </td>
 		    <td width="296px" style="font-size: 16px;text-align:left;vertical-align:text-top"	>
 		          <p>ORDEN DE COMPRA N°: '.$codigo.'</p>
@@ -1145,15 +1154,17 @@ class Ordencompra extends CI_Controller {
 		  <tr>
 		    <td colspan="3" >
 		    	<table width="987px" cellspacing="0" cellpadding="0" >
-		      <tr>
-		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Cantidad</td>
-		        <td width="395px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:center;" >Descripci&oacute;n</td>
-		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Precio/Unidad</td>
-		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Precio/Oferta</td>
-		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Total</td>
+		       <tr>
+		        <td width="40px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Nro. Linea</td>
+		        <td width="10px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >&nbsp;</td>
+		        <td width="695px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:center;" >Descripci&oacute;n</td>
+		        <td width="128px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Cantidad</td>
+		        <td width="128px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Precio</td>
+		        <td width="128px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Total</td>
 		      </tr>';
 		$descripciones = '';
 		$i = 0;
+		$linea= 0;
 		foreach($items->result() as $v){
 			//$i = 0;
 			//while($i < 30){
@@ -1161,13 +1172,14 @@ class Ordencompra extends CI_Controller {
 			$producto = $this->db->get("productos");	
 			$producto = $producto->result();
 			$producto = $producto[0];
+			$linea = $linea + 1;
 			
 			$html .= '<tr>
+			<td style="text-align:right">'.$linea.'</td>	
+			<td style="text-align:right">&nbsp;&nbsp;</td>			
+			<td style="text-align:left">'.$producto->nombre.'</td>
 			<td style="text-align:right">'.number_format($v->cantidad,0,'.',',').'&nbsp;&nbsp;</td>			
-			<td style="text-align:left">'.$producto->nombre.'</td>			
-			<td align="right">$ '.number_format($v->neto, 0, '.', ',').'</td>
-			<td align="right">$ '.number_format($v->neto - ($v->descuento/$v->cantidad), 0, '.', ',').'</td>
-
+			<td align="right">$ '.number_format($v->total / $v->cantidad, 2, '.', ',').'</td>
 			<td align="right">$ '.number_format($v->total, 0, '.', ',').'</td>
 			</tr>';
 			
@@ -1257,7 +1269,7 @@ class Ordencompra extends CI_Controller {
 		//==============================================================
 		//==============================================================
 
-		include(dirname(__FILE__)."/../libraries/MPDF54/mpdf.php");
+		include(dirname(__FILE__)."/../libraries/mpdf60/mpdf.php");
 
 		$mpdf= new mPDF(
 			'',    // mode - default ''
@@ -1344,13 +1356,13 @@ class Ordencompra extends CI_Controller {
 		<body>
 		<table width="987px" height="602" border="0">
 		  <tr>
-		    <td width="197px"><img src="http://localhost/Infosys_web/Infosys_web/resources/images/infosys.jpg" width="150" height="136" /></td>
+		    <td width="197px"><img src="http://angus.agricultorestalca.cl/Infosys_web/Infosys_web/resources/images/logo.jpg" width="150" height="136" /></td>
 		    <td width="493px" style="font-size: 14px;text-align:center;vertical-align:text-top"	>
-		    <p>GOTRU ALIMENTOS SPA.</p>
-		    <p>RUT:78.549.450-4</p>
-		    <p>8 ORIENTE, TALCA</p>
-		    <p>Fonos: </p>
-		    <p>http://www.gotru.cl</p>
+		    <p>AGRICOLA Y COMERCIAL LIRCAY SPA</p>
+		    <p>RUT:96.516.320-4</p>
+		    <p>Avda San Miguel Cruce Las Rastras S/N- Talca - Chile</p>
+		    <p>Fonos: (71)2 245932-2 2245933</p>
+		    <p>http://www.lircay.cl</p>
 		    </td>
 		    <td width="296px" style="font-size: 16px;text-align:left;vertical-align:text-top"	>
 		          <p>ORDEN DE COMPRA N°: '.$codigo.'</p>
@@ -1540,50 +1552,36 @@ class Ordencompra extends CI_Controller {
 			//echo $html; exit;
 
 			$this->mpdf->WriteHTML($html);
-			$file = date("YmdHis").".pdf";
-			$this->mpdf->Output('./tmp/'.$file, 'F');
+			$content = $this->mpdf->Output('', 'S');
 
-			$this->load->model('facturaelectronica');
-			$email_data = $this->facturaelectronica->get_email();
-			if(count($email_data) > 0){
-				$this->load->library('email');
-				$config['protocol']    = $email_data->tserver_intercambio;
-				$config['smtp_host']    = $email_data->host_intercambio;
-				$config['smtp_port']    = $email_data->port_intercambio;
-				$config['smtp_timeout'] = '7';
-				$config['smtp_user']    = $email_data->email_intercambio;
-				$config['smtp_pass']    = $email_data->pass_intercambio;
-				$config['charset']    = 'utf-8';
-				$config['newline']    = "\r\n";
-				$config['mailtype'] = 'html'; // or html
-				$config['validation'] = TRUE; // bool whether to validate email or not      			
+			$content = chunk_split(base64_encode($content));
+			$mailto = $email;
+			$from_name = 'Ferrital';
+			$from_mail = 'contacto@ferrital.cl';
+			$replyto = 'contacto@ferrital.cl';
+			$uid = md5(uniqid(time())); 
+			$subject = 'Envio Orden de Compra';
+			$message = $mensaje;
+			$filename = 'OrdencompraFerrital.pdf';
 
-				$this->email->initialize($config);		  		
+			$header = "From: ".$from_name." <".$from_mail.">\r\n";
+			$header .= "Reply-To: ".$replyto."\r\n";
+			$header .= "MIME-Version: 1.0\r\n";
+			$header .= "Content-Type: multipart/mixed; boundary=\"".$uid."\"\r\n\r\n";
+			$header .= "This is a multi-part message in MIME format.\r\n";
+			$header .= "--".$uid."\r\n";
+			$header .= "Content-type:text/plain; charset=iso-8859-1\r\n";
+			$header .= "Content-Transfer-Encoding: 7bit\r\n\r\n";
+			$header .= $message."\r\n\r\n";
+			$header .= "--".$uid."\r\n";
+			$header .= "Content-Type: application/pdf; name=\"".$filename."\"\r\n";
+			$header .= "Content-Transfer-Encoding: base64\r\n";
+			$header .= "Content-Disposition: attachment; filename=\"".$filename."\"\r\n\r\n";
+			$header .= $content."\r\n\r\n";
+			$header .= "--".$uid."--";
 
-			    $this->email->from($email_data->email_intercambio, NOMBRE_EMPRESA);
-			    $this->email->to($email);
-
-			    //$this->email->bcc(array('rodrigo.gonzalez@info-sys.cl','cesar.moraga@info-sys.cl','sergio.arriagada@info-sys.cl','rene.gonzalez@info-sys.cl')); 
-			    $this->email->subject('Envio Orden de Compra');
-			    $this->email->message($mensaje);
-
-			    $this->email->attach('./tmp/'.$file,'attachment', 'Ordencompra.pdf');			
-
-
-			    try {
-			      $this->email->send();
-			      //var_dump($this->email->print_debugger()); exit;
-			      unlink('./tmp/'.$file);
-			      	        exit;
-			    } catch (Exception $e) {
-			      echo $e->getMessage() . '<br />';
-			      echo $e->getCode() . '<br />';
-			      echo $e->getFile() . '<br />';
-			      echo $e->getTraceAsString() . '<br />';
-			      echo "no";
-
-			    }
-		    }
+			$is_sent = @mail($mailto, $subject, "", $header);
+	
 		exit;
 	}
 

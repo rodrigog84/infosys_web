@@ -11,6 +11,40 @@ class Guias extends CI_Controller {
 		$this->load->database();
 	}
 
+	public function procesomarca(){
+
+		$resp = array();
+		$query = $this->db->query('SELECT * FROM detalle_factura_glosa ');
+
+		if($query->num_rows()>0){
+
+			foreach ($query->result() as $row){
+					
+					$idguia = $row->id_guia;
+
+			   		$data3 = array(
+			         'id_despacho' => $row->id_factura
+				    );
+					$this->db->where('id_factura', $idguia);		  
+		    		$this->db->update('detalle_factura_cliente', $data3);
+		    		$data[] = $row;    			
+
+	    	};
+
+	    	$resp['success'] = true;
+	    	$resp['data'] = $data;
+
+		}else{
+			
+			$resp['success'] = false;
+
+		};
+		 
+		
+	    echo json_encode($resp);
+
+	}
+
 	public function marcarguias(){
 
 		$resp = array();
@@ -36,6 +70,7 @@ class Guias extends CI_Controller {
 		    $this->db->update('factura_clientes', $data3);
 
 		    $this->Bitacora->logger("M", 'factura_clientes', $id); 
+			
 			
 
 	     };
@@ -230,6 +265,7 @@ class Guias extends CI_Controller {
         $limit = $this->input->get('limit');
         $opcion = $this->input->get('opcion');
         $nombres = $this->input->get('nombre');
+        $idcliente = $this->input->get('idcliente');
         $tipo = 3;
         $countAll = $this->db->count_all_results("factura_clientes");
 		$data = array();
@@ -245,6 +281,26 @@ class Guias extends CI_Controller {
 			and acc.id_factura = 0
 			order by acc.id desc		
 			limit '.$start.', '.$limit.''		 
+
+		);
+
+		$total = 0;
+
+		  foreach ($query->result() as $row)
+			{
+				$total = $total +1;
+			
+			}
+
+			$countAll = $total;
+
+	    }if($opcion == "Numero"){
+		
+			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
+			left join clientes c on (acc.id_cliente = c.id)
+			left join vendedores v on (acc.id_vendedor = v.id)
+			WHERE acc.tipo_documento in ('.$tipo.') and acc.num_factura = '.$nombres.'
+			and acc.id_factura = 0'		 
 
 		);
 
@@ -289,17 +345,14 @@ class Guias extends CI_Controller {
 			$countAll = $total;
 	 
 		}else if($opcion == "Id"){
-
 			
 			$data = array();
 			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.tipo_documento in ( '.$tipo.') and acc.id_cliente = '.$nombres.'
+			WHERE acc.tipo_documento in ('.$tipo.') and acc.id_cliente = '.$nombres.'
 			and acc.id_factura = 0
-			order by acc.id desc		
-			limit '.$start.', '.$limit.''		 
-
+			order by acc.id desc'
 			);
 
 
@@ -401,6 +454,7 @@ class Guias extends CI_Controller {
 		$idcliente = $this->input->post('idcliente');
 		$numfactura = $this->input->post('numfactura');
 		$fechafactura = $this->input->post('fechafactura');
+		$sucursal = $this->input->post('idsucursal');
 		$observacion = $this->input->post('observacion');
 		$idobserva = $this->input->post('idobserva');
 		$fechavenc = $this->input->post('fechavenc');
@@ -410,8 +464,8 @@ class Guias extends CI_Controller {
 		$fiva = $this->input->post('ivafactura');
 		$fafecto = $this->input->post('afectofactura');
 		$ftotal = $this->input->post('totalfacturas');
+		$descuento = $this->input->post('descuentofactuta');
 		$tipodocumento = 1;
-
 
 		$data3 = array(
 	         'correlativo' => $numfactura
@@ -425,11 +479,12 @@ class Guias extends CI_Controller {
 	        'id_cliente' => $idcliente,
 	        'num_factura' => $numfactura,
 	        'id_vendedor' => $vendedor,
+	        'id_sucursal' => $sucursal,
 	        'sub_total' => $neto,
 	        'observacion' => $observacion,
 	        'id_observa' => $idobserva,
-	        'descuento' => ($neto - $fafecto),
-	        'neto' => $neto,
+	        'descuento' => $descuento,
+	        'neto' => $fafecto,
 	        'iva' => $fiva,
 	        'totalfactura' => $ftotal,
 	        'fecha_factura' => $fechafactura,
@@ -449,6 +504,8 @@ class Guias extends CI_Controller {
 		        'iva' => $v->iva,
 		        'total' => $v->total
 			);
+
+
 		
 		$this->db->insert('detalle_factura_glosa', $factura_clientes_item);
 
@@ -456,16 +513,19 @@ class Guias extends CI_Controller {
 	         'id_factura' => $idfactura,
 		    );
 
+		    $data4 = array(
+	         'id_despacho' => $idfactura,
+		    );
+
 		    $this->db->where('id', $v->id_guia);
 		  
 		    $this->db->update('factura_clientes', $data3);
 
-		    $this->db->where('id', $idfactura);
+		    $this->db->where('num_factura', $v->num_guia);
 		  
-		    $this->db->update('factura_clientes', $data3);
+		    $this->db->update('detalle_factura_cliente', $data4);
 
 		}
-
 
 		/******* CUENTAS CORRIENTES ****/
 
@@ -537,6 +597,8 @@ class Guias extends CI_Controller {
 
         echo json_encode($resp);
 	}
+
+	
 
 	
 

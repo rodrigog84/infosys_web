@@ -74,7 +74,7 @@ class Notacredito extends CI_Controller {
 
 		$data3 = array(
 	         'id_factura' => $relacionado,
-		    );
+		);
 
 		   
 		    $this->db->where('id', $idfactura);
@@ -343,7 +343,7 @@ class Notacredito extends CI_Controller {
 		foreach($items as $v){
 
 			$factura_clientes_item = array(
-		        'id_producto' => $v->idproducto,
+		        'id_producto' => $v->id_producto,
 		        'id_factura' => $idfactura,
 		        'num_factura' => $numdocuemnto,
 		        'precio' => $v->precio,
@@ -419,11 +419,11 @@ class Notacredito extends CI_Controller {
 		}
 		$datos2 = array(
 
-				'num_movimiento' => $numfactura,
+				'num_movimiento' => $numdocuemnto,
 		        'id_producto' => $v->id,
 		        'id_tipo_movimiento' => $tipodocumento,
 		        'valor_producto' =>  $v->precio,
-		        'cantidad_salida' => $v->cantidad,
+		        'cantidad_entrada' => $v->cantidad,
 		        'fecha_movimiento' => $fechafactura
 			);
 
@@ -790,6 +790,8 @@ class Notacredito extends CI_Controller {
 		$idproducto = $this->input->post('idproducto');
 		$idfactura = $this->input->post('idfactura');
 
+		if ($idfactura){
+
 		$query = $this->db->query('SELECT * FROM detalle_factura_cliente 
 		WHERE id_producto like '.$idproducto.' AND id_factura like '.$idfactura.'');
     	$row = $query->first_row();
@@ -801,6 +803,11 @@ class Notacredito extends CI_Controller {
 		};
 
 		$resp['cliente'] = $row;
+	    }else{
+
+	    	$resp['success'] = true;
+	    	
+	    };
         
         echo json_encode($resp);
 	}

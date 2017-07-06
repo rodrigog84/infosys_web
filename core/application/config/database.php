@@ -48,10 +48,10 @@
 $active_group = 'default';
 $active_record = TRUE;
 
-$db['default']['hostname'] = 'localhost';
+$db['default']['hostname'] = 'minotauro.agricultorestalca.cl';
 $db['default']['username'] = 'root'; //'chilefor_admin21'
-$db['default']['password'] = ''; //'^o6_5+TGP8JK';
-$db['default']['database'] = 'erp_info'; // 'chilefor_cf_ctz';
+$db['default']['password'] = 'xime98'; //'^o6_5+TGP8JK';
+$db['default']['database'] = 'infosys_web'; // 'chilefor_cf_ctz';
 $db['default']['dbdriver'] = 'mysql';
 $db['default']['dbprefix'] = '';
 $db['default']['pconnect'] = TRUE;
@@ -63,7 +63,6 @@ $db['default']['dbcollat'] = 'utf8_general_ci';
 $db['default']['swap_pre'] = '';
 $db['default']['autoinit'] = TRUE;
 $db['default']['stricton'] = FALSE;
-
 
 /* End of file database.php */
 /* Location: ./application/config/database.php */

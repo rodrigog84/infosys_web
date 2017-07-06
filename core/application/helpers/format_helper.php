@@ -62,8 +62,6 @@ if (!function_exists('month2string'))
 
 if (!function_exists('valorEnLetras'))
 {
-
-
   function valorEnLetras($x) 
   { 
   if ($x<0) { $signo = "menos ";} 
@@ -116,7 +114,7 @@ if (!function_exists('valorEnLetras'))
   $I11 = "/100 M.N. "; 
 
   //$C3 = $signo.$H6.$I6.$H7.$I7.$H8.$I8.$H9.$I9.$H10.$I10.$H11.$I11; 
-  $C3 = $signo.$H6.$I6.$H7.$I7.$H8.$I8.$H9.$I9.$H10.$I10; 
+  $C3 = $signo.$H6.$I6.$H7.$H8.$I8.$H9.$H10.$I10; 
 
   return $C3; //Retornar el resultado 
 

@@ -3,6 +3,221 @@
 class AdminServicesExcel extends CI_Controller {
 
 
+public function __construct()
+  {
+    parent::__construct();
+    $this->load->helper('format');
+    $this->load->database();
+  }
+
+
+public function reporte_stock($familia,$subfamilia,$agrupacion,$marca,$producto)
+         {
+            header("Content-type: application/vnd.ms-excel"); 
+            header("Content-disposition: attachment; filename=reporte_stock.xls"); 
+            
+
+            $familia = $familia == '0' ? '' : $familia;
+            $subfamilia = $subfamilia == '0' ? '' : $subfamilia;
+            $agrupacion = $agrupacion == '0' ? '' : $agrupacion;
+            $marca = $marca == '0' ? '' : $marca;
+            //$producto = $producto == '0' ? '' : base64_decode($producto);
+            $producto = $producto == '0' ? '' : str_replace("%20"," ",$producto);
+
+
+            $this->load->model('reporte');
+            $datos_stock = $this->reporte->reporte_stock(null,null,$familia,$subfamilia,$agrupacion,$marca,$producto);       
+
+            
+            echo '<table>';
+            echo "<tr><td colspan='6'><b>Informe Stock</b></td></tr>";
+            echo "<tr>";
+            echo "<td><b>#</b></td>";
+            echo "<td><b>C&oacute;digo</b></td>";
+            echo "<td><b>Descripci&oacute;n</b></td>";
+            echo "<td><b>Fecha &Uacute;ltima Compra</b></td>";
+            echo "<td><b>Precio Costo</b></td>";
+            echo "<td><b>Precio Venta</b></td>";
+            echo "<td><b>Stock 1</b></td>";
+            echo "<td><b>Stock 2</b></td>";
+            echo "<td><b>Stock 3</b></td>";
+            echo "<td><b>Stock 4</b></td>";
+            echo "</tr>";
+              $i = 1;
+              foreach($datos_stock['data'] as $stock){
+                 echo "<tr>";
+                 echo "<td>".$i."</td>";
+                 echo "<td>".$stock->codigo."</td>";
+                 echo "<td>".$stock->descripcion."</td>";
+                 echo "<td>".$stock->fecha_ult_compra."</td>";
+                 echo "<td>".$stock->p_costo."</td>";
+                 echo "<td>".$stock->p_venta."</td>";
+                 echo "<td>".$stock->stock1."</td>";
+                 echo "<td>".$stock->stock2."</td>";
+                 echo "<td>".$stock->stock3."</td>";
+                 echo "<td>".$stock->stock4."</td>";
+                 echo "</tr>";
+                $i++;
+            }
+            echo '</table>';
+        }
+
+
+public function reporte_mensual_ventas($mes,$anno)
+         {
+            header("Content-type: application/vnd.ms-excel"); 
+            header("Content-disposition: attachment; filename=reporte_mensual_ventas.xls"); 
+            
+
+
+            $this->load->model('reporte');
+            $neto_productos = $this->reporte->mensual_ventas($mes,$anno);            
+
+            
+            echo '<table>';
+            echo "<tr><td colspan='6'><b>Detalle Resumen de Ventas Mensuales - " . month2string((int)$mes)." de " . $anno . "</b></td></tr>";
+            echo "<tr>";
+            echo "<td><b>Conceptos</b></td>";
+            echo "<td><b>-</b></td>";
+            echo "<td><b>Facturaci&oacute;n</b></td>";
+            echo "<td><b>-</b></td>";
+            echo "<td><b>Boletas</b></td>";
+            echo "<td><b>-</b></td>";
+            echo "<td><b>N/D&eacute;bito</b></td>";
+            echo "<td><b>-</b></td>";
+            echo "<td><b>N/Cr&eacute;dito</b></td>";
+            echo "<td><b>Totales</b></td>";
+            echo "</tr>";
+              
+              foreach($neto_productos as $producto){
+                if($producto->concepto == '<b>Totales</b>'){
+                 echo "<tr>";
+                 echo "<td><b>".$producto->concepto."</b></td>";
+                 echo "<td><b>'(" . str_pad($producto->Facturacion_doctos,5," ",STR_PAD_LEFT).")</b></td>";
+                 echo "<td><b>".$producto->Facturacion."</b></td>";
+                 echo "<td><b>'(" . str_pad($producto->Boletas_doctos,5," ",STR_PAD_LEFT).")</b></td>";
+                 echo "<td><b>".$producto->Boletas."</b></td>";
+                 echo "<td><b>'(" . str_pad($producto->NDebito_doctos,5," ",STR_PAD_LEFT).")</b></td>";
+                 echo "<td><b>".$producto->NDebito."</b></td>";
+                 echo "<td><b>'(" . str_pad($producto->NCredito_doctos,5," ",STR_PAD_LEFT).")</b></td>";
+                 echo "<td><b>".$producto->NCredito."</b></td>";
+                 echo "<td><b>".$producto->totales."</b></td>";
+                 echo "</tr>";
+                }else{
+
+                 echo "<tr>";
+                 echo "<td>".$producto->concepto."</td>";
+                 echo "<td><b>'(" . str_pad($producto->Facturacion_doctos,5," ",STR_PAD_LEFT).")</b></td>";
+                 echo "<td>".$producto->Facturacion."</td>";
+                 echo "<td><b>'(" . str_pad($producto->Boletas_doctos,5," ",STR_PAD_LEFT).")</b></td>";
+                 echo "<td>".$producto->Boletas."</td>";
+                 echo "<td><b>'(" . str_pad($producto->NDebito_doctos,5," ",STR_PAD_LEFT).")</b></td>";
+                 echo "<td>".$producto->NDebito."</td>";
+                 echo "<td><b>'(" . str_pad($producto->NCredito_doctos,5," ",STR_PAD_LEFT).")</b></td>";
+                 echo "<td>".$producto->NCredito."</td>";
+                 echo "<td>".$producto->totales."</td>";
+                 echo "</tr>";
+                }
+
+                 
+            }
+            echo '</table>';
+        }
+
+
+public function reporte_detalle_productos_stock($idproducto,$mes,$anno)
+         {
+            header("Content-type: application/vnd.ms-excel"); 
+            header("Content-disposition: attachment; filename=reporte_detalle_productos_stock.xls"); 
+            
+
+            $idproducto = $idproducto == 0 ? '' : $idproducto;
+            $mes = $mes == 0 ? '' : $mes;
+            $anno = $anno == 0 ? '' : $anno;
+
+            $this->load->model('reporte');
+            $detalle_productos_stock = $this->reporte->reporte_detalle_productos_stock(null,null,$mes,$anno,$idproducto);                    
+            $producto = $this->reporte->get_producto($idproducto);
+            
+            echo '<table>';
+            echo "<tr><td colspan='9'><b>Reporte Detalle Stock - " . $producto->nombre . "</b></td></tr>";
+            echo "<tr>";
+            echo "<td><b>#</b></td>";
+            echo "<td><b>Tipo Documento</b></td>";
+            echo "<td><b>Num. Documento</b></td>";
+            echo "<td><b>Fec. Documento</b></td>";
+            echo "<td><b>Precio Costo</b></td>";
+            echo "<td><b>Cantidad Entradas</b></td>";
+            echo "<td><b>Cantidad Salidas</b></td>";
+            echo "<td><b>Stock</b></td>";
+            echo "<td><b>Detalle</b></td>";
+            echo "</tr>";
+              $i = 1;              
+              foreach($detalle_productos_stock['data'] as $detalle_productos){
+                 echo "<tr>";
+                 echo "<td>".$i."</td>";
+                 echo "<td>".$detalle_productos->tipodocto."</td>";
+                 echo "<td>".$detalle_productos->numdocto."</td>";
+                 echo "<td>".$detalle_productos->fecha."</td>";
+                 echo "<td>".number_format($detalle_productos->precio,0,".",".")."</td>";
+                 echo "<td>".$detalle_productos->cant_entradas."</td>";
+                 echo "<td>".$detalle_productos->cant_salidas."</td>";
+                 echo "<td>".$detalle_productos->stock."</td>";
+                 echo "<td>".$detalle_productos->detalle."</td>";
+                 echo "</tr>";
+
+                  $i++;
+            }
+            echo '</table>';
+        }
+
+
+public function reporte_estadisticas_ventas($mes,$anno)
+         {
+            header("Content-type: application/vnd.ms-excel"); 
+            header("Content-disposition: attachment; filename=reporte_estadisticas_ventas.xls"); 
+            
+
+
+            $mes = $mes == 0 ? '' : $mes;
+            $anno = $anno == 0 ? '' : $anno;
+
+            $this->load->model('reporte');
+            $detalle_estadistica_venta = $this->reporte->reporte_estadisticas_ventas(null,null,$mes,$anno);
+                    
+            
+            echo '<table>';
+            echo "<tr><td colspan='8'><b>Detalle Estadisticas Ventas - " . month2string((int)$mes)." de " . $anno . "</b></td></tr>";
+            echo "<tr>";
+            echo "<td><b>#</b></td>";
+            echo "<td><b>Cod. Productos</b></td>";
+            echo "<td><b>Desc. Producto</b></td>";
+            echo "<td><b>Unidades</b></td>";
+            echo "<td><b>Venta Neta</b></td>";
+            echo "<td><b>Costo Venta</b></td>";
+            echo "<td><b>Margen Neto</b></td>";
+            echo "<td><b>% Margen</b></td>";
+            echo "</tr>";
+              $i = 1;              
+              foreach($detalle_estadistica_venta['data'] as $detalle_estadistica){
+                 echo "<tr>";
+                 echo "<td>".$i."</td>";
+                 echo "<td>".$detalle_estadistica->codigo."</td>";
+                 echo "<td>".$detalle_estadistica->nombre."</td>";
+                 echo "<td>".$detalle_estadistica->unidades."</td>";
+                 echo "<td>".number_format($detalle_estadistica->ventaneta,0,".",".")."</td>";
+                 echo "<td>".number_format($detalle_estadistica->costo,0,".",".")."</td>";
+                 echo "<td>".$detalle_estadistica->margen."</td>";
+                 echo "<td>".$detalle_estadistica->porcmargen."</td>";
+                 echo "</tr>";
+
+                  $i++;
+            }
+            echo '</table>';
+        }
+
+
+
       public function exportarExcellistaProductos()
          {
             header("Content-type: application/vnd.ms-excel"); 
@@ -622,9 +837,7 @@ class AdminServicesExcel extends CI_Controller {
             list($dia, $mes, $anio) = explode("/",$fecha2);
             $fecha4 = $anio ."-". $mes ."-". $dia;
             $tipo = 1;
-            $tipo2 = 19;
-            $tipo3 = 101;
-            $tipo4 = 103;
+            $tipo2 = 2;
                         
 
             $data = array();
@@ -638,7 +851,7 @@ class AdminServicesExcel extends CI_Controller {
                 $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor  FROM factura_clientes acc
                 left join clientes c on (acc.id_cliente = c.id)
                 left join vendedores v on (acc.id_vendedor = v.id)
-                WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.','.$tipo3.','.$tipo4.') and c.rut = '.$nombres.' and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
+                WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.') and c.rut = '.$nombres.' and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
                 order by acc.id desc'    
 
               );
@@ -656,7 +869,7 @@ class AdminServicesExcel extends CI_Controller {
                 $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor  FROM factura_clientes acc
                 left join clientes c on (acc.id_cliente = c.id)
                 left join vendedores v on (acc.id_vendedor = v.id)
-                WHERE acc.tipo_documento in ('.$tipo.','.$tipo2.','.$tipo3.','.$tipo4.') ' . $sql_nombre . ' and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'" 
+                WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.') ' . $sql_nombre . ' and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'" 
                 order by acc.id desc' 
                 
                 );
@@ -668,7 +881,7 @@ class AdminServicesExcel extends CI_Controller {
                 $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor  FROM factura_clientes acc
                 left join clientes c on (acc.id_cliente = c.id)
                 left join vendedores v on (acc.id_vendedor = v.id)
-                WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.','.$tipo3.','.$tipo4.') and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
+                WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.') and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
                 order by acc.id desc' 
                 
                 );
@@ -681,7 +894,7 @@ class AdminServicesExcel extends CI_Controller {
               $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor  FROM factura_clientes acc
                 left join clientes c on (acc.id_cliente = c.id)
                 left join vendedores v on (acc.id_vendedor = v.id)
-                WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.','.$tipo3.','.$tipo4.') and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
+                WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.') and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
                 order by acc.id desc' 
 
                 );
@@ -797,6 +1010,7 @@ class AdminServicesExcel extends CI_Controller {
             $fecha4 = $anio ."-". $mes ."-". $dia;
             $tipo = 3;
             $tipo2 = 2;
+
                         
 
             $data = array();
@@ -810,7 +1024,7 @@ class AdminServicesExcel extends CI_Controller {
                 $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor  FROM factura_clientes acc
                 left join clientes c on (acc.id_cliente = c.id)
                 left join vendedores v on (acc.id_vendedor = v.id)
-                WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.') and c.rut = '.$nombres.' and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
+                WHERE acc.tipo_documento in ( '.$tipo.') and c.rut = '.$nombres.' and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
                 order by acc.id desc'    
 
               );
@@ -910,6 +1124,7 @@ class AdminServicesExcel extends CI_Controller {
                 echo "<tr>";
               
               foreach($users as $v){
+
                  echo "<tr>";
                    if (in_array("id", $columnas)) :
                       echo "<td>".$v['id']."</td>";
@@ -934,7 +1149,7 @@ class AdminServicesExcel extends CI_Controller {
                       echo "<td>".$v['nom_vendedor']."</td>";
                   endif;
                   if (in_array("sub_total", $columnas)) :
-                      echo "<td>".$v['sub_total']."</td>";
+                      echo "<td>".$afecto."</td>";
                   endif;
                   if (in_array("descuento", $columnas)) :
                       echo "<td>".$v['descuento']."</td>";
@@ -951,12 +1166,14 @@ class AdminServicesExcel extends CI_Controller {
                   //echo "<tr>";
             }
             echo '</table>';
+           
+
         }
 
-        public function exportarExcellibroFacturas()
+        public function exportarExcellibroBoletas()
          {
             header("Content-type: application/vnd.ms-excel"); 
-            header("Content-disposition: attachment; filename=LibroVentas.xls");
+            header("Content-disposition: attachment; filename=LibroBoletas.xls");
             
             $columnas = json_decode($this->input->get('cols'));
             $fecha = $this->input->get('fecha');
@@ -965,23 +1182,27 @@ class AdminServicesExcel extends CI_Controller {
             $fecha2 = $this->input->get('fecha2');
             list($dia, $mes, $anio) = explode("/",$fecha2);
             $fecha4 = $anio ."-". $mes ."-". $dia;
-            $tipo = 1;
-            $tipo2 = 19;
-            $tipo3 = 101;
-            $tipo4 = 103;
+            $tipo = 2;
+            $otros = 0;
+            $nulas = 0;
+            $vigentes = 0;
+            $totalafecto = 0;
+            $totaliva = 0;
+            $totalboleta = 0;
             $data = array();
                                    
             $this->load->database();
             
             if($fecha){
             
-
+                          
                 $data = array();
                 $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor  FROM factura_clientes acc
                 left join clientes c on (acc.id_cliente = c.id)
                 left join vendedores v on (acc.id_vendedor = v.id)
-                WHERE acc.tipo_documento in (  '.$tipo.','.$tipo2.','.$tipo3.','.$tipo4.') and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
-                order by acc.tipo_documento' 
+                WHERE acc.tipo_documento in ( '.$tipo.') and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
+                order by acc.fecha_factura, acc.tipo_documento, acc.num_factura' 
+                
                 
                 );
             
@@ -994,7 +1215,115 @@ class AdminServicesExcel extends CI_Controller {
             echo '<table>';
             echo "<td></td>";
             echo "<td>LIBRO DE VENTAS</td>";
-            echo "<td>DESPACHO</td>";
+            echo "<td>BOLETAS</td>";
+            echo "<tr>";
+                echo "<td>NUMERO</td>";
+                echo "<td>FECHA</td>";
+                echo "<td>AFECTO</td>";
+                echo "<td>IVA</td>";
+                echo "<td>OTROS IMP.</td>";
+                echo "<td>TOTAL</td>";
+                echo "<tr>";
+              
+              foreach($users as $v){
+                $total = $v['totalfactura'];
+                $neto = round(($total / 1.19), 0);
+                $iva = ($total - $neto);
+                $totalafecto = $totalafecto + $neto;
+                $totaliva = $totaliva + $iva;
+                $totalboleta = $totalboleta + $total;
+                $vigentes = $vigentes + 1;
+                if ($v['estado']== 1){
+                  $totalafecto = $totalafecto - $neto;
+                  $neto = "DOCUMENTO NULO";
+                  $totaliva = $totaliva - $iva;
+                  $totalboleta = $totalboleta - $total;
+                  $iva = 0;
+                  $total= 0;
+                  $nulas = $nulas + 1;
+                  $vigentes = $vigentes - 1;
+                };
+                echo "<tr>";
+                   echo "<td>".$v['num_factura']."</td>";
+                   echo "<td>".$v['fecha_factura']."</td>";
+                   echo "<td>".$neto."</td>";
+                   echo "<td>".$iva."</td>";
+                   echo "<td>".$otros."</td>";
+                   echo "<td>".$total."</td>";
+                echo "</tr>";
+              }
+               echo "<tr>";
+                echo "<td>VIGENTES</td>";
+                echo "<td>NULAS</td>";
+                echo "<td>TOTAL AFECTO</td>";
+                echo "<td>IMPUESTO IVA</td>";
+                echo "<td>OTROS IMP.</td>";
+                echo "<td>TOTAL BOLETAS</td>";
+                echo "<tr>";
+                echo "<tr>";
+                   echo "<td>".$vigentes."</td>";
+                   echo "<td>".$nulas."</td>";
+                   echo "<td>".$totalafecto."</td>";
+                   echo "<td>".$totaliva."</td>";
+                   echo "<td>".$otros."</td>";
+                   echo "<td>".$totalboleta."</td>";
+                echo "</tr>";
+
+            echo '</table>';
+        }
+
+        public function exportarExcellibroFacturas()
+         {
+            header("Content-type: application/vnd.ms-excel"); 
+            header("Content-disposition: attachment; filename=LibroFacturas.xls");
+            
+            $columnas = json_decode($this->input->get('cols'));
+            $fecha = $this->input->get('fecha');
+            list($dia, $mes, $anio) = explode("/",$fecha);
+            $fecha3 = $anio ."-". $mes ."-". $dia;
+            $fecha2 = $this->input->get('fecha2');
+            list($dia, $mes, $anio) = explode("/",$fecha2);
+            $fecha4 = $anio ."-". $mes ."-". $dia;
+            $tipo = 1;
+            $tipo2 = 11;
+            $totalnc = 0;
+            $totalafnc = 0;
+            $totalnetonc = 0;
+            $totaliva = 0;
+            $totalfa = 0;
+            $totalaffa = 0;
+            $totalnetofa = 0;
+            $totalivafa = 0;
+            $cantfac = 0;
+            $cantnc = 0;
+            $otros = 0;
+
+            $data = array();
+                                   
+            $this->load->database();
+            
+            if($fecha){
+            
+                          
+                $data = array();
+                $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor  FROM factura_clientes acc
+                left join clientes c on (acc.id_cliente = c.id)
+                left join vendedores v on (acc.id_vendedor = v.id)
+                WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.') and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
+                order by acc.fecha_factura, acc.tipo_documento, acc.num_factura' 
+                
+                );
+            
+
+              };
+              
+             
+            $users = $query->result_array();
+            
+            echo '<table>';
+            echo "<td></td>";
+            echo "<td>LIBRO DE VENTAS</td>";
+            echo "<td>FACTURAS</td>";
             echo "<tr>";
                 echo "<td>NUMERO</td>";
                 echo "<td>FECHA</td>";
@@ -1009,19 +1338,109 @@ class AdminServicesExcel extends CI_Controller {
                 echo "<tr>";
               
               foreach($users as $v){
+
+                 $total = $v['totalfactura'];
+                 $afecto = $v['sub_total'];
+                 $neto = $v['neto'];
+                 $iva = $v['iva'];
+                 if ($v['tipo_documento']==11){
+
+                  $total = ($v['totalfactura']/-1);
+                  $afecto = ($v['sub_total']/-1);
+                  $neto = ($v['neto']/-1);
+                  $iva = $v['iva']/-1;
+                  $cantnc = $cantnc + 1;
+                  $totalnc = $totalnc + $total;
+                  $totalafnc = $totalafnc + $afecto;
+                  $totalnetonc = $totalnetonc + $neto;
+                  $totaliva = $totaliva + $iva;
+
+                 }else{
+
+                  $totalfa = $totalfa + $total;
+                  $totalaffa = $totalaffa + $afecto;
+                  $totalnetofa = $totalnetofa + $neto;
+                  $totalivafa = $totalivafa + $iva;
+                  $cantfac = $cantfac +1;                   
+                 }
+
+
                 echo "<tr>";
                    echo "<td>".$v['num_factura']."</td>";
                    echo "<td>".$v['fecha_factura']."</td>";
                    echo "<td>".$v['fecha_venc']."</td>";
                    echo "<td>".$v['rut_cliente']."</td>";
                    echo "<td>".$v['nombre_cliente']."</td>";
-                   echo "<td>".$v['sub_total']."</td>";
+                   echo "<td>".$afecto."</td>";
                    echo "<td>".$v['descuento']."</td>";
-                   echo "<td>".$v['neto']."</td>";
-                   echo "<td>".$v['iva']."</td>";
-                   echo "<td>".$v['totalfactura']."</td>";
+                   echo "<td>".$neto."</td>";
+                   echo "<td>".$iva."</td>";
+                   echo "<td>".$total."</td>";
                 echo "</tr>";
             }
+            echo "<tr>";
+                echo "<td>TIPO</td>";
+                echo "<td>VIGENTES</td>";
+                echo "<td>NULOS</td>";
+                echo "<td>AFECTO</td>";
+                echo "<td>EXENTO</td>";
+                echo "<td>IMPUESTO IVA</td>";
+                echo "<td>OTROS IMP.</td>";
+                echo "<td>TOTAL FACTURAS</td>";
+            echo "<tr>";
+                echo "<td>-------------</td>";
+                echo "<td>-------------</td>";
+                echo "<td>-------------</td>";
+                echo "<td>-------------</td>";
+                echo "<td>-------------</td>";
+                echo "<td>-------------</td>";
+                echo "<td>-------------</td>";
+                echo "<td>-------------</td>";
+            echo "<tr>";
+                   echo "<td>FACTURAS</td>";
+                   echo "<td>".$cantfac."</td>";
+                   echo "<td>".$otros."</td>";
+                   echo "<td>".$totalaffa."</td>";
+                   echo "<td>".$otros."</td>";
+                   echo "<td>".$totalivafa."</td>";
+                   echo "<td>".$otros."</td>";
+                   echo "<td>".$totalfa."</td>";
+            echo "</tr>";
+            echo "<tr>";
+                   echo "<td>NOTAS CREDITO</td>";                
+                   echo "<td>".$cantnc."</td>";
+                   echo "<td>".$otros."</td>";
+                   echo "<td>".$totalafnc."</td>";
+                   echo "<td>".$otros."</td>";
+                   echo "<td>".$totaliva."</td>";
+                   echo "<td>".$otros."</td>";
+                   echo "<td>".$totalnc."</td>";
+            echo "</tr>";
+             $totalafecto = $totalaffa + $totalafnc;
+             $totalivafin = $totalivafa + $totaliva;
+             $totalfinala = $totalfa + $totalnc;
+             
+            echo "<tr>";
+                echo "<td>-------------</td>";
+                echo "<td>-------------</td>";
+                echo "<td>-------------</td>";
+                echo "<td>-------------</td>";
+                echo "<td>-------------</td>";
+                echo "<td>-------------</td>";
+                echo "<td>-------------</td>";
+                echo "<td>-------------</td>";
+            echo "<tr>";                
+                   echo "<td>TOTALES</td>";                
+                   echo "<td></td>";
+                   echo "<td></td>";
+                   echo "<td>".$totalafecto."</td>";
+                   echo "<td>".$otros."</td>";
+                   echo "<td>".$totalivafin."</td>";
+                   echo "<td>".$otros."</td>";
+                   echo "<td>".$totalfinala."</td>";                  
+            echo "</tr>";
+
+
             echo '</table>';
         }
 
@@ -2339,7 +2758,7 @@ class AdminServicesExcel extends CI_Controller {
 
             $this->load->database();
 
-            $query = $this->db->query("select concat(tc.descripcion,' ',c.numdocumento) as origen, concat(tc2.descripcion,' ',c.numdocumento_asoc) as referencia, if(dm.debe is not null,dm.debe,if((c.origen='VENTA' and c.tipodocumento in (1,2,19,101,103,16,104)) or (c.origen = 'CTACTE' and c.tipodocumento not in (1,2,19,101,103,16,104)),c.valor,0)) as debe, if(dm.haber is not null,dm.haber,if((c.origen='CTACTE' and c.tipodocumento in (1,2,19,101,103,16,104)) or (c.origen = 'VENTA' and c.tipodocumento not in (1,2,19,101,103,16,104)),c.valor,0)) as haber, c.glosa, DATE_FORMAT(c.fecvencimiento,'%d/%m/%Y') as fecvencimiento, DATE_FORMAT(c.fecha,'%d/%m/%Y') as fecha, concat(m.tipo,' ',m.numcomprobante) as comprobante, m.id as idcomprobante
+            $query = $this->db->query("select concat(tc.descripcion,' ',c.numdocumento) as origen, concat(tc2.descripcion,' ',c.numdocumento_asoc) as referencia, if(dm.debe is not null,dm.debe,if((c.origen='VENTA' and c.tipodocumento in (1,16)) or (c.origen = 'CTACTE' and c.tipodocumento not in (1,16)),c.valor,0)) as debe, if(dm.haber is not null,dm.haber,if((c.origen='CTACTE' and c.tipodocumento in (1,16)) or (c.origen = 'VENTA' and c.tipodocumento not in (1,16)),c.valor,0)) as haber, c.glosa, DATE_FORMAT(c.fecvencimiento,'%d/%m/%Y') as fecvencimiento, DATE_FORMAT(c.fecha,'%d/%m/%Y') as fecha, concat(m.tipo,' ',m.numcomprobante) as comprobante, m.id as idcomprobante
                           from cartola_cuenta_corriente c 
                           inner join tipo_documento tc on c.tipodocumento = tc.id
                           left join tipo_documento tc2 on c.tipodocumento_asoc = tc2.id

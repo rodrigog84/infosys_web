@@ -97,7 +97,7 @@ public function validaRut(){
 		
 		$resp = array();
 		$data = json_decode($this->input->post('data'));
-		$rutgraba = $this->input->post('rutgraba');
+		$id = $data->rutgraba;
 		$fecha_ult = date('Y-m-d');
 		
 		$data = array(
@@ -107,7 +107,7 @@ public function validaRut(){
 	        'direccion' => strtoupper($data->direccion),
 	        'id_ciudad' => $data->id_ciudad,
 	        'id_comuna' => $data->id_comuna,
-	        'rut' => $rutgraba,
+	        'rut' => $data->rutgraba,
 	        'id_vendedor' => $data->id_vendedor,
 	        'e_mail' => $data->e_mail,
 	        'descuento' => $data->descuento,		
@@ -120,7 +120,7 @@ public function validaRut(){
 		$resp['success'] = true;
         $this->db->insert('clientes', $data); 
 
-        $this->Bitacora->logger("I", 'clientes', $rutgraba);
+        $this->Bitacora->logger("I", 'clientes', $id);
         echo json_encode($resp);
 
 	}
@@ -144,6 +144,9 @@ public function validaRut(){
 		$fonocontacto = $this->input->post('fono_contacto');
 		$emailcontacto = $this->input->post('e_mail_contacto');
 		$tipocliente = $this->input->post('tipocliente');
+		if ($tipocliente == 1){			
+			$tipocliente = 3;
+		};
 				
 		$data = array(
 			'nombres' => strtoupper($nombres),
@@ -199,7 +202,7 @@ public function validaRut(){
 		$tipo = $this->input->get('fTipo');
 		$opcion = $this->input->get('opcion');
 
-		$countAll = $this->db->count_all_results("clientes");
+		//$countAll = $this->db->count_all_results("clientes");
         
 		if($opcion == "Rut"){
 			$query = $this->db->query('SELECT acc.*, c.nombre as nombre_ciudad, com.nombre as nombre_comuna,
@@ -258,12 +261,53 @@ public function validaRut(){
 			left join comuna com on (acc.id_comuna = com.id)
 			left join vendedores ven on (acc.id_vendedor = ven.id)
 			left join cond_pago con on (acc.id_pago = con.id)
+			WHERE acc.tipo = 2 or acc.tipo = 3');
+
+
+			$total = 0;
+
+		  foreach ($query->result() as $row)
+			{
+				$total = $total +1;
+			
+			}
+
+			$countAll = $total;
+
+			$query = $this->db->query('SELECT acc.*, c.nombre as nombre_ciudad, com.nombre as nombre_comuna,
+			ven.nombre as nombre_vendedor, g.nombre as giro, con.nombre as nom_id_pago FROM clientes acc
+			left join ciudad c on (acc.id_ciudad = c.id)
+			left join cod_activ_econ g on (acc.id_giro = g.id)
+			left join comuna com on (acc.id_comuna = com.id)
+			left join vendedores ven on (acc.id_vendedor = ven.id)
+			left join cond_pago con on (acc.id_pago = con.id)
 			WHERE acc.tipo = 2 or acc.tipo = 3
 			order by acc.nombres asc
             limit '.$start.', '.$limit.' '
 			);
 		}else{
-			$query = $this->db->query('SELECT acc.*, c.nombre as nombre_ciudad, com.nombre as nombre_comuna, ven.nombre as nombre_vendedor, g.nombre as giro, con.nombre as nom_id_pago FROM clientes acc
+			$query = $this->db->query('SELECT acc.*, c.nombre as nombre_ciudad, com.nombre as nombre_comuna,
+			ven.nombre as nombre_vendedor, g.nombre as giro, con.nombre as nom_id_pago FROM clientes acc
+			left join ciudad c on (acc.id_ciudad = c.id)
+			left join cod_activ_econ g on (acc.id_giro = g.id)
+			left join comuna com on (acc.id_comuna = com.id)
+			left join vendedores ven on (acc.id_vendedor = ven.id)
+			left join cond_pago con on (acc.id_pago = con.id)
+			WHERE acc.tipo = 2 or acc.tipo = 3');
+
+
+			$total = 0;
+
+		  foreach ($query->result() as $row)
+			{
+				$total = $total +1;
+			
+			}
+
+			$countAll = $total;
+
+			$query = $this->db->query('SELECT acc.*, c.nombre as nombre_ciudad, com.nombre as nombre_comuna,
+			ven.nombre as nombre_vendedor, g.nombre as giro, con.nombre as nom_id_pago FROM clientes acc
 			left join ciudad c on (acc.id_ciudad = c.id)
 			left join cod_activ_econ g on (acc.id_giro = g.id)
 			left join comuna com on (acc.id_comuna = com.id)

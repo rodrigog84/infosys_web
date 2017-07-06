@@ -9,6 +9,47 @@ class Vendedores extends CI_Controller {
 		$this->load->database();
 	}
 
+	public function changePass(){
+		
+        $resp = array();
+		$id = $this->input->post('id');
+		$oldpass = $this->input->post('oldpass');
+		$newpass = $this->input->post('newpass');
+		$newpass2 = $this->input->post('id');
+
+
+		$query = $this->db->query('SELECT * FROM vendedores 
+	   	WHERE id = "'.$id.'"');
+
+		
+		if ($query->num_rows() > 0)
+
+		{
+
+			$row = $query->first_row();
+
+			if ($oldpass == ($row->password)){
+
+			$this->db->where('id', $id);
+			$this->db->update('vendedores', array(
+			   'password' => $newpass
+			)); 
+			$resp['success'] = true;
+			}else{
+
+				$resp['success'] = false;
+				
+
+			}
+	        
+		}else{
+			$resp['success'] = false;
+	       
+		}
+
+        echo json_encode($resp);
+	}
+
 	public function validaRut(){
 
 		
@@ -46,7 +87,8 @@ class Vendedores extends CI_Controller {
 
 	   	    if($query->num_rows()>0){
 	   			 $resp['existe'] = true;
-	        };  
+	        };
+		  
 			
 	        $resp['success'] = true;
 	        echo json_encode($resp);
@@ -77,8 +119,10 @@ class Vendedores extends CI_Controller {
 			      	'rut' => ($data->rut),
 			        'direccion' => strtoupper($data->direccion),
 			        'fono' => ($data->fono),
+			        //'password' => $data->password,
 			        'comision' => ($data->comision),
-			        'estado' => $data->estado
+			        'estado' => $data->estado,
+			        'cod_interno' => $data->cod_interno
 			          
 				);
 
@@ -96,16 +140,27 @@ class Vendedores extends CI_Controller {
 	}
 
 	public function update(){
+
 		$resp = array();
 
-		$data = json_decode($this->input->post('data'));
-		$id = $data->id;
+		$nombre = $this->input->post('nombre');
+		$rut = $this->input->post('rut');
+		$direccion = $this->input->post('direccion');
+		$id = $this->input->post('id');
+		$estado = $this->input->post('estado');
+		$password = $this->input->post('password');
+		$comision = $this->input->post('comision');
+		$fono = $this->input->post('fono');
+		$codigo = $this->input->post('cod_interno');
+		
 		$data = array(
-			'nombre' => strtoupper($data->nombre),
-	      	'direccion' => strtoupper($data->direccion),
-	        'fono' => ($data->fono),
-	        'comision' => ($data->comision),
-	        'estado' => $data->estado
+			'nombre' => strtoupper($nombre),
+	      	'direccion' => strtoupper($direccion),
+	        'fono' => $fono,
+	        'comision' => $comision,
+	        'estado' => $estado,
+	        'cod_interno' => $codigo
+
 	    );
 
 		$this->db->where('id', $id);
@@ -114,10 +169,38 @@ class Vendedores extends CI_Controller {
 
         $resp['success'] = true;
 
-         $this->Bitacora->logger("M", 'vendedores', $id);
+        $this->Bitacora->logger("M", 'vendedores', $id);
 
         echo json_encode($resp);
 
+	}
+
+	public function busca(){
+		$resp = array();
+
+        //filtro por nombre
+        $nombre = $this->input->post('nombre');
+
+		if($nombre){
+			$query = $this->db->query('SELECT * FROM vendedores WHERE id like "%'.$nombre.'%"');
+		}else{
+			
+			$query = $this->db->query('SELECT * FROM vendedores');
+			
+		}
+
+		$data = array();
+		foreach ($query->result() as $row)
+		{
+			$paswwor = $row->password;
+			$estado = $row->estado;
+		}
+        $resp['success'] = true;
+        $resp['cliente'] = $paswwor;
+        $resp['estado'] = $estado;
+                
+
+        echo json_encode($resp);
 	}
 
 	public function getAll(){
@@ -125,6 +208,7 @@ class Vendedores extends CI_Controller {
 
         $start = $this->input->post('start');
         $limit = $this->input->post('limit');
+
 
         //filtro por nombre
         $nombre = $this->input->get('nombre');
@@ -161,8 +245,11 @@ class Vendedores extends CI_Controller {
 		     if (strlen($rutautoriza) == 2){
 		      $ruta1 = substr($rutautoriza, -1);
 		      $ruta2 = substr($rutautoriza, -4, 1);
-		      $row->rut = ($ruta2."-".$ruta1);		     
-		    };	   
+		      $row->rut_cliente = ($ruta2."-".$ruta1);		     
+		    };
+
+
+		   
 			$data[] = $row;
 		}
         $resp['success'] = true;

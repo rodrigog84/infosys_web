@@ -9,6 +9,34 @@ class Productos extends CI_Controller {
 		$this->load->database();
 	}
 
+	public function actualiza(){
+
+		$resp = array();
+
+		$query = $this->db->query('SELECT * FROM existencia ');
+    	 $row = $query->result();
+		if ($query->num_rows()>0){
+
+			foreach ($query->result() as $row)
+			{
+				$saldo = $row->stock;
+				$producto = $row->id_producto;
+				$datos = array(
+		         'stock' => $saldo,
+		    	);
+
+		    	$this->db->where('id', $producto);
+
+		    	$this->db->update('productos', $datos);
+			}
+
+			$resp['success'] = true;
+
+			};
+
+		echo json_encode($resp);
+	}
+
 	public function elimina(){
 
 	    $resp = array();
@@ -157,7 +185,7 @@ class Productos extends CI_Controller {
 
 	public function buscacodigo(){
 
-		$nombres = $this->input->post('codigo');
+		$nombres = $this->input->get('codigo');
 
 		$query = $this->db->query('SELECT acc.*, c.nombre as nom_ubi_prod, ca.nombre as nom_uni_medida, m.nombre as nom_marca, fa.nombre as nom_familia, bo.nombre as nom_bodega, ag.nombre as nom_agrupacion, sb.nombre as nom_subfamilia FROM productos acc
 			left join mae_ubica c on (acc.id_ubi_prod = c.id)
