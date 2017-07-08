@@ -8,8 +8,23 @@ Ext.define('Infosys_web.view.TopMenus' ,{
     
     initComponent: function() {
         var me = this
-
         this.items = [{
+            xtype: 'textfield',
+            width: 300,
+            labelWidth: 55,
+            fieldLabel: 'Usuario',
+            name: 'nombre',
+            itemId: 'Usnombre',
+            hidden: true
+        },{
+            xtype: 'textfield',
+            //anchor: '80%',
+            fieldLabel: 'Usuario',
+            name: 'Id_usuario',
+            itemId: 'IdUsuario',
+            hidden: true
+            //hidden: true
+        },{
             xtype: 'button',
             iconCls: 'icon-note',
             text : 'Parametros Generales',

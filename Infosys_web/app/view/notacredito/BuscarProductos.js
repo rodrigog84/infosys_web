@@ -70,6 +70,11 @@ Ext.define('Infosys_web.view.notacredito.BuscarProductos' ,{
                 iconCls: 'icon-search',
                 action: 'buscar',
                 text : 'Buscar'
+            },'->',{
+                xtype: 'button',
+                iconCls: 'icon-search',
+                action: 'seleccionarTodos',
+                text : 'TODOS'
             }
             ]      
         },{
@@ -82,7 +87,7 @@ Ext.define('Infosys_web.view.notacredito.BuscarProductos' ,{
         {
             xtype: 'pagingtoolbar',
             dock:'bottom',
-            store: 'Productosf',
+            store: 'Notacreditop',
             displayInfo: true
         }];
         

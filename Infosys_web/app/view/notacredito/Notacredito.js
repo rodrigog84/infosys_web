@@ -481,9 +481,9 @@ Ext.define('Infosys_web.view.notacredito.Notacredito', {
                             columns: [
                                     { text: 'Producto',  dataIndex: 'nombre', width: 250 },
                                     { text: 'IdProducto',  dataIndex: 'id_producto', width: 250,hidden: true },
-                                    { text: 'Precio Unitario',  dataIndex: 'precio', flex:1, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} },
-                                    { text: 'Cantidad',  dataIndex: 'cantidad', width: 100, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} },
-                                    { text: 'Total',  dataIndex: 'totaliva', flex:1, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} }
+                                    { text: 'Precio Unitario',  dataIndex: 'precio', flex:1, renderer: function(valor){return Ext.util.Format.number((valor),"0,000.00")} },
+                                    { text: 'Cantidad',  dataIndex: 'cantidad', width: 100, renderer: function(valor){return Ext.util.Format.number((valor),"0,000.00")} },
+                                    { text: 'Total',  dataIndex: 'totaliva', flex:1, renderer: function(valor){return Ext.util.Format.number((valor),"0,000.00")} }
                                 ]
                             },{
                         xtype: 'fieldset',

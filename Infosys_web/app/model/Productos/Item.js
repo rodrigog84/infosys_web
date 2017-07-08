@@ -28,13 +28,13 @@ Ext.define('Infosys_web.model.Productos.Item', {
         {name: 'nom_subfamilia'},
         {name: 'stock'},
         {name: 'nom_bodega'},
-        {name: 'cantidad'},
-        {name: 'dcto'},
+        {name: 'cantidad', decimalPrecision:3},
+        {name: 'dcto', decimalPrecision:3},
         {name: 'total'},
         {name: 'iva'},
         {name: 'neto'},
         {name: 'totaliva'},
-        {name: 'precio'}
+        {name: 'precio', decimalPrecision:2}
         
         
         

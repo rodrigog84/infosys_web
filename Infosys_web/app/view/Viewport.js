@@ -12,7 +12,7 @@ Ext.define('Infosys_web.view.Viewport', {
     items: [{
         region: 'north',
         height: 85,
-        html: '<div style="background-color: #000000; WIDTH: 100%; HEIGHT: 80px"><img height="80px" src="app/baner4.jpg" align="middle" /></div>' 
+        html: '<div style="background-color: #000000; WIDTH: 100%; HEIGHT: 80px"><img left="80px" src="app/baner4.jpg" align="left" /></div>' 
     },{
             region: 'center',
             xtype: 'panel',

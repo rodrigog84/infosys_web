@@ -141,6 +141,9 @@ Ext.define('Infosys_web.controller.Notacredito', {
             'buscarproductosnotacredito button[action=seleccionarproductos]': {
                 click: this.seleccionarproductos
             },
+            'buscarproductosnotacredito button[action=seleccionarTodos]': {
+                click: this.seleccionarTodos
+            },
             'buscarproductosnotacredito button[action=buscar]': {
                 click: this.buscarp
             },
@@ -662,11 +665,13 @@ Ext.define('Infosys_web.controller.Notacredito', {
         var numfactura = view.down('#numfactId').getValue();
         var precio = ((view.down('#precioId').getValue()));
         var precioun = ((view.down('#precioId').getValue())/ 1.19);        
+        
         var neto = ((cantidad * precio));
-        var total = (parseInt(neto * 1.19));
+        var tot = (Math.round(neto * 1.19));
         var exists = 0;
-        var iva = (total - neto );
-        var totaliva = (total);
+        var iva = (tot - neto);
+        var neto = (tot - iva);
+        var totaliva = ((neto + iva ));   
        
         var totalfin = view.down('#finaltotalpostId').getValue();
         var netofin = view.down('#finalafectoId').getValue();
@@ -841,10 +846,6 @@ Ext.define('Infosys_web.controller.Notacredito', {
             };           
 
         };
-
-        //this.recalcularFinal();
-
-        
         
     },
 
@@ -856,9 +857,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
         var grid  = view.down('#itemsgridId');
         if (grid.getSelectionModel().hasSelection()) {
             var row = grid.getSelectionModel().getSelection()[0];
-            console.log(total);
             var total = (parseInt(total) - parseInt(row.data.totaliva));
-            console.log(row.data.totaliva);
             var neto = (parseInt(neto) - parseInt(row.data.neto));
             var iva = (parseInt(iva) - parseInt(row.data.iva));
             var afecto = neto;
@@ -922,8 +921,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
 
        var busca = this.getNotacreditoingresar()
        var nombre = busca.down('#id_cliente').getValue();
-
-    
+           
        if (nombre){
           var edit =  Ext.create('Infosys_web.view.notacredito.BuscarFacturas').show();
           var st = this.getFactura2Store();
@@ -933,6 +931,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
           Ext.Msg.alert('Alerta', 'Debe seleccionar Cliente.');
             return;
        }
+       
 
     },
 
@@ -1290,9 +1289,67 @@ Ext.define('Infosys_web.controller.Notacredito', {
         var view = this.getNotacreditoingresar();
         var st = this.getNotacreditopStore()
         var nombre = view.down('#facturaId').getValue()
+      
+       if (!nombre){
+
+         Ext.Msg.alert('Alerta', 'Debe seleccionar Factura.');
+            return;
+           
+       }else{
         st.proxy.extraParams = {nombre : nombre}
         st.load();
         Ext.create('Infosys_web.view.notacredito.BuscarProductos').show();
+       };
+    },
+
+    seleccionarTodos: function(){
+
+        var viewIngresa = this.getBuscarproductosnotacredito();
+        var view = this.getNotacreditoingresar();
+        var nombre = view.down('#facturaId').getValue()
+        var stItem = this.getNotacreditopStore();
+        var stItem2 = this.getProductosItemsStore();
+        
+        var totalfin = view.down('#finaltotalpostId').getValue();
+        var netofin = view.down('#finalafectoId').getValue();
+        var ivafin = view.down('#finaltotalivaId').getValue();
+        
+        
+        stItem.each(function(r){
+            var cantidad = r.data.stock
+            var id = r.data.id_producto
+            var producto = r.data.id_producto
+            var precio = r.data.p_venta
+            var neto = ((r.data.stock * r.data.p_venta))
+            var nomproducto = r.data.nombre
+            var tot = (Math.round(neto * 1.19))
+            var iva = (tot - neto)
+            var neto = (tot - iva)
+            var totaliva = ((neto + iva ))
+
+            stItem2.add(new Infosys_web.model.Productos.Item({
+                id: producto,
+                id_producto: producto,
+                nombre: nomproducto,
+                precio: precio,
+                cantidad: cantidad,
+                neto: neto,
+                totaliva: totaliva,
+                iva: iva          
+            }));
+
+            totalfin = totalfin + totaliva;
+            ivafin = ivafin + iva;
+            netofin = netofin + neto;
+          
+        });
+                  
+        view.down('#finaltotalId').setValue(Ext.util.Format.number(totalfin, '0,000'));
+        view.down('#finaltotalpostId').setValue(Ext.util.Format.number(totalfin, '0'));
+        view.down('#finaltotalnetoId').setValue(Ext.util.Format.number(netofin, '0'));
+        view.down('#finaltotalivaId').setValue(Ext.util.Format.number(ivafin, '0'));
+        view.down('#finalafectoId').setValue(Ext.util.Format.number(netofin, '0'));
+        viewIngresa.close();
     },
 
     seleccionarproductos: function(){
