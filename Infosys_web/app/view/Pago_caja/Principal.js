@@ -41,6 +41,13 @@ Ext.define('Infosys_web.view.Pago_caja.Principal' ,{
         hidden: true
                
     },{
+        header: "Id Pago",
+        flex: 1,
+        dataIndex: 'id_pago',
+        align: 'right',
+        hidden: true
+               
+    },{
         header: "Numero Documento",
         flex: 1,
         dataIndex: 'num_factura',
