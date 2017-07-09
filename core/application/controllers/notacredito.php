@@ -291,6 +291,50 @@ class Notacredito extends CI_Controller {
         echo json_encode($resp);
 	}
 
+	public function marca(){
+
+		$resp = array();
+		$idp = $this->input->post('idp'); //ID OBTENIDO PARA 
+
+		$query = $this->db->query('SELECT * FROM detalle_factura_cliente WHERE id="'.$idp.'"');
+		 if($query->num_rows()>0){
+
+		 	$datos5 = array(
+			'id_notacredito' => 1
+			);
+
+			$this->db->where('id', $idp);
+			$this->db->update('detalle_factura_cliente', $datos5);
+
+		};
+
+		echo json_encode($resp);
+		
+
+	}
+
+	public function desmarca(){
+
+		$resp = array();
+		$idp = $this->input->post('idp'); //ID OBTENIDO PARA 
+
+		$query = $this->db->query('SELECT * FROM detalle_factura_cliente WHERE id="'.$idp.'"');
+		 if($query->num_rows()>0){
+
+		 	$datos5 = array(
+			'id_notacredito' => 0
+			);
+
+			$this->db->where('id', $idp);
+			$this->db->update('detalle_factura_cliente', $datos5);
+
+		};
+
+		echo json_encode($resp);
+		
+
+	}
+
 	public function save(){
 		
 		$resp = array();
@@ -355,10 +399,24 @@ class Notacredito extends CI_Controller {
 		        'fecha' => $fechafactura
 			);
 
-		$producto = $v->id;
+		$producto = $v->id_producto;
+		$idp = $v->id;
 
 		$this->db->insert('detalle_factura_cliente', $factura_clientes_item);
-		
+
+		$query = $this->db->query('SELECT * FROM detalle_factura_cliente WHERE id="'.$idp.'"');
+		 if($query->num_rows()>0){
+
+		 	$datos5 = array(
+			'id_notacredito' => $idfactura
+			);
+
+			$this->db->where('id', $idp);
+			$this->db->update('detalle_factura_cliente', $datos5);
+
+		};
+
+			
 		$query = $this->db->query('SELECT * FROM productos WHERE id="'.$producto.'"');
 		 if($query->num_rows()>0){
 

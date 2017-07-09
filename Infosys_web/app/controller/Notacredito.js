@@ -657,6 +657,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
         var rut = view.down('#rutId').getValue();
         var stItem = this.getProductosItemsStore();
         var producto = view.down('#productoId').getValue();
+        var idp = view.down('#pId').getValue();
         var nomproducto = view.down('#nomproductoId').getValue();
         var cantidad = view.down('#cantidadId').getValue();
         var cantidadori = view.down('#cantidadOriginalId').getValue();
@@ -703,6 +704,16 @@ Ext.define('Infosys_web.controller.Notacredito', {
              
 
         if(idfactura){
+            Ext.Ajax.request({
+                    url: preurl + 'notacredito/marca',
+                params: {
+                    idp: idp
+                },
+                success: function(response){
+                   var resp = Ext.JSON.decode(response.responseText);   
+               }
+           });
+
             Ext.Ajax.request({
                     url: preurl + 'notacredito/validaproducto',
                 params: {
@@ -754,7 +765,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
                     
 
                     stItem.each(function(r){
-                    if(r.data.id == producto){
+                    if(r.data.id_producto == producto){
                         Ext.Msg.alert('Alerta', 'El registro ya existe.');
                         exists = 1;
                         cero="";
@@ -770,7 +781,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
                     return;
 
                     stItem.add(new Infosys_web.model.Productos.Item({
-                        id: producto,
+                        id: idp,
                         id_producto: producto,
                         nombre: nomproducto,
                         precio: precio,
@@ -784,6 +795,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
                     cero2=0;
                     view.down('#codigoId').setValue(cero);
                     view.down('#productoId').setValue(cero);
+                    view.down('#pId').setValue(cero);
                     view.down('#cantidadId').setValue(cero2);
                     view.down('#precioId').setValue(cero2);
                     view.down('#cantidadOriginalId').setValue(cero);
@@ -860,12 +872,22 @@ Ext.define('Infosys_web.controller.Notacredito', {
             var total = (parseInt(total) - parseInt(row.data.totaliva));
             var neto = (parseInt(neto) - parseInt(row.data.neto));
             var iva = (parseInt(iva) - parseInt(row.data.iva));
+            var idp = row.data.id
             var afecto = neto;
             view.down('#finaltotalId').setValue(Ext.util.Format.number(total, '0,000'));
             view.down('#finaltotalpostId').setValue(Ext.util.Format.number(total, '0'));
             view.down('#finaltotalnetoId').setValue(Ext.util.Format.number(neto, '0'));
             view.down('#finaltotalivaId').setValue(Ext.util.Format.number(iva, '0'));
             view.down('#finalafectoId').setValue(Ext.util.Format.number(afecto, '0'));
+            Ext.Ajax.request({
+                    url: preurl + 'notacredito/desmarca',
+                params: {
+                    idp: idp
+                },
+                success: function(response){
+                   var resp = Ext.JSON.decode(response.responseText);   
+               }
+           });
 
             grid.getStore().remove(row);
 
@@ -1318,18 +1340,19 @@ Ext.define('Infosys_web.controller.Notacredito', {
         stItem.each(function(r){
             var cantidad = r.data.stock
             var id = r.data.id_producto
-            var producto = r.data.id_producto
+            var idp = r.data.id
             var precio = r.data.p_venta
             var neto = ((r.data.stock * r.data.p_venta))
             var nomproducto = r.data.nombre
+            var nomproducto = r.data.id
             var tot = (Math.round(neto * 1.19))
             var iva = (tot - neto)
             var neto = (tot - iva)
             var totaliva = ((neto + iva ))
 
             stItem2.add(new Infosys_web.model.Productos.Item({
-                id: producto,
-                id_producto: producto,
+                id: idp,
+                id_producto: id,
                 nombre: nomproducto,
                 precio: precio,
                 cantidad: cantidad,
@@ -1337,6 +1360,16 @@ Ext.define('Infosys_web.controller.Notacredito', {
                 totaliva: totaliva,
                 iva: iva          
             }));
+
+            Ext.Ajax.request({
+                    url: preurl + 'notacredito/marca',
+                params: {
+                    idp: idp
+                },
+                success: function(response){
+                   var resp = Ext.JSON.decode(response.responseText);   
+               }
+           });
 
             totalfin = totalfin + totaliva;
             ivafin = ivafin + iva;
@@ -1364,6 +1397,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
             var idproducto = (row.data.id_producto);
             var nomproducto = (row.data.nombre);
             var idfactura = (row.data.id_factura);
+            var idp = (row.data.id);
 
             Ext.Ajax.request({
                     url: preurl + 'notacredito/validaproducto',
@@ -1383,9 +1417,11 @@ Ext.define('Infosys_web.controller.Notacredito', {
                       viewIngresa.down('#codigoId').setValue(row.data.codigo);
                       viewIngresa.down('#precioId').setValue(row.data.p_venta);
                       viewIngresa.down('#factactId').setValue(row.data.id_factura);
+                      viewIngresa.down('#pId').setValue(row.data.id);
                       view.close();
                     }else{
                       viewIngresa.down('#productoId').setValue(idproducto);
+                      viewIngresa.down('#pId').setValue(idp);
                       viewIngresa.down('#nomproductoId').setValue(nomproducto);
                       viewIngresa.down('#codigoId').setValue(row.data.codigo);
                       viewIngresa.down('#precioId').setValue(row.data.p_venta);

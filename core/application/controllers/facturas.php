@@ -509,7 +509,7 @@ class Facturas extends CI_Controller {
 			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id = '.$nombre.' AND acc.tipo_documento = '.$tipo.'');
+			WHERE acc.id = '.$nombre.' AND acc.tipo_documento = '.$tipo.' ');
 
 			if($query->num_rows()>0){
 
@@ -523,7 +523,7 @@ class Facturas extends CI_Controller {
 		 	        as codigo, acc.precio as p_venta, acc.cantidad as stock 
 		   		  	FROM detalle_factura_cliente acc    
 		   		  	left join productos p on (acc.id_producto = p.id)
-					WHERE acc.id_despacho = "'.$nombre.'"');
+					WHERE acc.id_despacho = "'.$nombre.'" and acc.id_notacredito = 0');
 
 		 	    	
 
@@ -533,7 +533,7 @@ class Facturas extends CI_Controller {
 		 	        as codigo, acc.precio as p_venta, acc.cantidad as stock 
 		   		  	FROM detalle_factura_cliente acc    
 		   		  	left join productos p on (acc.id_producto = p.id)
-					WHERE acc.id_factura = "'.$nombre.'"'
+					WHERE acc.id_factura = "'.$nombre.'" and acc.id_notacredito = 0'
 				    );
 
 		 	        

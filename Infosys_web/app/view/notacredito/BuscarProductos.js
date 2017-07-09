@@ -25,6 +25,11 @@ Ext.define('Infosys_web.view.notacredito.BuscarProductos' ,{
 
             },
            columns: [{
+                header: "Id",
+                flex: 1,
+                dataIndex: 'id',
+                hidden: true
+            },{
                 header: "Id Factura",
                 flex: 1,
                 dataIndex: 'id_factura',
