@@ -29,15 +29,18 @@ Ext.define('Infosys_web.view.cotizaciones.Principal' ,{
     },{
         header: "Contacto",
         flex: 1,
-        dataIndex: 'nombre_contacto'
+        dataIndex: 'nombre_contacto',
+        hidden: true
     },{
         header: "Telefono",
         flex: 1,
-        dataIndex: 'telefono_contacto'
+        dataIndex: 'telefono_contacto',
+        hidden: true
     },{
         header: "Mail",
         flex: 1,
-        dataIndex: 'email_contacto'
+        dataIndex: 'email_contacto',
+        hidden: true
     },{
         header: "Empresa",
         flex: 1,
