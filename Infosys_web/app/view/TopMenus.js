@@ -306,6 +306,12 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                 text: 'Tablas Generales',
                 iconCls: '',
                 menu: [{
+                        text: 'Registro de Empresa',
+                        iconCls: '',
+                        itemId: 'vyf_registro_empresa',
+                        disabled: '',
+                        action: 'mregempresa'
+                },{
                         text: 'Clientes',
                         iconCls: '',
                         itemId: 'vyf_tg_clientes',

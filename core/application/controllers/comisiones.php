@@ -197,6 +197,13 @@ class Comisiones extends CI_Controller {
             };
 
 
+      $this->load->model('facturaelectronica');
+    $empresa = $this->facturaelectronica->get_empresa();
+
+    $logo =  PATH_FILES."facturacion_electronica/images/".$empresa->logo; 
+
+    
+
 		$header = '
 		<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 		<html xmlns="http://www.w3.org/1999/xhtml">
@@ -215,12 +222,12 @@ class Comisiones extends CI_Controller {
 		<body>
 		<table width="987px" height="602" border="0">
 		  <tr>
-		   <td width="197px"><img src="http://angus.agricultorestalca.cl/Infosys_web/Infosys_web/resources/images/logo.jpg" width="150" height="136" /></td>
+		   <td width="197px"><img src="' . $logo . '" width="150" height="136" /></td>
 		    <td width="493px" style="font-size: 14px;text-align:center;vertical-align:text-top"	>
-		    <p>AGRICOLA Y COMERCIAL LIRCAY SPA</p>
-		    <p>RUT:96.516.320-4</p>
-		    <p>Avda San Miguel Cruce Las Rastras S/N- Talca - Chile</p>
-		    <p>Fonos: (71)2 245932-2 2245933</p>
+		    <p>' . $empresa->razon_social .'</p>
+		    <p>RUT:' . number_format($empresa->rut,0,".",".").'-' . $empresa->dv . '</p>
+		    <p>' . $empresa->dir_origen . ' - ' . $empresa->comuna_origen . ' - Chile</p>
+		    <p>Fonos: ' . $empresa->fono . '</p>
 		    <p>http://www.lircay.cl</p>
 		    </td>
 		    <td width="296px" style="font-size: 16px;text-align:left;vertical-align:text-top"	>

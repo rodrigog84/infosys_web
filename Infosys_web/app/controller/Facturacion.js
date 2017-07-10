@@ -26,7 +26,8 @@ Ext.define('Infosys_web.controller.Facturacion', {
              'ventas.ResumenVentas',
              'ventas.EstadisticasVentas',
              'ventas.InformeStock',
-             'ventas.VerDetalleProductoStock',                          
+             'ventas.VerDetalleProductoStock',  
+             'facturaelectronica.RegistroEmpresa',                        
              'ventas.Exportar',
              'ventas.Observaciones',
              'ventas.Facturaseditar'],
@@ -103,6 +104,11 @@ Ext.define('Infosys_web.controller.Facturacion', {
             'topmenus menuitem[action=informestock]': {
                 click: this.informestock
             },
+
+            'topmenus menuitem[action=mregempresa]': {
+                click: this.mregempresa
+            }, 
+
 
             'resumenventas button[action=cerrarfactura]': {
                 click: this.cerrarfactura
@@ -473,6 +479,16 @@ Ext.define('Infosys_web.controller.Facturacion', {
         
     },
 
+
+    mregempresa: function(){
+
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'registroempresa'});
+        
+    },
+
+    
     special6: function(f,e){
         if (e.getKey() == e.ENTER) {
             this.validarut2()

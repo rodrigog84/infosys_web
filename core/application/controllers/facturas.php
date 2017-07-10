@@ -23,6 +23,93 @@ class Facturas extends CI_Controller {
 	}	
 	
 
+	public function existe_empresa(){
+		$this->load->model('facturaelectronica');
+		$empresa = $this->facturaelectronica->get_empresa();
+		$resp['existe'] = count($empresa) > 0 ? true : false;
+   		echo json_encode($resp);
+	 }
+
+
+	public function get_empresa_json(){
+		$this->load->model('facturaelectronica');
+		$empresa = $this->facturaelectronica->get_empresa();
+   		echo json_encode($empresa);		
+	}
+
+
+public function put_empresa(){
+		//print_r($this->input->post(NULL,true)); exit;
+		$this->load->model('facturaelectronica');
+		$empresa = $this->facturaelectronica->get_empresa();
+		$tipo_caf = $this->input->post('tipoCaf');
+        $config['upload_path'] = "./facturacion_electronica/images/"	;
+        $config['file_name'] = 'logo_empresa';
+        $config['allowed_types'] = "*";
+        $config['max_size'] = "10240";
+        $config['overwrite'] = TRUE;
+
+
+        $this->load->library('upload', $config);
+
+        $error = false;
+        $carga = false;
+        if (!$this->upload->do_upload("logo") && is_null($empresa->logo)) { // si no hay descarga y no tiene archivo cargado
+            print_r($this->upload->data()); 
+            print_r($this->upload->display_errors());
+            $error = true;
+            $message = "Error en subir archivo.  Intente nuevamente";
+        }else{
+        	
+        	//$empresa = $this->facturaelectronica->get_empresa();
+    		$rut = $this->input->post('rut');
+    		$array_rut = explode("-",$rut);
+    		$fecha_resolucion = $this->input->post('fec_resolucion');
+    		$fec_resolucion = substr($fecha_resolucion,6,4)."-".substr($fecha_resolucion,3,2)."-".substr($fecha_resolucion,0,2);
+    		$data_empresa = array(
+    					'rut' => $array_rut[0],
+    					'dv' => $array_rut[1],
+    					'razon_social' => $this->input->post('razon_social'),
+    					'giro' => $this->input->post('giro'),
+    					'cod_actividad' => $this->input->post('cod_actividad'),
+    					'dir_origen' => $this->input->post('direccion'),
+    					'comuna_origen' => $this->input->post('comuna'),
+    					'fec_resolucion' => $fec_resolucion,
+    					'nro_resolucion' => $this->input->post('nro_resolucion'),
+    					'logo' => 'logo_empresa.png'
+    			);
+        	if(count($empresa) > 0){ //actualizar
+        		$this->db->where('id',1);
+        		$this->db->update('empresa',$data_empresa);
+
+        	}else{ //insertar
+
+
+	        	$carga = true;
+				$this->db->insert('empresa',$data_empresa);
+
+        	}
+
+
+
+
+
+
+        }
+
+
+
+		if($error && $carga){
+			unlink($config['upload_path'].$config['file_name'].$data_file_upload['file_ext']);
+		}
+
+
+   		$resp['success'] = true;
+   		$resp['message'] = $error ? $message : "Carga realizada correctamente";
+   		echo json_encode($resp);
+	 }
+
+	 
 	public function update(){
 
 		$resp = array();

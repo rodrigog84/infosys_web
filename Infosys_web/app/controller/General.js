@@ -2362,7 +2362,7 @@ Ext.define('Infosys_web.controller.General', {
            //console.log("aqui");
            var viewport = this.getPanelprincipal();
            viewport.removeAll();
-           url: 'http://angus.agricultorestalca.cl/Infosys_web/Infosys_web/';
+           url: preurl_js;
     },
 
     cerrarciudades: function(){

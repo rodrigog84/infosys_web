@@ -53,3 +53,8 @@ CREATE TABLE `empresa` (
 COLLATE='latin1_swedish_ci'
 ENGINE=InnoDB
 ;
+
+
+ALTER TABLE `empresa`
+	ADD COLUMN `fono` VARCHAR(50) NULL DEFAULT NULL AFTER `logo`;
+	UPDATE `infosys_web`.`empresa` SET `fono`='(71)2 245932-2 2245933' WHERE  `id`=1;

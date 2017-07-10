@@ -126,8 +126,8 @@ class Facturaelectronica extends CI_Model
 
 	 }
 
-	public function get_empresa(){
-		$this->db->select('rut, dv, razon_social, giro, cod_actividad, dir_origen, comuna_origen, fec_resolucion, nro_resolucion, logo ')
+	public function get_empresa(){  // OBTIENE DATOS EMPRESA
+		$this->db->select('rut, dv, razon_social, giro, cod_actividad, dir_origen, comuna_origen, fec_resolucion, nro_resolucion, logo, fono ')
 		  ->from('empresa')
 		  ->limit(1);
 		$query = $this->db->get();
