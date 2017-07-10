@@ -1,6 +1,6 @@
-Ext.define('Infosys_web.view.ventas.BuscarProductos' ,{
+Ext.define('Infosys_web.view.Pedidos.BuscarProductos2' ,{
     extend: 'Ext.window.Window',
-    alias : 'widget.buscarproductosfacturas',
+    alias : 'widget.buscarproductospedidos2',
     
     requires: ['Ext.toolbar.Paging'],
     title : 'Busqueda Productos',

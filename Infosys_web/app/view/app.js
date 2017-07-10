@@ -3,7 +3,7 @@ Ext.util.Format.thousandSeparator = '.';
 
 //var gbl_site = 'http://localhost/Infosys_web/';
 
-var gbl_site = 'http://angus.agricultorestalca.cl/Infosys_web/';
+//var gbl_site = 'http://angus.agricultorestalca.cl/Infosys_web/';
 var preurl = gbl_site + 'core/index.php/';
 var preurl_img = gbl_site + 'core/archivos/';
 
@@ -17,7 +17,7 @@ Ext.application({
 	              "Ventas", "Facturacion", "Inventario", "Tipo_movimientos",
 	              "Correlativos", "Ordencompra", "Cuentas_centralizacion", 
                   "Existencias", "Bitacora", "Tipo_movimientos_inventario",
-                  "Preventa", "Pago_caja","CuentasCorrientes"],
+                  "Preventa", "Pago_caja","CuentasCorrientes","Pedidos"],
     
     views: [
         'Infosys_web.view.WLogin',

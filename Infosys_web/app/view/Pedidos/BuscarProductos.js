@@ -1,6 +1,6 @@
-Ext.define('Infosys_web.view.ventas.BuscarProductos' ,{
+Ext.define('Infosys_web.view.Pedidos.BuscarProductos' ,{
     extend: 'Ext.window.Window',
-    alias : 'widget.buscarproductosfacturas',
+    alias : 'widget.buscarproductospedidos',
     
     requires: ['Ext.toolbar.Paging'],
     title : 'Busqueda Productos',
@@ -24,11 +24,6 @@ Ext.define('Infosys_web.view.ventas.BuscarProductos' ,{
 
             },
            columns: [{
-                header: "Id",
-                width: 100,
-                dataIndex: 'Id',
-                hidden: true
-            },{
                 header: "Codigo",
                 width: 100,
                 dataIndex: 'codigo'

@@ -10,6 +10,80 @@ public function __construct()
     $this->load->database();
   }
 
+public function exportarExcelPedidos(){
+
+          header("Content-type: application/vnd.ms-excel");
+          header("Content-disposition: attachment; filename=Pedidos.xls"); 
+      
+          
+          $columnas = json_decode($this->input->get('cols'));
+          
+          $fecha = $this->input->get('fecha');
+          list($dia, $mes, $anio) = explode("/",$fecha);
+          $fecha3 = $anio ."-". $mes ."-". $dia;
+          $fecha2 = $this->input->get('fecha2');
+          list($dia, $mes, $anio) = explode("/",$fecha2);
+          $fecha4 = $anio ."-". $mes ."-". $dia;
+          $tipo = $this->input->get('opcion');
+
+          $this->load->database();
+
+          $query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu FROM pedidos acc
+          left join clientes c on (acc.id_cliente = c.id)
+          left join vendedores v on (acc.id_vendedor = v.id)
+          left join correlativos co on (acc.tip_documento = co.id) 
+          WHERE acc.fecha_doc between "'.$fecha3.'"  AND "'.$fecha4.'"');
+
+          $users = $query->result_array();
+                                   
+            echo '<table>';
+            echo "<td></td>";
+            echo "<td>INFORME PEDIDOS POR FECHA</td>";
+            echo "<tr>";
+            echo "<td>DESDE : ".$fecha."</td>";
+            echo "</tr>";
+            echo "<tr>";
+            echo "<td>HASTA : ".$fecha2."</td>";
+            echo "</tr>";                  
+            echo "<tr>";
+            echo "<td>CLIENTE</td>";
+            echo "<td>RUT</td>";
+            echo "<td>NUMERO</td>";
+                         
+            foreach($users as $v){
+
+              echo "<tr>";
+              echo "<td>".$v['nom_cliente']."</td>";
+              echo "<td>".$v['rut_cliente']."</td>";
+              echo "<td>".$v['num_pedido']."</td>";
+
+              $items = $this->db->get_where('pedidos_detalle', array('id_pedido' => $v['id']));
+              foreach($items->result() as $item){
+                echo "<tr>";
+                $this->db->where('id', $item->id_producto);
+                $producto = $this->db->get("productos");  
+                $producto = $producto->result();
+                $producto = $producto[0];
+                echo "<td>".$producto->codigo."</td>";
+                echo "<td>".$producto->nombre."</td>";
+                echo "<td>CANTIDAD</td>";
+                echo "<td>".number_format($item->cantidad,0,".",".")."</td>";
+                 
+                /*echo "<td>".$item->precio."</td>";
+                echo "<td>".$item->descuento."</td>";
+                echo "<td>".$item->neto."</td>";
+                echo "<td>".$item->iva."</td>";
+                echo "<td>".$item->total."</td>";  */                       
+              
+              
+              };
+
+            
+              }
+              echo '</table>';
+         
+    }
+
 
 public function reporte_stock($familia,$subfamilia,$agrupacion,$marca,$producto)
          {

@@ -1,4 +1,4 @@
-Ext.define('Infosys_web.store.clientes.Selector', {
+Ext.define('Infosys_web.store.clientes.Selector2', {
     extend: 'Ext.data.Store',
 	fields: ['id', 'nombre'],
     data : [

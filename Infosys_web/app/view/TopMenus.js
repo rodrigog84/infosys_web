@@ -479,11 +479,20 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                         action: 'mcotizacion'
                        
                 },{
-                        text: 'Nota de Venta (Pedidos)',
+                        text: 'Pedidos',
                         iconCls: '',
                         itemId: 'vyf_cp_nventa',
                         disabled: true,
-                        action: ''
+                        action: '',
+                        menu: [{
+                            text: 'Genera Pedidos',
+                            iconCls: '',
+                            action: 'mPedidos'
+                        },{
+                            text: 'Informe Produccion',
+                            iconCls: '',
+                            action: 'mInforme'
+                        }]
                 },{
                         text: 'Consultas',
                         iconCls: '',
