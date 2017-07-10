@@ -4,6 +4,7 @@ Ext.define('Infosys_web.store.Pedidos.Selector3', {
     data : [
         {"id":"1", "nombre":"TODOS"},
         {"id":"2", "nombre":"PRODUCCION"},
-        {"id":"3", "nombre":"DESPACHADA"}       
+        {"id":"3", "nombre":"DESPACHADA"},
+        {"id":"4", "nombre":"DESPACHADA"}       
     ]
 });

@@ -975,7 +975,7 @@ class Pedidos extends CI_Controller {
 	        'descuento' => $desc,
 	        'total' => $ftotal,
 	        'id_observa' => $idobserva,
-	        'estado' => 1
+	        'estado' => 4
 		);
 
 		$this->db->insert('pedidos', $pedidos); 
