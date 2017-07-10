@@ -1567,12 +1567,44 @@ class Pedidos extends CI_Controller {
         $tipo = $this->input->post('tipo');
         $estado = $this->input->post('estado');
         if(!$estado){
-        	$estado = 1;
-		}
+        	$opcion = "Todos";
+        };
 
+		
         //$countAll = $this->db->count_all_results("pedidos");
 
 		if($opcion == "Rut"){
+
+			if ($estado == 1){
+
+			$data = array();		
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			left join clientes c on (acc.id_cliente = c.id)
+			left join vendedores v on (acc.id_vendedor = v.id)
+			left join bodegas b on (acc.id_bodega = b.id)
+			left join correlativos co on (acc.tip_documento = co.id)
+			WHERE c.rut = "'.$nombres.'" 
+			order by acc.id desc');
+
+		    $total = 0;
+
+			  foreach ($query->result() as $row)
+				{
+					$total = $total +1;
+				
+				}
+
+				$countAll = $total;
+
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			left join clientes c on (acc.id_cliente = c.id)
+			left join vendedores v on (acc.id_vendedor = v.id)
+			left join bodegas b on (acc.id_bodega = b.id)
+			left join correlativos co on (acc.tip_documento = co.id)
+			WHERE c.rut = "'.$nombres.'" order by acc.id desc			
+			limit '.$start.', '.$limit.'');
+
+		}else{
 
 			$data = array();		
 			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
@@ -1601,7 +1633,48 @@ class Pedidos extends CI_Controller {
 			WHERE c.rut = "'.$nombres.'" and acc.estado = "'.$estado.'" order by acc.id desc			
 			limit '.$start.', '.$limit.'');
 
+		};
+
 	    }else if($opcion == "Nombre"){
+
+	    	if ($estado == 1){
+
+	    	$sql_nombre = "";
+	        $arrayNombre =  explode(" ",$nombres);
+
+	        foreach ($arrayNombre as $nombre) {
+	        	$sql_nombre .= "acc.nombre_cliente like '%".$nombre."%' ";
+	        }
+
+	        $data = array();	        	    	
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			left join clientes c on (acc.id_cliente = c.id)
+			left join vendedores v on (acc.id_vendedor = v.id)
+			left join bodegas b on (acc.id_bodega = b.id)
+			left join correlativos co on (acc.tip_documento = co.id)
+			WHERE ' . $sql_nombre . ' ');
+
+			$total = 0;
+
+		  foreach ($query->result() as $row)
+			{
+				$total = $total +1;
+			
+			}
+
+			$countAll = $total;
+
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			left join clientes c on (acc.id_cliente = c.id)
+			left join vendedores v on (acc.id_vendedor = v.id)
+			left join bodegas b on (acc.id_bodega = b.id)
+			left join correlativos co on (acc.tip_documento = co.id)
+			WHERE ' . $sql_nombre . ' order by acc.id desc
+			limit '.$start.', '.$limit.'');
+	    		
+
+
+	    	}else{
 
 	    	
 			$sql_nombre = "";
@@ -1639,9 +1712,13 @@ class Pedidos extends CI_Controller {
 			left join correlativos co on (acc.tip_documento = co.id)
 			WHERE acc.estado = "'.$estado.'" ' . $sql_nombre . ' order by acc.id desc
 			limit '.$start.', '.$limit.'');
+
+		    };
 	 
 		}else if($opcion == "Todos"){
 
+			if ($estado == 1){
+
 			
 			$data = array();
 			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
@@ -1649,7 +1726,6 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.estado = "'.$estado.'"
 			order by acc.id desc');
 
 			$total = 0;
@@ -1667,16 +1743,48 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.estado = "'.$estado.'"
 			order by acc.id desc
 			limit '.$start.', '.$limit.''	
 			
-			);	
+			);
 
+			};
 		}else if($opcion == "Numero"){
+
+			if ($estado == 1){
 
 			
 			$data = array();
+
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			left join clientes c on (acc.id_cliente = c.id)
+			left join vendedores v on (acc.id_vendedor = v.id)
+			left join bodegas b on (acc.id_bodega = b.id)
+			left join correlativos co on (acc.tip_documento = co.id)
+			WHERE acc.num_pedido =  "'.$nombres.'"
+			order by acc.id desc');
+
+			$total = 0;
+
+		  foreach ($query->result() as $row)
+			{
+				$total = $total +1;
+			
+			}
+
+			$countAll = $total;
+
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			left join clientes c on (acc.id_cliente = c.id)
+			left join vendedores v on (acc.id_vendedor = v.id)
+			left join bodegas b on (acc.id_bodega = b.id)
+			left join correlativos co on (acc.tip_documento = co.id)
+			WHERE acc.num_pedido =  "'.$nombres.'" 
+			order by acc.id desc');
+
+			}else{
+
+				$data = array();
 
 			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
@@ -1703,68 +1811,11 @@ class Pedidos extends CI_Controller {
 			left join correlativos co on (acc.tip_documento = co.id)
 			WHERE acc.num_pedido =  "'.$nombres.'" and acc.estado = "'.$estado.'"
 			order by acc.id desc');
-
-		}else{
-			
-			if ($tipo){
-				$data = array();
-				$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
-			left join clientes c on (acc.id_cliente = c.id)
-			left join vendedores v on (acc.id_vendedor = v.id)
-			left join bodegas b on (acc.id_bodega = b.id)
-			left join correlativos co on (acc.tip_documento = co.id)
-				WHERE acc.id_tipopedido = ('.$tipo.') and acc.estado = "'.$estado.'"');
-
-				$total = 0;
-
-			  foreach ($query->result() as $row)
-				{
-					$total = $total +1;
 				
-				}
-
-				$countAll = $total;
-
-				$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
-			left join clientes c on (acc.id_cliente = c.id)
-			left join vendedores v on (acc.id_vendedor = v.id)
-			left join bodegas b on (acc.id_bodega = b.id)
-			left join correlativos co on (acc.tip_documento = co.id)
-				WHERE acc.id_tipopedido = ('.$tipo.') and acc.estado = "'.$estado.'"
-				limit '.$start.', '.$limit.'');
-		}else{
-
-			$data = array();
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
-			left join clientes c on (acc.id_cliente = c.id)
-			left join vendedores v on (acc.id_vendedor = v.id)
-			left join bodegas b on (acc.id_bodega = b.id)
-			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.estado = "'.$estado.'" ');
-
-			$total = 0;
-
-			foreach ($query->result() as $row)
-			{
-				$total = $total +1;
-			
 			}
 
-			$countAll = $total;
-
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
-			left join clientes c on (acc.id_cliente = c.id)
-			left join vendedores v on (acc.id_vendedor = v.id)
-			left join bodegas b on (acc.id_bodega = b.id)
-			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.estado = "'.$estado.'"			
-			limit '.$start.', '.$limit.'');
-
-
-		}
-		}
-
-		foreach ($query->result() as $row)
+		};
+			foreach ($query->result() as $row)
 		{
 			$rutautoriza = $row->rut_cliente;
 		   	if (strlen($rutautoriza) == 8){
