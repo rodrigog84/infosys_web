@@ -477,17 +477,15 @@ Ext.define('Infosys_web.controller.Ordencompra', {
         };
               
         var neto = ((cantidad * precio) - descuento);
-        var tot = ((cantidad * precio) - descuento);
-        var neto = (parseInt(neto / 1.19));
+        var tot = (Math.round(neto * 1.19));
         var exists = 0;
-        var iva = (tot - neto );
-        var total = ((neto + iva ));
+        var iva = (tot - neto);
+        var neto = (tot - iva);
+        var total = ((neto + iva ));    
         
-        if(!producto){
-            
+        if(!producto){            
             Ext.Msg.alert('Alerta', 'Debe Seleccionar un Producto');
             return false;
-
         }
 
         if(precio==0){
@@ -1629,12 +1627,11 @@ Ext.define('Infosys_web.controller.Ordencompra', {
         };
               
         var neto = ((cantidad * precio) - descuento);
-        var tot = ((cantidad * precio) - descuento);
-        var neto = (parseInt(neto / 1.19));
+        var tot = (Math.round(neto * 1.19));
         var exists = 0;
-        var iva = (tot - neto );
-        var total = ((neto + iva ));
-
+        var iva = (tot - neto);
+        var neto = (tot - iva);
+        var total = ((neto + iva ));        
         
         if(!producto){
             
