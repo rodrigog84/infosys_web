@@ -20,7 +20,7 @@ Ext.define('Infosys_web.view.facturaglosa.Facturaglosa', {
 
     autoShow: true,
     height: 640,
-    width: 1200,
+    width: 1300,
     layout: 'fit',
     title: 'Factura por Glosa',
 

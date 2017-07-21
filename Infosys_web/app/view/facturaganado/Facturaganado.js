@@ -20,7 +20,7 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
 
     autoShow: true,
     height: 640,
-    width: 1200,
+    width: 1300,
     layout: 'fit',
     title: 'Factura Ganado',
 
