@@ -537,7 +537,7 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                         iconCls: '',
                         action: 'mrecauda'
                 },{
-                        text: 'Resportes',
+                        text: 'Reportes',
                         disabled: true,
                         itemId: 'vyf_eds_reportes',
                         iconCls: '',

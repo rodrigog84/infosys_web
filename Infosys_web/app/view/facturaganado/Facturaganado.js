@@ -40,7 +40,7 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                     items: [
                         {
                             xtype: 'container',
-                            height: 240,
+                            height: 200,
                             layout: {
                                 type: 'vbox',
                                 align: 'stretch'
@@ -333,14 +333,14 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                             align: 'center',     
                             items: [{
                                 xtype: 'textfield',
-                                width: 100,
+                                width: 120,
                                 labelWidth: 40,
                                 fieldLabel: 'Codigo',
                                 itemId: 'codigoId',
                                 style: 'font-weight: bold;'
                             }, {xtype: 'splitter'},{
                                 xtype: 'textfield',
-                                width: 100,
+                                width: 260,
                                 align: 'center',
                                 labelWidth: 55,
                                 itemId: 'nombreproductoId',
@@ -359,9 +359,9 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                             {xtype: 'splitter'},
                             {
                                 xtype: 'button',
-                                text: 'Buscar Producto',
+                                text: 'Buscar',
                                 maxHeight: 25,
-                                width: 120,
+                                width: 60,
                                 allowBlank: true,
                                 action: 'buscarproductos',
                                 itemId: 'buscarproc'

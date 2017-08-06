@@ -271,7 +271,7 @@ public function reporte_stock($familia,$subfamilia,$agrupacion,$marca){
 
     $cantidad_hoja = 50;
       $fila = 1;
-      $this->mpdf->SetHeader('Manzor - Informe Stock');
+      $this->mpdf->SetHeader('Agricola y Comercial Lircay Spa - Informe Stock');
       $this->mpdf->setFooter('{PAGENO}');         
       foreach ($datos_stock['data'] as $stock) {
         if($fila == 1){
@@ -433,7 +433,7 @@ public function reporte_detalle_productos_stock($idproducto,$mes,$anno){
     $cantidad_hoja = 50;
       $fila = 1;
       $num_final = 1;
-      $this->mpdf->SetHeader('Manzor - Informe Detalle Producto Stock');
+      $this->mpdf->SetHeader('Agricola y Comercial Lircay Spa - Informe Detalle Producto Stock');
       $this->mpdf->setFooter('{PAGENO}');         
       foreach ($detalle_productos_stock['data'] as $detalle_producto) {
         if($fila == 1){
@@ -588,7 +588,7 @@ public function reporte_detalle_productos_stock($idproducto,$mes,$anno){
     $cantidad_hoja = 50;
       $fila = 1;
       $num_final = 1;
-      $this->mpdf->SetHeader('Manzor - Informe Estadísticas Ventas');
+      $this->mpdf->SetHeader('Agricola y Comercial Lircay Spa - Informe Estadísticas Ventas');
       $this->mpdf->setFooter('{PAGENO}');         
       foreach ($detalle_estadistica_venta['data'] as $detalle_estadistica) {
         if($fila == 1){
