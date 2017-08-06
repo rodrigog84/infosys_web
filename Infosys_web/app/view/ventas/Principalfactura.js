@@ -196,6 +196,25 @@ Ext.define('Infosys_web.view.ventas.Principalfactura' ,{
                 text : 'Cerrar'
             }]      
         },{
+            xtype: 'toolbar',
+            dock: 'top',
+            items: ['-',{
+                xtype: 'combo',
+                itemId: 'bodegaId',
+                labelWidth: 60,
+                width: 205,
+                fieldCls: 'required',
+                maxHeight: 25,
+                fieldLabel: '<b>BODEGA</b>',
+                forceSelection : true,
+                name : 'id_bodega',
+                valueField : 'id',
+                displayField : 'nombre',
+                emptyText : "Seleccione",
+                value: "1",
+                store : 'Bodegas'
+            }],
+        },{
             xtype: 'pagingtoolbar',
             dock:'bottom',
             store: 'Factura',
