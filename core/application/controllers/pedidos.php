@@ -2074,7 +2074,7 @@ class Pedidos extends CI_Controller {
 
 			$cantidad_hoja = 50;
 			$fila = 1;
-			$this->mpdf->SetHeader('Gotru - Informe Produccion');
+			$this->mpdf->SetHeader('Agricola y comercial Lircay - Informe Produccion');
 			$this->mpdf->setFooter('{PAGENO}');					
 			foreach ($array_detail as $detail) {
 				if($fila == 1){
