@@ -113,8 +113,57 @@ Ext.define('Infosys_web.controller.Productos', {
             },
             'productosprincipal button[action=eliminarprod]': {
                 click: this.eliminarprod
-            }
+            },
+            'facturasingresar button[action=editaritem]': {
+                click: this.editaritem
+            },
         });
+    },
+
+    editaritem: function() {
+
+        var view = this.getFacturasingresar();
+        var grid  = view.down('#itemsgridId');
+        var cero = "";
+        if (grid.getSelectionModel().hasSelection()) {
+            var row = grid.getSelectionModel().getSelection()[0];
+            var id_producto = row.data.id_producto;
+
+            
+            Ext.Ajax.request({
+            url: preurl + 'productos/buscarp?nombre='+id_producto,
+            params: {
+                id: 1
+            },
+            success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                if (resp.success == true) { 
+                    if(resp.cliente){
+                        var cliente = resp.cliente;
+                        view.down('#precioId').setValue(cliente.p_venta);
+                        view.down('#productoId').setValue(row.data.id_producto);
+                        view.down('#nombreproductoId').setValue(row.data.nombre);
+                        view.down('#codigoId').setValue(cliente.codigo);
+                        view.down('#cantidadOriginalId').setValue(cliente.stock);
+                        view.down('#cantidadId').setValue(row.data.cantidad);
+                        view.down('#totdescuentoId').setValue(row.data.dcto);
+                        if ((row.data.id_descuento)==0){
+                            view.down('#DescuentoproId').setValue(cero);
+                        }else{
+                            view.down('#DescuentoproId').setValue(row.data.id_descuento);
+                        }       
+                    }
+                }
+            }
+
+        });
+        grid.getStore().remove(row);
+        this.recalcularFinal();
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }
+       
     },
 
     editarproductos2: function(){
