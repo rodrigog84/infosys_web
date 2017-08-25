@@ -1009,7 +1009,7 @@ public function put_empresa(){
 
 		foreach($items as $v){
 			$factura_clientes_item = array(
-		        'id_producto' => $v->id,
+		        'id_producto' => $v->id_producto,
 		        'id_factura' => $idfactura,
 		        'num_factura' => $numfactura,
 		        'precio' => $v->precio,
@@ -1022,7 +1022,7 @@ public function put_empresa(){
 		        'fecha' => $fechafactura
 			);
 
-		$producto = $v->id;
+		$producto = $v->id_producto;
 
 		$this->db->insert('detalle_factura_cliente', $factura_clientes_item);
 		
@@ -1063,11 +1063,10 @@ public function put_empresa(){
 				);
 				$this->db->insert('existencia', $datos3);
 		    }
-		}
 
-		$datos2 = array(
+		    $datos2 = array(
 				'num_movimiento' => $numfactura,
-		        'id_producto' => $v->id,
+		        'id_producto' => $v->id_producto,
 		        'id_tipo_movimiento' => $tipodocumento,
 		        'valor_producto' =>  $v->precio,
 		        'cantidad_salida' => $v->cantidad,
@@ -1083,8 +1082,12 @@ public function put_empresa(){
     	$this->db->where('id', $producto);
 
     	$this->db->update('productos', $datos);
-    	
-	
+
+
+
+		}
+
+			
 		if ($tipodocumento != 3){
 
 

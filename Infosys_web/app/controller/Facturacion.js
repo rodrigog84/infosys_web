@@ -1252,7 +1252,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
                         if (tipo==2){
                             viewIngresa.down('#precioId').setValue(cliente.p_venta);
                         }else{
-                            viewIngresa.down('#precioId').setValue(cliente.p_neto);
+                            viewIngresa.down('#precioId').setValue(cliente.p_venta);
                         }
                         viewIngresa.down('#preciopromId').setValue(cliente.p_promedio);
                         viewIngresa.down('#cantidadOriginalId').setValue(cliente.stock);
