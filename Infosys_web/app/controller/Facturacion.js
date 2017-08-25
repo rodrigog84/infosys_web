@@ -1227,6 +1227,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
     buscarproductos: function(){
         
         var viewIngresa = this.getFacturasingresar();
+        var tipo = viewIngresa.down('#tipoDocumentoId').getValue();
         var codigo = viewIngresa.down('#codigoId').getValue()
         if (!codigo){
             var st = this.getProductosfStore();
@@ -1248,7 +1249,12 @@ Ext.define('Infosys_web.controller.Facturacion', {
                         viewIngresa.down('#productoId').setValue(cliente.id);
                         viewIngresa.down('#nombreproductoId').setValue(cliente.nombre);
                         viewIngresa.down('#codigoId').setValue(cliente.codigo);
-                        viewIngresa.down('#precioId').setValue(cliente.p_venta);
+                        if (tipo==2){
+                            viewIngresa.down('#precioId').setValue(cliente.p_venta);
+                        }else{
+                            viewIngresa.down('#precioId').setValue(cliente.p_neto);
+                        }
+                        viewIngresa.down('#preciopromId').setValue(cliente.p_promedio);
                         viewIngresa.down('#cantidadOriginalId').setValue(cliente.stock);
                         viewIngresa.down("#precioId").focus();
                                              

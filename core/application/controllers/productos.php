@@ -199,6 +199,7 @@ class Productos extends CI_Controller {
 
 		if($query->num_rows()>0){
 	   			$row = $query->first_row();
+	   			$row->p_neto = ($row->p_venta/1.19);
 			   	$resp['cliente'] = $row;
 		        $resp['success'] = true;
 	   	}else{
@@ -533,6 +534,7 @@ class Productos extends CI_Controller {
 						
 		foreach ($query->result() as $row)
 		{
+			$row->p_neto = ($row->p_venta/1.19);
 			$data[] = $row;
 		}
         $resp['success'] = true;
