@@ -138,7 +138,7 @@ class Productosfact extends CI_Controller {
 		
 		foreach ($query->result() as $row)
 		{
-			$row->p_neto = intval($row->p_venta/1.19);
+			$row->p_neto = ($row->p_venta/1.19);
 			$data[] = $row;
 		}
         $resp['success'] = true;

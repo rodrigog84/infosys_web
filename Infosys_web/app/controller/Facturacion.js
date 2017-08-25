@@ -220,9 +220,12 @@ Ext.define('Infosys_web.controller.Facturacion', {
             'facturaseditar button[action=grabarfacturaeditar]': {
                 click: this.grabarfacturaeditar
             },
-            'facturasingresar #codigoId': {
+            'facturasingresar button[action=editaritem]': {
+                click: this.editaritem
+            },
+            /*'facturasingresar #codigoId': {
                 specialkey: this.buscarproductos
-            }
+            }*/
 
         });
     },
@@ -1317,13 +1320,18 @@ Ext.define('Infosys_web.controller.Facturacion', {
 
         var view = this.getBuscarproductos();
         var viewIngresa = this.getFacturasingresar();
+        var tipo = viewIngresa.down('#tipoDocumentoId').getValue();
         var grid  = view.down('grid');
         if (grid.getSelectionModel().hasSelection()) {
             var row = grid.getSelectionModel().getSelection()[0];
             viewIngresa.down('#productoId').setValue(row.data.id);
             viewIngresa.down('#nombreproductoId').setValue(row.data.nombre);
             viewIngresa.down('#codigoId').setValue(row.data.codigo);
-            viewIngresa.down('#precioId').setValue(row.data.p_venta);
+            if (tipo==2){
+                viewIngresa.down('#precioId').setValue(row.data.p_neto);
+            }else{
+                viewIngresa.down('#precioId').setValue(row.data.p_venta);
+            };
             viewIngresa.down('#preciopromId').setValue(row.data.p_promedio);
             viewIngresa.down('#cantidadOriginalId').setValue(row.data.stock);
             view.close();
