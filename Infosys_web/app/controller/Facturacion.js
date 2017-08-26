@@ -219,11 +219,10 @@ Ext.define('Infosys_web.controller.Facturacion', {
             },
             'facturaseditar button[action=grabarfacturaeditar]': {
                 click: this.grabarfacturaeditar
-            },
-            
-            /*'facturasingresar #codigoId': {
-                specialkey: this.buscarproductos
-            }*/
+            },            
+            'facturasingresar #codigoId': {
+                specialkey: this.special7
+            }
 
         });
     },
@@ -363,8 +362,6 @@ Ext.define('Infosys_web.controller.Facturacion', {
         };
     },
 
-
-
     buscarDoc: function(){
         
         var view = this.getFacturasprincipal();
@@ -407,7 +404,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
         view.down('#descuentovalorId').setValue(Ext.util.Format.number(pretotalfinal, '0'));
     },
 
-     changedctofinal3: function(){
+    changedctofinal3: function(){
         this.recalculardescuentopro();
     },
 
@@ -434,7 +431,6 @@ Ext.define('Infosys_web.controller.Facturacion', {
         
     },
 
-
     mregempresa: function(){
 
         var viewport = this.getPanelprincipal();
@@ -443,6 +439,11 @@ Ext.define('Infosys_web.controller.Facturacion', {
         
     },
 
+    special7: function(f,e){
+        if (e.getKey() == e.ENTER) {
+            this.buscarproductos()
+        }
+    },
     
     special6: function(f,e){
         if (e.getKey() == e.ENTER) {
