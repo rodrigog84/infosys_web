@@ -48,8 +48,36 @@ Ext.define('Infosys_web.controller.ExistenciasClientes', {
             'existenciaprincipalclientes button[action=editarexistencia]': {
                 click: this.editarexistencia
             },
+            'existenciaprincipalclientes button[action=actualizatabla]': {
+                click: this.actualizatabla
+            },
            
         });
+    },
+
+    actualizatabla: function(){
+
+        var view = this.getExistenciaprincipalclientes();
+        var myMask = new Ext.LoadMask(Ext.getBody(), {msg:"Actualizando..."});
+        myMask.show();
+        Ext.Ajax.request({
+        url: preurl + 'existenciasclientes/save',
+        params: {
+            id:1        
+        },
+        success: function(response, opts) {             
+            myMask.hide();
+            Ext.Msg.alert('Informacion', 'Actualizacion Correcta');
+            view.close();             
+
+        },
+            failure: function(response, opts) {
+            myMask.hide();
+            console.log('server-side failure with status code ' + response.status);
+        }
+        });  
+
+           
     },
 
     editarexistencia: function(){
@@ -133,6 +161,25 @@ Ext.define('Infosys_web.controller.ExistenciasClientes', {
         st.proxy.extraParams = {nombre : nombre,
                                 rut : rut}
         st.load();
+        Ext.Ajax.request({
+            url: preurl + 'clientes/validaRut?valida='+rut,
+            params: {
+                id: 1
+            },
+            success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                var cero = "";
+                if (resp.success == true) {
+                    
+                    if(resp.cliente){
+                        var cliente = resp.cliente;
+                        view.down("#razonidd").setValue(cliente.nombres)
+                    }
+                    
+                }
+            }
+
+        });
 
    },
 

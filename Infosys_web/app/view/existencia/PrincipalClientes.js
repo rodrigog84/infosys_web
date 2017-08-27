@@ -67,6 +67,18 @@ Ext.define('Infosys_web.view.existencia.PrincipalClientes' ,{
                 iconCls : 'icon-exel',
                 text: 'Exportar EXCEL',
                 action:'exportarexcelexistencia'
+            },{
+                xtype: 'button',
+                iconCls : 'icon-exel',
+                text: 'ACTUALIZA',
+                action:'actualizatabla',
+                hidden: true
+            },{
+                width: 410,
+                xtype: 'textfield',
+                labelWidth: 60,
+                itemId: 'razonidd',
+                fieldLabel: 'Razon Social'
             },'->',{
                 width: 180,
                 xtype: 'textfield',

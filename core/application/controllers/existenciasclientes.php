@@ -12,8 +12,49 @@ class Existenciasclientes extends CI_Controller {
 	
 	public function save(){
 
+		$resp = array();
+		$query1 = $this->db->query('SELECT * FROM existencia_detalle ');
+		$data = array();
+
+	    foreach ($query1->result() as $v){
+
+			$numdocumento = $v->num_movimiento;
+			$idexistencia = $v->id;
+
+			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, co.nombre as nombre_docu, v.nombre as nom_vendedor, acc.tipo_documento as id_tip_docu, td.descripcion as tipo_doc	FROM factura_clientes acc
+			left join clientes c on (acc.id_cliente = c.id)
+			left join vendedores v on (acc.id_vendedor = v.id)
+			left join tipo_documento td on (acc.tipo_documento = td.id)
+			left join correlativos co on (acc.tipo_documento = co.id)
+			WHERE acc.num_factura="'.$numdocumento.'"');
+
+			if($query->num_rows()>0){
+				$row = $query->first_row();
+				$id_cliente = $row->id_cliente;
+
+				$datos3 = array(
+				'id_cliente' => $id_cliente
+				);
+
+				$this->db->where('id', $idexistencia);
+
+				$this->db->update('existencia_detalle', $datos3);
+
+				$resp['success'] = $id_cliente;
+				
+			};
+
+			$data[] = $v;
+
+		};
+
+		       
+        $resp['data'] = $data;
+
+		echo json_encode($resp);	
+
 		
-	}
+}
 	
 	
 	public function update(){
@@ -42,11 +83,12 @@ class Existenciasclientes extends CI_Controller {
 	   		if($query1->num_rows()>0){
 	   			
 	   			$v = $query1->first_row();
-	   			$id = $v->id;	   						
+	   			$id = $v->id;
+	   			$razons = $v->nombres;	   						
 				$query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, cor.nombre as nom_tipo_movimiento, c.codigo as codigo, bod.nombre as nom_bodega FROM existencia_detalle acc
 				left join productos c on (acc.id_producto = c.id)
 				left join correlativos cor on (acc.id_tipo_movimiento = cor.id)
-				left join bodegas bod on (acc.id_bodega = bod.id)
+				left join bodegas bod on (acc.id_bodega = bod.id) 
 				WHERE acc.id_cliente="'.$id.'"');
 
 	   			$data = array();
@@ -66,6 +108,7 @@ class Existenciasclientes extends CI_Controller {
 				left join correlativos cor on (acc.id_tipo_movimiento = cor.id)
 				left join bodegas bod on (acc.id_bodega = bod.id)
 				WHERE acc.id_cliente="'.$id.'"
+				order by acc.fecha_movimiento desc				
 				limit '.$start.', '.$limit.'');
 
 		
@@ -75,6 +118,7 @@ class Existenciasclientes extends CI_Controller {
 				}
 		        $resp['success'] = true;
 		        $resp['total'] = $countAll;
+		        $resp['cliente'] = $razons;
 		        $resp['data'] = $data;
        
 
