@@ -18,6 +18,7 @@ Ext.define('Infosys_web.model.Cliente', {
         {name: 'nombre_vendedor'},
         {name: 'nombre_comuna'},
         {name: 'rut'},
+        {name: 'rutaut'},
         {name: 'descuento'},
         {name: 'e_mail'},
         {name: 'fecha_incripcion', type:'date',dateFormat:"Y-m-d"},

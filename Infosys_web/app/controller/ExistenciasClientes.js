@@ -4,12 +4,14 @@ Ext.define('Infosys_web.controller.ExistenciasClientes', {
     //asociamos vistas, models y stores al controller
 
     stores: ['ExistenciasClientes',
+             'Clientes'
              ],
 
     models: ['existenciasclientes',
               ],
 
-    views: ['existencia.PrincipalClientes'
+    views: ['existencia.PrincipalClientes',
+            'existencia.BuscarClientes'
              ],
 
     //referencias, es un alias interno para el controller
@@ -24,7 +26,13 @@ Ext.define('Infosys_web.controller.ExistenciasClientes', {
     },{
         ref: 'topmenus',
         selector: 'topmenus'
+    },{
+        ref: 'buscarclientesexistencia',
+        selector: 'buscarclientesexistencia'
     }
+
+
+
     ],
     //init es lo primero que se ejecuta en el controller
     //especia de constructor
@@ -51,9 +59,55 @@ Ext.define('Infosys_web.controller.ExistenciasClientes', {
             'existenciaprincipalclientes button[action=actualizatabla]': {
                 click: this.actualizatabla
             },
+            'buscarclientesexistencia button[action=buscarexistenciacliente]': {
+                 click: this.buscarexistenciacliente                
+            },
+            'buscarclientesexistencia button[action=seleccionarexitenciacliente]': {
+                 click: this.seleccionarexitenciacliente
+                
+            },
            
         });
     },
+
+    buscarexistenciacliente: function(){       
+        var view = this.getBuscarclientesexistencia()
+        var st = this.getClientesStore()
+        var nombre = view.down('#nombreId').getValue()
+        var rut = view.down('#rutId').getValue()
+        if(rut){
+            var opcion = "Rut";
+            var nombre = rut;
+        }else if(nombre){
+            var opcion = "Nombre";
+        };
+
+        st.proxy.extraParams = {nombre : nombre,
+                                opcion : opcion}
+        st.load();  
+
+    },
+
+
+    seleccionarexitenciacliente: function(){
+
+        var view = this.getBuscarclientesexistencia();
+        var viewIngresa = this.getExistenciaprincipalclientes();
+        var grid  = view.down('grid');
+        if (grid.getSelectionModel().hasSelection()) {
+            var row = grid.getSelectionModel().getSelection()[0];
+            viewIngresa.down('#razonidd').setValue(row.data.nombres);
+            viewIngresa.down('#rutId').setValue(row.data.rutaut);
+            view.close();         
+            
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }
+
+    },
+
+
 
     actualizatabla: function(){
 
@@ -158,6 +212,8 @@ Ext.define('Infosys_web.controller.ExistenciasClientes', {
         var st = this.getExistenciasClientesStore()
         var nombre = view.down('#nombreId').getValue()
         var rut = view.down('#rutId').getValue()
+
+        if (rut){
         st.proxy.extraParams = {nombre : nombre,
                                 rut : rut}
         st.load();
@@ -179,11 +235,13 @@ Ext.define('Infosys_web.controller.ExistenciasClientes', {
                 }
             }
 
-        });
+        }); 
+   }else{
+        var edit = Ext.create('Infosys_web.view.existencia.BuscarClientes'); 
+   }; 
 
-   },
-
-    
+},
+     
   
 });
 

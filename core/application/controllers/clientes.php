@@ -351,6 +351,8 @@ class Clientes extends CI_Controller {
 		      $row->rut = ($ruta3.".".$ruta2."-".$ruta1);
 		     
 		    };
+
+		    $row->rutaut = $rutautoriza;
 			$data[] = $row;
 			$resp['cliente'] = $row;
 		}
