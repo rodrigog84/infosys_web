@@ -178,10 +178,11 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                             disabled: true,
                             action: 'mexistencia'
                             },{
-                            text: 'Movimiento Productos',
-                            iconCls: '',
+                            text: 'Existencia por Cliente',
+                            itemId: 'inv_inm_Clientes',
                             disabled: true,
-                            action: ''
+                            iconCls: '',
+                            action: 'mexistenciaclientes'
                             },{
                             text: 'Inventario Valorizado',
                             iconCls: '',
