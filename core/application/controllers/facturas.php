@@ -1015,7 +1015,7 @@ public function put_empresa(){
 		        'precio' => $v->precio,
 		        'p_promedio' => $v->p_promedio,
 		        'cantidad' => $v->cantidad,
-		        'neto' => $v->total,
+		        'neto' => ($v->total - $v->iva),
 		        'descuento' => $v->dcto,
 		        'iva' => $v->iva,
 		        'totalproducto' => $v->total,
@@ -1070,7 +1070,10 @@ public function put_empresa(){
 		        'id_tipo_movimiento' => $tipodocumento,
 		        'valor_producto' =>  $v->precio,
 		        'cantidad_salida' => $v->cantidad,
-		        'fecha_movimiento' => $fechafactura
+		        'fecha_movimiento' => $fechafactura,
+		        'id_bodega' => 1,
+		        'id_cliente' => $idcliente,
+		        'p_promedio' => $v->p_promedio
 		);
 
 		$this->db->insert('existencia_detalle', $datos2);
@@ -1153,9 +1156,7 @@ public function put_empresa(){
 
 		$this->Bitacora->logger("I", 'factura_clientes', $idfactura);
 
-		};
-
-		
+		};	
 
 		
 		$resp['success'] = true;
@@ -1183,7 +1184,7 @@ public function put_empresa(){
 
         $file_content = "";         
         $data = array();
-        $query = $this->db->query('SELECT acc.*, c.direccion as direccion, e.nombre as giro, c.nombres as nombre_cliente, c.rut as rut_cliente, m.nombre as nombre_comuna, s.nombre as nombre_ciudad, v.nombre as nom_vendedor, ob.nombre as nom_observ, ob.rut as rut_obs, c.fono, cp.nombre as cond_pago, cp.codigo as codigo_con_pago, cs.direccion as direc_sucursal, sa.nombre as ciu_sucursal, cor.nombre as nomdocumento, ma.nombre as com_sucursal FROM factura_clientes acc
+        $query = $this->db->query('SELECT acc.*, c.direccion as direccion, e.nombre as giro, c.nombres as nombre_cliente, c.rut as rut_cliente, m.nombre as nombre_comuna, s.nombre as nombre_ciudad, v.nombre as nom_vendedor, ob.nombre as nom_observ, ob.rut as rut_obs, c.fono, cp.nombre as cond_pago, cp.codigo as codigo_con_pago, cs.direccion as direc_sucursal, sa.nombre as ciu_sucursal, cor.nombre as nomdocumento, ma.nombre as com_sucursal, v.cod_interno as cod_interno FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join cod_activ_econ e on (c.id_giro = e.id)
 			left join correlativos cor on (acc.tipo_documento = cor.id)
@@ -1220,67 +1221,86 @@ public function put_empresa(){
             $numdocumento = $v->num_factura;            
             $nomcliente = $v->nombre_cliente;
             $condventa = $v->cond_pago;
-            $codcondventa = $v->codigo_con_pago;
+            $codcondventa = substr($v->codigo_con_pago, -2);
             $vendedor = $v->nom_vendedor;
             $codvendedor = $v->id_vendedor;
-            $comuna= $v->nombre_comuna;
-            $ciudad= $v->nombre_ciudad;
+            if ($v->ciu_sucursal){
+            	$ciudad= $v->ciu_sucursal;            	
+            }else{
+            	$ciudad= $v->nombre_ciudad;
+            };
+            if ($v->com_sucursal){
+            	$comuna= $v->com_sucursal;            	
+            }else{
+            	$comuna= $v->nombre_comuna;
+            };
             $giro = $v->giro;
             $valornetocom = 18;
             $emisora ="";
             $sucsii = "";
-            $codinterno="";
-            $codImpuestoadic1=0;
-            $tasaImpadic1=0;
-            $valImpadic1=0;
-            $codImpuestoadic2=0;
-            $tasaImpadic2=0;
-            $valImpadic2=0;
-            $codImpuestoadic3=0;
-            $tasaImpadic3=0;
-            $valImpadic3=0;
-            $credespecial=0;
-            $montoperiodo=0;
-            $montototal=0;
-            $valordesc1 = 0;
-            $valordesc2 = 0;
-            $valordesc3 = 0;
-            $espaciosfin= " ";
+            $codinterno=$v->cod_interno;
+            $codinterno2="";
+            $codImpuestoadic1="";
+            $tasaImpadic1="";
+            $valImpadic1="";
+            $codImpuestoadic2="";
+            $tasaImpadic2="";
+            $valImpadic2="";
+            $codImpuestoadic3="";
+            $tasaImpadic3="";
+            $valImpadic3="";
+            $credespecial="";
+            $montoperiodo="";
+            $montototal="";
+            $valordesc1 = "";
+            $valordesc2 = "";
+            $valordesc3 = "";
+            $espaciosfin= "";
             $contactoreceptor="";
-            $direccionreceptor="";
+            if($v->direc_sucursal){
+            	$direccionreceptor=$v->direc_sucursal;            	
+            }else{
+                $direccionreceptor=$v->direccion;
+            };
+            if($v->direc_sucursal){
+            	$direcciondespacho=$v->direc_sucursal;            	
+            }else{
+                $direcciondespacho=$v->direccion;
+            };
             $personalizadosl3="";
             $personalizadosl4="";
             $patentetrans="";
-            $direcciondespacho="";
             $comunadespacho="";
             $ciudaddespacho="";
             $ruttransporte="";
-            $neto = $v->neto;
-            $exento=0;
-            $pordescuento=0;
-            $iva = $v->iva;            
-            $total = $v->totalfactura;
+            $neto = intval($v->neto);
+            $exento="";
+            $pordescuento="";
+            $iva = intval($v->iva);            
+            $total = intval($v->totalfactura);
             $id = $v->id;
             $espaciost = 25;
             $pregistro="";
-		    $espacios20= 20;
-		    $espacios5= 5;
-		    $espacios2= 2;
-		    $espacios8= 8;
-		    $espacios9= 9;
-		    $espacios35= 35;
-		    $espacios40= 40;
-		    $espacios42= 42;
-		    $espacios60= 60;
-		    $espacios80= 80;
-		    $espacios30= 30;
-		    $espacios110= 110;
+		    $espacios20= 19;
+		    $espacios5= 4;
+		    $espacios2= 1;
+		    $espacios8= 7;
+		    $espacios9= 8;
+		    $espacios35= 34;
+		    $espacios40= 39;
+		    $espacios42= 41;
+		    $espacios60= 59;
+		    $espacios80= 79;
+		    $espacios300= 299;
+		    $espacio300="";
+		    $espacios30= 29;
+		    $espacios110= 109;
 		    $espacios139= 138;
-		    $espaciolargo= 300;
+		    $espaciolargo= 299;
 		    $totalletras = (valorEnLetras($total));
-		    $nomclienteinicio="";
-		    $espacios21= 21;
-		    $espacios25= 25;
+		    $nomclienteinicio="                     ";
+		    $espacios21= 20;
+		    $espacios25= 24;
 
 		    $rutautoriza = $v->rut_cliente;
 		   	if (strlen($rutautoriza) == 8){
@@ -1306,17 +1326,39 @@ public function put_empresa(){
 		    };
 
 		    $rutcliente = $v->rut_cliente;
-
-		    $file_content .= $nomclienteinicio.$this->crearespacios($espacios21 - strlen( $nomclienteinicio));  //razon social
+		    if (strlen($rutcliente) == 9){
+		    	$rutcliente=("0".$rutcliente);
+		    	
+		    };
+		    if (strlen($rutcliente) == 8){
+		    	$rutcliente=("00".$rutcliente);
+		    	
+		    };
+		    if (strlen($rutcliente) == 7){
+		    	$rutcliente=("000".$rutcliente);
+		    	
+		    };
+		    if (strlen($rutcliente) == 6){
+		    	$rutcliente=("0000".$rutcliente);
+		    	
+		    };
+		    if (strlen($rutcliente) == 5){
+		    	$rutcliente=("00000".$rutcliente);
+		    	
+		    };
+		    if (strlen($rutcliente) == 4){
+		    	$rutcliente=("000000".$rutcliente);
+		    	
+		    };
+		    $file_content .= $nomclienteinicio;  //razon social
             $file_content .= ";";
             $file_content .= $condventa.$this->crearespacios($espacios25 - strlen( $condventa));  //Nombre condicion Pago
             $file_content .= ";";
             $file_content .= $vendedor.$this->crearespacios($espacios30 - strlen( $vendedor));  //Nombre Vendedor
             $file_content .= ";";
-            $file_content .= $codvendedor.$this->crearespacios($espacios5 - strlen( $codvendedor));  //Codigo vendedor
+            $file_content .= $comuna;  //Codigo vendedor
             $file_content .= ";";
-            $file_content .= $codcondventa.$this->crearespacios($espacios2 - strlen( $codcondventa));  //Codigo condicion Pago
-            $file_content .= ";";
+            $file_content .= $codcondventa; //Codigo condicion Pago
             $file_content .= chr(13).chr(10);  
                       		    
             //$file_content .= chr(13).chr(10);
@@ -1345,17 +1387,17 @@ public function put_empresa(){
             $file_content .= ";";
             $file_content .= $fechavenc;
             $file_content .= ";";
-            $file_content .= $emisora.$this->crearespacios($espacios20 - strlen( $emisora));  //sucursal emision
+            $file_content .= $emisora.$this->crearespacios($espacios20 - strlen($emisora));  //sucursal emision
             $file_content .= ";";
             $file_content .= $sucsii.$this->crearespacios($espacios9 - strlen( $sucsii));  //sucursal sii
             $file_content .= ";";
-            $file_content .= $codvendedor.$this->crearespacios($espacios5 - strlen( $codvendedor)); // codigo vendedor
+            $file_content .= $codinterno; // codigo vendedor
             $file_content .= ";";   
-            $file_content .= str_pad($rutcliente,10,"0",STR_PAD_LEFT); // rut receptor
+            $file_content .= $rutcliente; // rut receptor
             $file_content .= ";";
             $file_content .= "          "; // rut solicitante factura
             $file_content .= ";";
-            $file_content .= $codinterno.$this->crearespacios($espacios20 - strlen( $codinterno));  //codigo interno receptor
+            $file_content .= "                    ";//codigo interno receptor
             $file_content .= ";";
             $file_content .= $nomcliente.$this->crearespacios($espacios40 - strlen( $nomcliente));  //razon social
             $file_content .= ";";
@@ -1368,7 +1410,6 @@ public function put_empresa(){
             $file_content .= $personalizadosl3.$this->crearespacios($espacios110 - strlen( $personalizadosl3));
             $file_content .= ";";// Perzonalizados Linea 3
             $file_content .= chr(13).chr(10);
-
             //$file_content .= chr(13).chr(10);
             $file_content .= " ";
             $file_content .= ";";
@@ -1378,9 +1419,9 @@ public function put_empresa(){
             $file_content .= ";";
             $file_content .= $direcciondespacho.$this->crearespacios($espacios60 - strlen( $direcciondespacho)); // Direccion Despacho
             $file_content .= ";";
-            $file_content .= $comunadespacho.$this->crearespacios($espacios20 - strlen( $comunadespacho)); //Comuna Despacho
+            $file_content .= $comuna.$this->crearespacios($espacios20 - strlen( $comuna)); //Comuna Despacho
             $file_content .= ";";
-            $file_content .= $ciudaddespacho.$this->crearespacios($espacios20 - strlen( $ciudaddespacho)); //Ciudad Despacho
+            $file_content .= $ciudad.$this->crearespacios($espacios20 - strlen( $ciudad)); //Ciudad Despacho
             $file_content .= ";";
             $file_content .= $patentetrans.$this->crearespacios($espacios8 - strlen( $patentetrans)); //Patente Transporte
             $file_content .= ";";
@@ -1390,61 +1431,64 @@ public function put_empresa(){
             $file_content .= ";";
             $file_content .= str_pad($exento,18," ",STR_PAD_LEFT); // Monto Exento
             $file_content .= ";";
-            $file_content .= "  ";// Tasa Iva
+            $file_content .= "     ";// Tasa Iva
             $file_content .= ";";
-            $file_content .= " ";// Tasa Iva + 1
-            $file_content .= ";";            
             $file_content .= str_pad($iva,18," ",STR_PAD_LEFT); // Monto Iva
             $file_content .= ";";
-            $file_content .= str_pad($codImpuestoadic1,6," ",STR_PAD_LEFT); // Cod imp1
+            $file_content .= "  "; // 2 espacios
             $file_content .= ";";
-            $file_content .= str_pad($tasaImpadic1,5," ",STR_PAD_LEFT); // Tasa Imp1
+            $file_content .= " "; // 1 espacio
             $file_content .= ";";
-            $file_content .= str_pad($valImpadic1,18," ",STR_PAD_LEFT); // val imp1
+            $file_content .= "                  "; // 18 espacios al imp1
             $file_content .= ";";
-            $file_content .= str_pad($codImpuestoadic2,6," ",STR_PAD_LEFT); // Cod imp 2
+            $file_content .= "      "; //6 espacios
             $file_content .= ";";
-            $file_content .= str_pad($tasaImpadic2,5," ",STR_PAD_LEFT); // Tasa imp 2
+            $file_content .= "     "; // 5 espacios
             $file_content .= ";";
-            $file_content .= str_pad($valImpadic2,18," ",STR_PAD_LEFT); // val imp 2
+            $file_content .= "                  "; // 18 espacios al imp1
             $file_content .= ";";
-            $file_content .= str_pad($codImpuestoadic3,18," ",STR_PAD_LEFT); // Cod imp 3
+            $file_content .= "      "; //6 espacios
             $file_content .= ";";
-            $file_content .= str_pad($tasaImpadic3,18," ",STR_PAD_LEFT); // Tasa imp3
+            $file_content .= "     "; // 5 espacios
             $file_content .= ";";
-            $file_content .= str_pad($montototal,18," ",STR_PAD_LEFT); // Monto Iva
+            $file_content .= "                  "; // 18 espacios al imp1
             $file_content .= ";";
-            $file_content .= " "; // Tipo Movimiento 1 (Desc/Rec)
+            $file_content .= "                  "; // 18 espacios al imp1
             $file_content .= ";";
-            $file_content .= " "; // Tipo de Valor 1 (Desc/ Rec)
+            $file_content .= "                  "; // 18 espacios al imp1
             $file_content .= ";";
-            $file_content .= str_pad($valordesc1,18," ",STR_PAD_LEFT); //Valor descuento 1
+            $file_content .= str_pad($total,18," ",STR_PAD_LEFT); //Valor descuento 1
             $file_content .= ";";
-            $file_content .= " "; // Indice Exencion1
+            $file_content .= " "; // 1 espacio
             $file_content .= ";";
-            $file_content .= " "; // Tipo Movimiento 2 (Desc/Rec)
+            $file_content .= " "; // 1 espacio
             $file_content .= ";";
-            $file_content .= " "; // Tipo de Valor 2 (Desc/ Rec)
+            $file_content .= "                  "; // 18 espacios al imp1
             $file_content .= ";";
-            $file_content .= str_pad($valordesc2,18," ",STR_PAD_LEFT); // Valor descuento 2
+            $file_content .= " "; // 1 espacio
             $file_content .= ";";
-            $file_content .= " "; // Indice Exencion3
+            $file_content .= " "; // 1 espacio
             $file_content .= ";";
-            $file_content .= " "; // Tipo Movimiento 3 (Desc/Rec)
+            $file_content .= " ";// 1 espacio
             $file_content .= ";";
-            $file_content .= " ";// Tipo de Valor 3 (Desc/ Rec)
+            $file_content .= "                  ";// Perzonalizados 18
             $file_content .= ";";
-            $file_content .= str_pad($valordesc3,18," ",STR_PAD_LEFT); // Valor descuento 3
+            $file_content .= " "; // 1 espacio
             $file_content .= ";";
-            $file_content .= " "; // Indice Exencion3
+            $file_content .= " ";// 1 espacio
+            $file_content .= ";";
+            $file_content .= " ";// 1 espacio
+            $file_content .= ";";
+            $file_content .= "                  ";// Perzonalizados 18
+            $file_content .= ";";
+            $file_content .= " ";// 1 espacio
             $file_content .= ";";
             $file_content .= "                              ";// Perzonalizados 30
             $file_content .= ";";
             $file_content .= "                              ";// Perzonalizados 30
             $file_content .= ";";
             $file_content .= "                              ";// Perzonalizados 30
-            $file_content .= ";";
-            $file_content .= chr(13).chr(10);
+            $file_content .= chr(13).chr(10); // linea 4 fin
                         
             $query2 = $this->db->get_where('detalle_factura_cliente', array('id_factura' => $id));
 
@@ -1464,9 +1508,11 @@ public function put_empresa(){
             $file_content .= ";";
             $file_content .= $producto->codigo.$this->crearespacios($espacios35 - strlen( $producto->codigo));  //razon social
             $file_content .= ";";
-            $file_content .= " "; // iNDICADOR DE EXTENCION
+            $file_content .= " "; // 1 espacio
             $file_content .= ";";
-            $file_content .= $producto->nombre.$this->crearespacios($espacios80 - strlen( $producto->codigo));  //razon social
+            $file_content .= $producto->nombre.$this->crearespacios($espacios80 - strlen( $producto->nombre));  //razon social
+            $file_content .= ";";
+            $file_content .= $espacio300.$this->crearespacios($espacios300 - strlen( $espacio300));
             $file_content .= ";";
             $file_content .= str_pad($z->cantidad,18," ",STR_PAD_LEFT); // Valor descuento 3
             $file_content .= ";";
@@ -1480,28 +1526,20 @@ public function put_empresa(){
             $file_content .= ";";
             $file_content .= "          "; // Factor Conversion 10 espacios
             $file_content .= ";";
-            $file_content .= str_pad($z->descuento,18," ",STR_PAD_LEFT); // Valor descuento 3
+            $file_content .= str_pad((intval($z->descuento)),18," ",STR_PAD_LEFT); // Valor descuento 3
             $file_content .= ";";
             $file_content .= "                  "; // recargo pesos 18 espacios
             $file_content .= ";";
-            $file_content .= str_pad($z->neto,18," ",STR_PAD_LEFT); // Valor descuento 3
+            $file_content .= str_pad((intval($z->neto)),18," ",STR_PAD_LEFT); // Valor descuento 3
             $file_content .= ";";
             $file_content .= " "; // Indicador de Agente 1 espacios
             $file_content .= ";";
-            $file_content .= "  "; // Codigo retencion 2 espacios
+            $file_content .= "              "; // 14 espacios
             $file_content .= ";";
-            $file_content .= "    "; // Codigo retencion 4 espacios
+            $file_content .= "                  "; // 18 espacios
             $file_content .= ";";
-            $file_content .= "    "; // Codigo retencion 4 espacios
-            $file_content .= ";";
-            $file_content .= "    "; // Codigo retencion 4 espacios
-            $file_content .= ";";
-            $file_content .= "                  "; // Cantidad referencia 18 espacios
-            $file_content .= ";";
-            $file_content .= str_pad($pordescuento,2," ",STR_PAD_LEFT); // Porcentaje 2
-            $file_content .= "%";
-            $file_content .= ";";
-            $file_content .= chr(13).chr(10);
+            $file_content .= "   %";
+            $file_content .= chr(13).chr(10); //fin linea 5
                 
             }
 
@@ -1511,55 +1549,15 @@ public function put_empresa(){
 
             	$producto="";
             	$productonombre="";
-            	$cantidad=0;
-            	$precio=0;
-            	$descuento=0;
+            	$cantidad="";
+            	$precio="";
+            	$descuento="";
             	$neto=0;
 
             	for ($i = 1; $i <= $b; $i++) {
 
             		//$file_content .= chr(13).chr(10); 
-		            $file_content .= " ";
-		            $file_content .= ";";
-		            $file_content .= $producto.$this->crearespacios($espacios35 - strlen( $producto));  //razon social
-		            $file_content .= ";";
-		            $file_content .= " "; // iNDICADOR DE EXTENCION
-		            $file_content .= ";";
-		            $file_content .= $productonombre.$this->crearespacios($espacios80 - strlen( $productonombre));  //razon social
-		            $file_content .= ";";
-		            $file_content .= str_pad($cantidad,18," ",STR_PAD_LEFT); // Valor descuento 3
-		            $file_content .= ";";
-		            $file_content .= "    "; // unidad de medidaN
-		            $file_content .= ";";
-		            $file_content .= str_pad($precio,18," ",STR_PAD_LEFT); // Valor descuento 3
-		            $file_content .= ";";
-		            $file_content .= "                  "; // precio otra moneda 18 espacios
-		            $file_content .= ";";
-		            $file_content .= "   "; // Moneda 3 espaios
-		            $file_content .= ";";
-		            $file_content .= "          "; // Factor Conversion 10 espacios
-		            $file_content .= ";";
-		            $file_content .= str_pad($descuento,18," ",STR_PAD_LEFT); // Valor descuento 3
-		            $file_content .= ";";
-		            $file_content .= "                  "; // recargo pesos 18 espacios
-		            $file_content .= ";";
-		            $file_content .= str_pad($neto,18," ",STR_PAD_LEFT); // Valor descuento 3
-		            $file_content .= ";";
-		            $file_content .= " "; // Indicador de Agente 1 espacios
-		            $file_content .= ";";
-		            $file_content .= "  "; // Codigo retencion 2 espacios
-		            $file_content .= ";";
-		            $file_content .= "    "; // Codigo retencion 4 espacios
-		            $file_content .= ";";
-		            $file_content .= "    "; // Codigo retencion 4 espacios
-		            $file_content .= ";";
-		            $file_content .= "    "; // Codigo retencion 4 espacios
-		            $file_content .= ";";
-		            $file_content .= "                  "; // Cantidad referencia 18 espacios
-		            $file_content .= ";";
-		            $file_content .= str_pad($pordescuento,2," ",STR_PAD_LEFT); // Porcentaje 2
-		            $file_content .= "%";
-		            $file_content .= ";";
+		            $file_content .= $espaciosfin.$this->crearespacios($espacios139 - strlen( $espaciosfin));//razon social
 		            $file_content .= chr(13).chr(10);
             
 		            
@@ -1571,7 +1569,6 @@ public function put_empresa(){
            for ($a = 1; $a <= 10; $a++) {
 
             	//$file_content .= chr(13).chr(10);
-            	$file_content .= " ";
             	$file_content .= $espaciosfin.$this->crearespacios($espacios139 - strlen( $espaciosfin));
             	$file_content .= ";";
             	$file_content .= chr(13).chr(10);
@@ -1583,8 +1580,7 @@ public function put_empresa(){
             $file_content .= " "; // Indicador de Agente 1 espacios
 		    $file_content .= ";";
 		    $file_content .= $totalletras.$this->crearespacios($espacios80 - strlen( $totalletras));
-		    $file_content .= ";";
-		    //$file_content .= chr(13).chr(10);
+		     //$file_content .= chr(13).chr(10);
 		     //linea fin          
         
         $nombre_archivo = "33_NPG_".str_pad($numdocumento,10,"0",STR_PAD_LEFT).".spf";
