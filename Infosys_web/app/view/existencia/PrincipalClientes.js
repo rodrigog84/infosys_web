@@ -61,12 +61,14 @@ Ext.define('Infosys_web.view.existencia.PrincipalClientes' ,{
                 xtype: 'button',
                 iconCls : 'icon-exel',
                 text: 'Editar Detalle',
-                action:'editarexistencia'
+                action:'editarexistencia',
+                hidden: true
             },{
                 xtype: 'button',
                 iconCls : 'icon-exel',
                 text: 'Exportar EXCEL',
-                action:'exportarexcelexistencia'
+                action:'exportarexcelexistencia',
+                hidden: true
             },{
                 xtype: 'button',
                 iconCls : 'icon-exel',
@@ -74,9 +76,9 @@ Ext.define('Infosys_web.view.existencia.PrincipalClientes' ,{
                 action:'actualizatabla',
                 hidden: true
             },{
-                width: 410,
+                width: 610,
                 xtype: 'textfield',
-                labelWidth: 60,
+                labelWidth: 120,
                 itemId: 'razonidd',
                 fieldLabel: 'Razon Social'
             },'->',{

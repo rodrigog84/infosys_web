@@ -164,8 +164,8 @@ Ext.define('Infosys_web.controller.ExistenciasClientes', {
     mexistenciaclientes: function(){
         var viewport = this.getPanelprincipal();
         viewport.removeAll();
-        var st = this.getExistenciasClientesStore()
-        st.load();
+        var stItms = Ext.getStore('ExistenciasClientes');
+        stItms.removeAll();
         viewport.add({xtype: 'existenciaprincipalclientes'});
     },
 
