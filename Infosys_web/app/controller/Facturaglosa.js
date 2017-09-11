@@ -600,7 +600,7 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
         if(numdocumento==0){
             Ext.Msg.alert('Ingrese Datos a La Factura');
             return;   
-            }
+        }
 
         var dataItems = new Array();
         stItem.each(function(r){
@@ -631,7 +631,9 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
                 var idfactura= resp.idfactura;
                  viewIngresa.close();
                  stFactura.load();
-                 window.open(preurl + 'facturaglosa/exportfacturaglosaPDF/?idfactura='+idfactura);
+                 window.open(preurl + 'facturaglosa/exportTXT/?idfactura='+idfactura);
+                 
+                 //window.open(preurl + 'facturaglosa/exportfacturaglosaPDF/?idfactura='+idfactura);
 
             }
            

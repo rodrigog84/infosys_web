@@ -1188,8 +1188,8 @@ class Ordencompra extends CI_Controller {
 			<td style="text-align:right">&nbsp;&nbsp;</td>			
 			<td style="text-align:left">'.$producto->nombre.'</td>
 			<td style="text-align:right">'.number_format($v->cantidad,0,'.',',').'&nbsp;&nbsp;</td>			
-			<td align="right">$ '.number_format($v->total / $v->cantidad, 2, '.', ',').'</td>
-			<td align="right">$ '.number_format($v->total, 0, '.', ',').'</td>
+			<td align="right">$ '.number_format($v->neto / $v->cantidad, 2, '.', ',').'</td>
+			<td align="right">$ '.number_format($v->neto, 0, '.', ',').'</td>
 			</tr>';
 			
 			//}

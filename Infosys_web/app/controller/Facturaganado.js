@@ -677,13 +677,12 @@ Ext.define('Infosys_web.controller.Facturaganado', {
                 afectofactura: viewIngresa.down('#finalafectoId').getValue(),
                 totalfacturas: viewIngresa.down('#finaltotalpostId').getValue()
             },
-             success: function(response){
+            success: function(response){
                 var resp = Ext.JSON.decode(response.responseText);
                 var idfactura= resp.idfactura;
                  viewIngresa.close();
                  stFactura.load();
-                 window.open(preurl + 'facturaganado/exportfacturaganadoPDF/?idfactura='+idfactura);
-
+                 window.open(preurl + 'facturaganado/exportTXT/?idfactura='+idfactura);
             }
            
         });
