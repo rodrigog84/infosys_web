@@ -25,7 +25,8 @@ Ext.define('Infosys_web.controller.Clientes', {
             'clientes.Desplieguesucursales',
             'clientes.IngresarSucursales',
             'clientes.Desplieguecontactos',
-            'clientes.IngresarContactos'],
+            'clientes.IngresarContactos',
+            'clientes.Autoriza'],
 
     //referencias, es un alias interno para el controller
     //podemos dejar el alias de la vista en el ref y en el selector
@@ -67,6 +68,9 @@ Ext.define('Infosys_web.controller.Clientes', {
     },{
         ref: 'eliminarclientes',
         selector: 'eliminarclientes'
+    },{
+        ref: 'autorizacionclientes',
+        selector: 'autorizacionclientes'
     }
 
 
@@ -139,8 +143,54 @@ Ext.define('Infosys_web.controller.Clientes', {
             },
             'clientesprincipal button[action=eliminarclientes]': {
                 click: this.eliminarclientes
-            }
+            },
+            'clientesdesplegar #tipoEstadoId': {
+                select: this.tipoestado
+            },
+            'autorizacionclientes button[action=autorizaclientes]': {
+                click: this.autorizaclientes
+            }, 
         });
+    },
+
+    autorizaclientes: function(){
+
+       var view = this.getClientesdesplegar()
+       var opcion = view.down('#estadocId').getValue();
+       var estado = view.down('#tipoEstadoId').getValue();
+       console.log(opcion);
+       var clave = this.getAutorizacionclientes()
+       var usua = clave.down('#enterId').getValue();
+       Ext.Ajax.request({
+            url: preurl + 'clientes/autoriza',
+            params: {
+                usua: usua,
+                tipo: 1                
+            },
+            success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                if (resp.success == false) {
+                    clave.close();
+                    view.down('#tipoEstadoId').setValue(opcion);
+                    console.log(opcion);
+                    Ext.Msg.alert('Modificacion no autorizada');
+                    return;                                
+
+                }else{
+                    clave.close();
+                    view.down('#estadocId').setValue(estado);                    
+                }
+        }
+        });       
+        
+    },
+
+    tipoestado: function(){
+       var view = this.getClientesdesplegar()
+       var opcion = view.down('#tipoEstadoId').getValue();
+       var view = Ext.create('Infosys_web.view.clientes.Autoriza').show();
+       var view = this.getAutorizacionclientes();
+       view.down('#enterId').focus();
     },
 
     eliminarclientes: function(){
@@ -397,6 +447,7 @@ Ext.define('Infosys_web.controller.Clientes', {
                         edit.down("#fecha_ult_actualizId").setValue(cliente.fecha_ult_actualiz)
                         edit.down("#tipopagoId").setValue(cliente.id_pago)
                         edit.down("#tipoEstadoId").setValue(cliente.estado)
+                        edit.down("#estadocId").setValue(cliente.estado)
                         edit.down("#tipoClienteId").setValue(cliente.tipo)
                         edit.down("#rutId").setValue(rutdes)
                         edit.down("#disponibleId").setValue(cliente.cupo_disponible)
