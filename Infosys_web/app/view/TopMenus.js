@@ -58,7 +58,15 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                         action: ''
                 }]
 
-           },
+           },{
+                text: 'Clave Autorizacion',
+                iconCls: '',
+                itemId: 'pg_clave_autoriza',
+                disabled: true,
+                action: 'mcambioClave'
+                //hidden: true
+                     
+            },
             {
                 text: 'Parametros de Sistema',
                 iconCls: '',
@@ -191,8 +199,7 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                             },{
                             text: 'Inventario Selectivo',
                             iconCls: '',
-                            action: ''
-                                          
+                            action: ''                                          
                         }]
                                                                 
                 }]
