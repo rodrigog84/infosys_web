@@ -211,6 +211,22 @@ Ext.define('Infosys_web.view.notacredito.Notacredito', {
                                             allowBlank: true,
                                             action: 'buscarsucursalnotacredito'
                                             //,disabled : true  
+                                        },{
+                                            xtype: 'combo',
+                                            itemId: 'bodegaId',
+                                            labelWidth: 60,
+                                            width: 205,
+                                            fieldCls: 'required',
+                                            maxHeight: 25,
+                                            fieldLabel: '<b>BODEGA</b>',
+                                            forceSelection : true,
+                                            name : 'id_bodega',
+                                            valueField : 'id',
+                                            displayField : 'nombre',
+                                            emptyText : "Seleccione",
+                                            value: "1",
+                                            store : 'Bodegas',
+                                            hidden: true
                                         },{xtype: 'splitter'},{
                                             xtype: 'textfield',
                                             fieldCls: 'required',

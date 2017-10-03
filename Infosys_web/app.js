@@ -1,9 +1,9 @@
 Ext.util.Format.thousandSeparator = '.';
 //variables globales
 
-//var gbl_site = 'http://localhost/Infosys_web/';
+var gbl_site = 'http://localhost/Infosys_web/';
 
-var gbl_site = 'http://angus.agricultorestalca.cl/Infosys_web/';
+//var gbl_site = 'http://angus.agricultorestalca.cl/Infosys_web/';
 var preurl = gbl_site + 'core/index.php/';
 var preurl_img = gbl_site + 'core/archivos/';
 var preurl_js = gbl_site + 'Infosys_web/';

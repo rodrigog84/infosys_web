@@ -220,6 +220,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
         var idcliente = viewIngresa.down('#id_cliente').getValue();
         var idtipo= viewIngresa.down('#tipodocumentoId').getValue();
         var idsucursal= viewIngresa.down('#id_sucursalID').getValue();
+        var sucursal= viewIngresa.down('#bodegaId').getValue();
         var idcondventa= viewIngresa.down('#tipocondpagoId').getValue();
         var idfactura = viewIngresa.down('#numfacturaId').getValue();
         var vendedor = viewIngresa.down('#tipoVendedorId').getValue();
@@ -254,6 +255,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
                 numdocumento: numdocumento,
                 docurelacionado: docurelacionado,
                 idsucursal: idsucursal,
+                id_bodega: sucursal,
                 idcondventa: idcondventa,
                 idtipo: idtipo,
                 items: Ext.JSON.encode(dataItems),
@@ -1153,6 +1155,16 @@ Ext.define('Infosys_web.controller.Notacredito', {
         var stItem = this.getProductosItemsStore();
         var stNotacredito = this.getNotacreditoStore();
 
+        if(!vendedor){
+            Ext.Msg.alert('Ingrese Vendedor');
+            return;   
+            }
+
+        if(!idcondventa){
+            Ext.Msg.alert('Ingrese Condicion Venta');
+            return;   
+            }
+
 
         if(numdocumento==0){
             Ext.Msg.alert('Ingrese Datos a La Factura');
@@ -1169,6 +1181,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
             params: {
                 idcliente: idcliente,
                 idfactura: idfactura,
+                idsucursal: idsucursal,
                 numdocumento: numdocumento,
                 idsucursal: idsucursal,
                 idcondventa: idcondventa,

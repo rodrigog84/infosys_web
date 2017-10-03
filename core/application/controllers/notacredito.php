@@ -457,7 +457,7 @@ class Notacredito extends CI_Controller {
 		$items = json_decode($this->input->post('items'));
 		$neto = $this->input->post('netofactura');
 		$fiva = $this->input->post('ivafactura');
-        $relacionado = $this->input->post('docurelacionado');
+            $relacionado = $this->input->post('docurelacionado');
 		$fafecto = $this->input->post('afectofactura');
 		$ftotal = $this->input->post('totalfacturas');
 		$tipodocumento = $this->input->post('tipodocumento');
@@ -471,7 +471,7 @@ class Notacredito extends CI_Controller {
 	    $this->db->update('correlativos', $data3);
 			
 		$factura_cliente = array(
-			'tipo_documento' => $tipodocumento,
+		  'tipo_documento' => $tipodocumento,
 	        'id_cliente' => $idcliente,
 	        'num_factura' => $numdocuemnto,
 	        'id_vendedor' => $vendedor,
@@ -774,9 +774,12 @@ class Notacredito extends CI_Controller {
 		$numfactura = $this->input->post('numfactura_asoc');
 		$numdocuemnto = $this->input->post('numdocumento');
 		$idfactura = $this->input->post('idfactura');
+            $idsucursal = $this->input->post('idsucursal');
+            $idbodega = $this->input->post('id_bodega');
 		$fechafactura = $this->input->post('fechafactura');
 		$fechavenc = $this->input->post('fechavenc');
 		$vendedor = $this->input->post('idvendedor');
+            $condpago = $this->input->post('idcondventa');
 		$datacliente = json_decode($this->input->post('datacliente'));
 		$items = json_decode($this->input->post('items'));
 		$neto = $this->input->post('netofactura');
@@ -795,10 +798,13 @@ class Notacredito extends CI_Controller {
 	    $this->db->update('correlativos', $data3);
 			
 		$factura_cliente = array(
-			'tipo_documento' => $tipodocumento,
+		  'tipo_documento' => $tipodocumento,
+              'id_bodega' => $idbodega,
 	        'id_cliente' => $idcliente,
+              'id_sucursal' => $idsucursal,
 	        'num_factura' => $numdocuemnto,
 	        'id_vendedor' => $vendedor,
+              'id_cond_venta' => $condpago,
 	        'sub_total' => $neto,
 	        'descuento' => ($neto - $fafecto),
 	        'neto' => $neto,
