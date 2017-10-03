@@ -273,7 +273,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
                  viewIngresa.close();
                  stnotacredito.load();
                  //window.open(preurl + 'notadebito/exportnotadebitoPDF/?idfactura='+idfactura);
-                 window.open(preurl + 'facturas/exportPDF/?idfactura='+idfactura);
+                 window.open(preurl + 'facturas/exportTXT/?idfactura='+idfactura);
             }
            
         });      
@@ -1120,7 +1120,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
         if (view.getSelectionModel().hasSelection()) {
             var row = view.getSelectionModel().getSelection()[0];
             if (row.data.forma==0){
-            window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id)
+            window.open(preurl +'facturas/exportTXTNC/?idfactura=' + row.data.id)
             };
             if (row.data.forma==1){
             window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id)
@@ -1189,7 +1189,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
                 var idfactura= resp.idfactura;
                  viewIngresa.close();
                  stNotacredito.load();
-                 window.open(preurl + 'facturas/exportPDF/?idfactura='+idfactura);
+                 window.open(preurl + 'facturas/exportTXTNC/?idfactura='+idfactura);
 
             }
            
