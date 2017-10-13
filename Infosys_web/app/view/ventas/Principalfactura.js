@@ -21,6 +21,13 @@ Ext.define('Infosys_web.view.ventas.Principalfactura' ,{
         hidden: true
                
     },{
+        header: "Tipo",
+        flex: 1,
+        dataIndex: 'id_tip_docu',
+        align: 'right',
+        hidden: true
+               
+    },{
         header: "Forma",
         flex: 1,
         dataIndex: 'forma',

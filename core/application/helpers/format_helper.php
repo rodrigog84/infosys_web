@@ -104,7 +104,7 @@ if (!function_exists('valorEnLetras'))
 
   ///////////////////////////// 
       if($G6==0) { $I6=" "; } 
-  elseif($G6==1) { $I6="Millón "; } 
+  elseif($G6==1) { $I6="Millon "; } 
            else { $I6="Millones "; } 
             
   if ($G8==0 AND $G7==0) { $I8=" "; } 

@@ -453,7 +453,7 @@ class Facturaglosa extends CI_Controller {
 		$items = json_decode($this->input->post('items'));
 		$neto = $this->input->post('netofactura');
 		$fiva = $this->input->post('ivafactura');
-        $fafecto = $this->input->post('afectofactura');
+            $fafecto = $this->input->post('afectofactura');
 		$ftotal = $this->input->post('totalfacturas');
 		$tipodocumento = $this->input->post('tipodocumento');
 
@@ -569,6 +569,8 @@ class Facturaglosa extends CI_Controller {
 
         $resp['success'] = true;
 		$resp['idfactura'] = $idfactura;
+            $resp['tipo'] = $tipodocumento;
+            $resp['forma'] = 1;
 
 		$this->Bitacora->logger("I", 'factura_clientes', $idfactura);
         

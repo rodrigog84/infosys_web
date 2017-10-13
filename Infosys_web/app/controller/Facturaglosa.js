@@ -79,7 +79,6 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
             'facturaglosaingresar #nombreId': {
                 click: this.special
             },
-
             'facturaglosaingresar #netoId': {
                 specialkey: this.calculaiva
             },            
@@ -246,6 +245,16 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
 
         };
 
+        if (tipo_documento == 3 ){
+            
+            var neto = view.down('#netoId').getValue();
+            var iva = (parseInt((neto * 19) / 100));
+            var total = (neto + iva);
+            view.down('#ivaId').setValue(iva);
+            view.down('#totalId').setValue(total);
+
+        };
+
         if (tipo_documento == 1 ){
             var neto = view.down('#netoId').getValue();
             var iva = (parseInt((neto * 19) / 100));
@@ -314,6 +323,24 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
         if(!glosa){  // se validan los datos sólo si es factura
             Ext.Msg.alert('Alerta', 'Debe Ingresar Glosa.');
             return false;
+        };
+
+        if(glosa.length > 50){
+            Ext.Msg.alert('Alerta', 'GLOSA SOBREPASA CANTIDAD DE CARACTERES POR LINEA');
+            return false;            
+        };
+
+        if (tipo_documento == 3){
+
+            if(!neto){
+                neto=0;
+            };
+            if(!iva){
+                iva=0;                
+            };
+            if(!total){
+                total=0;                
+            };
         };
         
         if (tipo_documento == 19){
@@ -629,9 +656,16 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
              success: function(response){
                 var resp = Ext.JSON.decode(response.responseText);
                 var idfactura= resp.idfactura;
-                 viewIngresa.close();
-                 stFactura.load();
-                 window.open(preurl + 'facturaglosa/exportTXT/?idfactura='+idfactura);
+                var forma = resp.forma;
+                var tipo = resp.tipo;
+                viewIngresa.close();
+                stFactura.load();
+                if (forma==1 && tipo==3){
+                window.open(preurl +'facturas/exportTXTGDGLO/?idfactura=' + idfactura)
+                };
+                if (forma==1 && tipo==1){
+                window.open(preurl +'facturas/exportTXTGLO/?idfactura=' + idfactura)
+                };
                  
                  //window.open(preurl + 'facturaglosa/exportfacturaglosaPDF/?idfactura='+idfactura);
 

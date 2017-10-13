@@ -2022,7 +2022,7 @@ class Pedidos extends CI_Controller {
 				<tr>				
 				<td width="60px" style="text-align:center;font-size:12px"><h2>'.$codigo.'</h2></td>	
 				<td width="440px" style="text-align:rigth;font-size:12px"><h2>'.$descripcion.'</h2></td>
-				<td width="287px" style="text-align:center;font-size:12px"><h2>'.$v['cantidad'].'</h2></td>				
+				<td width="287px" style="text-align:center;font-size:12px"><h2> '.number_format($v['cantidad'], 2, ',', '.').'</h2></td>				
 				</tr>
 				';				
 
@@ -2032,7 +2032,7 @@ class Pedidos extends CI_Controller {
 				<tr>				
 				<td width="60px" style="text-align:center;font-size:12px"><h2>'.$codigo.'</h2></td>	
 				<td width="440px" style="text-align:rigth;font-size:12px"><h2>'.$descripcion.'</h2></td>
-				<td width="287px" style="text-align:center;font-size:12px"><h2>'.$v['cantidad'].'</h2></td>				
+				<td width="287px" style="text-align:center;font-size:12px"><h2> '.number_format($v['cantidad'], 2, ',', '.').'</h2></td>				
 				</tr>
 				';
 

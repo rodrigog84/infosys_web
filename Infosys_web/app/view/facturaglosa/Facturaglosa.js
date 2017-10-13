@@ -332,10 +332,11 @@ Ext.define('Infosys_web.view.facturaglosa.Facturaglosa', {
                             layout: 'hbox',
                             align: 'center',     
                             items: [{
-                                xtype: 'textareafield',
+                                xtype: 'textfield',
                                 width: 550,
                                 height: 25,
                                 fieldLabel: 'Glosa',
+                                maxLength : 50,
                                 itemId: 'glosaId',
                                 style: 'font-weight: bold;'
                             },
