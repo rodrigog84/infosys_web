@@ -81,6 +81,12 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                                             hidden: true
                                           
                                         },{
+                                            xtype: 'numberfield',
+                                            name: 'id_bodega',
+                                            itemId: 'bodegaId',
+                                            hidden: true
+                                          
+                                        },{
                                             xtype: 'textfield',
                                             fieldCls: 'required',
                                             maxHeight: 25,

@@ -988,6 +988,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
         var viewIngresa = this.getFacturasingresar();
         var tipo_documento = viewIngresa.down('#tipoDocumentoId');
         var idcliente = viewIngresa.down('#id_cliente').getValue();
+        var idbodega = viewIngresa.down('#bodegaId').getValue();
         var idtipo= viewIngresa.down('#tipoDocumentoId').getValue();
         var idsucursal= viewIngresa.down('#id_sucursalID').getValue();
         var idcondventa= viewIngresa.down('#tipocondpagoId').getValue();
@@ -1024,8 +1025,9 @@ Ext.define('Infosys_web.controller.Facturacion', {
             url: preurl + 'facturas/save',
             params: {
                 idcliente: idcliente,
-                idfactura: idfactura,
+                idfactura: idfactura,                
                 idsucursal: idsucursal,
+                idbodega: idbodega,
                 idcondventa: idcondventa,
                 idtipo:idtipo,
                 items: Ext.JSON.encode(dataItems),
@@ -1086,8 +1088,16 @@ Ext.define('Infosys_web.controller.Facturacion', {
             },
             success: function(response){
                 var resp = Ext.JSON.decode(response.responseText);
+                if(resp.fecha=="SI"){
+                    Ext.Msg.alert('Correlativo Vencido');
+                    return;
+                }else{
+                    if(resp.fecha=="NO"){
+                    Ext.Msg.alert('Correlativo no Autorizado');
+                    return;
+                }else{
 
-                if (resp.success == true) {
+                    if (resp.success == true) {
                     var cliente = resp.cliente;
                     var correlanue = cliente.correlativo;
                     correlanue = (parseInt(correlanue)+1);
@@ -1097,6 +1107,11 @@ Ext.define('Infosys_web.controller.Facturacion', {
                 }else{
                     Ext.Msg.alert('Correlativo YA Existe');
                     return;
+                }
+                    
+                }
+                
+                    
                 }
 
             }            
@@ -1239,9 +1254,17 @@ Ext.define('Infosys_web.controller.Facturacion', {
     
     mfactura: function(){
 
-         Ext.create('Infosys_web.view.ventas.Facturas').show();
-
-     
+         var viewIngresa = this.getFacturasprincipal();
+         var idbodega = viewIngresa.down('#bodegaId').getValue();
+         if(!idbodega){
+            Ext.Msg.alert('Alerta', 'Debe Elegir Bodega');
+            return;    
+         }else{
+            var view = Ext.create('Infosys_web.view.ventas.Facturas').show()
+             
+         }
+         view.down('#bodegaId').setValue(idbodega);
+              
     },
 
     mejemplo: function(){

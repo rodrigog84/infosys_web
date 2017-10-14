@@ -14,10 +14,15 @@ class Correlativos extends CI_Controller {
 
 		$data = json_decode($this->input->post('data'));
 		$id = $data->nombre;
+		$fecha = $data->fecha_venc;
+		list($dia, $mes, $anio) = explode("/",$fecha);			
+        $fechavenc = $anio."-".$mes."-".$dia;		
 
 		$data = array(
 	        'nombre' => strtoupper($data->nombre),
-	        'correlativo' => $data->correlativo
+	        'correlativo' => $data->correlativo,
+	        'hasta' => $data->hasta,
+	        'fecha_venc' => $fechavenc
 	          
 		);
 
@@ -37,10 +42,18 @@ class Correlativos extends CI_Controller {
 
 		$data = json_decode($this->input->post('data'));
 		$id = $data->id;
+		$fecha = $data->fecha_venc;
+		list($dia, $mes, $anio) = explode("/",$fecha);			
+        $fechavenc = $anio."-".$mes."-".$dia;		
+
 		$data = array(
 	        'nombre' => strtoupper($data->nombre),
-	        'correlativo' => $data->correlativo
-	    );
+	        'correlativo' => $data->correlativo,
+	        'hasta' => $data->hasta,
+	        'fecha_venc' => $fechavenc
+	          
+		);
+
 		$this->db->where('id', $id);
 		
 		$this->db->update('correlativos', $data); 
@@ -77,6 +90,9 @@ class Correlativos extends CI_Controller {
 		$data = array();
 		foreach ($query->result() as $row)
 		{
+			$fecha = $row->fecha_venc;
+			list($dia, $mes, $anio) = explode("-",$fecha);			
+	        $row->fecha_venc = $anio."/".$mes."/".$dia;
 			$data[] = $row;
 		}
         $resp['success'] = true;
@@ -181,23 +197,39 @@ class Correlativos extends CI_Controller {
 		$resp = array();
 		$factura = $this->input->get('valida');
 		$tipo = 1;
+		$fecha = date('Y-m-d');
 		$query = $this->db->query('SELECT * FROM correlativos WHERE id ="'.$factura.'"');
 
 		if($query->num_rows()>0){
 	   		$row = $query->first_row();
-	   		$resp['cliente'] = $row;
-	   		
+	   		$desde = $row->correlativo;
+	   		$hasta = $row->hasta;
+	   		if ($desde+1==$hasta){
+	   			$resp['fecha'] = "NO";
+		   	    echo json_encode($resp);
+		        return false;	   			
+	   		}else{
+	   			if($row->fecha_venc<=$fecha){
+	   				$resp['fecha'] = "SI";
+			    	echo json_encode($resp);
+	   		}else{
+	   			$resp['cliente'] = $row;
+			    $resp['success'] = true;
+			    echo json_encode($resp);	
+			}
 
-		    $resp['success'] = true;
-			echo json_encode($resp);		
+	   		}
 
-			
-
+	   		   			
 	   }else{
-	   	    $resp['success'] = false;
-	   	    echo json_encode($resp);
-	        return false;
-	   }		
+
+	   			$resp['success'] = false;
+		   	    echo json_encode($resp);
+		        return false;
+	   	    
+	   }
+	   
+	   		
 
 	}
 	

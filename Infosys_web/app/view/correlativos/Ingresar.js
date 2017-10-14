@@ -7,7 +7,7 @@ Ext.define('Infosys_web.view.correlativos.Ingresar', {
     title : 'Editar/Crear Correlativos',
     layout: 'fit',
     autoShow: true,
-    width: 480,
+    width: 250,
     modal: true,
     iconCls: 'icon-sheet',
 
@@ -24,7 +24,7 @@ Ext.define('Infosys_web.view.correlativos.Ingresar', {
                     labelAlign: 'left',
                     //allowBlank: false,
                     combineErrors: true,
-                    labelWidth: 150,
+                    labelWidth: 80,
                     msgTarget: 'side'
                 },
 
@@ -43,7 +43,22 @@ Ext.define('Infosys_web.view.correlativos.Ingresar', {
                     {
                         xtype: 'textfield',
                         name : 'correlativo',
-                        fieldLabel: 'Correlativo'
+                        fieldLabel: 'Correl. Inicio'
+                    },    
+                    {
+                        xtype: 'textfield',
+                        name : 'hasta',
+                        fieldLabel: 'Correl. Final'
+                    },{
+                        xtype: 'datefield',
+                        fieldCls: 'required',
+                        maxHeight: 25,
+                        //labelWidth: 50,
+                        //width: 170,
+                        fieldLabel: '<b>FECHA</b>',
+                        itemId: 'fechacorrelId',
+                        name: 'fecha_venc',
+                        value: new Date()
                     }
                 ]
             }

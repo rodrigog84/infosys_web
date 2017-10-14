@@ -965,6 +965,7 @@ class Facturas extends CI_Controller {
 		$idcliente = $this->input->post('idcliente');
 		$numfactura = $this->input->post('numfactura');
 		$idfactura = $this->input->post('idfactura');
+		$idbodega = $this->input->post('idbodega');
 		$fechafactura = $this->input->post('fechafactura');
 		$fechavenc = $this->input->post('fechavenc');
 		$vendedor = $this->input->post('vendedor');
@@ -988,6 +989,7 @@ class Facturas extends CI_Controller {
 			
 		$factura_cliente = array(
 			'tipo_documento' => $tipodocumento,
+			'id_bodega' => $idbodega,
 	        'id_cliente' => $idcliente,
 	        'num_factura' => $numfactura,
 	        'id_vendedor' => $vendedor,
@@ -1032,7 +1034,7 @@ class Facturas extends CI_Controller {
 		 	$saldo = ($row->stock)-($v->cantidad);
 		 };
 
-		 $query = $this->db->query('SELECT * FROM existencia WHERE id_producto="'.$producto.'"');
+		 $query = $this->db->query('SELECT * FROM existencia WHERE id_producto='.$producto.' and id_bodega='.$idbodega.'');
     	 $row = $query->result();
 			if ($query->num_rows()>0){
 				$row = $row[0];	 
@@ -1050,7 +1052,7 @@ class Facturas extends CI_Controller {
 				'id_producto' => $producto,
 		        'stock' =>  $saldo,
 		        'fecha_ultimo_movimiento' =>$fechafactura,
-		        'id_bodega' => 1				
+		        'id_bodega' => $idbodega				
 				);
 				$this->db->insert('existencia', $datos3);
 	    	 	}
@@ -1059,7 +1061,7 @@ class Facturas extends CI_Controller {
 				'id_producto' => $producto,
 		        'stock' =>  $saldo,
 		        'fecha_ultimo_movimiento' =>$fechafactura,
-		        'id_bodega' => 1			
+		        'id_bodega' => $idbodega			
 				);
 				$this->db->insert('existencia', $datos3);
 		    }
@@ -1071,7 +1073,7 @@ class Facturas extends CI_Controller {
 		        'valor_producto' =>  $v->precio,
 		        'cantidad_salida' => $v->cantidad,
 		        'fecha_movimiento' => $fechafactura,
-		        'id_bodega' => 1,
+		        'id_bodega' => $idbodega,
 		        'id_cliente' => $idcliente,
 		        'p_promedio' => $v->p_promedio
 		);

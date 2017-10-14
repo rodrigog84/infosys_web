@@ -18,9 +18,21 @@ Ext.define('Infosys_web.view.correlativos.Principal' ,{
         flex: 1,
         dataIndex: 'nombre'
     },{
-        header: "Correlativo",
+        header: "Correlativo Inicio",
         flex: 1,
         dataIndex: 'correlativo'
+    },{
+        header: "Correlativo Final",
+        flex: 1,
+        dataIndex: 'hasta'
+    },{
+        header: "Fecha Vencimiento",
+        flex: 1,
+        dataIndex: 'fecha_venc',
+        /*type: 'date',
+        renderer: Ext.util.Format.dateRenderer('d/m/Y'),
+        align: 'center'*/
+        
     }],
     
     initComponent: function() {

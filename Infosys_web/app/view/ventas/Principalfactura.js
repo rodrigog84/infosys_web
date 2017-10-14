@@ -21,6 +21,13 @@ Ext.define('Infosys_web.view.ventas.Principalfactura' ,{
         hidden: true
                
     },{
+        header: "Id Bodega",
+        flex: 1,
+        dataIndex: 'id_bodega',
+        align: 'right',
+        hidden: true
+               
+    },{
         header: "Tipo",
         flex: 1,
         dataIndex: 'id_tip_docu',

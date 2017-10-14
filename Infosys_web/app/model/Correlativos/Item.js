@@ -4,6 +4,8 @@ Ext.define('Infosys_web.model.Correlativos.Item', {
     fields: [
     	{name: 'id'},
     	{name: 'nombre'},
-    	{name: 'correlativo'}
+    	{name: 'correlativo'},
+    	{name: 'hasta'},
+    	{name: 'fecha_venc'},
     ]
 });
