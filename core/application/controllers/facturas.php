@@ -245,6 +245,10 @@ class Facturas extends CI_Controller {
         $opcion = $this->input->get('opcion');
         $nombres = $this->input->get('nombre');
         $tipo = $this->input->get('documento');
+        $bodega = $this->input->get('idbodega');
+        if (!$bodega){
+	       $bodega = 0;
+	    }
         if (!$tipo){
 	       $sql_tipo_documento = "";
 	    }else{
@@ -259,10 +263,8 @@ class Facturas extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join tipo_documento td on (acc.tipo_documento = td.id)
 			left join correlativos co on (acc.tipo_documento = co.id)
-			WHERE acc.estado="" AND ' . $sql_tipo_documento . ' 1 = 1'			
+			WHERE acc.id_bodega='.$bodega.' AND acc.estado="" AND ' . $sql_tipo_documento . ' 1 = 1'			
 			);
-
-
 			$total = 0;
 
 		  foreach ($query->result() as $row)
@@ -279,7 +281,7 @@ class Facturas extends CI_Controller {
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join tipo_documento td on (acc.tipo_documento = td.id)
-			WHERE acc.estado="" AND ' . $sql_tipo_documento . ' c.rut = "'.$nombres.'"');
+			WHERE acc.id_bodega='.$bodega.' AND acc.estado="" AND ' . $sql_tipo_documento . ' c.rut = "'.$nombres.'"');
 
 			$total = 0;
 
@@ -295,7 +297,7 @@ class Facturas extends CI_Controller {
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join tipo_documento td on (acc.tipo_documento = td.id)
-			WHERE acc.estado="" AND ' . $sql_tipo_documento . ' c.rut = "'.$nombres.'"
+			WHERE acc.id_bodega='.$bodega.' AND acc.estado="" AND ' . $sql_tipo_documento . ' c.rut = "'.$nombres.'"
 			order by acc.id desc
 			limit '.$start.', '.$limit.''		 
 		);
@@ -315,7 +317,7 @@ class Facturas extends CI_Controller {
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join tipo_documento td on (acc.tipo_documento = td.id)
-			WHERE acc.estado="" AND ' . $sql_tipo_documento . '  ' . $sql_nombre . ' 1 = 1'
+			WHERE acc.id_bodega='.$bodega.' AND acc.estado="" AND ' . $sql_tipo_documento . '  ' . $sql_nombre . ' 1 = 1'
 			);
 
 			$total = 0;
@@ -332,7 +334,7 @@ class Facturas extends CI_Controller {
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join tipo_documento td on (acc.tipo_documento = td.id)
-			WHERE acc.estado="" AND ' . $sql_tipo_documento . '  ' . $sql_nombre . ' 1 = 1
+			WHERE acc.id_bodega='.$bodega.' AND acc.estado="" AND ' . $sql_tipo_documento . '  ' . $sql_nombre . ' 1 = 1
 			order by acc.id desc
 			limit '.$start.', '.$limit.''		 
 						
@@ -359,7 +361,7 @@ class Facturas extends CI_Controller {
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join tipo_documento td on (acc.tipo_documento = td.id)
-			WHERE acc.estado="" AND ' . $sql_tipo_documento . ' acc.num_factura = "'.$nombres.'" ');
+			WHERE acc.id_bodega='.$bodega.' AND acc.estado="" AND ' . $sql_tipo_documento . ' acc.num_factura = "'.$nombres.'" ');
 
 			$total = 0;
 
@@ -375,7 +377,7 @@ class Facturas extends CI_Controller {
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join tipo_documento td on (acc.tipo_documento = td.id)
-			WHERE acc.estado="" AND ' . $sql_tipo_documento . ' acc.num_factura = "'.$nombres.'" order by acc.id desc
+			WHERE acc.id_bodega='.$bodega.' AND acc.estado="" AND ' . $sql_tipo_documento . ' acc.num_factura = "'.$nombres.'" order by acc.id desc
 			limit '.$start.', '.$limit.''		 
 		);
 
@@ -388,7 +390,7 @@ class Facturas extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join tipo_documento td on (acc.tipo_documento = td.id)
 			left join correlativos co on (acc.tipo_documento = co.id)
-			WHERE  acc.estado="" AND ' . $sql_tipo_documento . '  1 = 1 
+			WHERE acc.id_bodega='.$bodega.' AND  acc.estado="" AND ' . $sql_tipo_documento . '  1 = 1 
 			order by acc.id desc		
 			limit '.$start.', '.$limit.''
 			);
@@ -440,10 +442,14 @@ class Facturas extends CI_Controller {
         $limit = $this->input->get('limit');
         $opcion = $this->input->get('opcion');
         $nombres = $this->input->get('nombre');
+        $bodega = $this->input->get('idbodega');
         $tipo = 1;
         $tipo2 = 2;
         $tipo3 = 19;
         $estado = "";
+        if (!$bodega){
+	       $bodega = 1;
+	    }
 
         $countAll = $this->db->count_all_results("factura_clientes");
 		$data = array();
@@ -455,7 +461,7 @@ class Facturas extends CI_Controller {
 			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, c.id_pago as id_pago	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.','.$tipo3.') and c.rut = '.$nombres.'
+			WHERE acc.id_bodega='.$bodega.' AND acc.tipo_documento in ( '.$tipo.','.$tipo2.','.$tipo3.') and c.rut = '.$nombres.'
 			order by acc.id desc		
 			limit '.$start.', '.$limit.''		 
 

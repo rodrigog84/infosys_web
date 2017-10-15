@@ -211,6 +211,9 @@ Ext.define('Infosys_web.controller.Facturacion', {
             'facturasprincipal #tipoDocumentoId': {
                 select: this.buscarDoc
             },
+            'facturasprincipal #bodegaId': {
+                select: this.despliegadocumentos
+            },
              'facturasingresar #netoId': {
                 specialkey: this.calculaiva
             },
@@ -226,6 +229,20 @@ Ext.define('Infosys_web.controller.Facturacion', {
 
         });
     },
+
+    despliegadocumentos: function(){
+
+        var view = this.getFacturasprincipal();
+        var idbodega = view.down('#bodegaId');
+        var idtipo = 1;
+        var st = this.getFacturaStore();
+        st.proxy.extraParams = {documento: idtipo,
+                                idbodega: idbodega }
+        st.load();       
+    },
+
+
+
     
     grabarfacturaeditar: function() {
 
@@ -369,9 +386,11 @@ Ext.define('Infosys_web.controller.Facturacion', {
         var opcion = view.down('#tipoSeleccionId').getValue();
         var documento = view.down('#tipoDocumentoId').getValue();
         var nombre = view.down('#nombreId').getValue();
+        var idbodega = view.down('#bodegaId').getValue();
         st.proxy.extraParams = {nombre : nombre,
                                 opcion : opcion,
-                                documento: documento}
+                                documento: documento,
+                                idbodega: idbodega}
         st.load();
     },
 
@@ -1274,7 +1293,6 @@ Ext.define('Infosys_web.controller.Facturacion', {
     },
 
     buscarvendedor: function(){
-
         Ext.create('Infosys_web.view.vendedores.BuscarVendedor').show();
     },
 
@@ -1366,16 +1384,18 @@ Ext.define('Infosys_web.controller.Facturacion', {
         var view = this.getFacturasprincipal();
         var st = this.getFacturaStore()
         var tipo = view.down('#tipoDocumentoId').getValue();
-        var opcion = view.down('#tipoSeleccionId').getValue()
-        var nombre = view.down('#nombreId').getValue()
+        var opcion = view.down('#tipoSeleccionId').getValue();
+        var nombre = view.down('#nombreId').getValue();
+        var idbodega = view.down('#bodegaId').getValue();
         st.proxy.extraParams = {nombre : nombre,
                                 opcion : opcion,
-                                documento: tipo}
+                                documento: tipo,
+                                idbodega: idbodega}
         st.load();
     },
 
 
-resumenventas: function(){
+    resumenventas: function(){
 //
         var viewport = this.getPanelprincipal();
         viewport.removeAll();

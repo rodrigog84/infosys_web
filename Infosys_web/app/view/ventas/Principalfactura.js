@@ -225,7 +225,7 @@ Ext.define('Infosys_web.view.ventas.Principalfactura' ,{
                 valueField : 'id',
                 displayField : 'nombre',
                 emptyText : "Seleccione",
-                value: "1",
+                //value: "1",
                 store : 'Bodegas'
             }],
         },{
