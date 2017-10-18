@@ -90,6 +90,11 @@ Ext.define('Infosys_web.view.Pedidos.Principal' ,{
         flex: 1,
         dataIndex: 'id_bodega',
         hidden: true
+    },{
+        header: "Estado",
+        flex: 1,
+        dataIndex: 'estado',
+        hidden: true
     }],
     
     initComponent: function() {
@@ -160,14 +165,14 @@ Ext.define('Infosys_web.view.Pedidos.Principal' ,{
                 xtype: 'combo',
                 itemId: 'bodegaId',
                 labelWidth: 60,
-                width: 205,
+                width: 255,
                 fieldCls: 'required',
                 maxHeight: 25,
                 fieldLabel: '<b>BODEGA</b>',
                 forceSelection : true,
                 name : 'id_bodega',
                 valueField : 'id',
-                value: "1",
+                //value: "1",
                 displayField : 'nombre',
                 emptyText : "Seleccione",
                 store : 'Bodegas'

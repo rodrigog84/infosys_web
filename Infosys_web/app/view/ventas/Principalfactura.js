@@ -216,7 +216,7 @@ Ext.define('Infosys_web.view.ventas.Principalfactura' ,{
                 xtype: 'combo',
                 itemId: 'bodegaId',
                 labelWidth: 60,
-                width: 205,
+                width: 255,
                 fieldCls: 'required',
                 maxHeight: 25,
                 fieldLabel: '<b>BODEGA</b>',

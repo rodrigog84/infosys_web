@@ -81,14 +81,14 @@ Ext.define('Infosys_web.view.Pedidos.BuscarProductos2' ,{
             {
                 xtype: 'button',
                 iconCls: 'icon-search',
-                action: 'buscar',
+                action: 'buscar2',
                 text : 'Buscar'
             }
             ]      
         },{
             xtype: 'button',
             margin: 5,
-            action: 'seleccionarproductos',
+            action: 'seleccionarproductos2',
             dock: 'bottom',
             text : 'Seleccionar'
         },

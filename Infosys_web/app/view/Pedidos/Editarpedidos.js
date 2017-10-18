@@ -22,12 +22,10 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
     height: 640,
     width: 1300,
     layout: 'fit',
-    title: 'Editar Pedido',
+    title: 'Pedido',
 
     initComponent: function() {
         var me = this;
-        var stItms = Ext.getStore('Pedidos.Items');
-        stItms.removeAll();
         Ext.applyIf(me, {
             items: [
                 {
@@ -39,14 +37,14 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                 },
                 items: [{
                     xtype: 'container',
-                    height: 200,
+                    height: 170,
                     layout: {
                         type: 'vbox',
                         align: 'stretch'
                     },
                     items: [{
                         xtype: 'fieldcontainer',
-                        height: 37,
+                        height: 30,
                         labelWidth: 120,
                         width: 462,
                         fieldLabel: '',
@@ -54,17 +52,7 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                             type: 'hbox',
                             align: 'stretch'
                         },
-                        items: [{
-                                xtype: 'textfield',
-                                fieldCls: 'required',
-                                maxHeight: 25,
-                                width: 250,
-                                labelWidth: 150,
-                                name: 'id',
-                                itemId: 'idId',
-                                fieldLabel: '<b>id</b>',
-                                hidden: true
-                            },{
+                        items: [,{
                                 xtype: 'textfield',
                                 fieldCls: 'required',
                                 maxHeight: 25,
@@ -76,26 +64,13 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                                 readOnly: true
                             },{
                                 xtype: 'displayfield',
-                                width: 15
+                                width: 30
                                
                             },{
-                                xtype: 'combo',
-                                align: 'center',
-                                width: 450,
-                                maxHeight: 25,
-                                matchFieldWidth: false,
-                                listConfig: {
-                                    width: 350
-                                },
-                                itemId: 'tipoDocumentoId',
-                                fieldLabel: '<b>DOCUMENTO</b>',
-                                fieldCls: 'required',
-                                store: 'Tipo_documento.Selector',
-                                valueField: 'id',
-                                displayField: 'nombre'
-                            },{
                                 xtype: 'displayfield',
-                                width: 145
+                                fieldLabel: '<b>AGRICOLA Y COMERCIAL LIRCAY SPA.</b>',
+                                labelWidth: 500,
+                                width: 500
                                
                             },{
                                 xtype: 'datefield',
@@ -104,24 +79,23 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                                 labelWidth: 50,
                                 width: 170,
                                 fieldLabel: '<b>FECHA</b>',
-                                itemId: 'fechapedidoId',
-                                name: 'fecha_pedido',
+                                itemId: 'fechadocumId',
+                                name: 'fecha_docum',
                                 value: new Date()
                             },{
                                 xtype: 'displayfield',
-                                width: 10
+                                width: 15
                                
                             },{
-                                xtype      : 'timefield',
+                                xtype: 'datefield',
                                 fieldCls: 'required',
-                                increment  : 30,
-                                format     : 'H:i',
-                                value: Ext.Date.format(new Date(),'H:i'),
                                 maxHeight: 25,
-                                width: 200,
-                                itemId: 'horapedidoId',
-                                name : 'hora_pedido',
-                                fieldLabel: '<b>HORA PEDIDO</b>'
+                                labelWidth: 120,
+                                width: 290,
+                                fieldLabel: '<b>FECHA PEDIDO</b>',
+                                itemId: 'fechapedidoId',
+                                name: 'fecha_pedido',
+                                value: new Date()
                             }
                             ]
                         },{
@@ -135,8 +109,13 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                             },
                             items: [{
                                     xtype: 'textfield',
-                                    itemId: 'id_cliente',
+                                    itemId: 'idId',
                                     name : 'id',
+                                    hidden: true
+                                },{
+                                    xtype: 'textfield',
+                                    itemId: 'id_cliente',
+                                    name : 'id_cliente',
                                     hidden: true
                                 },{
                                     xtype: 'textfield',
@@ -152,12 +131,22 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                                     width: 10
                                    
                                 },{
+                                    xtype: 'button',
+                                    text: 'Buscar',
+                                    maxHeight: 25,
+                                    width: 80,                                                                        
+                                    action: 'validarut2',
+                                    itemId: 'buscarBtn'
+                                },{
+                                    xtype: 'displayfield',
+                                    width: 10                                   
+                                },{
                                     xtype: 'textfield',
                                     fieldCls: 'required',
                                     fieldLabel: '<b>RAZON SOCIAL</b>',
                                     maxHeight: 25,
                                     labelWidth: 125,
-                                    width: 735,
+                                    width: 725,
                                     itemId: 'nombre_id',
                                     name : 'nombre',
                                     readOnly: true                                    
@@ -202,29 +191,35 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                                 hidden: true
                             },{
                                 xtype: 'textfield',
+                                itemId: 'bodegaId',
+                                name : 'id_bodega',
+                                fieldLabel: 'Id Bodega',
+                                hidden: true
+                            },{
+                                xtype: 'textfield',
                                 fieldLabel: '<b>DIRECCION</b>',
                                 fieldCls: 'required',
                                 maxHeight: 25,
-                                width: 580,
+                                width: 550,
                                 itemId: 'direccionId',
                                 name : 'direccion',                                         
                                 readOnly: true,
-                                hidden: true
+                                //hidden: true
                             },{xtype: 'splitter'},{
                                 xtype: 'button',
                                 text: 'Sucursal',
                                 itemId: 'sucursalId',
                                 maxHeight: 25,
                                 width: 70,
-                                action: 'buscarsucursalfactura',
-                                hidden: true
+                                action: 'buscarsucursalfactura2',
+                                //hidden: true
                             },{
                                 xtype: 'displayfield',
-                                width: 10                                           
+                                width: 5                                        
                             },{
                                 xtype: 'combo',
                                 itemId: 'tipoVendedorId',
-                                width: 350,
+                                width: 330,
                                 fieldCls: 'required',
                                 maxHeight: 25,
                                 fieldLabel: '<b>VENDEDOR</b>',
@@ -236,124 +231,11 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                                 store : 'Vendedores'
                             },{
                                 xtype: 'displayfield',
-                                width: 10                                           
-                            },{
-                                xtype: 'textfield',
-                                fieldCls: 'required',
-                                maxHeight: 25,
-                                width: 100,
-                                name: 'id_lista',
-                                value: "NO",
-                                itemId: 'preciosId',
-                                fieldLabel: '<b>Lista Precios</b>',
-                                hidden: true
-                            },{
-                                xtype: 'combo',
-                                itemId: 'bodegaId',
-                                labelWidth: 60,
-                                width: 205,
-                                fieldCls: 'required',
-                                maxHeight: 25,
-                                fieldLabel: '<b>BODEGA</b>',
-                                forceSelection : true,
-                                name : 'id_bodega',
-                                valueField : 'id',
-                                displayField : 'nombre',
-                                emptyText : "Seleccione",
-                                store : 'Bodegas',
-                                readOnly: true
-                            },{
-                                xtype: 'displayfield',
-                                width: 10                                           
-                            },{
-                                xtype: 'datefield',
-                                fieldCls: 'required',
-                                maxHeight: 25,
-                                labelWidth: 150,
-                                width: 270,
-                                fieldLabel: '<b>FECHA ELABORACION</b>',
-                                itemId: 'fechaelaboraId',
-                                name: 'fecha_elaboracion',
-                                value: new Date()
-                            },{
-                                xtype: 'displayfield',
-                                width: 10                                           
-                            },{
-                                xtype: 'combo',                                
-                                labelWidth: 40,
-                                width: 160,
-                                maxHeight: 25,
-                                itemId: 'horaelaId',
-                                fieldLabel: 'Hora',
-                                forceSelection : true,
-                                valueField : 'id',
-                                displayField : 'nombre',
-                                emptyText : "Seleccione",
-                                store : 'Pedidos.Selector2'
-                            }
-                            ]
-                        },{
-                            xtype: 'fieldcontainer',
-                            height: 30,
-                            width: 462,
-                            fieldLabel: '',
-                            layout: {
-                                type: 'hbox',
-                                align: 'stretch'
-                            },
-                            items: [
-                            {
-                                xtype: 'combo',
-                                itemId: 'tipoPedidoId',
-                                width: 250,
-                                fieldCls: 'required',
-                                maxHeight: 25,
-                                fieldLabel: '<b>TIPO PEDIDO</b>',
-                                forceSelection : true,
-                                name : 'tipopedido',
-                                valueField : 'id',
-                                displayField : 'nombre',
-                                emptyText : "Seleccione",
-                                store : 'Pedidos.Selector'
-                            },{
-                                xtype: 'displayfield',
-                                flex: 1,
-                                maxWidth: 35,
-                                labelWidth: 50
-                            },{
-                                xtype: 'datefield',
-                                fieldCls: 'required',
-                                maxHeight: 25,
-                                labelWidth: 130,
-                                width: 240,
-                                fieldLabel: '<b>FECHA DESPACHO</b>',
-                                itemId: 'fechadespachoId',
-                                name: 'fecha_factura',
-                                value: new Date()
-                            },{
-                                xtype: 'displayfield',
-                                flex: 1,
-                                maxWidth: 25,
-                                labelWidth: 20
-                            },{
-                                xtype      : 'timefield',
-                                fieldCls: 'required',
-                                increment  : 30,
-                                format     : 'H:i',
-                                value: Ext.Date.format(new Date(),'H:i'),
-                                maxHeight: 25,
-                                labelWidth: 120,
-                                width: 200,
-                                itemId: 'horadespachoId',
-                                name : 'hora_despacho',
-                                fieldLabel: '<b>HORA DESPACHO</b>'
-                            },{
-                                xtype: 'displayfield',
-                                width: 15
+                                width: 5                                           
                             },{
                                 xtype: 'combo',
                                 itemId: 'tipocondpagoId',
-                                width: 330,
+                                width: 300,
                                 fieldCls: 'required',
                                 maxHeight: 25,
                                 fieldLabel: '<b>COND.PAGO</b>',
@@ -365,7 +247,7 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                                 store : 'Cond_pago'
                             }
                             ]
-                    },{
+                        },{
                     xtype: 'fieldset',
                     title: 'Items Documento',
                     fieldDefaults: {
@@ -408,7 +290,7 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                                 labelWidth: 60,
                                 itemId: 'productoId',
                                 fieldLabel: 'Producto',
-                                name: 'Productos',                                
+                                name: 'Productos',
                                 hidden: true
                             },
                             {xtype: 'splitter'},
@@ -470,6 +352,7 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                             store: 'Tabladescuento',
                             emptyText : "Seleccione",
                             valueField: 'id',
+                            //disabled : true,
                             displayField: 'nombre'
                             },
                             {xtype: 'splitter'},
@@ -487,7 +370,6 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                     }]
 
                      }
-
                             ]
                         },{
                             xtype: 'grid',
@@ -506,8 +388,9 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                                 action: 'editaritem2'
                             }
                             ],
-                            height: 210,
+                            height: 280,
                             columns: [
+                                { text: 'Id',  dataIndex: 'id', width: 250, hidden : true },
                                 { text: 'Id producto',  dataIndex: 'id_producto', width: 250, hidden : true },
                                 { text: 'Id descuento',  dataIndex: 'id_descuento', width: 250, hidden : true },
                                 { text: 'codigo',  dataIndex: 'codigo', width: 250, hidden : true },
@@ -515,8 +398,8 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                                 { text: 'Bodega',  dataIndex: 'id_bodega', width: 250, hidden:true},
                                 { text: 'Precio Unitario',  dataIndex: 'precio', align: 'right',flex:1, decimalPrecision:3},
                                 { text: 'Cantidad',  dataIndex: 'cantidad', align: 'right',width: 150, decimalPrecision:3},
-                                { text: 'Descuento',  dataIndex: 'descuento', align: 'right',width: 100, renderer: function(valor){return Ext.util.Format.number((valor),"0,000")} },
-                                { text: 'Neto',  dataIndex: 'neto', align: 'right',flex:1, decimalPrecision:3},
+                                { text: 'Descuento',  dataIndex: 'dcto', align: 'right',width: 100, renderer: function(valor){return Ext.util.Format.number((valor),"0,000")} },
+                                { text: 'Neto',  dataIndex: 'neto', align: 'right',flex:1,renderer: function(valor){return Ext.util.Format.number((valor),"0,000")} },
                                 { text: 'Iva',  dataIndex: 'iva', align: 'right',flex:1,renderer: function(valor){return Ext.util.Format.number((valor),"0,000")} },
                                 { text: 'Total',  dataIndex: 'total', align: 'right',flex:1, renderer: function(valor){return Ext.util.Format.number((valor),"0,000")} }
                                 ]
@@ -629,7 +512,7 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                             xtype: 'button',
                             //iconCls: 'icono',
                             scale: 'large',
-                            action: 'observaciones',
+                            action: 'observaciones2',
                             text: 'OBSERVACIONES'
                         },{
                             xtype: 'button',
