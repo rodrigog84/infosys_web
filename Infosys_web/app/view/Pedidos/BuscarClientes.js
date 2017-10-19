@@ -103,6 +103,11 @@ Ext.define('Infosys_web.view.Pedidos.BuscarClientes' ,{
         flex: 1,
         dataIndex: 'imp_adicional',
         hidden: true
+    },{
+        header: "Estado",
+        flex: 1,
+        dataIndex: 'estado',
+        hidden: true
     }],
         };
         this.dockedItems = [{

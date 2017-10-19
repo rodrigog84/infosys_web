@@ -1653,6 +1653,16 @@ Ext.define('Infosys_web.controller.Pedidos', {
         var grid  = view.down('grid');
         if (grid.getSelectionModel().hasSelection()) {
             var row = grid.getSelectionModel().getSelection()[0];
+            var estado = (row.data.estado);
+            if (estado == 3) {
+                Ext.Msg.alert('Cliente Bloqueado');
+                view.close();
+                return;                  
+            }else if (estado == 4){
+                 Ext.Msg.alert('Cliente protestos Vigentes');
+                 view.close();
+            return;
+            }else {
             viewIngresa.down('#id_cliente').setValue(row.data.id);
             viewIngresa.down('#nombre_id').setValue(row.data.nombres);
             viewIngresa.down('#tipoVendedorId').setValue(row.data.id_vendedor);
@@ -1681,7 +1691,9 @@ Ext.define('Infosys_web.controller.Pedidos', {
                  view.down('#tipoDescuentoId').setDisabled(bolEnable);
                  view.down('#descuentovalorId').setDisabled(bolEnable);
                 
-            };          
+            };    
+            
+            };      
             
 
            
@@ -1726,6 +1738,16 @@ Ext.define('Infosys_web.controller.Pedidos', {
                     
                     if(resp.cliente){
                         var cliente = resp.cliente;
+                        if (cliente.estado=="3"){
+                            view.down("#rutId").setValue(cero);
+                            Ext.Msg.alert('Cliente Bloqueado');
+                            return;
+                        };
+                        if (cliente.estado=="4"){
+                            view.down("#rutId").setValue(cero);
+                            Ext.Msg.alert('Cliente Protestos Vigentes');
+                            return;                            
+                        };
                         view.down("#id_cliente").setValue(cliente.id)
                         view.down("#nombre_id").setValue(cliente.nombres)                        
                         view.down("#rutId").setValue(rut)
