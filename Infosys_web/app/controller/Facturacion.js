@@ -1005,9 +1005,10 @@ Ext.define('Infosys_web.controller.Facturacion', {
     grabarfactura: function() {
 
         var viewIngresa = this.getFacturasingresar();
+        var view = this.getFacturasprincipal();
         var tipo_documento = viewIngresa.down('#tipoDocumentoId');
         var idcliente = viewIngresa.down('#id_cliente').getValue();
-        var idbodega = viewIngresa.down('#bodegaId').getValue();
+        var idbodega = view.down('#bodegaId').getValue();
         var idtipo= viewIngresa.down('#tipoDocumentoId').getValue();
         var idsucursal= viewIngresa.down('#id_sucursalID').getValue();
         var idcondventa= viewIngresa.down('#tipocondpagoId').getValue();

@@ -349,7 +349,7 @@ class Facturas extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join tipo_documento td on (acc.tipo_documento = td.id)
 			left join correlativos co on (acc.tipo_documento = co.id)
-			WHERE acc.estado="" AND ' . $sql_tipo_documento . ' 1 = 1
+			WHERE acc.id_bodega='.$bodega.' AND acc.estado="" AND ' . $sql_tipo_documento . ' 1 = 1
 			order by acc.id desc
 			limit '.$start.', '.$limit.''	
 			
@@ -385,7 +385,7 @@ class Facturas extends CI_Controller {
 
 			
 		$data = array();
-		$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, co.nombre as nombre_docu, v.nombre as nom_vendedor, acc.tipo_documento as id_tip_docu, td.descripcion as tipo_doc	FROM factura_clientes acc
+		$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, td.descripcion as tipo_doc,  acc.tipo_documento as id_tip_docu FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join tipo_documento td on (acc.tipo_documento = td.id)
@@ -3354,7 +3354,7 @@ class Facturas extends CI_Controller {
         header("Content-Transfer-Encoding: binary");
         header("Content-disposition: attachment; filename=facturacion.txt");*/
 
-        $file_content = "";         
+            
         $data = array();
         $query = $this->db->query('SELECT acc.*, c.direccion as direccion, e.nombre as giro, c.nombres as nombre_cliente, c.rut as rut_cliente, m.nombre as nombre_comuna, s.nombre as nombre_ciudad, v.nombre as nom_vendedor, ob.nombre as nom_observ, ob.rut as rut_obs, c.fono, cp.nombre as cond_pago, cp.codigo as codigo_con_pago, cs.direccion as direc_sucursal, sa.nombre as ciu_sucursal, cor.nombre as nomdocumento, ma.nombre as com_sucursal, v.cod_interno as cod_interno FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
@@ -3380,6 +3380,7 @@ class Facturas extends CI_Controller {
             $nomdocumento = $v->nomdocumento;
             $fechafactura = $v->fecha_factura;
             $fechavenc = $v->fecha_venc;
+            $bodega = $v->id_bodega;
             
             $fecha = $v->fecha_factura;
 			list($anio, $mes, $dia) = explode("-",$fecha);
@@ -3522,6 +3523,7 @@ class Facturas extends CI_Controller {
 		    	$rutcliente=("000000".$rutcliente);
 		    	
 		    };
+		    $file_content = "";    
 		    $file_content .= $nomclienteinicio;  //razon social
             $file_content .= ";";
             $file_content .= $condventa.$this->crearespacios($espacios25 - strlen( $condventa));  //Nombre condicion Pago
