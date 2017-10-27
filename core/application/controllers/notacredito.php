@@ -45,6 +45,7 @@ class Notacredito extends CI_Controller {
             $nomdocumento = $v->nomdocumento;
             $fechafactura = $v->fecha_factura;
             $fechavenc = $v->fecha_venc;
+            $idbodega = $v->id_bodega;
             
             $fecha = $v->fecha_factura;
                   list($anio, $mes, $dia) = explode("-",$fecha);
@@ -187,7 +188,7 @@ class Notacredito extends CI_Controller {
                   $rutcliente=("000000".$rutcliente);
                   
                 };
-                $file_content .= $nomclienteinicio;  //razon social
+            $file_content .= $idbodega.$this->crearespacios($espacios21 - strlen( $idbodega)); //razon social
             $file_content .= ";";
             $file_content .= $condventa.$this->crearespacios($espacios25 - strlen( $condventa));  //Nombre condicion Pago
             $file_content .= ";";
@@ -450,7 +451,8 @@ class Notacredito extends CI_Controller {
 		$numfactura = $this->input->post('docurelacionado');
 		$numdocuemnto = $this->input->post('numdocumento');
 		$idfactura = $this->input->post('idfactura');
-		$fechafactura = $this->input->post('fechafactura');
+            $idbodega = $this->input->post('idbodega');
+            $fechafactura = $this->input->post('fechafactura');
 		$fechavenc = $this->input->post('fechavenc');
 		$vendedor = $this->input->post('idvendedor');
 		$datacliente = json_decode($this->input->post('datacliente'));
@@ -473,6 +475,7 @@ class Notacredito extends CI_Controller {
 		$factura_cliente = array(
 		  'tipo_documento' => $tipodocumento,
 	        'id_cliente' => $idcliente,
+              'id_bodega' => $idbodega,
 	        'num_factura' => $numdocuemnto,
 	        'id_vendedor' => $vendedor,
 	        'sub_total' => $neto,
@@ -481,7 +484,8 @@ class Notacredito extends CI_Controller {
 	        'totalfactura' => $ftotal,
 	        'fecha_factura' => $fechafactura,
 	        'id_factura' => $numfactura,
-	        'fecha_venc' => $fechavenc
+	        'fecha_venc' => $fechavenc,
+              'forma' => 1
 	          
 		);
 
@@ -771,12 +775,12 @@ class Notacredito extends CI_Controller {
 
 
 		$idcliente = $this->input->post('idcliente');
+            $idbodega = $this->input->post('idbodega');
 		$numfactura = $this->input->post('numfactura_asoc');
 		$numdocuemnto = $this->input->post('numdocumento');
 		$idfactura = $this->input->post('idfactura');
             $idsucursal = $this->input->post('idsucursal');
-            $idbodega = $this->input->post('id_bodega');
-		$fechafactura = $this->input->post('fechafactura');
+            $fechafactura = $this->input->post('fechafactura');
 		$fechavenc = $this->input->post('fechavenc');
 		$vendedor = $this->input->post('idvendedor');
             $condpago = $this->input->post('idcondventa');

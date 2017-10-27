@@ -977,11 +977,11 @@ Ext.define('Infosys_web.controller.Facturacion', {
         var view = this.getFacturasprincipal();
         if (view.getSelectionModel().hasSelection()) {
             var row = view.getSelectionModel().getSelection()[0];
-            if (row.data.forma==0 && row.data.tipo_doc ==1){
-            window.open(preurl +'facturas/exportTXT/?idfactura=' + row.data.id)
-            };
+            console.log("Llegamos")
+            console.log(row.data.forma)
+            console.log(row.data.id_tip_docu)
             if (row.data.forma==0 && row.data.id_tip_docu ==1){
-            window.open(preurl +'facturas/exportTXT/?idfactura=' + row.data.id)
+                window.open(preurl +'facturas/exportTXT/?idfactura=' + row.data.id)
             };
             if (row.data.forma==0 && row.data.id_tip_docu ==3){
             window.open(preurl +'facturas/exportTXTGD/?idfactura=' + row.data.id)
@@ -992,7 +992,10 @@ Ext.define('Infosys_web.controller.Facturacion', {
             if (row.data.forma==1 && row.data.id_tip_docu ==1){
             window.open(preurl +'facturas/exportTXTGLO/?idfactura=' + row.data.id)
             };
-            if (row.data.forma==2){
+            if (row.data.forma==2 && row.data.id_tip_docu ==1){
+            window.open(preurl +'facturas/exportTXTlote/?idfactura=' + row.data.id)
+            };
+            if (row.data.forma==3){
             window.open(preurl +'facturaganado/exportfacturaganadoPDF/?idfactura=' + row.data.id)
             };
         }else{

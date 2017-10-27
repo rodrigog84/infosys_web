@@ -216,11 +216,12 @@ Ext.define('Infosys_web.controller.Notacredito', {
     grabarnotacredito2: function() {
 
         var viewIngresa = this.getNotacreditoglosa();
+        var view = this.getNotacreditoprincipal();
+        var idbodega = view.down('#bodegaId').getValue();
         var tipo_documento = viewIngresa.down('#tipodocumentoId').getValue();
         var idcliente = viewIngresa.down('#id_cliente').getValue();
         var idtipo= viewIngresa.down('#tipodocumentoId').getValue();
         var idsucursal= viewIngresa.down('#id_sucursalID').getValue();
-        var sucursal= viewIngresa.down('#bodegaId').getValue();
         var idcondventa= viewIngresa.down('#tipocondpagoId').getValue();
         var idfactura = viewIngresa.down('#numfacturaId').getValue();
         var vendedor = viewIngresa.down('#tipoVendedorId').getValue();
@@ -255,7 +256,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
                 numdocumento: numdocumento,
                 docurelacionado: docurelacionado,
                 idsucursal: idsucursal,
-                id_bodega: sucursal,
+                idbodega: idbodega,
                 idcondventa: idcondventa,
                 idtipo: idtipo,
                 items: Ext.JSON.encode(dataItems),
@@ -275,7 +276,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
                  viewIngresa.close();
                  stnotacredito.load();
                  //window.open(preurl + 'notadebito/exportnotadebitoPDF/?idfactura='+idfactura);
-                 window.open(preurl + 'facturas/exportTXT/?idfactura='+idfactura);
+                 window.open(preurl + 'facturas/exportTXTNCGLO/?idfactura='+idfactura);
             }
            
         });      
@@ -310,21 +311,23 @@ Ext.define('Infosys_web.controller.Notacredito', {
         if(!glosa){  // se validan los datos sólo si es factura
             Ext.Msg.alert('Alerta', 'Debe Ingresar Glosa.');
             return false;
+        };
+
+        if(glosa.length > 50){
+            Ext.Msg.alert('Alerta', 'GLOSA SOBREPASA CANTIDAD DE CARACTERES POR LINEA');
+            return false;            
+        };
+        
+        if(!neto ){  // se validan los datos sólo si es factura
+           var neto=0;
         }; 
         
-        if(neto==0 ){  // se validan los datos sólo si es factura
-            Ext.Msg.alert('Alerta', 'Debe Ingresar Valores.');
-            return false;
-        }; 
-        
-        if(iva==0 ){  // se validan los datos sólo si es factura
-            Ext.Msg.alert('Alerta', 'Debe Ingresar Valores.');
-            return false;
+        if(!iva ){  // se validan los datos sólo si es factura
+            var iva=0;
         }; 
 
-        if(total==0 ){  // se validan los datos sólo si es factura
-            Ext.Msg.alert('Alerta', 'Debe Ingresar Valores.');
-            return false;
+        if(!total ){  // se validan los datos sólo si es factura
+            var total=0;
         };        
         
                    
@@ -1125,10 +1128,10 @@ Ext.define('Infosys_web.controller.Notacredito', {
             window.open(preurl +'facturas/exportTXTNC/?idfactura=' + row.data.id)
             };
             if (row.data.forma==1){
-            window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id)
+            window.open(preurl +'facturas/exportTXTNCGLO/?idfactura=' + row.data.id)
             };
             if (row.data.forma==2){
-            window.open(preurl +'facturaganado/exportfacturaganadoPDF/?idfactura=' + row.data.id)
+            window.open(preurl +'facturaganado/exportTXTNCGANADO/?idfactura=' + row.data.id)
             };
         }else{
             Ext.Msg.alert('Alerta', 'Selecciona un registro.');
@@ -1140,8 +1143,10 @@ Ext.define('Infosys_web.controller.Notacredito', {
     grabarnotacredito: function() {
 
         var viewIngresa = this.getNotacreditoingresar();
+        var view = this.getNotacreditoprincipal();
         var tipo_documento = viewIngresa.down('#tipodocumentoId').getValue();
         var idcliente = viewIngresa.down('#id_cliente').getValue();
+        var idbodega = view.down('#bodegaId').getValue();
         var idtipo= viewIngresa.down('#tipodocumentoId').getValue();
         var idsucursal= viewIngresa.down('#id_sucursalID').getValue();
         var idcondventa= viewIngresa.down('#tipocondpagoId').getValue();
@@ -1182,6 +1187,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
                 idcliente: idcliente,
                 idfactura: idfactura,
                 idsucursal: idsucursal,
+                idbodega: idbodega,
                 numdocumento: numdocumento,
                 idsucursal: idsucursal,
                 idcondventa: idcondventa,
