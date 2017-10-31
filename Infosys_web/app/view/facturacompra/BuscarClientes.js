@@ -1,6 +1,6 @@
-Ext.define('Infosys_web.view.facturaganado.BuscarClientes' ,{
+Ext.define('Infosys_web.view.facturacompra.BuscarClientes' ,{
     extend: 'Ext.window.Window',
-    alias : 'widget.facturaganadoclientes',
+    alias : 'widget.facturacompraclientes',
     
     requires: ['Ext.toolbar.Paging'],
     title : 'Busqueda Clientes',

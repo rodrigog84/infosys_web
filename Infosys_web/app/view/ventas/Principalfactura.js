@@ -149,8 +149,8 @@ Ext.define('Infosys_web.view.ventas.Principalfactura' ,{
             },{
                 xtype: 'button',
                 iconCls : 'icon-add',
-                text: 'Edita Factura',
-                action:'editafactura'
+                text: 'Factura Compra',
+                action:'mfacturacompra'
             },{
                 xtype: 'button',
                 iconCls : 'icon-pdf',

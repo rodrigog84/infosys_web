@@ -897,7 +897,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
         var grid  = view.down('grid');
         if (grid.getSelectionModel().hasSelection()) {
             var row = grid.getSelectionModel().getSelection()[0];
-             var estado = (row.data.estado);
+            var estado = (row.data.estado);
             if (estado == 3) {
                 Ext.Msg.alert('Cliente Bloqueado');
                 view.close();

@@ -1,4 +1,3 @@
-
 Ext.define('Infosys_web.model.Factura', {
     extend: 'Ext.data.Model',
     fields: [

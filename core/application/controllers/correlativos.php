@@ -192,6 +192,47 @@ class Correlativos extends CI_Controller {
 
 	}
 
+	public function generafactcomp(){
+
+		$resp = array();
+		$factura = $this->input->get('valida');
+		$tipo = 4;
+		$fecha = date('Y-m-d');
+		$query = $this->db->query('SELECT * FROM correlativos WHERE id ="'.$factura.'"');
+
+		if($query->num_rows()>0){
+	   		$row = $query->first_row();
+	   		$desde = $row->correlativo;
+	   		$hasta = $row->hasta;
+	   		if ($desde+1==$hasta){
+	   			$resp['fecha'] = "NO";
+		   	    echo json_encode($resp);
+		        return false;	   			
+	   		}else{
+	   			if($row->fecha_venc<=$fecha){
+	   				$resp['fecha'] = "SI";
+			    	echo json_encode($resp);
+	   		}else{
+	   			$resp['cliente'] = $row;
+			    $resp['success'] = true;
+			    echo json_encode($resp);	
+			}
+
+	   		}
+
+	   		   			
+	   }else{
+
+	   			$resp['success'] = false;
+		   	    echo json_encode($resp);
+		        return false;
+	   	    
+	   }
+	   
+	   		
+
+	}
+
 	public function generafact(){
 
 		$resp = array();

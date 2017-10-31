@@ -592,6 +592,16 @@ Ext.define('Infosys_web.controller.Facturaganado', {
         var grid  = view.down('grid');
         if (grid.getSelectionModel().hasSelection()) {
             var row = grid.getSelectionModel().getSelection()[0];
+             var estado = (row.data.estado);
+            if (estado == 3) {
+                Ext.Msg.alert('Cliente Bloqueado');
+                view.close();
+                return;                  
+            }else if (estado == 4){
+                 Ext.Msg.alert('Cliente protestos Vigentes');
+                 view.close();
+            return;
+            }else {
             viewIngresa.down('#id_cliente').setValue(row.data.id);
             viewIngresa.down('#nombre_id').setValue(row.data.nombres);
             viewIngresa.down('#tipoCiudadId').setValue(row.data.nombre_ciudad);
@@ -623,6 +633,8 @@ Ext.define('Infosys_web.controller.Facturaganado', {
             }
            
         });
+
+        };
             
         }else{
             Ext.Msg.alert('Alerta', 'Selecciona un registro.');
@@ -760,6 +772,13 @@ Ext.define('Infosys_web.controller.Facturaganado', {
 
     mfacturaganado: function(){
 
+        var viewIngresa = this.getFacturasprincipal();
+         var idbodega = viewIngresa.down('#bodegaId').getValue();
+         if(!idbodega){
+            Ext.Msg.alert('Alerta', 'Debe Elegir Bodega');
+            return;    
+         }else{
+
         var nombre = 1;    
         Ext.Ajax.request({
 
@@ -790,6 +809,7 @@ Ext.define('Infosys_web.controller.Facturaganado', {
 
             }            
         });
+    };
     },
 
     buscarvendedor: function(){

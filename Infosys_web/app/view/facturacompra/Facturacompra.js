@@ -1,6 +1,6 @@
-Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
+Ext.define('Infosys_web.view.facturacompra.Facturacompra', {
     extend: 'Ext.window.Window',
-    alias : 'widget.facturaganado',
+    alias : 'widget.facturacompra',
 
     requires: [
         'Ext.form.FieldContainer',
@@ -26,7 +26,7 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
 
     initComponent: function() {
         var me = this;
-        var stItms = Ext.getStore('facturaganado.Items');
+        var stItms = Ext.getStore('facturacompra.Items');
         stItms.removeAll();
         Ext.applyIf(me, {
             items: [
@@ -70,20 +70,21 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                                             fieldCls: 'required',
                                             store: 'Tipo_documento.Selector4',
                                             valueField: 'id',
-                                            displayField: 'nombre'
+                                            displayField: 'nombre',
+                                            readOnly: true
                                         },{
                                             xtype: 'displayfield',
                                             width: 40                                          
                                         },{
                                             xtype: 'numberfield',
-                                            name: 'idfactura',
-                                            itemId: 'idfactura',
+                                            name: 'id_bodega',
+                                            itemId: 'bodegaId',
                                             hidden: true
                                           
                                         },{
                                             xtype: 'numberfield',
-                                            name: 'id_bodega',
-                                            itemId: 'bodegaId',
+                                            name: 'idfactura',
+                                            itemId: 'idfactura',
                                             hidden: true
                                           
                                         },{
@@ -217,7 +218,7 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                                             maxHeight: 25,
                                             width: 70,
                                             allowBlank: true,
-                                            action: 'buscarsucursalfacturaganado'
+                                            action: 'buscarsucursalfacturacompra'
                                             //,disabled : true  
                                         },{xtype: 'splitter'},{
                                             xtype: 'textfield',
@@ -400,7 +401,8 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                                 labelWidth: 40,
                                 fieldLabel: 'Kilos',
                                 itemId: 'kilosId',
-                                style: 'font-weight: bold;'
+                                style: 'font-weight: bold;',
+                                hidden: true
                             },
                             {xtype: 'splitter'},
                             {
@@ -409,15 +411,6 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                                 labelWidth: 40,
                                 fieldLabel: 'Precio',
                                 itemId: 'precioId',
-                                style: 'font-weight: bold;'
-                            },
-                            {xtype: 'splitter'},
-                            {
-                                xtype: 'numberfield',
-                                width: 155,
-                                labelWidth: 30,
-                                fieldLabel: 'Neto',
-                                itemId: 'netoId',
                                 style: 'font-weight: bold;'
                             },
                             {xtype: 'splitter'},
@@ -442,7 +435,7 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                             itemId: 'itemsgridId',
                             title: 'Detalle',
                             labelWidth: 50,
-                            store: 'facturaganado.Items',
+                            store: 'facturacompra.Items',
                             tbar: [{
                                 iconCls: 'icon-delete',
                                 text: 'Eliminar',
@@ -456,7 +449,6 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                                 { text: 'codigo',  dataIndex: 'codigo', width: 250, hidden : true },
                                 { text: 'Producto',  dataIndex: 'nombre', width: 250 },
                                 { text: 'Cantidad',  dataIndex: 'cantidad', align: 'right',width: 150},
-                                { text: 'Kilos',  dataIndex: 'kilos', align: 'right',flex:1, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} },
                                 { text: 'Precio',  dataIndex: 'precio', align: 'right',width: 150},
                                 { text: 'Neto',  dataIndex: 'neto', align: 'right',flex:1,renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} },
                                 { text: 'Iva',  dataIndex: 'iva', align: 'right',flex:1,renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")},hidden : true },
@@ -498,9 +490,20 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                             width: 200,
                             fieldCls: 'required',
                             name : 'iva',
-                            itemId: 'finaltotalivaId',
+                            itemId: 'finaltotaliva11Id',
                             readOnly: true,
-                            fieldLabel: '<b>IVA</b>',
+                            fieldLabel: '<b>IVA 11%</b>',
+                            labelAlign: 'top'
+                            //renderer: function(valor){return Ext.util.Format.number(parseInt(iva),"0.000")} 
+                        },{xtype: 'splitter'},
+                        {
+                            xtype: 'numberfield',
+                            width: 200,
+                            fieldCls: 'required',
+                            name : 'iva',
+                            itemId: 'finaltotaliva08Id',
+                            readOnly: true,
+                            fieldLabel: '<b>IVA 8%</b>',
                             labelAlign: 'top'
                             //renderer: function(valor){return Ext.util.Format.number(parseInt(iva),"0.000")} 
                         },{xtype: 'splitter'},{
@@ -538,7 +541,7 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                             xtype: 'button',
                             iconCls: 'icon-save',
                             scale: 'large',
-                            action: 'grabarfacturaganado',
+                            action: 'grabarfacturacompra',
                             text: 'Grabar / Emitir'
                         }
                     ]
