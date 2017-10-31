@@ -647,6 +647,8 @@ Ext.define('Infosys_web.controller.Facturaganado', {
     grabarfacturaganado : function() {
 
         var viewIngresa = this.getFacturaganado();
+        var view = this.getFacturasprincipal();
+        var idbodega = view.down('#bodegaId').getValue();
         var tipo_documento = viewIngresa.down('#tipoDocumentoId').getValue();
         var idcliente = viewIngresa.down('#id_cliente').getValue();
         var idtipo= viewIngresa.down('#tipoDocumentoId').getValue();
@@ -676,6 +678,7 @@ Ext.define('Infosys_web.controller.Facturaganado', {
                 idcliente: idcliente,
                 numdocumento: numdocumento,
                 idsucursal: idsucursal,
+                idbodega: idbodega,
                 idcondventa: idcondventa,
                 idtipo: idtipo,
                 ordencompra: ordencompra,
@@ -701,7 +704,8 @@ Ext.define('Infosys_web.controller.Facturaganado', {
         
         var view = this.getFacturaganado();
         var st = this.getFacturaStore();
-        st.proxy.extraParams = {documento: idtipo}
+        st.proxy.extraParams = {documento: idtipo,
+                                idbodega: idbodega}
         st.load();       
         
     },

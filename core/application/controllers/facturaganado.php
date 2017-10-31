@@ -501,13 +501,14 @@ class Facturaganado extends CI_Controller {
 		$idcliente = $this->input->post('idcliente');
 		$numdocuemnto = $this->input->post('numdocumento');
 		$fechafactura = $this->input->post('fechafactura');
-		$fechavenc = $this->input->post('fechavenc');
+		$fechavenc = $this->input->post('fechavenc');            
+            $idbodega = $this->input->post('idbodega');
 		$vendedor = $this->input->post('idvendedor');
 		$datacliente = json_decode($this->input->post('datacliente'));
 		$items = json_decode($this->input->post('items'));
 		$neto = $this->input->post('netofactura');
 		$fiva = $this->input->post('ivafactura');
-        $fafecto = $this->input->post('afectofactura');
+            $fafecto = $this->input->post('afectofactura');
 		$ftotal = $this->input->post('totalfacturas');
 		$tipodocumento = $this->input->post('tipodocumento');
 
@@ -535,21 +536,14 @@ class Facturaganado extends CI_Controller {
 	        'totalfactura' => $ftotal,
 	        'fecha_factura' => $fechafactura,
 	        'fecha_venc' => $fechavenc,
-	        'forma' => 2	          
+	        'forma' => 3	          
 		);
 
 		$this->db->insert('factura_clientes', $factura_cliente); 
 		$idfactura = $this->db->insert_id();
 
 		foreach($items as $v){
-
-			if ($tipodocumento == 19){			
-				$v->iva = 0;
-				$v->total = $v->neto;
-			};
-
 			$producto = $v->id_producto;
-
 			$factura_clientes_item = array(
 		        'id_factura' => $idfactura,
 		        'id_producto' => $v->id_producto,
@@ -565,77 +559,55 @@ class Facturaganado extends CI_Controller {
 
 		$query = $this->db->query('SELECT * FROM productos WHERE id="'.$producto.'"');
 		 if($query->num_rows()>0){
-
 		 	$row = $query->first_row();
-
-		 	$saldo = ($row->stock);		 	
-
+		 	$saldo = ($row->stock);
 		 };
 
-		 $query = $this->db->query('SELECT * FROM existencia WHERE id_producto="'.$producto.'"');
-    	 $row = $query->result();
-			if ($query->num_rows()>0){
+		 $query = $this->db->query('SELECT * FROM existencia WHERE id_producto='.$producto.' and id_bodega='.$idbodega.'');
+    	       $row = $query->result();
+		 if ($query->num_rows()>0){
+                  $row = $row[0];	 
+		      if ($producto==($row->id_producto) and $idbodega==($row->id_bodega)){
+                        $datos3 = array(
+                        'stock' => $saldo,
+                        'fecha_ultimo_movimiento' => $fechafactura
+                        );
+				$this->db->where('id_producto', $producto);
+		    	      $this->db->update('existencia', $datos3);
+	    	      }else{
 
-				$row = $row[0];
-	 
-		        if ($producto==($row->id_producto)){
-				    $datos3 = array(
-					'stock' => $saldo,
-			        'fecha_ultimo_movimiento' => $fechafactura
-					);
-
-					$this->db->where('id_producto', $producto);
-
-		    	    $this->db->update('existencia', $datos3);
-	    	    }else{
-
+                  $datos3 = array(
+                    'id_producto' => $producto,
+                    'stock' =>  $saldo,
+                    'fecha_ultimo_movimiento' =>$fechafactura,
+                    'id_bodega' => $idbodega                      
+                  );
+                  $this->db->insert('existencia', $datos3);
+	    	 	}
+		}else{
 	    	    	$datos3 = array(
-					'id_producto' => $producto,
-			        'stock' =>  $saldo,
-			        'fecha_ultimo_movimiento' =>$fechafactura
-				
-					);
-					$this->db->insert('existencia', $datos3);
-		    	 	}
-				}else{
-					if ($producto==($row->id_producto)){
-					    $datos3 = array(
-						'stock' => $saldo,
-				        'fecha_ultimo_movimiento' => $fechafactura
-						);
+                  'id_producto' => $producto,
+                  'stock' =>  $saldo,
+                  'fecha_ultimo_movimiento' =>$fechafactura,
+                  'id_bodega' => $idbodega                
+                  );
+                  $this->db->insert('existencia', $datos3);
+            };
+            $datos2 = array(
+                  'num_movimiento' => $numfactura,
+              'id_producto' => $v->id_producto,
+              'id_tipo_movimiento' => $tipodocumento,
+              'valor_producto' =>  $v->precio,
+              'cantidad_salida' => $v->cantidad,
+              'fecha_movimiento' => $fechafactura,
+              'id_bodega' => $idbodega,
+              'id_cliente' => $idcliente,
+              'p_promedio' => $v->precio
+            );
+            $this->db->insert('existencia_detalle', $datos2);
 
-						$this->db->where('id_producto', $producto);
-
-			    	    $this->db->update('existencia', $datos3);
-		    	    }else{
-
-		    	    	$datos3 = array(
-						'id_producto' => $producto,
-				        'stock' =>  $saldo,
-				        'fecha_ultimo_movimiento' =>$fechafactura
-					
-						);
-						$this->db->insert('existencia', $datos3);
-			    	}
-		}
-
-		$datos2 = array(
-			'num_movimiento' => $numdocuemnto,
-	        'id_producto' => $v->id_producto,
-	        'id_tipo_movimiento' => $tipodocumento,
-	        'valor_producto' =>  $v->precio,
-	        'cantidad_salida' => $v->cantidad,
-	        'fecha_movimiento' => $fechafactura
-		);
-
-		$this->db->insert('existencia_detalle', $datos2);
-
-		   	
-		}
-
-
-
-		
+		};
+            
 		/******* CUENTAS CORRIENTES ****/
 
 		 $query = $this->db->query("SELECT cc.id as idcuentacontable FROM cuenta_contable cc WHERE cc.nombre = 'FACTURAS POR COBRAR'");
@@ -696,7 +668,7 @@ class Facturaganado extends CI_Controller {
 		/*****************************************/
 
 
-        $resp['success'] = true;
+            $resp['success'] = true;
 		$resp['idfactura'] = $idfactura;
 
 		$this->Bitacora->logger("I", 'factura_clientes', $idfactura);
@@ -704,8 +676,6 @@ class Facturaganado extends CI_Controller {
 
         echo json_encode($resp);
 	}
-
-
 	
 	public function getAllnc(){
 		

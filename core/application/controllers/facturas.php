@@ -948,8 +948,6 @@ class Facturas extends CI_Controller {
 		      $row->rut_cliente = ($ruta2."-".$ruta1);
 		     
 		    };
-
-
 		 
 			$data[] = $row;
 		}
@@ -971,6 +969,7 @@ class Facturas extends CI_Controller {
 		$numfactura = $this->input->post('numfactura');
 		$idfactura = $this->input->post('idfactura');
 		$idbodega = $this->input->post('idbodega');
+		$documentoref = $this->input->post('documento');
 		$fechafactura = $this->input->post('fechafactura');
 		$fechavenc = $this->input->post('fechavenc');
 		$vendedor = $this->input->post('vendedor');
@@ -1012,7 +1011,8 @@ class Facturas extends CI_Controller {
 	        'fecha_factura' => $fechafactura,
 	        'fecha_venc' => $fechavenc,
 	        'orden_compra' => $ordencompra,
-	        'forma' => 4
+	        'forma' => 4,
+	        'documref' => $documentoref
 	          
 		);
 
@@ -1048,14 +1048,13 @@ class Facturas extends CI_Controller {
     	 $row = $query->result();
 			if ($query->num_rows()>0){
 				$row = $row[0];	 
-		        if ($producto==($row->id_producto)){
+		        if ($producto==($row->id_producto) and $idbodega==($row->id_bodega)){
 				    $datos3 = array(
 					'stock' => $saldo,
 			        'fecha_ultimo_movimiento' => $fechafactura
 					);
 
 					$this->db->where('id_producto', $producto);
-
 		    	    $this->db->update('existencia', $datos3);
 	    	    }else{
     	    	$datos3 = array(

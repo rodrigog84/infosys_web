@@ -206,7 +206,7 @@ Ext.define('Infosys_web.view.facturacompra.Facturacompra', {
                                             fieldLabel: '<b>DIRECCION</b>',
                                             fieldCls: 'required',
                                             maxHeight: 25,
-                                            width: 580,
+                                            width: 565,
                                             itemId: 'direccionId',
                                             name : 'direccion',
                                             //disabled : true,                                            
@@ -224,13 +224,23 @@ Ext.define('Infosys_web.view.facturacompra.Facturacompra', {
                                             xtype: 'textfield',
                                             fieldCls: 'required',
                                             fieldLabel: '<b>GIRO</b>',
+                                            labelWidth: 35,
                                             maxHeight: 25,
-                                            width: 495,
+                                            width: 395,
                                             itemId: 'giroId',
                                             readOnly: true,
                                             //disabled : true,                                           
                                             name : 'giro'
                                           
+                                        },{xtype: 'splitter'},{
+                                            xtype: 'textfield',
+                                            width: 200,
+                                            labelWidth: 85,
+                                            maxHeight: 25,
+                                            fieldLabel: '<b>G.DESPACHO</b>',
+                                            name: 'guia_despacho',
+                                            itemId: 'gdespachoId',
+                                            style: 'font-weight: bold;'
                                         }
                                     ]
                                 },{
@@ -401,8 +411,7 @@ Ext.define('Infosys_web.view.facturacompra.Facturacompra', {
                                 labelWidth: 40,
                                 fieldLabel: 'Kilos',
                                 itemId: 'kilosId',
-                                style: 'font-weight: bold;',
-                                hidden: true
+                                style: 'font-weight: bold;'
                             },
                             {xtype: 'splitter'},
                             {
@@ -449,6 +458,7 @@ Ext.define('Infosys_web.view.facturacompra.Facturacompra', {
                                 { text: 'codigo',  dataIndex: 'codigo', width: 250, hidden : true },
                                 { text: 'Producto',  dataIndex: 'nombre', width: 250 },
                                 { text: 'Cantidad',  dataIndex: 'cantidad', align: 'right',width: 150},
+                                { text: 'Kilos',  dataIndex: 'kilos', align: 'right',flex:1, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} },
                                 { text: 'Precio',  dataIndex: 'precio', align: 'right',width: 150},
                                 { text: 'Neto',  dataIndex: 'neto', align: 'right',flex:1,renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} },
                                 { text: 'Iva',  dataIndex: 'iva', align: 'right',flex:1,renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")},hidden : true },

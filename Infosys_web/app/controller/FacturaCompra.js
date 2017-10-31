@@ -1,4 +1,4 @@
-Ext.define('Infosys_web.controller.Facturacompra', {
+Ext.define('Infosys_web.controller.FacturaCompra', {
     extend: 'Ext.app.Controller',
 
     //asociamos vistas, models y stores al controller
@@ -85,10 +85,9 @@ Ext.define('Infosys_web.controller.Facturacompra', {
             'facturacompra #nombreId': {
                 click: this.special
             },
-
             'facturacompra #netoId': {
                 specialkey: this.calculaiva
-            },            
+            },          
 
             'facturacompra button[action=validarut]': {
                 click: this.validarut
@@ -150,7 +149,7 @@ Ext.define('Infosys_web.controller.Facturacompra', {
     },
 
     buscarp: function(){
-        var view = this.getBuscarproductosfacturacomprao();
+        var view = this.getBuscarproductosfacturacompra();
         var st = this.getProductosfStore()
         var nombre = view.down('#nombreId').getValue()
         st.proxy.extraParams = {nombre : nombre}
@@ -300,7 +299,7 @@ Ext.define('Infosys_web.controller.Facturacompra', {
         iva8 = ((pretotal * 8)/100);
         afecto = pretotal;
         iva = (iva11 + iva8);
-        total = (pretotal + iva);
+        total = (pretotal + iva11);
         
         //iva = (total - afecto);
         view.down('#finaltotalId').setValue(Ext.util.Format.number(total, '0,000'));
@@ -325,18 +324,26 @@ Ext.define('Infosys_web.controller.Facturacompra', {
         var stItem = this.getFacturacompraItemsStore();
         var producto = view.down('#productoId').getValue();
         var nombre = view.down('#nombreproductoId').getValue();
+        var idbodega= view.down('#bodegaId').getValue();
+        var kilos = ((view.down('#kilosId').getValue()));
         var cantidad = view.down('#cantidadId').getValue();
         var cantidadori = view.down('#cantidadOriginalId').getValue();
         var precio = ((view.down('#precioId').getValue()));
         var bolEnable = true;
         var st = this.getProductosfStore();
         
-        var neto = ((cantidad * precio));        
+        var neto = ((kilos * precio));        
         var iva11 = (parseInt(neto * 11)/100);
         var iva8 = (parseInt(neto * 8)/100);
         var exists = 0;
         var iva = (iva11 + iva8 );
         var total = ((neto + iva ));
+
+        if(kilos==0){
+            Ext.Msg.alert('Alerta', 'Debe Ingresar Kilos Producto');
+            return false;         
+
+        };
 
              
         if(!producto){
@@ -374,11 +381,26 @@ Ext.define('Infosys_web.controller.Facturacompra', {
            
         }
 
+         Ext.Ajax.request({
+            url: preurl + 'facturaganado/rebajaproducto',
+            params: {
+                idproducto: producto,
+                cantidad: cantidad
+            },
+             success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                st.load();
+                
+            }
+           
+        });
+
                       
         stItem.add(new Infosys_web.model.facturacompra.Item({
             id_producto: producto,
             nombre: nombre,
             precio: precio,
+            kilos: kilos,
             cantidad: cantidad,
             neto: neto,
             total: total,
@@ -400,6 +422,7 @@ Ext.define('Infosys_web.controller.Facturacompra', {
 
     eliminaritem: function() {
         var view = this.getFacturacompra();
+        var idbodega= viewIngresa.down('#bodegaId').getValue();
         var total = view.down('#finaltotalpostId').getValue();
         var neto = view.down('#finaltotalnetoId').getValue();
         var iva11 = view.down('#finaltotaliva11Id').getValue();
@@ -411,7 +434,6 @@ Ext.define('Infosys_web.controller.Facturacompra', {
             var row = grid.getSelectionModel().getSelection()[0];
             var total = (parseInt(total) - parseInt(row.data.total));
             var neto = (parseInt(neto) - parseInt(row.data.neto));
-            //var iva = (parseInt(iva) - parseInt(row.data.iva));
             var afecto = neto;
             var iva11a = (parseInt(row.data.neto * 1.11));
             var iva8a = (parseInt(row.data.neto * 1.08));
@@ -426,6 +448,25 @@ Ext.define('Infosys_web.controller.Facturacompra', {
             view.down('#finalafectoId').setValue(Ext.util.Format.number(afecto, '0'));
 
             grid.getStore().remove(row);
+
+            var producto = (row.data.id_producto);
+            var cantidad = (row.data.cantidad);           
+
+
+            Ext.Ajax.request({
+            url: preurl + 'facturaganado/agregaproducto',
+            params: {
+                idproducto: producto,
+                cantidad: cantidad,
+                idbodega: idbodega
+            },
+             success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                st.load();
+                
+            }
+           
+            });
 
                                   
       
@@ -603,6 +644,7 @@ Ext.define('Infosys_web.controller.Facturacompra', {
         var idbodega= viewIngresa.down('#bodegaId').getValue();
         var idcondventa= viewIngresa.down('#tipocondpagoId').getValue();
         var ordencompra= viewIngresa.down('#ordencompraId').getValue();
+        var guiaref = viewIngresa.down('#gdespachoId').getValue();
         var vendedor = viewIngresa.down('#tipoVendedorId').getValue();
         var numdocumento = viewIngresa.down('#numfacturaId').getValue();
         var fechafactura = viewIngresa.down('#fechafacturaId').getValue();
@@ -612,6 +654,11 @@ Ext.define('Infosys_web.controller.Facturacompra', {
         
         if(numdocumento==0){
             Ext.Msg.alert('Ingrese Datos a La Factura');
+            return;   
+            }
+
+        if(!guiaref){
+            Ext.Msg.alert('Ingrese Ingresar Numero Guia Referencia');
             return;   
             }
 
@@ -627,6 +674,7 @@ Ext.define('Infosys_web.controller.Facturacompra', {
                 numfactura: numdocumento,
                 idsucursal: idsucursal,
                 idbodega: idbodega,
+                documento: guiaref,
                 idcondventa: idcondventa,
                 idtipo: idtipo,
                 ordencompra: ordencompra,
