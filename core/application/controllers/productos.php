@@ -86,7 +86,8 @@ class Productos extends CI_Controller {
 		        'id_bodega' => $_REQUEST['id_bodega'],
 		        'id_familia' => $_REQUEST['id_familia'],
 		        'id_agrupacion' => $_REQUEST['id_agrupacion'],
-		        'id_subfamilia' => $_REQUEST['id_subfamilia']
+		        'id_subfamilia' => $_REQUEST['id_subfamilia'],
+		        'clasificacion' => $_REQUEST['clasificacion']
 		);
 
 
@@ -149,6 +150,7 @@ class Productos extends CI_Controller {
 	        'id_familia' => $_REQUEST['id_familia'],
 	        'id_agrupacion' => $_REQUEST['id_agrupacion'],
 	        'id_subfamilia' => $_REQUEST['id_subfamilia'],
+	        'clasificacion' => $_REQUEST['clasificacion'],
 	    );
 
 		$this->db->where('id', $id);

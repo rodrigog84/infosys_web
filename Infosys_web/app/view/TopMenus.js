@@ -306,6 +306,67 @@ Ext.define('Infosys_web.view.TopMenus' ,{
              
             }],
            
+        },,'-',{
+            xtype: 'button',
+            iconCls: 'icon-user',
+            text : 'Produccion',
+            menu: [{
+                text: 'Parametros Generales',
+                iconCls: '',
+                menu: [{
+                        text: 'Tabla General',
+                        iconCls: '',
+                        //itemId: 'adq_tg_parametros',
+                        //disabled: true,
+                        action: ''
+                },{
+                        text: 'Clientes',
+                        iconCls: '',
+                        itemId: 'vyf_tg_clientes',
+                        disabled: true,
+                        action: 'mclientes'
+                }]
+
+            },
+            {
+                text: 'Movimiento Diario',
+                iconCls: '',
+                menu: [{
+                        text: 'Registro Produccion',
+                        iconCls: '',
+                        //itemId: 'adq_md_oc',
+                        //disabled: true,
+                        action: ''
+                        },{
+                        text: 'Genera Pedidos',
+                        iconCls: '',
+                        action: 'mPedidos'
+                        }{
+                        text: 'Genera Formula',
+                        iconCls: '',
+                        //itemId: 'adq_md_oc',
+                        //disabled: true,
+                        action: 'mformulas'
+                        },]
+            },{
+                text: 'Calsificacion del Producto',
+                iconCls: '', 
+                menu: [{
+                        text: 'Formulario Produccion',
+                        iconCls: '',
+                        //itemId: 'adq_cr_oc',
+                        //disabled: true,
+                        action: ''
+                },{
+                        text: 'Detalle Formulario Produccion',
+                        iconCls: '',
+                        //itemId: 'adq_cr_rcompra',
+                        //disabled: true,
+                        action: ''
+                }]
+
+            }],
+           
         },{
             xtype: 'button',
             iconCls: 'icon-carro',

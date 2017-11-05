@@ -186,7 +186,7 @@ Ext.define('Infosys_web.view.productos.Ingresar', {
                 }
 
                 ]
-            },,{
+            },{
                 xtype: 'fieldcontainer',
                 layout: 'hbox',
                 items: [
@@ -197,6 +197,17 @@ Ext.define('Infosys_web.view.productos.Ingresar', {
                     name:'p_costo',
                     //anchor: '20%',
                     readOnly : true
+                },{xtype: 'splitter'},{
+                    xtype: 'combo',
+                    itemId: 'clasificacionId',
+                    fieldLabel: 'Clasificacion',
+                    forceSelection : true,
+                    editable : false,
+                    name : 'clasificacion',
+                    valueField : 'id',
+                    displayField : 'nombre',
+                    emptyText : "Seleccione",
+                    store : 'productos.Clasificacion'
                 }
 
                 ]

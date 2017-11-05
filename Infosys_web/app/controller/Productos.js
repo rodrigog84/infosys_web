@@ -7,7 +7,8 @@ Ext.define('Infosys_web.controller.Productos', {
              'Ubicas', 
              'productos.Items', 
              'Existencias2',
-             'productos.Selector'],
+             'productos.Selector',
+             'productos.Clasificacion'],
 
     models: ['Producto',
              'Ubica', 

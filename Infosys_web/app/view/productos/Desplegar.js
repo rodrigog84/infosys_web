@@ -206,6 +206,17 @@ Ext.define('Infosys_web.view.productos.Desplegar', {
                     renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")},
                     //anchor: '20%',
                     readOnly : true
+                },{xtype: 'splitter'},{
+                    xtype: 'combo',
+                    itemId: 'clasificacionId',
+                    fieldLabel: 'Clasificacion',
+                    forceSelection : true,
+                    editable : false,
+                    name : 'clasificacion',
+                    valueField : 'id',
+                    displayField : 'nombre',
+                    emptyText : "Seleccione",
+                    store : 'productos.Clasificacion'
                 }
 
                 ]

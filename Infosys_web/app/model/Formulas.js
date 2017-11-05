@@ -1,16 +1,14 @@
-
-Ext.define('Infosys_web.model.Productos.Item', {
+Ext.define('Infosys_web.model.Formulas', {
     extend: 'Ext.data.Model',
     fields: [
         {name: 'id'},
         {name: 'nombre'},
-        {name: 'id_producto'},
-        {name: 'id_descuento'},
         {name: 'codigo'},
         {name: 'p_ult_compra'},
         {name: 'p_may_compra'},
-        {name: 'p_venta'},
-        {name: 'p_costo'},
+        {name: 'p_venta', decimalPrecision:3},
+        {name: 'p_neto', decimalPrecision:3},
+        {name: 'p_costo', decimalPrecision:3},
         {name: 'nom_uni_medida'},
         {name: 'id_marca'},
         {name: 'nom_marca'},
@@ -28,21 +26,6 @@ Ext.define('Infosys_web.model.Productos.Item', {
         {name: 'nom_subfamilia'},
         {name: 'stock'},
         {name: 'nom_bodega'},
-        {name: 'cantidad', decimalPrecision:3},
-        {name: 'dcto', decimalPrecision:3},
-        {name: 'total'},
-        {name: 'iva'},
-        {name: 'neto'},
-        {name: 'totaliva'},
-        {name: 'precio', decimalPrecision:2},
-        {name: 'clasificacion'},
-
-        
-        
-        
-        
-        
-        
-
+        {name: 'clasificacion'},        
     ]
 });

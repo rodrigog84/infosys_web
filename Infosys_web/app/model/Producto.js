@@ -26,7 +26,6 @@ Ext.define('Infosys_web.model.Producto', {
         {name: 'nom_subfamilia'},
         {name: 'stock'},
         {name: 'nom_bodega'},
-
-        
+        {name: 'clasificacion'},        
     ]
 });
