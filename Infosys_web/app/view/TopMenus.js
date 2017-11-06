@@ -27,7 +27,7 @@ Ext.define('Infosys_web.view.TopMenus' ,{
         },{
             xtype: 'button',
             iconCls: 'icon-note',
-            text : 'Parametros Generales',
+            text : 'Parametros',
             menu: [{
                 text: 'Cuentas de Centralizacion',
                 iconCls: '',
@@ -341,7 +341,7 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                         text: 'Genera Pedidos',
                         iconCls: '',
                         action: 'mPedidos'
-                        }{
+                        },{
                         text: 'Genera Formula',
                         iconCls: '',
                         //itemId: 'adq_md_oc',

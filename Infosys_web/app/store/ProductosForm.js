@@ -1,6 +1,6 @@
-Ext.define('Infosys_web.store.Formulas', {
+Ext.define('Infosys_web.store.ProductosForm', {
     extend: 'Ext.data.Store',
-    model: 'Infosys_web.model.Formulas',
+    model: 'Infosys_web.model.Producto',
     autoLoad: true,
     pageSize: 14,
     
@@ -8,11 +8,10 @@ Ext.define('Infosys_web.store.Formulas', {
         type: 'ajax',
 
         api: {
-            //create: preurl + 'formulas/save', 
-            read: preurl + 'formula/getAll',
-            //update: preurl + 'formulas/update'
-            //destroy: 'php/deletaContacto.php'
-        },
+            //create: preurl + 'productofact/save', 
+            read: preurl + 'productosfact/getAllform',
+            //update: preurl + 'productosfact/update'
+            },
         reader: {
             type: 'json',
             root: 'data',

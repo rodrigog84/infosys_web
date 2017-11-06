@@ -14,13 +14,46 @@ Ext.define('Infosys_web.view.formula.Principal' ,{
 
     },
     columns: [{
-        header: "Codigo",
+        header: "id",
         flex: 1,
-        dataIndex: 'codigo'
+        dataIndex: 'id',
+        hidden: true
     },{
-        header: "Nombre Familia",
+        header: "Numero",
         flex: 1,
-        dataIndex: 'nombre'
+        dataIndex: 'num_formula'
+    },{
+        header: "Id_Cliente",
+        flex: 1,
+        dataIndex: 'id_cliente',
+        hidden: true
+    },{
+        header: "Nombre Cliente",
+        flex: 1,
+        dataIndex: 'nom_cliente'
+    },{
+        header: "Rut Cliente",
+        flex: 1,
+        dataIndex: 'rut_cliente'
+    },{
+        header: "Formula",
+        flex: 1,
+        dataIndex: 'nombre_formula'
+    },{
+        header: "Cantidad",
+        flex: 1,
+        dataIndex: 'cantidad'
+    },{
+        header: "Valor",
+        flex: 1,
+        dataIndex: 'valor'
+    },{
+        header: "Fecha",
+        flex: 1,
+        dataIndex: 'fecha_formula',
+        type: 'date',
+        renderer: Ext.util.Format.dateRenderer('d/m/Y'),
+        align: 'center'
     }],
     
     initComponent: function() {
@@ -40,6 +73,11 @@ Ext.define('Infosys_web.view.formula.Principal' ,{
                 iconCls: 'icon-edit',
                 action: '',
                 text : 'Editar'
+            },'-',{
+                xtype: 'button',
+                iconCls : 'icon-pdf',
+                text: 'Imprimir PDF',
+                action:'exportarformula'
             },'->',{
                 width: 250,
                 xtype: 'textfield',
@@ -59,7 +97,7 @@ Ext.define('Infosys_web.view.formula.Principal' ,{
         },{
             xtype: 'pagingtoolbar',
             dock:'bottom',
-            store: 'Familias',
+            store: 'Formulas',
             displayInfo: true
         }];
         
