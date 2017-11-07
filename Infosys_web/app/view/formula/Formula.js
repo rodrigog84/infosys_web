@@ -189,7 +189,21 @@ Ext.define('Infosys_web.view.formula.Formula', {
                                     width: 180,
                                     fieldLabel: '<b>CANTIDAD</b>',
                                     itemId: 'cantidadformId',
-                                    name : 'cantidad_form'                                         
+                                    name : 'cantidad_form_or'                                         
+                                },{
+                                    xtype: 'displayfield',
+                                    width: 10                                   
+                                },{
+                                    xtype: 'numberfield',
+                                    fieldCls: 'required',
+                                    msgTarget: 'side',
+                                    labelWidth: 80,
+                                    maxHeight: 25,
+                                    width: 180,
+                                    fieldLabel: '<b>FORMULA</b>',
+                                    itemId: 'cantidadformdetId',
+                                    name : 'cantidad_form',
+                                    readOnly: true                                        
                                 }
                             ]
                         },{
@@ -276,7 +290,8 @@ Ext.define('Infosys_web.view.formula.Formula', {
                                 minValue: 0,
                                 value: 1,
                                 fieldLabel: 'Cantidad KG.',
-                                itemId: 'cantidadId'
+                                itemId: 'cantidadId',
+                                hidden: true
                             },
                             {xtype: 'splitter'},
                             {
@@ -284,7 +299,7 @@ Ext.define('Infosys_web.view.formula.Formula', {
                                 width: 160,
                                 labelWidth: 60,
                                 minValue: 0,
-                                value: 1,
+                                //value: 1,
                                 fieldLabel: 'valor %.',
                                 itemId: 'valorporId'
                             },{

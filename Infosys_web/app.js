@@ -23,7 +23,7 @@ Ext.application({
                   "Recaudacion", "Notacredito","Caja", "Guiasdespacho",
                   "Comisiones","Notadebito","Tipodocumentocompras", "Precios",
                   "Facturaglosa", "Facturaganado","Pedidos","ExistenciasClientes",
-                  "Facturacompra", "Formulas"],
+                  "FacturaCompra", "Formulas"],
 	   
     views: [
         'Infosys_web.view.WLogin',

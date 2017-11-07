@@ -142,8 +142,8 @@ Ext.define('Infosys_web.view.Pedidos.Pedidos', {
                                     fieldCls: 'required',
                                     fieldLabel: '<b>RAZON SOCIAL</b>',
                                     maxHeight: 25,
-                                    labelWidth: 125,
-                                    width: 725,
+                                    labelWidth: 115,
+                                    width: 605,
                                     itemId: 'nombre_id',
                                     name : 'nombre',
                                     readOnly: true                                    
@@ -151,15 +151,26 @@ Ext.define('Infosys_web.view.Pedidos.Pedidos', {
                                     xtype: 'displayfield',
                                     width: 10                                   
                                 },{
-                                    xtype: 'textfield',
-                                    fieldCls: 'required',
-                                    fieldLabel: '<b>TELEFONO</b>',
-                                    maxHeight: 25,
-                                    labelWidth: 80,
-                                    width: 200,
-                                    itemId: 'TelefonoId',
-                                    name : 'telefono'                             
-                                }
+                                xtype: 'combo',
+                                itemId: 'tipoVendedorId',
+                                width: 335,
+                                fieldCls: 'required',
+                                maxHeight: 25,
+                                labelWidth: 75,
+                                fieldLabel: '<b>VENDEDOR</b>',
+                                forceSelection : true,
+                                name : 'id_vendedor',
+                                valueField : 'id',
+                                displayField : 'nombre',
+                                emptyText : "Seleccione",
+                                store : 'Vendedores'
+                            },{
+                                xtype: 'textfield',
+                                itemId: 'bodegaId',
+                                name : 'id_bodega',
+                                fieldLabel: 'Id Bodega',
+                                hidden: true
+                            }
                             ]
                         },{
                             xtype: 'fieldcontainer',
@@ -172,77 +183,48 @@ Ext.define('Infosys_web.view.Pedidos.Pedidos', {
                             },
                             items: [
                              {
-                                xtype: 'textfield',
-                                fieldLabel: '<b>ID</b>',
-                                fieldCls: 'required',
-                                maxHeight: 25,
-                                width: 580,
-                                itemId: 'id_sucursalID',
-                                name : 'id_sucursal',
-                                hidden: true
-                            },{
-                                xtype: 'textfield',
-                                itemId: 'obsId',
-                                name : 'idobserva',
-                                fieldLabel: 'Id Observacion',
-                                hidden: true
-                            },{
-                                xtype: 'textfield',
-                                itemId: 'bodegaId',
-                                name : 'id_bodega',
-                                fieldLabel: 'Id Bodega',
-                                hidden: true
-                            },{
-                                xtype: 'textfield',
-                                fieldLabel: '<b>DIRECCION</b>',
-                                fieldCls: 'required',
-                                maxHeight: 25,
-                                width: 550,
-                                itemId: 'direccionId',
-                                name : 'direccion',                                         
-                                readOnly: true,
-                                //hidden: true
-                            },{xtype: 'splitter'},{
-                                xtype: 'button',
-                                text: 'Sucursal',
-                                itemId: 'sucursalId',
-                                maxHeight: 25,
-                                width: 70,
-                                action: 'buscarsucursalfactura',
-                                //hidden: true
-                            },{
-                                xtype: 'displayfield',
-                                width: 5                                        
-                            },{
-                                xtype: 'combo',
-                                itemId: 'tipoVendedorId',
-                                width: 330,
-                                fieldCls: 'required',
-                                maxHeight: 25,
-                                fieldLabel: '<b>VENDEDOR</b>',
-                                forceSelection : true,
-                                name : 'id_vendedor',
-                                valueField : 'id',
-                                displayField : 'nombre',
-                                emptyText : "Seleccione",
-                                store : 'Vendedores'
-                            },{
-                                xtype: 'displayfield',
-                                width: 5                                           
-                            },{
-                                xtype: 'combo',
-                                itemId: 'tipocondpagoId',
-                                width: 300,
-                                fieldCls: 'required',
-                                maxHeight: 25,
-                                fieldLabel: '<b>COND.PAGO</b>',
-                                forceSelection : true,
-                                name : 'id_condpago',
-                                valueField : 'id',
-                                displayField : 'nombre',
-                                emptyText : "Seleccione",
-                                store : 'Cond_pago'
-                            }
+                                    xtype: 'textfield',
+                                    fieldCls: 'required',
+                                    msgTarget: 'side',
+                                    labelWidth: 155,
+                                    maxHeight: 25,
+                                    width: 520,
+                                    fieldLabel: '<b>NOMBRE FORMULA</b>',
+                                    itemId: 'nombreformulaId',
+                                    name : 'nombre'                                         
+                                },{
+                                    xtype: 'displayfield',
+                                    width: 10                                   
+                                },{
+                                    xtype: 'numberfield',
+                                    fieldCls: 'required',
+                                    msgTarget: 'side',
+                                    labelWidth: 80,
+                                    maxHeight: 25,
+                                    width: 180,
+                                    fieldLabel: '<b>CANTIDAD</b>',
+                                    itemId: 'cantidadformId',
+                                    name : 'cantidad_form_or'                                         
+                                },{
+                                    xtype: 'button',
+                                    text: 'Buscar Formula',
+                                    maxHeight: 25,
+                                    width: 120,                                                                        
+                                    action: 'buscarformula',
+                                    itemId: 'buscarBtnf'
+                                },{
+                                    xtype: 'textfield',
+                                    itemId: 'formulaId',
+                                    name : 'id_formula',
+                                    fieldLabel: 'Id Formula',
+                                    hidden: true
+                                },{
+                                    xtype: 'textfield',
+                                    itemId: 'obsId',
+                                    name : 'id_observa',
+                                    fieldLabel: 'Id Formula',
+                                    hidden: true
+                                }
                             ]
                         },{
                     xtype: 'fieldset',
@@ -329,28 +311,6 @@ Ext.define('Infosys_web.view.Pedidos.Pedidos', {
                                 value: 1,
                                 fieldLabel: 'Cantidad',
                                 itemId: 'cantidadId'
-                            },{
-                                xtype: 'numberfield',
-                                width: 120,
-                                labelWidth: 60,
-                                minValue: 0,
-                                value: 0,
-                                fieldLabel: 'Descuento Pro',
-                                itemId: 'totdescuentoId',
-                                hidden: true
-                            },
-                            {xtype: 'splitter'},
-                            {
-                            xtype: 'combo',
-                            width: 190,
-                            queryMode: 'local',
-                            itemId: 'DescuentoproId',
-                            fieldLabel: 'Descto %',
-                            store: 'Tabladescuento',
-                            emptyText : "Seleccione",
-                            valueField: 'id',
-                            //disabled : true,
-                            displayField: 'nombre'
                             },
                             {xtype: 'splitter'},
                             {
@@ -418,41 +378,6 @@ Ext.define('Infosys_web.view.Pedidos.Pedidos', {
                             itemId: 'finaltotalnetoId',
                             readOnly: true,
                             fieldLabel: '<b>VALOR NETO</b>',
-                            labelAlign: 'top'
-                        },
-                        {xtype: 'splitter'},
-                        {
-                            xtype: 'combo',
-                            width: 280,
-                            queryMode: 'local',
-                            itemId: 'tipoDescuentoId',
-                            fieldLabel: '<b>DESCUENTO</b>',
-                            store: 'Tabladescuento',
-                            emptyText : "Seleccione",
-                            valueField: 'id',
-                            disabled : true,   
-                            labelAlign: 'top',
-                            displayField: 'nombre'
-                        },{
-                            xtype: 'numberfield',
-                            fieldCls: 'required',
-                            width: 200,
-                            name : 'descuento',
-                            itemId: 'finaldescuentoId',
-                            disabled : true,  
-                            readOnly: true,
-                            fieldLabel: '<b>descuento</b>',
-                            hidden: true
-                        },
-                        {xtype: 'splitter'},
-                        {
-                            xtype: 'numberfield',
-                            fieldCls: 'required',
-                            width: 150,
-                            name : 'descuentovalor',
-                            itemId: 'descuentovalorId',
-                            readOnly: true,
-                            fieldLabel: '<b>DESCUENTO $</b>',
                             labelAlign: 'top'
                         },{xtype: 'splitter'},{
                             xtype: 'numberfield',

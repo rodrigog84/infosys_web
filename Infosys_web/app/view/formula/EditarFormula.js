@@ -1,6 +1,6 @@
-Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
+Ext.define('Infosys_web.view.formula.EditarFormula', {
     extend: 'Ext.window.Window',
-    alias : 'widget.editarpedidos',
+    alias : 'widget.formulaeditar',
 
     requires: [
         'Ext.form.FieldContainer',
@@ -22,7 +22,7 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
     height: 640,
     width: 1300,
     layout: 'fit',
-    title: 'Pedido',
+    title: 'Editra Formula',
 
     initComponent: function() {
         var me = this;
@@ -37,7 +37,7 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                 },
                 items: [{
                     xtype: 'container',
-                    height: 170,
+                    height: 180,
                     layout: {
                         type: 'vbox',
                         align: 'stretch'
@@ -60,17 +60,17 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                                 labelWidth: 150,
                                 name: 'num_pedido',
                                 itemId: 'ticketId',
-                                fieldLabel: '<b>NUMERO PEDIDO</b>',
+                                fieldLabel: '<b>NUMERO FORMULA</b>',
                                 readOnly: true
                             },{
                                 xtype: 'displayfield',
-                                width: 30
+                                width: 330
                                
                             },{
                                 xtype: 'displayfield',
                                 fieldLabel: '<b>AGRICOLA Y COMERCIAL LIRCAY SPA.</b>',
-                                labelWidth: 500,
-                                width: 500
+                                labelWidth: 520,
+                                width: 520
                                
                             },{
                                 xtype: 'datefield',
@@ -81,20 +81,6 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                                 fieldLabel: '<b>FECHA</b>',
                                 itemId: 'fechadocumId',
                                 name: 'fecha_docum',
-                                value: new Date()
-                            },{
-                                xtype: 'displayfield',
-                                width: 15
-                               
-                            },{
-                                xtype: 'datefield',
-                                fieldCls: 'required',
-                                maxHeight: 25,
-                                labelWidth: 120,
-                                width: 290,
-                                fieldLabel: '<b>FECHA PEDIDO</b>',
-                                itemId: 'fechapedidoId',
-                                name: 'fecha_pedido',
                                 value: new Date()
                             }
                             ]
@@ -115,7 +101,7 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                                 },{
                                     xtype: 'textfield',
                                     itemId: 'id_cliente',
-                                    name : 'id',
+                                    name : 'id_cliente',
                                     hidden: true
                                 },{
                                     xtype: 'textfield',
@@ -167,25 +153,24 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                                 displayField : 'nombre',
                                 emptyText : "Seleccione",
                                 store : 'Vendedores'
+                            },{
+                                xtype: 'textfield',
+                                itemId: 'bodegaId',
+                                name : 'id_bodega',
+                                fieldLabel: 'Id Bodega',
+                                hidden: true
                             }
                             ]
                         },{
                             xtype: 'fieldcontainer',
-                            height: 30,
+                            height: 35,
                             width: 462,
                             fieldLabel: '',
                             layout: {
                                 type: 'hbox',
                                 align: 'stretch'
                             },
-                            items: [
-                                 {
-                                    xtype: 'textfield',
-                                    itemId: 'bodegaId',
-                                    name : 'id_bodega',
-                                    fieldLabel: 'Id Bodega',
-                                    hidden: true
-                                },{
+                            items: [{
                                     xtype: 'textfield',
                                     fieldCls: 'required',
                                     msgTarget: 'side',
@@ -207,31 +192,26 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                                     width: 180,
                                     fieldLabel: '<b>CANTIDAD</b>',
                                     itemId: 'cantidadformId',
-                                    name : 'cantidad_form_or'                                         
+                                    name : 'cantidad_form'                                         
                                 },{
-                                    xtype: 'button',
-                                    text: 'Buscar Formula',
+                                    xtype: 'displayfield',
+                                    width: 10                                   
+                                },{
+                                    xtype: 'numberfield',
+                                    fieldCls: 'required',
+                                    msgTarget: 'side',
+                                    labelWidth: 80,
                                     maxHeight: 25,
-                                    width: 120,                                                                        
-                                    action: 'buscarformula',
-                                    itemId: 'buscarBtnf'
-                                },{
-                                    xtype: 'textfield',
-                                    itemId: 'formulaId',
-                                    name : 'id_formula',
-                                    fieldLabel: 'Id Formula',
-                                    hidden: true
-                                },{
-                                    xtype: 'textfield',
-                                    itemId: 'obsId',
-                                    name : 'id_observa',
-                                    fieldLabel: 'Id Formula',
-                                    hidden: true
+                                    width: 180,
+                                    fieldLabel: '<b>FORMULA</b>',
+                                    itemId: 'cantidadformdetId',
+                                    name : 'cantidad_form',
+                                    readOnly: true                                        
                                 }
                             ]
                         },{
                     xtype: 'fieldset',
-                    title: 'Items Documento',
+                    title: 'Productos Materias Primas',
                     fieldDefaults: {
                         labelWidth: 70,
                         align: 'center'                        
@@ -272,7 +252,7 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                                 labelWidth: 60,
                                 itemId: 'productoId',
                                 fieldLabel: 'Producto',
-                                name: 'Productos',
+                                name: 'Productos',                                
                                 hidden: true
                             },
                             {xtype: 'splitter'},
@@ -308,15 +288,24 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                             {xtype: 'splitter'},
                             {
                                 xtype: 'numberfield',
-                                width: 160,
-                                labelWidth: 60,
+                                width: 180,
+                                labelWidth: 85,
                                 minValue: 0,
                                 value: 1,
-                                fieldLabel: 'Cantidad',
-                                itemId: 'cantidadId'
+                                fieldLabel: 'Cantidad KG.',
+                                itemId: 'cantidadId',
+                                hidden: true
                             },
                             {xtype: 'splitter'},
                             {
+                                xtype: 'numberfield',
+                                width: 160,
+                                labelWidth: 60,
+                                minValue: 0,
+                                value: 0,
+                                fieldLabel: 'valor %.',
+                                itemId: 'valorporId'
+                            },{
                                 xtype: 'button',
                                 text: 'Agregar',
                                 iconCls: 'icon-plus',
@@ -336,7 +325,7 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                             itemId: 'itemsgridId',
                             title: 'Detalle',
                             labelWidth: 50,
-                            store: 'Pedidos.Editar',
+                            store: 'formula.Editar',
                             tbar: [{
                                 iconCls: 'icon-delete',
                                 text: 'Eliminar',
@@ -348,22 +337,22 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                                 action: 'editaritem2'
                             }
                             ],
-                            height: 280,
+                            height: 330,
                             columns: [
-                                { text: 'Id',  dataIndex: 'id', width: 250, hidden : true },
+                                //{ text: 'Id',  dataIndex: 'id', width: 250, hidden : true },
                                 { text: 'Id producto',  dataIndex: 'id_producto', width: 250, hidden : true },
-                                { text: 'codigo',  dataIndex: 'codigo', width: 250, hidden : true },
-                                { text: 'Producto',  dataIndex: 'nom_producto', width: 250 },
+                                { text: 'codigo',  dataIndex: 'codigo', width: 150, hidden : true },
+                                { text: 'Producto',  dataIndex: 'nombre_producto', width: 450 },
                                 { text: 'Bodega',  dataIndex: 'id_bodega', width: 250, hidden:true},
-                                { text: 'Precio Unitario',  dataIndex: 'precio', align: 'right',flex:1, decimalPrecision:3},
+                                { text: 'Valor Compra',  dataIndex: 'valor_compra', align: 'right',width: 150, decimalPrecision:3},
                                 { text: 'Cantidad',  dataIndex: 'cantidad', align: 'right',width: 150, decimalPrecision:3},
-                                { text: 'Neto',  dataIndex: 'neto', align: 'right',flex:1,renderer: function(valor){return Ext.util.Format.number((valor),"0,000")} },
-                                { text: 'Iva',  dataIndex: 'iva', align: 'right',flex:1,renderer: function(valor){return Ext.util.Format.number((valor),"0,000")} },
-                                { text: 'Total',  dataIndex: 'total', align: 'right',flex:1, renderer: function(valor){return Ext.util.Format.number((valor),"0,000")} }
+                                { text: 'Valor Produccion',  dataIndex: 'valor_produccion', align: 'right',width: 150, renderer: function(valor){return Ext.util.Format.number((valor),"0,000")} },
+                                { text: 'Porcentaje',  dataIndex: 'porcentaje', align: 'right',width: 150 },
+                                
                                 ]
                             },{
                         xtype: 'fieldset',
-                        title: 'Total Documento',
+                        title: '',
                         fieldDefaults: {
                         labelWidth: 120
                         },
@@ -371,52 +360,9 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                             {
                         xtype: 'fieldcontainer',
                         layout: 'hbox',
-                        items: [{
-                            xtype: 'numberfield',
-                            fieldCls: 'required',
-                            width: 200,
-                            name : 'neto',
-                            itemId: 'finaltotalnetoId',
-                            readOnly: true,
-                            fieldLabel: '<b>VALOR NETO</b>',
-                            labelAlign: 'top'
-                        },{xtype: 'splitter'},{
-                            xtype: 'numberfield',
-                            fieldCls: 'required',
-                            width: 150,
-                            name : 'afecto',
-                            itemId: 'finalafectoId',
-                            readOnly: true,
-                            fieldLabel: '<b>AFECTO</b>',
-                            labelAlign: 'top'
-                        },{xtype: 'splitter'},
-                        {
-                            xtype: 'numberfield',
-                            width: 150,
-                            fieldCls: 'required',
-                            name : 'iva',
-                            itemId: 'finaltotalivaId',
-                            readOnly: true,
-                            fieldLabel: '<b>IVA</b>',
-                            labelAlign: 'top'
-                            //renderer: function(valor){return Ext.util.Format.number(parseInt(iva),"0.000")} 
-                        },{xtype: 'splitter'},{
-                            xtype: 'textfield',
-                            fieldCls: 'required',
-                            width: 230,
-                            name : 'total',
-                            itemId: 'finaltotalId',
-                            readOnly: true,
-                            fieldLabel: '<b>TOTAL DOCUMENTO</b>',
-                            labelAlign: 'top'
-                        },{
-                            xtype: 'numberfield',
-                            itemId: 'finaltotalpostId',
-                            hidden: true
-                        }]
+                        items: []
                     }
                     ]
-
                 }
                     ]
                 }
@@ -435,13 +381,14 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                             xtype: 'button',
                             //iconCls: 'icono',
                             scale: 'large',
-                            action: 'observaciones2',
-                            text: 'OBSERVACIONES'
+                            action: 'observaciones',
+                            text: 'OBSERVACIONES',
+                            hidden: true
                         },{
                             xtype: 'button',
                             iconCls: 'icon-save',
                             scale: 'large',
-                            action: 'grabarpedidos2',
+                            action: 'grabarformula2',
                             text: 'Grabar / Emitir'
                         },
                         {

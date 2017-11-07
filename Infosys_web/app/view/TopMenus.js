@@ -1,11 +1,9 @@
 Ext.define('Infosys_web.view.TopMenus' ,{
     extend: 'Ext.toolbar.Toolbar',
-    alias : 'widget.topmenus',
-    
+    alias : 'widget.topmenus',    
     requires: [
         'Ext.button.Split'
-    ],
-    
+    ],    
     initComponent: function() {
         var me = this
         this.items = [{
@@ -38,25 +36,25 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                         disabled: true,
                         action: 'mcentraliza'
                      
-                },{
+                    },{
                         text: 'Adquisiciones',
                         iconCls: '',
                         itemId: 'pg_cc_adq',
                         disabled: true,
                         action: ''
-                },{
+                    },{
                         text: 'Inventario',
                         iconCls: '',
                         itemId: 'pg_cc_inventario',
                         disabled: true,
                         action: ''
-                },{
+                    },{
                         text: 'Cuentas Corrientes',
                         iconCls: '',
                         itemId: 'pg_cc_ccorrientes',
                         disabled: true,
                         action: ''
-                }]
+                    }]
 
            },{
                 text: 'Clave Autorizacion',
@@ -316,13 +314,13 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                 menu: [{
                         text: 'Tabla General',
                         iconCls: '',
-                        //itemId: 'adq_tg_parametros',
-                        //disabled: true,
+                        itemId: 'pro_tg_Tabla',
+                        disabled: true,
                         action: ''
                 },{
                         text: 'Clientes',
                         iconCls: '',
-                        itemId: 'vyf_tg_clientes',
+                        itemId: 'pro_tg_clientes',
                         disabled: true,
                         action: 'mclientes'
                 }]
@@ -334,18 +332,20 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                 menu: [{
                         text: 'Registro Produccion',
                         iconCls: '',
-                        //itemId: 'adq_md_oc',
-                        //disabled: true,
+                        itemId: 'pro_md_repro',
+                        disabled: true,
                         action: ''
                         },{
                         text: 'Genera Pedidos',
                         iconCls: '',
+                        itemId: 'pro_md_pedidos',
+                        disabled: true,
                         action: 'mPedidos'
                         },{
                         text: 'Genera Formula',
                         iconCls: '',
-                        //itemId: 'adq_md_oc',
-                        //disabled: true,
+                        itemId: 'pro_md_formula',
+                        disabled: true,
                         action: 'mformulas'
                         },]
             },{
@@ -354,14 +354,14 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                 menu: [{
                         text: 'Formulario Produccion',
                         iconCls: '',
-                        //itemId: 'adq_cr_oc',
-                        //disabled: true,
+                        itemId: 'pro_cla_producto',
+                        disabled: true,
                         action: ''
                 },{
                         text: 'Detalle Formulario Produccion',
                         iconCls: '',
-                        //itemId: 'adq_cr_rcompra',
-                        //disabled: true,
+                        itemId: 'pro_for_produccion',
+                        disabled: true,
                         action: ''
                 }]
 

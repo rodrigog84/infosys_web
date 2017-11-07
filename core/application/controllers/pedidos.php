@@ -29,7 +29,6 @@ class Pedidos extends CI_Controller {
 			$producto = $producto->result();
 			$producto = $producto[0];
 			$item->nombre = $producto->nombre;
-			$item->dcto = $item->descuento;	
 			$data[] = $item;
 		}	     	
 	    $resp['success'] = true;
@@ -224,12 +223,14 @@ class Pedidos extends CI_Controller {
 		$resp = array();
 		$idpedidos = $this->input->get('idpedidos');
 		
-		$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor, c.direccion as direccion, c.id_pago as id_pago, suc.direccion as direccion_sucursal, ciu.nombre as ciudad, com.nombre as comuna, cor.nombre as nom_documento, cod.nombre as nom_giro FROM pedidos acc
+		$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor, c.direccion as direccion, c.id_pago as id_pago, suc.direccion as direccion_sucursal, ciu.nombre as ciudad, com.nombre as comuna, cor.nombre as nom_documento, cod.nombre as nom_giro,
+		f.nombre_formula as nombre_formula, f.id as id_formula, f.cantidad as cantidad_formula FROM pedidos acc
 		left join correlativos cor on (acc.tip_documento = cor.id)
 		left join clientes c on (acc.id_cliente = c.id)
 		left join vendedores v on (acc.id_vendedor = v.id)
 		left join clientes_sucursales suc on (acc.id_sucursal = suc.id)
 		left join comuna com on (suc.id_comuna = com.id)
+		left join formula f on (acc.id_formula = f.id)
 		left join ciudad ciu on (suc.id_ciudad = ciu.id)
 		left join cod_activ_econ cod on (c.id_giro = cod.id)
 		WHERE acc.id = "'.$idpedidos.'"
@@ -432,7 +433,6 @@ class Pedidos extends CI_Controller {
 			$item->total = $item->total;
 			$item->iva = $item->iva;
 			$item->neto = $item->neto;
-			$item->descuento = $item->descuento;	
 			$data[] = $item;
 		}
 
@@ -476,7 +476,7 @@ class Pedidos extends CI_Controller {
 		$totaliva = 0;
 		$neto = ($row->total / 1.19);
 		$iva = ($row->total - $neto);
-		$subtotal = ($row->total + $row->descuento);
+		$subtotal = ($row->total);
 
 		if($row->direccion_sucursal == " "){
 
@@ -577,7 +577,7 @@ class Pedidos extends CI_Controller {
 			<td style="text-align:right">'.$v->cantidad.'&nbsp;&nbsp;</td>			
 			<td style="text-align:left">'.$producto->nombre.'</td>			
 			<td align="right">$ '.number_format($v->precio, 3, '.', ',').'</td>
-			<td align="right">$ '.number_format($v->descuento, 0, '.', ',').'</td>
+			<td align="right"></td>
 			<td align="right">$ '.number_format($v->neto, 0, '.', ',').'</td>			
 			<td align="right">$ '.number_format($v->total, 0, '.', ',').'</td>
 			</tr>';
@@ -667,17 +667,12 @@ class Pedidos extends CI_Controller {
 
 	public function exportPDF(){
 		$idpedidos = $this->input->get('idpedidos');
-		$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor, c.direccion as direccion, c.id_pago as id_pago, suc.direccion as direccion_sucursal, ciu.nombre as ciudad, com.nombre as comuna, cor.nombre as nom_documento, cod.nombre as nom_giro, op.observaciones as observa, cu.nombre as ciudad_suc, cm.nombre as comuna_suc FROM pedidos acc
+		$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor, cor.nombre as nom_documento, op.observaciones as observa, f.nombre_formula as nombre_formula FROM pedidos acc
 		left join correlativos cor on (acc.tip_documento = cor.id)
 		left join clientes c on (acc.id_cliente = c.id)
 		left join vendedores v on (acc.id_vendedor = v.id)
+		left join formula f on (acc.id_formula = f.id)
 		left join observacion_pedidos op on (acc.num_pedido = op.num_pedidos)
-		left join clientes_sucursales suc on (acc.id_sucursal = suc.id)
-		left join comuna com on (c.id_comuna = com.id)
-		left join ciudad ciu on (c.id_ciudad = ciu.id)
-		left join comuna cm on (suc.id_comuna = cm.id)
-		left join ciudad cu on (suc.id_ciudad = cu.id)
-		left join cod_activ_econ cod on (c.id_giro = cod.id)
 		WHERE acc.id = "'.$idpedidos.'"
 		');
 		//cotizacion header
@@ -687,6 +682,7 @@ class Pedidos extends CI_Controller {
 		$items = $this->db->get_where('pedidos_detalle', array('id_pedido' => $idpedidos));
 		//variables generales
 		$codigo = $row->num_pedido;
+		$nombreformula = $row->nombre_formula;
 		$nombre_contacto = $row->nombre_cliente;
 		$vendedor = $row->nom_vendedor;
 		$observacion = $row->observa;
@@ -694,19 +690,7 @@ class Pedidos extends CI_Controller {
 		$totaliva = 0;
 		$neto = ($row->total / 1.19);
 		$iva = ($row->total - $neto);
-		$subtotal = ($row->total + $row->descuento);
-
-		if(!$row->id_sucursal){
-			$direccion = $row->direccion;
-			$comuna = $row->comuna;
-			$ciudad = $row->ciudad;			
-		}else{
-
-			$direccion = $row->direccion_sucursal;
-			$comuna = $row->comuna_suc;
-			$ciudad = $row->ciudad_suc;
-			
-		};
+		$subtotal = ($row->total);		
 
 		$this->load->model('facturaelectronica');
       $empresa = $this->facturaelectronica->get_empresa();
@@ -761,22 +745,11 @@ class Pedidos extends CI_Controller {
 		    			<td width="197px">'. number_format(substr($row->rut_cliente, 0, strlen($row->rut_cliente) - 1),0,".",".")."-".substr($row->rut_cliente,-1).'</td>
 		    		</tr>
 		    		<tr>
-		    		<td width="197px">TELEFONO:</td>
-		    		<td width="197px">'.$row->telefono.'</td>
+		    		<td width="197px">FORMULA:</td>
+		    		<td width="197px">'.$nombreformula.'</td>
 		    		<td width="197px">VENDEDOR:</td>
 		    		<td width="197px">'.$row->nom_vendedor.'</td>
-		    		</tr>
-		    		
-		    		<tr>
-		    			<td width="197px">Direccion:</td>
-		    			<td width="495px">'.$direccion.'</td>		    			
-		    		</tr>
-		    		<tr>
-		    			<td width="197px">Ciudad</td>
-		    			<td width="395px">'.$ciudad.'</td>
-		    			<td width="197px">Comuna</td>
-		    			<td width="197px">'.$comuna.'</td>
-		    		</tr>
+		    		</tr>    	
 		    		
 		    	</table>
 			</td>
@@ -788,7 +761,7 @@ class Pedidos extends CI_Controller {
 		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Cantidad</td>
 		        <td width="395px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:center;" >Descripci&oacute;n</td>
 		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Precio/Unidad</td>
-		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Dcto</td>
+		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" ></td>
 		       
 		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Neto</td>
 		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Total</td>
@@ -807,7 +780,7 @@ class Pedidos extends CI_Controller {
 			<td style="text-align:right">'.$v->cantidad.'&nbsp;&nbsp;</td>			
 			<td style="text-align:left">'.$producto->nombre.'</td>			
 			<td align="right">$ '.number_format($v->precio, 3, '.', ',').'</td>
-			<td align="right">$ '.number_format($v->descuento, 0, '.', ',').'</td>
+			<td align="right"></td>
 			<td align="right">$ '.number_format($v->neto, 0, '.', ',').'</td>			
 			<td align="right">$ '.number_format($v->total, 0, '.', ',').'</td>
 			</tr>';
@@ -817,10 +790,10 @@ class Pedidos extends CI_Controller {
 		}
 
 		// RELLENA ESPACIO
-		while($i < 30){
+		/*while($i < 30){
 			$html .= '<tr><td colspan="5">&nbsp;</td></tr>';
 			$i++;
-		}
+		}*/
 
 
 		$html .= '<tr><td colspan="5">&nbsp;</td></tr></table></td>
@@ -844,8 +817,8 @@ class Pedidos extends CI_Controller {
 		  	<td>
 				<table width="296px" border="0">
 					<tr>
-						<td width="150px" style="font-size: 20px;text-align:left;">Descuento</td>
-						<td width="146px" style="text-align:right;">$ '. number_format($row->desc, 0, ',', '.') .'</td>
+						<td width="150px" style="font-size: 20px;text-align:left;"></td>
+						<td width="146px" style="text-align:right;"></td>
 					</tr>
 				</table>
 		  	</td>		  
@@ -925,43 +898,32 @@ class Pedidos extends CI_Controller {
 		$resp = array();
 		$idcliente = $this->input->post('idcliente');
 		$nomcliente = $this->input->post('nomcliente');
-		$telefono = $this->input->post('telefono');
 		$numeropedido = $this->input->post('numeropedido');
-		$idpago = $this->input->post('idpago');
 		$idbodega = $this->input->post('idbodega');
+		$idformula = $this->input->post('idformula');
 		$fechapedidos = $this->input->post('fechapedido');
 		$fechadoc = $this->input->post('fechadocum');
 		$vendedor = $this->input->post('vendedor');
 		$sucursal = $this->input->post('sucursal');
 		$items = json_decode($this->input->post('items'));
 		$neto = $this->input->post('neto');
-		$desc = $this->input->post('descuento');
 		$fiva = $this->input->post('iva');
 		$fafecto = $this->input->post('afecto');
 		$ftotal = $this->input->post('total');
 		$idobserva = $this->input->post('idobserva');
 						
-		if ($desc){			
-			$desc = $this->input->post('descuento');
-		}else{				
-			$desc = 0;
-		};
-		
+			
 		$pedidos = array(
 	        'num_pedido' => $numeropedido,
 	        'fecha_doc' => $fechadoc ,
 	        'id_cliente' => $idcliente,
 	        'nombre_cliente' => strtoupper($nomcliente),
-	        'telefono' => $telefono,
-	        'id_sucursal' => $sucursal,
-	        'id_pago' => $idpago,
 	        'id_bodega' => $idbodega,
 	        'id_vendedor' => $vendedor,
+	        'id_formula' => $idformula,
 	        'fecha_pedido' => $fechapedidos,
 	        'neto' => $neto,
 	        'iva' => $fiva,
-	        'id_pago' => $idpago,
-	        'descuento' => $desc,
 	        'total' => $ftotal,
 	        'id_observa' => $idobserva,
 	        'estado' => 4
@@ -974,24 +936,16 @@ class Pedidos extends CI_Controller {
 
 		foreach($items as $v){
 
-			if (!$v->descuento){
-
-				$v->id_descuento=0;
-			   		
-			
-			};
 			$secuencia = $secuencia + 1;
 			$pedidos_detalle = array(
 		        'id_producto' => $v->id_producto,
 		        'id_pedido' => $idpedidos,
 		        'id_bodega' => $v->id_bodega,
-		        'id_descuento' => $v->id_descuento,
 		        'num_pedido' => $numeropedido,
 		        'precio' => $v->precio,
 		        'neto' => $v->neto,
 		        'cantidad' => $v->cantidad,
 		        'neto' => $v->neto,
-		        'descuento' => $v->dcto,
 		        'iva' => $v->iva,
 		        'total' => $v->total,
 		        'secuencia' => $secuencia,
@@ -1063,48 +1017,35 @@ class Pedidos extends CI_Controller {
 		$idpedidos = $this->input->post('idpedido');
         $idcliente = $this->input->post('idcliente');
 		$nomcliente = $this->input->post('nomcliente');
-		$telefono = $this->input->post('telefono');
 		$numeropedido = $this->input->post('numeropedido');
-		$idpago = $this->input->post('idpago');
 		$idbodega = $this->input->post('idbodega');
+		$idformula = $this->input->post('idformula');
 		$fechapedidos = $this->input->post('fechapedido');
 		$fechadoc = $this->input->post('fechadocum');
 		$vendedor = $this->input->post('vendedor');
-		$sucursal = $this->input->post('sucursal');
 		$items = json_decode($this->input->post('items'));
 		$neto = $this->input->post('neto');
-		$desc = $this->input->post('descuento');
 		$fiva = $this->input->post('iva');
 		$fafecto = $this->input->post('afecto');
 		$ftotal = $this->input->post('total');
 		$idobserva = $this->input->post('idobserva');					
 						
-		if ($desc){			
-			$desc = $this->input->post('descuento');
-		}else{				
-			$desc = 0;
-		};
-
+		
 		$query = $this->db->query('DELETE FROM pedidos_detalle WHERE id_pedido = "'.$idpedidos.'"');
 
 		$secuencia = 0;
 
 		foreach($items as $v){
-			if (!$v->descuento){
-				$v->id_descuento=0;
-			};
 			$secuencia = $secuencia + 1;
 			$pedidos_detalle = array(
 				'id_producto' => $v->id_producto,
 		        'id_pedido' => $idpedidos,
 		        'id_bodega' => $v->id_bodega,
-		        'id_descuento' => $v->id_descuento,
 		        'num_pedido' => $numeropedido,
 		        'precio' => $v->precio,
 		        'neto' => $v->neto,
 		        'cantidad' => $v->cantidad,
 		        'neto' => $v->neto,
-		        'descuento' => $v->dcto,
 		        'iva' => $v->iva,
 		        'total' => $v->total,
 		        'secuencia' => $secuencia,
@@ -1117,27 +1058,18 @@ class Pedidos extends CI_Controller {
 	    $this->db->insert('pedidos_detalle', $pedidos_detalle);	    	
 		}
 
-		if ($desc){			
-			$desc = $this->input->post('descuento');
-		}else{				
-			$desc = 0;
-		};
-
+		
 		$pedidos = array(
 	        'num_pedido' => $numeropedido,
 	        'fecha_doc' => $fechadoc ,
 	        'id_cliente' => $idcliente,
 	        'nombre_cliente' => strtoupper($nomcliente),
-	        'telefono' => $telefono,
-	        'id_sucursal' => $sucursal,
-	        'id_pago' => $idpago,
 	        'id_bodega' => $idbodega,
+	        'id_formula' => $idformula,
 	        'id_vendedor' => $vendedor,
 	        'fecha_pedido' => $fechapedidos,
 	        'neto' => $neto,
 	        'iva' => $fiva,
-	        'id_pago' => $idpago,
-	        'descuento' => $desc,
 	        'total' => $ftotal,
 	        'id_observa' => $idobserva,
 	        'estado' => 4

@@ -71,7 +71,7 @@ Ext.define('Infosys_web.view.formula.Principal' ,{
             },'-',{
                 xtype: 'button',
                 iconCls: 'icon-edit',
-                action: '',
+                action: 'editaformula',
                 text : 'Editar'
             },'-',{
                 xtype: 'button',

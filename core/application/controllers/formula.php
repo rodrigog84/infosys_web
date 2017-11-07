@@ -222,23 +222,19 @@ class Formula extends CI_Controller {
 	public function edita(){
 
 		$resp = array();
-		$idpedidos = $this->input->get('idpedidos');
+		$idformula = $this->input->get('idformula');
 		
-		$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor, c.direccion as direccion, c.id_pago as id_pago, suc.direccion as direccion_sucursal, ciu.nombre as ciudad, com.nombre as comuna, cor.nombre as nom_documento, cod.nombre as nom_giro FROM pedidos acc
-		left join correlativos cor on (acc.tip_documento = cor.id)
+		$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
+		left join correlativos cor on (acc.tipo_documento = cor.id)
 		left join clientes c on (acc.id_cliente = c.id)
 		left join vendedores v on (acc.id_vendedor = v.id)
-		left join clientes_sucursales suc on (acc.id_sucursal = suc.id)
-		left join comuna com on (suc.id_comuna = com.id)
-		left join ciudad ciu on (suc.id_ciudad = ciu.id)
-		left join cod_activ_econ cod on (c.id_giro = cod.id)
-		WHERE acc.id = "'.$idpedidos.'"
+		WHERE acc.id = "'.$idformula.'"
 		');
 
 		$row1 = $query->result();
 		$row = $row1[0];	   	
 	    	
-	    $items = $this->db->get_where('pedidos_detalle', array('id_pedido' => $idpedidos));
+	    $items = $this->db->get_where('formula_detalle', array('id_formula' => $idformula));
 
 	   	$secuencia = 0;
 
@@ -402,23 +398,19 @@ class Formula extends CI_Controller {
 	public function edita2(){
 
 		$resp = array();
-		$idpedidos = $this->input->get('idpedidos');
+		$idformula = $this->input->get('idformula');
 		
-		$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor, c.direccion as direccion, c.id_pago as id_pago, suc.direccion as direccion_sucursal, ciu.nombre as ciudad, com.nombre as comuna, cor.nombre as nom_documento, cod.nombre as nom_giro FROM pedidos acc
-		left join correlativos cor on (acc.tip_documento = cor.id)
+		$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
+		left join correlativos cor on (acc.tipo_documento = cor.id)
 		left join clientes c on (acc.id_cliente = c.id)
 		left join vendedores v on (acc.id_vendedor = v.id)
-		left join clientes_sucursales suc on (acc.id_sucursal = suc.id)
-		left join comuna com on (suc.id_comuna = com.id)
-		left join ciudad ciu on (suc.id_ciudad = ciu.id)
-		left join cod_activ_econ cod on (c.id_giro = cod.id)
-		WHERE acc.id = "'.$idpedidos.'"
+		WHERE acc.id = "'.$idformula.'"
 		');
 
 		$row1 = $query->result();
 		$row = $row1[0];	
 		
-	   	$items = $this->db->get_where('pedidos_detalle', array('id_pedido' => $idpedidos));
+	   	$items = $this->db->get_where('formula_detalle', array('id_formula' => $idformula));
 
 	   	$data = array();
 
@@ -427,12 +419,13 @@ class Formula extends CI_Controller {
 			$producto = $this->db->get("productos");	
 			$producto = $producto->result();
 			$producto = $producto[0];
-			$item->nom_producto = $producto->nombre;
-			$item->precio = $item->precio;
-			$item->total = $item->total;
-			$item->iva = $item->iva;
-			$item->neto = $item->neto;
-			$item->descuento = $item->descuento;	
+			$item->nombre_producto = $producto->nombre;
+			$item->nombre_formula = $row->nombre_formula;
+			$item->porcentaje = $item->porcentaje;
+			$item->cantidad = $item->cantidad;
+			$item->valor_compra = $item->valor_compra;
+			$item->id_bodega = $item->id_bodega;
+			$item->valor_produccion = $item->valor_produccion;	
 			$data[] = $item;
 		}
 
@@ -766,7 +759,7 @@ class Formula extends CI_Controller {
 		        <td width="395px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:center;" >Descripcion</td>
 		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" ></td>
 		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" ></td>
-		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" ></td>
+		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Valor Compra</td>
 		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Cantidad</td>
 		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Porcentaje</td>
 		       </tr>';
@@ -784,9 +777,9 @@ class Formula extends CI_Controller {
 			<td style="text-align:left">'.$producto->nombre.'</td>
 			<td style="text-align:left"></td>
 			<td style="text-align:left"></td>
-			<td style="text-align:left"></td>	
-			<td align="right">$ '.number_format($v->cantidad, 2, '.', ',').'</td>
-			<td align="right">$ '.number_format($v->porcentaje, 2, '.', ',').'</td>
+			<td style="text-align:right">'.number_format($v->valor_compra, 2, '.', ',').'</td>	
+			<td align="right"> '.number_format($v->cantidad, 2, '.', ',').'</td>
+			<td align="right">% '.number_format($v->porcentaje, 2, '.', ',').'</td>
 			</tr>';
 			
 			//}
@@ -942,103 +935,66 @@ class Formula extends CI_Controller {
 	public function save2(){
 
 		$resp = array();
-		$idpedidos = $this->input->post('idpedido');
-        $idcliente = $this->input->post('idcliente');
+		$idcliente = $this->input->post('idcliente');
+		$idformula = $this->input->post('idformula');
 		$nomcliente = $this->input->post('nomcliente');
-		$telefono = $this->input->post('telefono');
-		$numeropedido = $this->input->post('numeropedido');
-		$idpago = $this->input->post('idpago');
+		$cantidad = $this->input->post('cantidadform');
+		$numeroformula = $this->input->post('numeroformula');
+		$nombreformula = $this->input->post('nomformula');
 		$idbodega = $this->input->post('idbodega');
-		$fechapedidos = $this->input->post('fechapedido');
-		$fechadoc = $this->input->post('fechadocum');
+		$fechaformula = $this->input->post('fechaformula');
 		$vendedor = $this->input->post('vendedor');
-		$sucursal = $this->input->post('sucursal');
 		$items = json_decode($this->input->post('items'));
-		$neto = $this->input->post('neto');
-		$desc = $this->input->post('descuento');
-		$fiva = $this->input->post('iva');
-		$fafecto = $this->input->post('afecto');
-		$ftotal = $this->input->post('total');
-		$idobserva = $this->input->post('idobserva');					
-						
-		if ($desc){			
-			$desc = $this->input->post('descuento');
-		}else{				
-			$desc = 0;
-		};
-
-		$query = $this->db->query('DELETE FROM pedidos_detalle WHERE id_pedido = "'.$idpedidos.'"');
-
-		$secuencia = 0;
+		$idobserva = $this->input->post('idobserva');	
+		
+		$query = $this->db->query('DELETE FROM formula_detalle WHERE id_formula = "'.$idformula.'"');		
 
 		foreach($items as $v){
-			if (!$v->descuento){
-				$v->id_descuento=0;
-			};
-			$secuencia = $secuencia + 1;
-			$pedidos_detalle = array(
-				'id_producto' => $v->id_producto,
-		        'id_pedido' => $idpedidos,
+
+			$formula_detalle = array(
+		        'id_producto' => $v->id_producto,
+		        'id_formula' => $idformula,
 		        'id_bodega' => $v->id_bodega,
-		        'id_descuento' => $v->id_descuento,
-		        'num_pedido' => $numeropedido,
-		        'precio' => $v->precio,
-		        'neto' => $v->neto,
+		        'porcentaje' => $v->porcentaje,
 		        'cantidad' => $v->cantidad,
-		        'neto' => $v->neto,
-		        'descuento' => $v->dcto,
-		        'iva' => $v->iva,
-		        'total' => $v->total,
-		        'secuencia' => $secuencia,
-		        'fecha' => $fechapedidos   
+		        'valor_compra' => $v->valor_compra,
+		        'valor_produccion' => $v->valor_produccion,
+		        );
 
-			);
-
-		$producto = $v->id_producto;
-
-	    $this->db->insert('pedidos_detalle', $pedidos_detalle);	    	
-		}
-
-		if ($desc){			
-			$desc = $this->input->post('descuento');
-		}else{				
-			$desc = 0;
+		$this->db->insert('formula_detalle', $formula_detalle);			
+    	
 		};
 
-		$pedidos = array(
-	        'num_pedido' => $numeropedido,
-	        'fecha_doc' => $fechadoc ,
+		$formula = array(
+	        'num_formula' => $numeroformula,
 	        'id_cliente' => $idcliente,
+	        'tipo_documento' => 22,
+	        'cantidad' => $cantidad,
 	        'nombre_cliente' => strtoupper($nomcliente),
-	        'telefono' => $telefono,
-	        'id_sucursal' => $sucursal,
-	        'id_pago' => $idpago,
+	        'nombre_formula' => strtoupper($nombreformula),
 	        'id_bodega' => $idbodega,
 	        'id_vendedor' => $vendedor,
-	        'fecha_pedido' => $fechapedidos,
-	        'neto' => $neto,
-	        'iva' => $fiva,
-	        'id_pago' => $idpago,
-	        'descuento' => $desc,
-	        'total' => $ftotal,
+	        'fecha_formula' => $fechaformula,
 	        'id_observa' => $idobserva,
-	        'estado' => 4
-			);			
 
-			
-		$this->db->where('id', $idpedidos);
-		$this->db->update('pedidos', $pedidos);
+		);
+
+		$this->db->where('id', $idformula);
+		$this->db->update('formula', $formula);
 		
         $resp['success'] = true;
 
-		$resp['idpedidos'] = $idpedidos;
+		$resp['idformula'] = $idformula;
 
-		$this->Bitacora->logger("I", 'pedidos', $idpedidos);
-		$this->Bitacora->logger("I", 'pedidos_detalle', $idpedidos);  
+
+		$this->Bitacora->logger("I", 'formula', $idformula);
+		$this->Bitacora->logger("I", 'formula_detalle', $idformula);
+        
 
         echo json_encode($resp);
 	}
 
+	
 	public function update(){
 		$resp = array();
 
@@ -1343,196 +1299,51 @@ class Formula extends CI_Controller {
 
         $start = $this->input->post('start');
         $limit = $this->input->post('limit');
-        $opcion = $this->input->post('opcion');
-        $nombres = $this->input->post('nombre');
-        $bodega = $this->input->post('idbodega');
-        $tipo = $this->input->post('tipo');
-        $estado = $this->input->post('estado');
-        if (!$bodega){
-	       $bodega = 0;
-	    }
-        if(!$estado){
-        	$opcion = "Todos";
-        	$estado = 1;
-        };
-        if(!$opcion){
-        	$opcion = "Todos";
-        };
+        $idcliente = $this->input->get('idcliente');
 
-		
-        //$countAll = $this->db->count_all_results("pedidos");
+        if($idcliente){
 
-		if($opcion == "Rut"){
+        	$data = array();
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
+			left join correlativos cor on (acc.tipo_documento = cor.id)
+			left join clientes c on (acc.id_cliente = c.id)
+			left join vendedores v on (acc.id_vendedor = v.id) 
+			WHERE acc.id_cliente = "'.$idcliente.'"');
 
-			if ($estado == 1){
+			$total = 0;
 
-			$data = array();		
+			foreach ($query->result() as $row)
+			{
+				$total = $total +1;
+
+			}
+
+			$countAll = $total;
+
 			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
 			left join correlativos cor on (acc.tipo_documento = cor.id)
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
+			WHERE acc.id_cliente = "'.$idcliente.'" 
+			order by acc.id desc
 			');
+        	
+        }else{
 
-		    $total = 0;
-
-			  foreach ($query->result() as $row)
-				{
-					$total = $total +1;
-				
-				}
-
-				$countAll = $total;
-
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
-			left join correlativos cor on (acc.tipo_documento = cor.id)
-			left join clientes c on (acc.id_cliente = c.id)
-			left join vendedores v on (acc.id_vendedor = v.id)
-			order by acc.id desc			
-			limit '.$start.', '.$limit.'');
-
-		}else{
-
-			$data = array();		
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
-			left join correlativos cor on (acc.tipo_documento = cor.id)
-			left join clientes c on (acc.id_cliente = c.id)
-			left join vendedores v on (acc.id_vendedor = v.id)
-			order by acc.id desc');
-
-		    $total = 0;
-
-			  foreach ($query->result() as $row)
-				{
-					$total = $total +1;
-				
-				}
-
-				$countAll = $total;
-
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
-			left join correlativos cor on (acc.tipo_documento = cor.id)
-			left join clientes c on (acc.id_cliente = c.id)
-			left join vendedores v on (acc.id_vendedor = v.id)
-			order by acc.id desc			
-			limit '.$start.', '.$limit.'');
-
-		};
-
-	    }else if($opcion == "Nombre"){
-
-	    	if ($estado == 1){
-
-	    	$sql_nombre = "";
-	        $arrayNombre =  explode(" ",$nombres);
-
-	        foreach ($arrayNombre as $nombre) {
-	        	$sql_nombre .= "acc.nombre_cliente like '%".$nombre."%' ";
-	        }
-
-	        $data = array();	        	    	
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
-			left join correlativos cor on (acc.tipo_documento = cor.id)
-			left join clientes c on (acc.id_cliente = c.id)
-			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id = "'.$idformula.'" AND ' . $sql_nombre . ' ');
-
-			$total = 0;
-
-		  foreach ($query->result() as $row)
-			{
-				$total = $total +1;
-			
-			}
-
-			$countAll = $total;
-
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
-			left join correlativos cor on (acc.tipo_documento = cor.id)
-			left join clientes c on (acc.id_cliente = c.id)
-			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id = "'.$idformula.'" AND ' . $sql_nombre . ' order by acc.id desc
-			limit '.$start.', '.$limit.'');
-	    		
-
-
-	    	}else{
-
-	    	
-			$sql_nombre = "";
-	        $arrayNombre =  explode(" ",$nombres);
-
-	        foreach ($arrayNombre as $nombre) {
-	        	$sql_nombre .= "and acc.nombre_cliente like '%".$nombre."%' ";
-	        }
-
-	        $data = array();	        	    	
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
-			left join correlativos cor on (acc.tipo_documento = cor.id)
-			left join clientes c on (acc.id_cliente = c.id)
-			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id = "'.$idformula.'" ' . $sql_nombre . ' 
-			order by acc.id desc'
-						
-			);
-
-			$total = 0;
-
-		  foreach ($query->result() as $row)
-			{
-				$total = $total +1;
-			
-			}
-
-			$countAll = $total;
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
-			left join correlativos cor on (acc.tipo_documento = cor.id)
-			left join clientes c on (acc.id_cliente = c.id)
-			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id = "'.$idformula.'" ' . $sql_nombre . ' order by acc.id desc
-			limit '.$start.', '.$limit.'');
-
-		    };
-	 
-		}else if($opcion == "Todos"){
-
-			if ($estado == 1){			
 			$data = array();
 			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
 			left join correlativos cor on (acc.tipo_documento = cor.id)
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			order by acc.id desc');
-
-			$total = 0;
-
-		  foreach ($query->result() as $row)
-			{
-				$total = $total +1;
-			
-			}
-
-			$countAll = $total;
-
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
-			left join correlativos cor on (acc.tipo_documento = cor.id)
-			left join clientes c on (acc.id_cliente = c.id)
-			left join vendedores v on (acc.id_vendedor = v.id) order by acc.id desc
+			order by acc.id desc
 			');
 
-			}else{
-			$data = array();
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
-			left join correlativos cor on (acc.tipo_documento = cor.id)
-			left join clientes c on (acc.id_cliente = c.id)
-			left join vendedores v on (acc.id_vendedor = v.id)
-			order by acc.id desc');
-
 			$total = 0;
 
-		  foreach ($query->result() as $row)
+			foreach ($query->result() as $row)
 			{
 				$total = $total +1;
-			
+
 			}
 
 			$countAll = $total;
@@ -1542,70 +1353,14 @@ class Formula extends CI_Controller {
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			order by acc.id desc
-			limit '.$start.', '.$limit.''	
+			');
+
 			
-			);
 		};
-		}else if($opcion == "Numero"){
+        	
+    	
+		foreach ($query->result() as $row){
 
-			if ($estado == 1){
-
-			
-			$data = array();
-
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
-			left join correlativos cor on (acc.tipo_documento = cor.id)
-			left join clientes c on (acc.id_cliente = c.id)
-			left join vendedores v on (acc.id_vendedor = v.id)
-			order by acc.id desc');
-
-			$total = 0;
-
-		  foreach ($query->result() as $row)
-			{
-				$total = $total +1;
-			
-			}
-
-			$countAll = $total;
-
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
-			left join correlativos cor on (acc.tipo_documento = cor.id)
-			left join clientes c on (acc.id_cliente = c.id)
-			left join vendedores v on (acc.id_vendedor = v.id)
-			order by acc.id desc');
-
-			}else{
-
-				$data = array();
-
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
-			left join correlativos cor on (acc.tipo_documento = cor.id)
-			left join clientes c on (acc.id_cliente = c.id)
-			left join vendedores v on (acc.id_vendedor = v.id)
-			order by acc.id desc');
-
-			$total = 0;
-
-		  foreach ($query->result() as $row)
-			{
-				$total = $total +1;
-			
-			}
-
-			$countAll = $total;
-
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
-			left join correlativos cor on (acc.tipo_documento = cor.id)
-			left join clientes c on (acc.id_cliente = c.id)
-			left join vendedores v on (acc.id_vendedor = v.id)
-			order by acc.id desc');
-				
-			}
-
-		};
-			foreach ($query->result() as $row)
-		{
 			$rutautoriza = $row->rut_cliente;
 		   	if (strlen($rutautoriza) == 8){
 		      $ruta1 = substr($rutautoriza, -1);
@@ -1653,11 +1408,136 @@ class Formula extends CI_Controller {
 		      $ruta3 = substr($rutautoriza, -6, 2);
 		      $row->rut_cliente = ($ruta3.".".$ruta2."-".$ruta1);
 		     
+		    };		    
+			$data[] = $row;
+		};
+
+        $resp['success'] = true;
+        $resp['total'] = $countAll;
+        $resp['data'] = $data;
+
+        echo json_encode($resp);
+	}
+
+	public function getAll2(){
+		
+		$resp = array();
+
+        $start = $this->input->post('start');
+        $limit = $this->input->post('limit');
+        $idcliente = $this->input->get('idcliente');
+
+        if($idcliente){
+
+        	$data = array();
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
+			left join correlativos cor on (acc.tipo_documento = cor.id)
+			left join clientes c on (acc.id_cliente = c.id)
+			left join vendedores v on (acc.id_vendedor = v.id) 
+			WHERE acc.id_cliente = "'.$idcliente.'"');
+
+			$total = 0;
+
+			foreach ($query->result() as $row)
+			{
+				$total = $total +1;
+
+			}
+
+			$countAll = $total;
+
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
+			left join correlativos cor on (acc.tipo_documento = cor.id)
+			left join clientes c on (acc.id_cliente = c.id)
+			left join vendedores v on (acc.id_vendedor = v.id)
+			WHERE acc.id_cliente = "'.$idcliente.'" 
+			order by acc.id desc
+			');
+        	
+        }else{
+
+			$data = array();
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
+			left join correlativos cor on (acc.tipo_documento = cor.id)
+			left join clientes c on (acc.id_cliente = c.id)
+			left join vendedores v on (acc.id_vendedor = v.id)
+			order by acc.id desc
+			');
+
+			$total = 0;
+
+			foreach ($query->result() as $row)
+			{
+				$total = $total +1;
+
+			}
+
+			$countAll = $total;
+
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
+			left join correlativos cor on (acc.tipo_documento = cor.id)
+			left join clientes c on (acc.id_cliente = c.id)
+			left join vendedores v on (acc.id_vendedor = v.id)
+			order by acc.id desc
+			');
+
+			
+		};
+        	
+    	
+		foreach ($query->result() as $row){
+
+			$rutautoriza = $row->rut_cliente;
+		   	if (strlen($rutautoriza) == 8){
+		      $ruta1 = substr($rutautoriza, -1);
+		      $ruta2 = substr($rutautoriza, -4, 3);
+		      $ruta3 = substr($rutautoriza, -7, 3);
+		      $ruta4 = substr($rutautoriza, -8, 1);
+		      $row->rut_cliente = ($ruta4.".".$ruta3.".".$ruta2."-".$ruta1);
+		    };
+		    if (strlen($rutautoriza) == 9){
+		      $ruta1 = substr($rutautoriza, -1);
+		      $ruta2 = substr($rutautoriza, -4, 3);
+		      $ruta3 = substr($rutautoriza, -7, 3);
+		      $ruta4 = substr($rutautoriza, -9, 2);
+		      $row->rut_cliente = ($ruta4.".".$ruta3.".".$ruta2."-".$ruta1);
+		   
 		    };
 
+		     if (strlen($rutautoriza) == 2){
+		      $ruta1 = substr($rutautoriza, -1);
+		      $ruta2 = substr($rutautoriza, -4, 1);
+		      $row->rut_cliente = ($ruta2."-".$ruta1);
+		     
+		    };
+
+		   if (strlen($rutautoriza) == 7){
+		      $ruta1 = substr($rutautoriza, -1);
+		      $ruta2 = substr($rutautoriza, -4, 3);
+		      $ruta3 = substr($rutautoriza, -7, 3);
+		      $row->rut_cliente = ($ruta3.".".$ruta2."-".$ruta1);
+		     
+		    };
 		    
+		    
+		    if (strlen($rutautoriza) == 4){
+		      $ruta1 = substr($rutautoriza, -1);
+		      $ruta2 = substr($rutautoriza, -4, 3);
+		      $row->rut_cliente = ($ruta2."-".$ruta1);
+		     
+		    };	
+
+
+		     if (strlen($rutautoriza) == 6){
+		      $ruta1 = substr($rutautoriza, -1);
+		      $ruta2 = substr($rutautoriza, -4, 3);
+		      $ruta3 = substr($rutautoriza, -6, 2);
+		      $row->rut_cliente = ($ruta3.".".$ruta2."-".$ruta1);
+		     
+		    };		    
 			$data[] = $row;
-		}
+		};
+
         $resp['success'] = true;
         $resp['total'] = $countAll;
         $resp['data'] = $data;
