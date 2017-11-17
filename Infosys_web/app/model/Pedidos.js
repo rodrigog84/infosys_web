@@ -3,6 +3,9 @@ Ext.define('Infosys_web.model.Pedidos', {
     fields: [
         {name: 'id'},
         {name: 'num_pedido'},
+        {name: 'id_formula'},
+        {name: 'nom_formula'},
+        {name: 'cantidad'},
         {name: 'abono'},
         {name: 'tip_documento'},
         {name: 'nom_documento'},
@@ -14,6 +17,8 @@ Ext.define('Infosys_web.model.Pedidos', {
         {name: 'rut_cliente'},
         {name: 'id_vendedor'},
         {name: 'nom_vendedor'},
+        {name: 'nom_producto'},
+        {name: 'nombre_producto'},
         {name: 'fecha_pedido', type:'date',dateFormat:"Y-m-d"},
         {name: 'hora_pedido'},
         {name: 'fecha_venc', type:'date',dateFormat:"Y-m-d"},
@@ -28,7 +33,8 @@ Ext.define('Infosys_web.model.Pedidos', {
         {name: 'id_tipopedido'},
         {name: 'estado'},
         {name: 'nom_bodega'},
-        {name: 'id_bodega'}
+        {name: 'id_bodega'},
+        {name: 'id_producto'}
          
        
     ]

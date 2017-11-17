@@ -33,6 +33,10 @@ Ext.define('Infosys_web.view.existencia.Principal' ,{
         renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")}
 
     },{
+        header: "Bodega",
+        flex: 1,
+        dataIndex: 'nom_bodega'
+    },{
         header: "Fecha Ultimo Movimiento",
         flex: 1,
         renderer:Ext.util.Format.dateRenderer('d/m/Y'),  
@@ -51,6 +55,20 @@ Ext.define('Infosys_web.view.existencia.Principal' ,{
                 iconCls : 'icon-exel',
                 text: 'Editar Detalle',
                 action:'editarexistencia'
+            },'-',{
+                xtype: 'combo',
+                itemId: 'bodegaId',
+                labelWidth: 60,
+                width: 255,
+                fieldCls: 'required',
+                maxHeight: 25,
+                fieldLabel: '<b>BODEGA</b>',
+                forceSelection : true,
+                name : 'id_bodega',
+                valueField : 'id',
+                displayField : 'nombre',
+                emptyText : "Seleccione",
+                store : 'Bodegas'
             },{
                 xtype: 'button',
                 iconCls : 'icon-exel',

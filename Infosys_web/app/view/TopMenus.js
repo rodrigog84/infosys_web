@@ -29,6 +29,7 @@ Ext.define('Infosys_web.view.TopMenus' ,{
             menu: [{
                 text: 'Cuentas de Centralizacion',
                 iconCls: '',
+                hidden: true,
                 menu: [{
                         text: 'Ventas',
                         iconCls: '',
@@ -88,12 +89,11 @@ Ext.define('Infosys_web.view.TopMenus' ,{
             text : 'Inventario',
             menu: [{
                 text: 'Tablas Generales',
-                
+                itemId: 'inv_tg_productos',
+                disabled: true,
                 menu: [{
                         text: 'Productos',
                         iconCls: '',
-                        disabled: true,
-                        itemId: 'inv_tg_productos',
                         action: 'mproductos'
                     },{
                         text: 'Actualizar Precios',
@@ -197,7 +197,8 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                             },{
                             text: 'Inventario Selectivo',
                             iconCls: '',
-                            action: ''                                          
+                            action: '',
+                            hidden: true                                         
                         }]
                                                                 
                 }]
@@ -334,7 +335,7 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                         iconCls: '',
                         itemId: 'pro_md_repro',
                         disabled: true,
-                        action: ''
+                        action: 'mProduccion'
                         },{
                         text: 'Genera Pedidos',
                         iconCls: '',
@@ -373,12 +374,13 @@ Ext.define('Infosys_web.view.TopMenus' ,{
             text : 'Ventas y Facturacion',
             menu: [{
                 text: 'Tablas Generales',
+                
                 iconCls: '',
                 menu: [{
                         text: 'Registro de Empresa',
-                        iconCls: '',
+                        iconCls: '', 
                         itemId: 'vyf_registro_empresa',
-                        disabled: '',
+                        disabled: true,                       
                         action: 'mregempresa'
                 },{
                         text: 'Clientes',
@@ -457,23 +459,14 @@ Ext.define('Infosys_web.view.TopMenus' ,{
             {
                 text: 'Ingreso de Movimientos',
                 iconCls: '',
-                 menu: [,{
-                        text: 'Punto de Ventas',
-                        iconCls: '',
-                        //itemId: 'vyf_im_flotes',
-                        //disabled: true,
-                        menu: [{
-                            text: 'Ingreso Nota venta',
-                            iconCls: '',
-                            action: 'mpreventa'
-                        }]
-                },{
+                 menu: [{
                         text: 'Ventas',
                         iconCls: '',
+                        itemId: 'vyf_im_ventas',
+                        disabled: true,
                         menu: [{
                             text: 'Venta Directa',
-                            itemId: 'vyf_im_ventas',
-                            disabled: true,
+                            
                             iconCls: '',
                             action: 'mejemplo'
                         },{

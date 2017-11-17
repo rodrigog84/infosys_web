@@ -17,7 +17,8 @@ Ext.define('Infosys_web.controller.Formulas', {
             'formula.BuscarClientes',
             'formula.EditarFormula',
             'formula.BuscarProductos2',
-            'formula.BuscarClientes2',],
+            'formula.BuscarClientes2',
+            'formula.reformula'],
 
     //referencias, es un alias interno para el controller
     //podemos dejar el alias de la vista en el ref y en el selector
@@ -49,8 +50,10 @@ Ext.define('Infosys_web.controller.Formulas', {
     },{
         ref: 'buscarproductosformula2',
         selector: 'buscarproductosformula2'
+    },{
+        ref: 'reformulacion',
+        selector: 'reformulacion'
     }
-
     ],
     //init es lo primero que se ejecuta en el controller
     //especia de constructor
@@ -140,8 +143,95 @@ Ext.define('Infosys_web.controller.Formulas', {
             'formulaeditar button[action=agregarItem2]': {
                 click: this.agregarItem2
             },
+            'reformulacion button[action=reformula]': {
+                click: this.reformula
+            },
+            'reformulacion button[action=limpia]': {
+                click: this.limpia
+            },
             
         });
+    },
+
+    reformula: function(){
+
+        var view = this.getFormulaeditar();
+        var viewedit = this.getReformulacion();
+        viewedit.close();
+        var tipo_documento = view.down('#tipoDocumentoId');
+        var rut = view.down('#rutId').getValue();
+        var idformula = view.down('#idId').getValue();
+        var stItem = this.getFormulaItemsStore();
+        var producto = view.down('#productoId').getValue();
+        var codigo = view.down('#codigoId').getValue();
+        var idbodega = view.down('#bodegaId').getValue();
+        var cantidador = view.down('#cantidadformId').getValue();
+        var precio = (view.down('#precioId').getValue());
+        var porcentaje = view.down('#valorporId').getValue();         
+        var stItem = this.getFormulaEditarStore();
+        var pretotal = 0;
+        var total = 0;
+
+        var dataItems = new Array();
+        stItem.each(function(r){
+            dataItems.push(r.data)
+        });
+
+        console.log(porcentaje)
+
+        Ext.Ajax.request({
+            url: preurl + 'formula/reformula',
+            params: {
+                idformula: idformula,
+                items: Ext.JSON.encode(dataItems),
+                cantidad: cantidador,
+                porcentaje: porcentaje,
+                precio: precio,
+                idproducto: producto,
+                idbodega: idbodega,
+
+                },
+             success: function(response){
+                 var resp = Ext.JSON.decode(response.responseText);
+                 var idformula= resp.idformula;
+                 stItem.load();
+                
+            }
+           
+        });        
+        stItem.load();                    
+        
+        cero="";
+        cero1=0;
+        cero2=0;
+        view.down('#codigoId').setValue(cero);
+        view.down('#productoId').setValue(cero);
+        view.down('#nombreproductoId').setValue(cero);
+        view.down('#cantidadId').setValue(cero2);
+        view.down('#precioId').setValue(cero);
+        view.down('#cantidadOriginalId').setValue(cero);
+        view.down('#valorporId').setValue(cero);
+        view.down("#buscarproc").focus();
+        
+    },
+
+    limpia: function(){
+
+        var view = this.getFormulaeditar();
+        cero="";
+        cero1=0;
+        cero2=0;
+        view.down('#codigoId').setValue(cero);
+        view.down('#productoId').setValue(cero);
+        view.down('#nombreproductoId').setValue(cero);
+        view.down('#cantidadId').setValue(cero2);
+        view.down('#precioId').setValue(cero);
+        view.down('#cantidadOriginalId').setValue(cero);
+        view.down('#valorporId').setValue(cero);
+        view.down("#buscarproc").focus();
+        var viewedit = this.getreFormulacion();
+        viewedit.close();
+        
     },
 
     editaritem2: function() {
@@ -274,8 +364,7 @@ Ext.define('Infosys_web.controller.Formulas', {
             var view = this.getFormulaeditar();
             var stItem = this.getFormulaEditarStore();
             var idformula = row.data.id;
-            var id_bodega = row.data.id_bodega;
-            
+            var id_bodega = row.data.id_bodega;            
             stItem.proxy.extraParams = {idformula : idformula};
             stItem.load();
             
@@ -489,9 +578,22 @@ Ext.define('Infosys_web.controller.Formulas', {
         var precio = ((view.down('#precioId').getValue()));
         var porcentaje = view.down('#valorporId').getValue();
         var cantidaddet = view.down('#cantidadformdetId').getValue();
+        var nombreformula = view.down('#nombreformulaId').getValue();
+
+        
         
         if(!porcentaje){            
-            Ext.Msg.alert('Alerta', 'Ingrese ^Porcentaje');
+            Ext.Msg.alert('Alerta', 'Ingrese Porcentaje');
+            return false;
+        } 
+        
+        if(!nombreformula){            
+            Ext.Msg.alert('Alerta', 'Ingrese Nombre formula');
+            return false;
+        }
+        
+         if(!cantidador){            
+            Ext.Msg.alert('Alerta', 'Ingrese Cantidad Formula');
             return false;
         }  
         
@@ -598,10 +700,7 @@ Ext.define('Infosys_web.controller.Formulas', {
             Ext.Msg.alert('Alerta', 'Debe Ingresar Precio Producto');
             return false;
         }
-        if(cantidad>cantidadori){
-            Ext.Msg.alert('Alerta', 'Cantidad Ingresada de Productos Supera El Stock');
-            return false;
-        }
+       
         if(cantidad==0){
             Ext.Msg.alert('Alerta', 'Debe Ingresar Cantidad.');
             return false;
@@ -612,11 +711,11 @@ Ext.define('Infosys_web.controller.Formulas', {
         }
 
         var cantidad = (parseInt(cantidador * porcentaje) /100)
-        var cantidaddet = (cantidaddet + cantidad);
+        var cantidaddet = (Math.round(cantidaddet + cantidad));
 
         if (cantidaddet > cantidador){
-            Ext.Msg.alert('Alerta', 'Cantidad Supera Lo Solicitado');
-            return false;            
+             var edit = Ext.create('Infosys_web.view.formula.reformula').show(); 
+             return;    
         }else{
              view.down('#cantidadformdetId').setValue(cantidaddet);
         };

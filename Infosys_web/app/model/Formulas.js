@@ -7,10 +7,15 @@ Ext.define('Infosys_web.model.Formulas', {
         {name: 'rut_cliente'},
         {name: 'id_producto'},
         {name: 'nombre_formula'},
+        {name: 'nombre'},
+        {name: 'nombre_producto'},
         {name: 'num_formula'},
         {name: 'codigo'},
         {name: 'fecha_formula', type:'date',dateFormat:"Y-m-d"},
         {name: 'cantidad'},
-        {name: 'valor', decimalPrecision:2}          
+        {name: 'valor', decimalPrecision:2},
+        {name: 'valor_compra', decimalPrecision:2},
+        {name: 'valor_produccion', decimalPrecision:2},
+        {name: 'porcentaje', decimalPrecision:2}        
     ]
 });

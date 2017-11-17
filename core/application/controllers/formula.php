@@ -9,6 +9,7 @@ class Formula extends CI_Controller {
 		$this->load->database();
 	}
 
+	
 	public function formuladetalle(){
 
 		$resp = array();
@@ -61,6 +62,63 @@ class Formula extends CI_Controller {
 	   		
 	   echo json_encode($resp);
 	}
+
+	public function reformula(){
+
+		$resp = array();
+		$data = array();
+		$items = json_decode($this->input->post('items'));
+		$idformula = $this->input->post('idformula');
+		$cantidadform = $this->input->post('cantidad');
+		$porcentaje = $this->input->post('porcentaje');
+		$precio = $this->input->post('precio');
+		$idproducto = $this->input->post('idproducto');	
+		$idbodega = $this->input->post('idbodega');	
+				
+		$query = $this->db->query('DELETE FROM formula_detalle WHERE id_formula = "'.$idformula.'"');		
+
+		foreach($items as $v){
+
+			$recalculo1 = (($v->porcentaje * $porcentaje) /100);
+			$recalculo = ($v->porcentaje -  $recalculo1);
+            $cantidad = (($cantidadform * $recalculo ) / 100);
+            $porcentajeor = $recalculo;
+            
+            $formula_detalle = array(
+		        'id_producto' => $v->id_producto,
+		        'id_formula' => $idformula,
+		        'id_bodega' => $v->id_bodega,
+		        'porcentaje' => $porcentajeor,
+		        'cantidad' => $cantidad,
+		        'valor_compra' => $v->valor_compra,
+		        'valor_produccion' => $v->valor_compra,
+		        );
+
+			$this->db->insert('formula_detalle', $formula_detalle);			
+    	
+		};
+
+		$cantidador = (($cantidadform * $porcentaje )/ 100);
+
+		$formula_nueva = array(
+		        'id_producto' => $idproducto,
+		        'id_formula' => $idformula,
+		        'id_bodega' => $v->id_bodega,
+		        'porcentaje' => $porcentaje,
+		        'cantidad' => $cantidador,
+		        'valor_compra' => $precio,
+		        'valor_produccion' => $precio,
+		        );
+
+		$this->db->insert('formula_detalle', $formula_nueva); 
+		
+		$resp['success'] = true;
+        $resp['data'] = $data; 
+        echo json_encode($resp);  	
+
+		
+	}
+
 
 	public function validaRut(){
 
@@ -910,7 +968,7 @@ class Formula extends CI_Controller {
 			$formula_detalle = array(
 		        'id_producto' => $v->id_producto,
 		        'id_formula' => $idformula,
-		        'id_bodega' => $v->id_bodega,
+		        'id_bodega' => 1,
 		        'porcentaje' => $v->porcentaje,
 		        'cantidad' => $v->cantidad,
 		        'valor_compra' => $v->valor_compra,
@@ -954,7 +1012,7 @@ class Formula extends CI_Controller {
 			$formula_detalle = array(
 		        'id_producto' => $v->id_producto,
 		        'id_formula' => $idformula,
-		        'id_bodega' => $v->id_bodega,
+		        'id_bodega' => 1,
 		        'porcentaje' => $v->porcentaje,
 		        'cantidad' => $v->cantidad,
 		        'valor_compra' => $v->valor_compra,

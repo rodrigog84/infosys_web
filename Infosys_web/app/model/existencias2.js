@@ -9,10 +9,11 @@ Ext.define('Infosys_web.model.existencias2', {
         {name: 'nom_producto'},
         {name: 'tipo_movimiento'},
         {name: 'nom_tipo_movimiento'},
+        {name: 'stock'},
         {name: 'num_movimiento'},
-        {name: 'cantidad_entrada'},
-        {name: 'cantidad_salida'},
+        {name: 'cantidad_entrada', decimalPrecision: 3},
+        {name: 'cantidad_salida', decimalPrecision: 3},
         {name: 'fecha_movimiento',type:'date',dateFormat:"Y-m-d"},
-	    {name: 'valor_producto'}
+	{name: 'valor_producto', decimalPrecision: 3}
     ]
 });

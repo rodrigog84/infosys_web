@@ -44,10 +44,6 @@ Ext.define('Infosys_web.view.formula.Principal' ,{
         flex: 1,
         dataIndex: 'cantidad'
     },{
-        header: "Valor",
-        flex: 1,
-        dataIndex: 'valor'
-    },{
         header: "Fecha",
         flex: 1,
         dataIndex: 'fecha_formula',

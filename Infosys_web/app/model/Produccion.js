@@ -1,0 +1,24 @@
+Ext.define('Infosys_web.model.Produccion', {
+    extend: 'Ext.data.Model',
+    fields: [
+        {name: 'id'},
+        {name: 'id_pedido'},
+        {name: 'id_cliente'},
+        {name: 'nom_cliente'},
+        {name: 'codigo'},
+        {name: 'id_formula_pedido'},
+        {name: 'num_produccion'},
+        {name: 'fecha_produccion'},
+        {name: 'fecha_pedido'},
+        {name: 'nom_formula'},
+        {name: 'nom_producto'},
+        {name: 'id_producto'},
+        {name: 'cantidad', decimalPrecision:2},
+        {name: 'lote'},
+        {name: 'hora_inicio'},
+        {name: 'hora_termino'},
+        {name: 'fecha_termino'},
+        {name: 'encargado'},
+        {name: 'estado'}            
+    ]
+});

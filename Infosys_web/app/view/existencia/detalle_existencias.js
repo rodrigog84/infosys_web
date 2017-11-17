@@ -17,7 +17,7 @@ Ext.define('Infosys_web.view.existencia.detalle_existencias' ,{
             xtype: 'grid',
             iconCls: 'icon-grid',
             title : 'Detalle Existencia',
-            store: 'Existencias2',
+            store: 'Existencias3',
             autoHeight: true,
             viewConfig: {
                 forceFit: true

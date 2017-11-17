@@ -852,11 +852,8 @@ Ext.define('Infosys_web.controller.Pedidos', {
                 }else{
                       Ext.Msg.alert('Informacion', 'Rut Incorrecto');
                       view.down("#rutId").setValue(cero);
-                      return;
-                      
-                }
-
-              
+                      return;                      
+                }              
             }
 
         });       
@@ -875,6 +872,7 @@ Ext.define('Infosys_web.controller.Pedidos', {
         var numeropedido = viewIngresa.down('#ticketId').getValue();
         var idpedido = viewIngresa.down('#idId').getValue();        
         var idFormula = viewIngresa.down('#formulaId').getValue();
+        var nomformula = viewIngresa.down('#nombreformulaId').getValue();
         var idcliente = viewIngresa.down('#id_cliente').getValue();
         var idobserva = viewIngresa.down('#obsId').getValue();
         var nomcliente = viewIngresa.down('#nombre_id').getValue();
@@ -919,6 +917,7 @@ Ext.define('Infosys_web.controller.Pedidos', {
                 idpedido: idpedido, 
                 nomcliente: nomcliente,
                 idformula: idFormula,
+                nomformula: nomformula,
                 items: Ext.JSON.encode(dataItems),
                 vendedor : vendedor,
                 idbodega: idbodega,
@@ -1733,6 +1732,7 @@ Ext.define('Infosys_web.controller.Pedidos', {
         var idcliente = viewIngresa.down('#id_cliente').getValue();
         var nomcliente = viewIngresa.down('#nombre_id').getValue();
         var idFormula = viewIngresa.down('#formulaId').getValue();
+        var nomformula = viewIngresa.down('#nombreformulaId').getValue();
         var id_observa = viewIngresa.down('#obsId').getValue();
         var vendedor = viewIngresa.down('#tipoVendedorId');
         var fechapedidos = viewIngresa.down('#fechapedidoId').getValue();
@@ -1775,6 +1775,7 @@ Ext.define('Infosys_web.controller.Pedidos', {
                 items: Ext.JSON.encode(dataItems),
                 vendedor : vendedor,
                 idformula: idFormula,
+                nomformula: nomformula,
                 id_observa: id_observa,
                 idbodega: idbodega,
                 numeropedido : numeropedido,
