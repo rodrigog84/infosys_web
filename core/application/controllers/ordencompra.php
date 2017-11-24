@@ -199,13 +199,14 @@ class Ordencompra extends CI_Controller {
 			$this->db->insert('existencia_detalle', $datos2);
 
 
-			 $query = $this->db->query('SELECT * FROM existencia WHERE id_producto='.$producto.'');
+			 $query = $this->db->query('SELECT * FROM existencia WHERE id_producto='.$producto.' and id_bodega = '.$idbodega.'');
 	    	 $row = $query->result();
 			 if ($query->num_rows()>0){
 
 				$row = $row[0];
 	 
 		        if ($producto==($row->id_producto)){
+		        	$saldo = ($row->stock)+ $v->cantidad;
 				    $datos3 = array(
 					'stock' => $saldo,
 			        'fecha_ultimo_movimiento' => date('Y-m-d H:i:s')
@@ -214,7 +215,7 @@ class Ordencompra extends CI_Controller {
 
 		    	    $this->db->update('existencia', $datos3);
 	    	    }else{
-
+	    	    	$saldo = $v->cantidad;
 	    	    	$datos3 = array(
 					'id_producto' => $producto,
 			        'stock' =>  $saldo,
@@ -401,13 +402,14 @@ class Ordencompra extends CI_Controller {
 			$this->db->insert('existencia_detalle', $datos2);
 
 
-			 $query = $this->db->query('SELECT * FROM existencia WHERE id_producto='.$producto.'');
+			 $query = $this->db->query('SELECT * FROM existencia WHERE id_producto='.$producto.' and id_bodega='.$idbodega.' ');
 	    	 $row = $query->result();
 			 if ($query->num_rows()>0){
 
 				$row = $row[0];
 	 
 		        if ($producto==($row->id_producto)){
+		        	$saldo = ($row->stock + $v->stock);
 				    $datos3 = array(
 					'stock' => $saldo,
 			        'fecha_ultimo_movimiento' => date('Y-m-d H:i:s')
@@ -416,23 +418,23 @@ class Ordencompra extends CI_Controller {
 
 		    	    $this->db->update('existencia', $datos3);
 	    	    }else{
-
+	    	    	$saldo = $v->stock;
 	    	    	$datos3 = array(
 					'id_producto' => $producto,
 			        'stock' =>  $saldo,
+			        'id_bodega' => $idbodega,
 			        'fecha_ultimo_movimiento' =>date('Y-m-d H:i:s'),
-			        'id_bodega' => 1
-				
+			       			
 					);
 					$this->db->insert('existencia', $datos3);
 		    	 	}
 				}else{					
-
+                        $saldo = $v->stock;
 		    	    	$datos3 = array(
 						'id_producto' => $producto,
 				        'stock' =>  $saldo,
 				        'fecha_ultimo_movimiento' =>date('Y-m-d H:i:s'),
-				        'id_bodega' => 1
+				        'id_bodega' => $idbodega
 					
 						);
 						$this->db->insert('existencia', $datos3);
@@ -480,8 +482,7 @@ class Ordencompra extends CI_Controller {
 			    $cantidad = ($v->cantidad - $v->stock);
 	    		$total = ($v->subtotal * $cantidad);
 	    		$neto = ($total / 1.19);
-	    		$iva = ($total - $neto);
-    		
+	    		$iva = ($total - $neto);   		
 
 
 	    	$orden_compra_item = array(
