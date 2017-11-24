@@ -72,6 +72,18 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                                             valueField: 'id',
                                             displayField: 'nombre'
                                         },{
+                                            xtype: 'textareafield',
+                                            itemId: 'obsId',
+                                            name : 'idobserva',
+                                            fieldLabel: 'Id Observacion',
+                                            hidden: true
+                                        },{
+                                            xtype: 'textareafield',
+                                            itemId: 'observaId',
+                                            name : 'observacion',
+                                            fieldLabel: 'Observacion',
+                                            hidden: true
+                                        },{
                                             xtype: 'displayfield',
                                             width: 40                                          
                                         },{
@@ -129,6 +141,16 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                                             value: new Date(),
                                             readOnly: true
 
+                                        },{
+                                            xtype: 'textfield',
+                                            fieldCls: 'required',
+                                            maxHeight: 25,
+                                            width: 100,
+                                            name: 'permite',
+                                            value: "NO",
+                                            itemId: 'permiteId',
+                                            fieldLabel: '<b>permite</b>',
+                                            hidden: true
                                         }
                                     ]
                                 },
@@ -309,9 +331,9 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                                             width: 200,
                                             labelWidth: 85,
                                             maxHeight: 25,
-                                            fieldLabel: '<b>O. COMPRA</b>',
-                                            name: 'orden_compra',
-                                            itemId: 'ordencompraId',
+                                            fieldLabel: '<b>GUIAS</b>',
+                                            name: 'guias_despacho',
+                                            itemId: 'guiasdespachoId',
                                             style: 'font-weight: bold;'
                                         }
                                     ]
@@ -535,6 +557,12 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                     },
                     items: ['->',
                         {
+                            xtype: 'button',
+                            //iconCls: 'icono',
+                            scale: 'large',
+                            action: 'observaciones',
+                            text: 'OBSERVACIONES'
+                        },{
                             xtype: 'button',
                             iconCls: 'icon-save',
                             scale: 'large',

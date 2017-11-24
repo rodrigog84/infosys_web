@@ -19,7 +19,8 @@ Ext.define('Infosys_web.controller.Facturaganado', {
             'facturaganado.BuscarClientes',
             'facturaganado.BuscarSucursales',
             'facturaganado.BuscarProductos',
-            'ventas.Principalfactura'],
+            'ventas.Principalfactura',
+            'facturaganado.Observaciones'],
 
     //referencias, es un alias interno para el controller
     //podemos dejar el alias de la vista en el ref y en el selector
@@ -42,9 +43,10 @@ Ext.define('Infosys_web.controller.Facturaganado', {
     },{
         ref: 'buscarproductosganado',
         selector: 'buscarproductosganado'
+    },{
+        ref: 'observacionesfacturasganado',
+        selector: 'observacionesfacturasganado'
     }
-
-
 
 
     ],
@@ -85,9 +87,11 @@ Ext.define('Infosys_web.controller.Facturaganado', {
             'facturaganado #nombreId': {
                 click: this.special
             },
-
             'facturaganado #netoId': {
                 specialkey: this.calculaiva
+            },
+            'facturaganado #precioId': {
+                specialkey: this.calculaneto
             },            
 
             'facturaganado button[action=validarut]': {
@@ -126,7 +130,170 @@ Ext.define('Infosys_web.controller.Facturaganado', {
             'buscarproductosganado button[action=buscar]': {
                 click: this.buscarp
             },
+            'facturaganado button[action=observaciones]': {
+                click: this.observaciones
+            },
+            'observacionesfacturasganado button[action=ingresaobs]': {
+                click: this.ingresaobs
+            },
+            'observacionesfacturasganado #rutId': {
+                specialkey: this.special6
+            },
+            'observacionesfacturasganado button[action=validar]': {
+                click: this.validarut2
+            },
+
+
             
+        });
+    },
+
+    special6: function(f,e){
+        if (e.getKey() == e.ENTER) {
+            this.validarut2()
+        }
+    },
+
+    observaciones: function(){
+
+        var viewIngresa = this.getFacturaganado();
+        var idobserva = viewIngresa.down('#obsId').getValue();
+        var observatex = viewIngresa.down('#observaId').getValue();
+        if(!idobserva){
+        var numfactura = viewIngresa.down('#numfacturaId').getValue();
+        var view = Ext.create('Infosys_web.view.facturaganado.Observaciones').show();
+        view.down("#rutId").focus();
+        view.down("#FactId").setValue(numfactura);
+        }else{
+            Ext.Ajax.request({
+            url: preurl + 'facturasvizualiza/leeobserva',
+            params: {
+                observa : idobserva
+            },
+            success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                var observa = resp.observa;         
+                var view = Ext.create('Infosys_web.view.facturaganado.Observaciones').show();
+        
+                view.down("#rutmId").setValue(observa.rut);
+                view.down("#rutId").setValue(observa.rutm);
+                view.down("#nombreId").setValue(observa.nombre);
+                view.down("#camionId").setValue(observa.pat_camion);  
+                view.down("#carroId").setValue(observa.pat_carro);  
+                view.down("#fonoId").setValue(observa.fono);
+                view.down("#observaId").setValue(observatex);               
+
+            }
+           
+        });
+       }
+    },
+            
+    ingresaobs: function(){
+
+        var view = this.getObservacionesfacturasganado();
+        var viewIngresar = this.getFacturaganado();                
+        var rut = view.down('#rutmId').getValue();
+        var nombre = view.down('#nombreId').getValue();
+        var camion = view.down('#camionId').getValue();
+        var fono = view.down('#fonoId').getValue();
+        var carro = view.down('#carroId').getValue();
+        var observa = view.down('#observaId').getValue();
+        var valida = view.down('#validaId').getValue();
+        var numero = view.down('#FactId').getValue();      
+        
+        var permite = "SI"
+
+        if (valida == "NO"){
+             Ext.Msg.alert('Alerta', 'Debe Validar Rut');
+                 return;
+        };        
+        
+        if (!rut){
+             Ext.Msg.alert('Alerta', 'Debe Ingresar Rut');
+                 return;
+        };
+        if (!nombre){
+             Ext.Msg.alert('Alerta', 'Debe Ingresar Nombre');
+                 return;
+        };       
+       
+        Ext.Ajax.request({
+            url: preurl + 'facturasvizualiza/saveobserva',
+            params: {
+                rut: rut,
+                nombre: nombre,
+                camion: camion,
+                carro : carro,
+                fono : fono,
+                observa : observa,
+                numero: numero
+            },
+            success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                var idobserva = resp.idobserva;         
+                view.close();
+                viewIngresar.down("#observaId").setValue(observa);
+                viewIngresar.down("#permiteId").setValue(permite);
+                viewIngresar.down("#obsId").setValue(idobserva);               
+
+            }
+           
+        });
+    },
+
+    validarut2: function(){
+
+        var view = this.getObservacionesfacturasganado();
+        var rut = view.down('#rutId').getValue();
+        var okey = "SI";
+        var cero = " ";
+        
+        if (!rut){
+             Ext.Msg.alert('Alerta', 'Debe Ingresar Rut');
+                 return;
+        };
+
+        Ext.Ajax.request({
+            url: preurl + 'facturasvizualiza/validaRut?valida='+rut,
+            params: {
+                id: 1
+            },
+            
+            success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                if (resp.success == true) {
+                    var rutm = resp.rut;
+                    if (resp.existe == true){
+                        var observa = resp.observa;
+                        if (observa){
+                         view.down("#nombreId").setValue(observa.nombre);
+                         view.down("#rutId").setValue(observa.rut);
+                         view.down("#rutmId").setValue(rut);
+                         view.down("#camionId").setValue(observa.pat_camion);
+                         view.down("#carroId").setValue(observa.pat_carro);
+                         view.down("#fonoId").setValue(observa.fono);
+                         view.down("#validaId").setValue(okey);
+                         view.down("#observaId").focus();
+                    }             
+                    };
+                    if (resp.existe == false){
+                        view.down("#nombreId").focus();
+                         view.down("#rutId").setValue(rutm);
+                         view.down("#rutmId").setValue(rut);
+                         view.down("#validaId").setValue(okey);
+                    }  
+                    
+                }else{
+
+                      Ext.Msg.alert('Informacion', 'Rut Incorrecto');                      
+                      return false;
+                     
+                      
+                }
+               
+            }
+
         });
     },
 
@@ -254,19 +421,19 @@ Ext.define('Infosys_web.controller.Facturaganado', {
            this.validaboleta();
            
         }
-
-        //view.down('#rutId').setDisabled(bolDisabled);
-        //view.down('#buscarBtn').setDisabled(bolDisabled);
-        //view.down('#nombre_id').setDisabled(bolDisabled);
-        //view.down('#direccionId').setDisabled(bolDisabled);
-        //view.down('#giroId').setDisabled(bolDisabled);
-        //view.down('#tipoCiudadId').setDisabled(bolDisabled);
-        //view.down('#tipoComunaId').setDisabled(bolDisabled);
-        //view.down('#sucursalId').setDisabled(bolDisabled);
-        //view.down('#tipoVendedorId').setDisabled(bolDisabled);
-        //view.down('#tipocondpagoId').setDisabled(bolDisabled);
         grid.getStore().removeAll();  
         
+    },
+
+    calculaneto: function(){
+
+        var view = this.getFacturaganado();
+        var precio = view.down('#precioId').getValue();
+        var kilos = view.down('#kilosId').getValue();
+        var neto = (parseInt(precio * kilos));
+        view.down('#netoId').setValue(neto);
+        this.calculaiva();
+       
     },
 
            
@@ -651,10 +818,11 @@ Ext.define('Infosys_web.controller.Facturaganado', {
         var idbodega = view.down('#bodegaId').getValue();
         var tipo_documento = viewIngresa.down('#tipoDocumentoId').getValue();
         var idcliente = viewIngresa.down('#id_cliente').getValue();
+        var observa = viewIngresa.down('#observaId').getValue();
         var idtipo= viewIngresa.down('#tipoDocumentoId').getValue();
         var idsucursal= viewIngresa.down('#id_sucursalID').getValue();
         var idcondventa= viewIngresa.down('#tipocondpagoId').getValue();
-        var ordencompra= viewIngresa.down('#ordencompraId').getValue();
+        var guiadespacho= viewIngresa.down('#guiasdespachoId').getValue();
         var vendedor = viewIngresa.down('#tipoVendedorId').getValue();
         var numdocumento = viewIngresa.down('#numfacturaId').getValue();
         var fechafactura = viewIngresa.down('#fechafacturaId').getValue();
@@ -665,7 +833,12 @@ Ext.define('Infosys_web.controller.Facturaganado', {
         if(numdocumento==0){
             Ext.Msg.alert('Ingrese Datos a La Factura');
             return;   
-            }
+        }
+
+        if(!guiadespacho){
+            Ext.Msg.alert('Ingrese Guias Despacho Referencial');
+            return;   
+        }
 
         var dataItems = new Array();
         stItem.each(function(r){
@@ -680,8 +853,9 @@ Ext.define('Infosys_web.controller.Facturaganado', {
                 idsucursal: idsucursal,
                 idbodega: idbodega,
                 idcondventa: idcondventa,
+                idobserva: observa,
                 idtipo: idtipo,
-                ordencompra: ordencompra,
+                ordencompra: guiadespacho,
                 items: Ext.JSON.encode(dataItems),
                 vendedor : vendedor,
                 fechafactura : fechafactura,
@@ -697,7 +871,12 @@ Ext.define('Infosys_web.controller.Facturaganado', {
                 var idfactura= resp.idfactura;
                  viewIngresa.close();
                  stFactura.load();
-                 window.open(preurl + 'facturaganado/exportTXT/?idfactura='+idfactura);
+                 if (tipo_documento == 1){
+                 window.open(preurl + 'facturas/exportTXTGanado/?idfactura='+idfactura);
+                 };
+                 if (tipo_documento == 3){
+                 window.open(preurl + 'facturas/exportTXTGDGanado/?idfactura='+idfactura);
+                 };
             }
            
         });

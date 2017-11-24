@@ -11,6 +11,50 @@ class Facturasvizualiza extends CI_Controller {
 		$this->load->database();
 	}
 
+    public function leeobserva(){
+
+    	$resp = array();
+		$idobserva = $this->input->post('observa');
+
+		$query = $this->db->query('SELECT * FROM observacion_facturas WHERE id = "'.$idobserva.'"');
+	   	
+	   	if($query->num_rows()>0){
+
+			   $data = array();
+			   foreach ($query->result() as $row)
+				{
+				$rutautoriza = $row->rut;
+			   	if (strlen($rutautoriza) == 8){
+			      $ruta1 = substr($rutautoriza, -1);
+			      $ruta2 = substr($rutautoriza, -4, 3);
+			      $ruta3 = substr($rutautoriza, -7, 3);
+			      $ruta4 = substr($rutautoriza, -8, 1);
+			      $row->rut = ($ruta4.".".$ruta3.".".$ruta2."-".$ruta1);
+			    };
+			    if (strlen($rutautoriza) == 9){
+			      $ruta1 = substr($rutautoriza, -1);
+			      $ruta2 = substr($rutautoriza, -4, 3);
+			      $ruta3 = substr($rutautoriza, -7, 3);
+			      $ruta4 = substr($rutautoriza, -9, 2);
+			      $row->rut = ($ruta4.".".$ruta3.".".$ruta2."-".$ruta1);		   
+			    };
+			     if (strlen($rutautoriza) == 2){
+			      $ruta1 = substr($rutautoriza, -1);
+			      $ruta2 = substr($rutautoriza, -4, 1);
+			      $row->rut = ($ruta2."-".$ruta1);		     
+			    };
+			      $row->rutm = $rutautoriza;	   
+				$data[] = $row;
+				}
+	   			$resp['observa'] = $row;
+	   			$resp['existe'] = true;
+	   			$resp['success'] = true;
+	   			echo json_encode($resp);
+	        	return false;
+
+	        }
+	}
+
 	public function saveobserva(){
 
 		$resp = array();

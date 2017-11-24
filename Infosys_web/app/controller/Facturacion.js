@@ -214,7 +214,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
             'facturasprincipal #bodegaId': {
                 select: this.despliegadocumentos
             },
-             'facturasingresar #netoId': {
+            'facturasingresar #netoId': {
                 specialkey: this.calculaiva
             },
             'facturasprincipal button[action=editafactura]': {
@@ -995,8 +995,11 @@ Ext.define('Infosys_web.controller.Facturacion', {
             if (row.data.forma==2 && row.data.id_tip_docu ==1){
             window.open(preurl +'facturas/exportTXTlote/?idfactura=' + row.data.id)
             };
-            if (row.data.forma==3){
-            window.open(preurl +'facturaganado/exportfacturaganadoPDF/?idfactura=' + row.data.id)
+            if (row.data.forma==3 && row.data.id_tip_docu ==1){
+            window.open(preurl +'facturas/exportTXTGanado/?idfactura=' + row.data.id)
+            };
+            if (row.data.forma==3 && row.data.id_tip_docu ==3){
+            window.open(preurl +'facturas/exportTXTGDGanado/?idfactura=' + row.data.id)
             };
         }else{
             Ext.Msg.alert('Alerta', 'Selecciona un registro.');
@@ -1032,12 +1035,10 @@ Ext.define('Infosys_web.controller.Facturacion', {
             Ext.Msg.alert('Ingrese Datos del Vendedor');
             return;   
         }
-
-
         if(numfactura==0){
             Ext.Msg.alert('Ingrese Datos a La Factura');
             return;   
-            }
+        }
 
         var dataItems = new Array();
         stItem.each(function(r){
@@ -1150,18 +1151,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
            
         }
 
-        //var bolDisable = true;
-
-        //view.down('#rutId').setDisabled(bolDisabled);
-        //view.down('#buscarBtn').setDisabled(bolDisabled);
-        //view.down('#nombre_id').setDisabled(bolDisabled);
-        //view.down('#direccionId').setDisabled(bolDisabled);
-        //view.down('#giroId').setDisabled(bolDisabled);
-        //view.down('#tipoCiudadId').setDisabled(bolDisabled);
-        //view.down('#tipoComunaId').setDisabled(bolDisabled);
-        //view.down('#sucursalId').setDisabled(bolDisabled);
-        //view.down('#tipoVendedorId').setDisabled(bolDisabled);
-        //view.down('#tipocondpagoId').setDisabled(bolDisabled);
+       
         grid.getStore().removeAll();  
         var controller = this.getController('Productos');
         controller.recalcularFinal();

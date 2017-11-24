@@ -75,6 +75,11 @@ Ext.define('Infosys_web.view.Produccion.Principal' ,{
         flex: 1,
         dataIndex: 'cantidad',
         hidden: true
+    },{
+        header: "Estado",
+        flex: 1,
+        dataIndex: 'estado',
+        hidden: true
     }],
     
     initComponent: function() {

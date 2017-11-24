@@ -98,11 +98,17 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
             'guiasprincipal button[action=cerrarguia]': {
                 click: this.cerrarguia
             },
+            'guiasprincipal #bodegaId': {
+                select: this.despliegadocumentos
+            },
             'guiasprincipal button[action=buscar]': {
                 click: this.buscar
             },
             'guiasprincipalpendientes button[action=factguia]': {
                 click: this.factguia
+            },
+            'guiasprincipalpendientes #bodegaId': {
+                select: this.despliegadocumentos2
             },
             'guiasprincipal button[action=despachofactura]': {
                 click: this.despachofactura
@@ -212,6 +218,28 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
 
 
         });
+    },
+
+    despliegadocumentos: function(){
+
+        var view = this.getGuiasprincipal();
+        var idbodega = view.down('#bodegaId').getValue();
+        var idtipo = 3;
+        var st = this.getGuiasdespachoStore();
+        st.proxy.extraParams = {documento: idtipo,
+                                idbodega: idbodega }
+        st.load();       
+    },
+
+    despliegadocumentos2: function(){
+
+        var view = this.getGuiasprincipalpendientes();
+        var idbodega = view.down('#bodegaId').getValue();
+        var idtipo = 3;
+        var st = this.getGuiasdespachopendientes2Store();
+        st.proxy.extraParams = {documento: idtipo,
+                                idbodega: idbodega }
+        st.load();       
     },
 
     marcarguias: function(){
@@ -410,6 +438,7 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
         var viewIngresa = this.getDespachofactura();
         var tipo_documento = viewIngresa.down('#tipodocumentoId').getValue();
         var idcliente = viewIngresa.down('#id_cliente').getValue();
+        var idbodega = viewIngresa.down('#bodegaId').getValue();
         var idtipo= viewIngresa.down('#tipodocumentoId').getValue();
         var idsucursal= viewIngresa.down('#id_sucursalID').getValue();
         var idcondventa= viewIngresa.down('#tipocondpagoId').getValue();
@@ -439,6 +468,7 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
             url: preurl + 'facturas/save5',
             params: {
                 idcliente: idcliente,
+                idbodega: idbodega,
                 idfactura: idfactura,
                 numdocumento: numdocumento,
                 idsucursal: idsucursal,
@@ -1102,6 +1132,7 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
         var viewIngresa = this.getFacturaguias();
         var tipo_documento = viewIngresa.down('#tipoDocumentoId');
         var idcliente = viewIngresa.down('#id_cliente').getValue();
+        var idbodega = viewIngresa.down('#bodegaId').getValue();
         var idsucursal= viewIngresa.down('#id_sucursalID').getValue();
         var idcondventa= viewIngresa.down('#tipocondpagoId').getValue();
         var vendedor = viewIngresa.down('#tipoVendedorId').getValue();
@@ -1134,6 +1165,7 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
             url: preurl + 'guias/save',
             params: {
                 idcliente: idcliente,
+                idbodega: idbodega,
                 idsucursal: idsucursal,
                 idcondventa: idcondventa,
                 items: Ext.JSON.encode(dataItems),
@@ -1612,6 +1644,12 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
 
     factguia: function(){
 
+        var view = this.getGuiasprincipalpendientes();
+        var idbodega = view.down('#bodegaId').getValue();
+        if(!idbodega){
+            Ext.Msg.alert('Alerta', 'Debe Elegir Bodega');
+            return;    
+        }else{ 
         var nombre = 1;    
         Ext.Ajax.request({
 
@@ -1633,6 +1671,7 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
                     view.down('#numfacturaId').setValue(correlanue);
                     view.down('#nomdocumentoId').setValue(descripcion);
                     view.down('#tipodocumentoId').setValue(id);
+                    view.down('#bodegaId').setValue(idbodega);
                     
                 }else{
                     Ext.Msg.alert('Correlativo YA Existe');
@@ -1643,11 +1682,18 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
 
             }            
         });
+        };
     },
 
     despachofactura: function(){
 
-        var nombre = 3;    
+        var view = this.getGuiasprincipal();
+        var idbodega = view.down('#bodegaId').getValue();
+        var nombre = 3;
+        if(!idbodega){
+            Ext.Msg.alert('Alerta', 'Debe Elegir Bodega');
+            return;    
+        }else{   
         Ext.Ajax.request({
 
             url: preurl + 'correlativos/generancred?valida='+nombre,
@@ -1668,6 +1714,7 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
                     view.down('#numfacturaId').setValue(correlanue);
                     view.down('#nomdocumentoId').setValue(descripcion);
                     view.down('#tipodocumentoId').setValue(id);
+                    view.down('#bodegaId').setValue(idbodega);
                     
                 }else{
                     Ext.Msg.alert('Correlativo YA Existe');
@@ -1678,6 +1725,7 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
 
             }            
         });
+        };
     },
    
     fguias: function(){

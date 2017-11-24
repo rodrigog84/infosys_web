@@ -16,7 +16,8 @@ Ext.define('Infosys_web.controller.Produccion', {
              'PedidosProduccion',
              'PedidosFormula',
              'Valida',
-             'ProduccionTermino'
+             'ProduccionTermino',
+             'Bodegas'
              ],
     
     views: ['Produccion.Principal',
@@ -85,10 +86,243 @@ Ext.define('Infosys_web.controller.Produccion', {
             },  
             'producciontermino button[action=Salir]': {
                 click: this.Salir
+            },
+            'producciontermino button[action=editaritem]': {
+                click: this.editaritem
+            },
+            'producciontermino button[action=agregarItem]': {
+                click: this.agregarItem
+            },
+            'producciontermino button[action=grabarproduccion2]': {
+                click: this.grabarproduccion2
+            },
+            'produccionprincipal button[action=exportarpedidos]': {
+                click: this.exportarpedidos
             },          
         });
     },
 
+    exportarpedidos: function(){
+
+        var view = this.getProduccionprincipal();
+        if (view.getSelectionModel().hasSelection()) {
+            var row = view.getSelectionModel().getSelection()[0];
+            var estado = row.data.estado;
+            if (estado == 2){
+                window.open(preurl +'produccion/exportPDF2/?idproduccion=' + row.data.id)
+                
+            }else{
+                window.open(preurl +'produccion/exportPDF/?idproduccion=' + row.data.id)
+                
+            }
+            
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }
+        
+    },
+
+
+    grabarproduccion2: function(){
+
+        var view = this.getProducciontermino();
+        var fechaproduccion = view.down('#fechadocumId').getValue();
+        var cantidadproduccion = view.down('#cantidadproducId').getValue();
+        var idcliente = view.down('#id_cliente').getValue();
+        var idproducto = view.down('#productoId').getValue();
+        var numproduccion = view.down('#ticketId').getValue();
+        var idproduccion = view.down('#idId').getValue();
+        var horatermino = view.down('#horaterminoId').getValue();
+        var bodega = view.down('#bodegaId').getValue();
+        var stItem = this.getProduccionTerminoStore();
+        var stProduccion = this.getProduccionStore();
+
+        if(!horatermino){
+             Ext.Msg.alert('Debe Ingresar Hora Termino');
+            return; 
+            
+        }
+
+        if(!bodega){
+             Ext.Msg.alert('Debe Asignar Bodega');
+            return; 
+            
+        }
+
+        var dataItems = new Array();
+        stItem.each(function(r){
+            dataItems.push(r.data)
+        });
+
+        Ext.Ajax.request({
+            url: preurl + 'produccion/save2',
+            params: {
+                fechaproduccion: Ext.Date.format(fechaproduccion,'Y-m-d'),
+                cantidadproduccion: cantidadproduccion,
+                idproducto: idproducto,
+                idbodega: bodega,
+                idcliente: idcliente,
+                numproduccion: numproduccion,
+                idproduccion: idproduccion,
+                horatermino: horatermino,
+                items: Ext.JSON.encode(dataItems),
+            },
+             success: function(response){
+                 var resp = Ext.JSON.decode(response.responseText);
+                 var idproduccion= resp.idproduccion;
+                 view.close();
+                 stProduccion.load();
+                 window.open(preurl + 'produccion/exportPDF2/?idproduccion='+idproduccion);
+            }
+           
+        });
+        
+               
+    },
+
+    agregarItem: function() {
+
+        var view = this.getProducciontermino();
+        var tipo_documento = view.down('#tipoDocumentoId');
+        var stItem = this.getProduccionTerminoStore();
+        var producto = view.down('#productoforId').getValue();
+        var codigo = view.down('#codigoId').getValue();
+        var nombre = view.down('#nombreproductoforId').getValue();
+        var cantidad = view.down('#cantidadId').getValue();        
+        var cantidad_pro = view.down('#cantidadoproId').getValue();
+        var cantidadori = view.down('#cantidadoriId').getValue();
+        var precio = ((view.down('#precioId').getValue()));
+        var porcentaje = view.down('#valorporId').getValue(); 
+        var porcentaje_pro = view.down('#valorporproId').getValue(); 
+        var exists = 0;
+
+       
+        if(!producto){            
+            Ext.Msg.alert('Alerta', 'Debe Seleccionar un Producto');
+            return false;
+        }
+        if(precio==0){
+            Ext.Msg.alert('Alerta', 'Debe Ingresar Precio Producto');
+            return false;
+        } 
+         
+       
+        var porcentaje_pro =  ((cantidad_pro / cantidad)*100);      
+       
+
+        stItem.each(function(r){
+            if(r.data.id == producto){
+                Ext.Msg.alert('Alerta', 'El registro ya existe.');
+                exists = 1;
+                cero="";
+                view.down('#codigoId').setValue(cero);
+                view.down('#productoId').setValue(cero);
+                view.down('#nombreproductoforId').setValue(cero);
+                view.down('#precioId').setValue(cero);
+                view.down('#valorporproId').setValue(cero);
+                view.down('#valorporId').setValue(cero);
+                view.down('#cantidadoproId').setValue(cero);
+                view.down('#cantidadoriId').setValue(cero);
+        
+                return; 
+            }
+        });
+        if(exists == 1)
+            return;
+                
+        stItem.add(new Infosys_web.model.Produccion.Item({
+            id_producto: producto,
+            codigo: codigo,
+            nom_producto: nombre,
+            valor_compra: precio,
+            cantidad: cantidadori,
+            cantidad_pro: cantidad_pro,
+            valor_producion: precio,
+            porcentaje_pro: porcentaje_pro,
+            porcentaje: porcentaje
+        }));
+        
+        cero="";
+        cero1=0;
+        cero2=0;
+        view.down('#codigoId').setValue(cero);
+        view.down('#productoId').setValue(cero);
+        view.down('#nombreproductoforId').setValue(cero);
+        view.down('#precioId').setValue(cero);
+        view.down('#valorporproId').setValue(cero);
+        view.down('#valorporId').setValue(cero);
+        view.down('#cantidadoproId').setValue(cero);
+        view.down('#cantidadoriId').setValue(cero);
+        this.recalcular();
+        
+    },
+
+    recalcular: function() {
+
+        var view = this.getProducciontermino();
+        var stItem = this.getProduccionTerminoStore();
+        var pretotal = 0;
+        var total = 0;
+        
+        stItem.each(function(r){
+            pretotal = (pretotal + parseInt(r.data.cantidad_pro))
+            console.log(pretotal)
+          
+        });
+        total = pretotal;
+             
+        view.down('#cantidadproducId').setValue(total);
+
+    },
+
+    editaritem: function() {
+        var view = this.getProducciontermino();
+        var cantidadformdet = view.down('#cantidadId').getValue();
+        var grid  = view.down('#itemsgridId');
+        if (grid.getSelectionModel().hasSelection()) {
+            var row = grid.getSelectionModel().getSelection()[0];
+            var id_producto = row.data.id_producto;
+            var valorcompra = row.data.valor_compra;
+            var cantidad = row.data.cantidad;
+            var cantidad_pro = row.data.cantidad_pro;
+            var porcentaje = row.data.porcentaje;
+            var porcentaje_pro = row.data.porcentaje_pro;
+            var cantidaddet = (cantidadformdet - cantidad );
+            var nombre = row.data.nom_producto;
+            Ext.Ajax.request({
+            url: preurl + 'productos/buscarp?nombre='+id_producto,
+            params: {
+                id: 1
+            },
+            success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                if (resp.success == true) { 
+                    if(resp.cliente){
+                        var cliente = resp.cliente;
+                        view.down('#precioId').setValue(valorcompra);
+                        view.down('#productoforId').setValue(id_producto);
+                        view.down('#nombreproductoforId').setValue(nombre);                        
+                        view.down('#codigoId').setValue(cliente.codigo);
+                        view.down('#valorporId').setValue(porcentaje);
+                        view.down('#valorporproId').setValue(porcentaje_pro);
+                        view.down('#cantidadoriId').setValue(cantidad);
+                        view.down('#cantidadoproId').setValue(cantidad_pro);           
+                    }
+                    
+                }
+            }
+
+        });
+        grid.getStore().remove(row);
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }
+       
+    },
+
+   
     terminoproduccion: function(){
               
         var stItms = Ext.getStore('ProduccionTermino');
@@ -97,7 +331,6 @@ Ext.define('Infosys_web.controller.Produccion', {
         var view = this.getProduccionprincipal();
         if (view.getSelectionModel().hasSelection()) {
             var row = view.getSelectionModel().getSelection()[0];
-            var view = this.getEditarpedidos();
             var stItem = this.getProduccionTerminoStore();
             var idproduccion = row.data.id;
             var estado = row.data.estado;
@@ -118,30 +351,25 @@ Ext.define('Infosys_web.controller.Produccion', {
             success: function(response){
                 var resp = Ext.JSON.decode(response.responseText);
                 if (resp.success == true) {                    
-                    var view = Ext.create('Infosys_web.view.Pedidos.Editarpedidos').show();                   
-                    var cliente = resp.cliente;                   
-                    view.down("#ticketId").setValue(cliente.num_pedido);
-                    view.down("#obsId").setValue(cliente.num_pedido);
-                    view.down("#idId").setValue(cliente.id);
-                    view.down("#fechadocumId").setValue(cliente.fecha_doc);
-                    view.down("#fechapedidoId").setValue(cliente.fecha_pedido);
+                    var cliente = resp.cliente; 
+                    var view = Ext.create('Infosys_web.view.Produccion.ProduccionTermino').show();                   
+                    view.down("#ticketId").setValue(cliente.num_produccion);
+                    view.down("#idId").setValue(idproduccion);                    
+                    view.down("#npedidoId").setValue(cliente.num_pedido);
+                    view.down("#horainicioId").setValue(cliente.hora_inicio);
+                    view.down("#pedidoId").setValue(cliente.id_pedido);
+                    view.down("#numLoteId").setValue(cliente.lote);
                     view.down("#rutId").setValue(cliente.rut_cliente);                                       
                     view.down("#id_cliente").setValue(cliente.id_cliente);
-                    view.down("#nombre_id").setValue(cliente.nombre_cliente);
-                    view.down("#tipoVendedorId").setValue(cliente.id_vendedor);
-                    view.down("#nombreformulaId").setValue(cliente.nombre_formula);
-                    view.down("#cantidadformId").setValue(cliente.cantidad_formula);
-                    view.down("#formulaId").setValue(cliente.id_formula);
-                    view.down("#bodegaId").setValue(id_bodega);
-                    var total = (cliente.total);
-                    var neto = (cliente.neto);
-                    var iva = (cliente.total - cliente.neto);
-                    view.down('#finaltotalId').setValue(Ext.util.Format.number(total, '0,000'));
-                    view.down('#finaltotalpostId').setValue(Ext.util.Format.number(total, '0'));
-                    view.down('#finaltotalnetoId').setValue(Ext.util.Format.number(neto, '0'));
-                    view.down('#finaltotalivaId').setValue(Ext.util.Format.number(iva, '0'));
-                    view.down('#finalafectoId').setValue(Ext.util.Format.number(neto, '0'));
-                 
+                    view.down("#nombre_id").setValue(cliente.nom_cliente);
+                    view.down("#nombreformulaId").setValue(cliente.nom_formula);
+                    view.down("#cantidadId").setValue(cliente.cantidad);
+                    view.down("#cantidadproducId").setValue(cliente.cantidad);
+                    view.down("#formulaId").setValue(cliente.id_formula_pedido);
+                    view.down("#productoId").setValue(cliente.id_producto);
+                    view.down("#nombreproductoId").setValue(cliente.nom_producto);
+                    view.down("#encargadoId").setValue(cliente.encargado);
+                    
                 }else{
                     Ext.Msg.alert('Correlativo no Existe');
                     return;
@@ -231,10 +459,10 @@ Ext.define('Infosys_web.controller.Produccion', {
             },
              success: function(response){
                  var resp = Ext.JSON.decode(response.responseText);
-                 //var idproduccion= resp.idproduccion;
+                 var idproduccion= resp.idproduccion;
                  view.close();
                  stProduccion.load();
-                 //window.open(preurl + 'produccion/exportPDF/?idproduccion='+idpedidos);
+                 window.open(preurl + 'produccion/exportPDF/?idproduccion='+idproduccion);
             }
            
         });

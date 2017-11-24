@@ -70,6 +70,12 @@ Ext.define('Infosys_web.view.guiasdespacho.Despachafactura', {
                                           
                                         },{
                                             xtype: 'textfield',
+                                            name: 'id_bodega',
+                                            itemId: 'bodegaId',
+                                            hidden: true
+                                          
+                                        },{
+                                            xtype: 'textfield',
                                             width: 450,
                                             fieldLabel: '<b>DOCUMENTO</b>',
                                             name: 'nom_documento',

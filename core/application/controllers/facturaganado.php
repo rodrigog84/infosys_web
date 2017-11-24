@@ -14,7 +14,7 @@ class Facturaganado extends CI_Controller {
 	public function exportTXT(){
 
 		/**************************exporta txt*******/
-		$idfactura = $this->input->get('idfactura');
+	  $idfactura = $this->input->get('idfactura');
 		/*header("Content-Type: application/force-download");
         header("Content-Transfer-Encoding: binary");
         header("Content-disposition: attachment; filename=facturacion.txt");*/
@@ -503,6 +503,7 @@ class Facturaganado extends CI_Controller {
 		$fechafactura = $this->input->post('fechafactura');
 		$fechavenc = $this->input->post('fechavenc');            
             $idbodega = $this->input->post('idbodega');
+            $idobserva = $this->input->post('idobserva');
 		$vendedor = $this->input->post('idvendedor');
 		$datacliente = json_decode($this->input->post('datacliente'));
 		$items = json_decode($this->input->post('items'));
@@ -526,8 +527,10 @@ class Facturaganado extends CI_Controller {
 	    $this->db->update('correlativos', $data3);
 			
 		$factura_cliente = array(
-			'tipo_documento' => $tipodocumento,
+		  'tipo_documento' => $tipodocumento,
 	        'id_cliente' => $idcliente,
+              'id_bodega' => $idbodega,
+              'id_observa' => $idobserva,
 	        'num_factura' => $numdocuemnto,
 	        'id_vendedor' => $vendedor,
 	        'sub_total' => $neto,
@@ -594,7 +597,7 @@ class Facturaganado extends CI_Controller {
                   $this->db->insert('existencia', $datos3);
             };
             $datos2 = array(
-                  'num_movimiento' => $numfactura,
+              'num_movimiento' => $numdocuemnto,
               'id_producto' => $v->id_producto,
               'id_tipo_movimiento' => $tipodocumento,
               'valor_producto' =>  $v->precio,

@@ -1,4 +1,3 @@
-
 Ext.define('Infosys_web.model.Produccion.Item', {
     extend: 'Ext.data.Model',
     fields: [

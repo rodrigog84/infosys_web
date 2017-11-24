@@ -548,23 +548,28 @@ class Guias extends CI_Controller {
 	
 	public function getAll(){
 		
-		$resp = array();
-		$start = $this->input->get('start');
+	  $resp = array();
+	  $start = $this->input->get('start');
         $limit = $this->input->get('limit');
         $opcion = $this->input->get('opcion');
         $nombres = $this->input->get('nombre');
-        $tipo = 3;
+        $tipo = $this->input->get('documento');
+        $bodega = $this->input->get('idbodega');
         $countAll = $this->db->count_all_results("factura_clientes");
-		$data = array();
-		$total = 0;
-	
+	  $data = array();
+	  $total = 0;
+        if(!$tipo){
+              $tipo=0;
+        }
+        if(!$bodega){
+              $bodega=0;
+        }
 
-        if($opcion == "Rut"){
-		
+        if($opcion == "Rut"){		
 			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.tipo_documento in ( '.$tipo.') and c.rut = '.$nombres.'
+			WHERE acc.id_bodega='.$bodega.' and acc.tipo_documento in ( '.$tipo.') and c.rut = '.$nombres.'
 			order by acc.id desc		
 			limit '.$start.', '.$limit.''		 
 
@@ -593,7 +598,7 @@ class Guias extends CI_Controller {
 			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.tipo_documento in ( '.$tipo.') ' . $sql_nombre . '
+			WHERE acc.id_bodega='.$bodega.' and acc.tipo_documento in ( '.$tipo.') ' . $sql_nombre . '
 			order by acc.id desc		
 			limit '.$start.', '.$limit.''
 						
@@ -616,7 +621,7 @@ class Guias extends CI_Controller {
 			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.tipo_documento in ( '.$tipo.')
+			WHERE acc.id_bodega='.$bodega.' and acc.tipo_documento in ( '.$tipo.')
 			order by acc.id desc'	
 			
 			);
@@ -640,7 +645,7 @@ class Guias extends CI_Controller {
 		$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.tipo_documento in ( '.$tipo.')
+			WHERE acc.id_bodega='.$bodega.' and acc.tipo_documento in ( '.$tipo.')
 			order by acc.id desc		
 			limit '.$start.', '.$limit.''	
 
@@ -689,16 +694,24 @@ class Guias extends CI_Controller {
 
 	public function pendientes(){
 		
-		$resp = array();
-		$start = $this->input->get('start');
+	  $resp = array();
+	  $start = $this->input->get('start');
         $limit = $this->input->get('limit');
         $opcion = $this->input->get('opcion');
         $nombres = $this->input->get('nombre');
         $idcliente = $this->input->get('idcliente');
+        $tipo = $this->input->get('documento');
         $tipo = 3;
+        $bodega = $this->input->get('idbodega');
         $countAll = $this->db->count_all_results("factura_clientes");
-		$data = array();
-		$total = 0;
+	  $data = array();
+	  $total = 0;
+         if(!$tipo){
+              $tipo=0;
+        }
+        if(!$bodega){
+              $bodega=0;
+        }
 	
 
         if($opcion == "Rut"){
@@ -706,7 +719,7 @@ class Guias extends CI_Controller {
 			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.tipo_documento in ('.$tipo.') and c.rut = '.$nombres.'
+			WHERE acc.id_bodega='.$bodega.' and acc.tipo_documento in ('.$tipo.') and c.rut = '.$nombres.'
 			and acc.id_factura = 0
 			order by acc.id desc		
 			limit '.$start.', '.$limit.''		 
@@ -728,7 +741,7 @@ class Guias extends CI_Controller {
 			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.tipo_documento in ('.$tipo.') and acc.num_factura = '.$nombres.'
+			WHERE acc.id_bodega='.$bodega.' and acc.tipo_documento in ('.$tipo.') and acc.num_factura = '.$nombres.'
 			and acc.id_factura = 0'		 
 
 		);
@@ -756,7 +769,7 @@ class Guias extends CI_Controller {
 			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.tipo_documento in ( '.$tipo.') ' . $sql_nombre . '
+			WHERE acc.id_bodega='.$bodega.' and acc.tipo_documento in ( '.$tipo.') ' . $sql_nombre . '
 			and acc.id_factura = 0
 			order by acc.id desc		
 			limit '.$start.', '.$limit.''
@@ -779,7 +792,7 @@ class Guias extends CI_Controller {
 			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.tipo_documento in ('.$tipo.') and acc.id_cliente = '.$nombres.'
+			WHERE acc.id_bodega='.$bodega.' and acc.tipo_documento in ('.$tipo.') and acc.id_cliente = '.$nombres.'
 			and acc.id_factura = 0
 			order by acc.id desc'
 			);
@@ -804,7 +817,7 @@ class Guias extends CI_Controller {
 			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.tipo_documento in ( '.$tipo.') and acc.id_factura = 0
+			WHERE acc.id_bodega='.$bodega.' and acc.tipo_documento in ( '.$tipo.') and acc.id_factura = 0
 			order by acc.id desc'	
 			
 			);
@@ -828,7 +841,7 @@ class Guias extends CI_Controller {
 		$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.tipo_documento in ( '.$tipo.') and acc.id_factura = 0
+			WHERE acc.id_bodega='.$bodega.' and acc.tipo_documento in ( '.$tipo.') and acc.id_factura = 0
 			order by acc.id desc		
 			limit '.$start.', '.$limit.''	
 
@@ -882,6 +895,7 @@ class Guias extends CI_Controller {
 
 		$idcliente = $this->input->post('idcliente');
 		$numfactura = $this->input->post('numfactura');
+            $idbodega = $this->input->post('idbodega');
 		$fechafactura = $this->input->post('fechafactura');
 		$sucursal = $this->input->post('idsucursal');
 		$observacion = $this->input->post('observacion');
@@ -904,8 +918,9 @@ class Guias extends CI_Controller {
 	    $this->db->update('correlativos', $data3);
 			
 		$factura_cliente = array(
-			'tipo_documento' => $tipodocumento,
+		  'tipo_documento' => $tipodocumento,
 	        'id_cliente' => $idcliente,
+              'id_bodega' => $idbodega,
 	        'num_factura' => $numfactura,
 	        'id_vendedor' => $vendedor,
 	        'id_sucursal' => $sucursal,
