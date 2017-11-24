@@ -14,6 +14,6 @@ Ext.define('Infosys_web.model.existencias2', {
         {name: 'cantidad_entrada', decimalPrecision: 3},
         {name: 'cantidad_salida', decimalPrecision: 3},
         {name: 'fecha_movimiento',type:'date',dateFormat:"Y-m-d"},
-	{name: 'valor_producto', decimalPrecision: 3}
+	    {name: 'valor_producto', decimalPrecision: 3}
     ]
 });
