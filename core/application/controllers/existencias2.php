@@ -119,7 +119,8 @@ class Existencias2 extends CI_Controller {
            
 		//$countAll = $this->db->count_all_results("existencia");
 
-		if($nombres){			
+		if($nombres){
+		    if ($bodega){			
 			$query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, bod.nombre as nom_bodega, cor.nombre as nom_tipo_movimiento FROM existencia_detalle acc
 			left join productos c on (acc.id_producto = c.id)
 			left join bodegas bod on (acc.id_bodega = bod.id)
@@ -139,7 +140,32 @@ class Existencias2 extends CI_Controller {
 			WHERE acc.id_producto="'.$nombres.'" and acc.id_bodega="'.$bodega.'"
 			 order by acc.id desc
 		    limit '.$start.', '.$limit.'');
+			}else{
+
+			$query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, bod.nombre as nom_bodega, cor.nombre as nom_tipo_movimiento FROM existencia_detalle acc
+			left join productos c on (acc.id_producto = c.id)
+			left join bodegas bod on (acc.id_bodega = bod.id)
+			left join correlativos cor on (acc.id_tipo_movimiento = cor.id)
+			WHERE acc.id_producto="'.$nombres.'"');
+
+			foreach ($query->result() as $row)		    
+			{
+				$total = $total +1;		
+			}
+			$countAll = $total;
+
+			$query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, bod.nombre as nom_bodega, cor.nombre as nom_tipo_movimiento FROM existencia_detalle acc
+			left join productos c on (acc.id_producto = c.id)
+			left join bodegas bod on (acc.id_bodega = bod.id)
+			left join correlativos cor on (acc.id_tipo_movimiento = cor.id)
+			WHERE acc.id_producto="'.$nombres.'" 
+			order by acc.id desc
+		    limit '.$start.', '.$limit.'');
+				
+			}
 		}else{
+
+			if ($bodega){
 			$query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, bod.nombre as nom_bodega, cor.nombre as nom_tipo_movimiento FROM existencia_detalle acc
 			left join productos c on (acc.id_producto = c.id)
 			left join bodegas bod on (acc.id_bodega = bod.id)
@@ -147,6 +173,16 @@ class Existencias2 extends CI_Controller {
 			WHERE acc.id_producto="'.$nombres.'" and acc.id_bodega="'.$bodega.'"
 			order by acc.id desc
 		    limit '.$start.', '.$limit.' ' );
+		    }else{
+		      $query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, bod.nombre as nom_bodega, cor.nombre as nom_tipo_movimiento FROM existencia_detalle acc
+			left join productos c on (acc.id_producto = c.id)
+			left join bodegas bod on (acc.id_bodega = bod.id)
+			left join correlativos cor on (acc.id_tipo_movimiento = cor.id)
+			WHERE acc.id_producto="'.$nombres.'"
+			order by acc.id desc
+		    limit '.$start.', '.$limit.' ' );
+		    	
+		    }
 		}        
 		
 		$data = array();

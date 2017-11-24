@@ -24,47 +24,35 @@ Ext.define('Infosys_web.view.productos.detalle_existenciasproductos' ,{
 
             },
            columns: [{
-            header: "ID",
-            flex: 1,
-            itemId: 'Id',
-            dataIndex: 'id',
-            hidden : true
-            },{
-                header: "Producto",
-                width: 190,
-                dataIndex: 'nom_producto'
-                
-            },{
-                header: "Tipo",
-                flex: 1,
-                dataIndex: 'nom_tipo_movimiento'
-            },{
-                header: "Numero",
-                flex: 1,
-                dataIndex: 'num_movimiento'
-            },{
-                header: "Bodega",
-                flex: 1,
-                dataIndex: 'nom_bodega'
-            },{
-                header: "Entrada",
-                flex: 1,
-                dataIndex: 'cantidad_entrada'
-            },{
-                header: "Salida",
-                flex: 1,
-                dataIndex: 'cantidad_salida'
-            },{
-                header: "Valor",
-                flex: 1,
-                dataIndex: 'valor_producto'
-            },{
-                header: "Fecha",
-                flex: 1,
-                type: 'date',
-                renderer:Ext.util.Format.dateRenderer('d/m/Y'),  
-                dataIndex: 'fecha_movimiento'
-            }],
+        header: "Id Producto",
+        width: 390,
+        dataIndex: 'id_producto',
+         hidden: true
+
+        
+    },{
+        header: "Nombre Producto",
+        width: 390,
+        dataIndex: 'nom_producto'
+        
+    },{
+        header: "Stock",
+        flex: 1,
+        dataIndex: 'stock',
+        align: 'right',
+        renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")}
+
+    },{
+        header: "Bodega",
+        flex: 1,
+        dataIndex: 'nom_bodega'
+    },{
+        header: "Fecha Ultimo Movimiento",
+        flex: 1,
+        renderer:Ext.util.Format.dateRenderer('d/m/Y'),  
+        dataIndex: 'fecha_ultimo_movimiento'
+        
+    }],
             };
         this.dockedItems = [{
            xtype: 'toolbar',

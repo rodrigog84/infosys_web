@@ -498,8 +498,10 @@ class Productos extends CI_Controller {
 			foreach ($count->result() as $row)
 			{
 				$total = $total+1;
-				$countAll = $total;
+				
 			}
+
+			$countAll = $total;
 
 			$query = $this->db->query('SELECT acc.*, c.nombre as nom_ubi_prod, ca.nombre as nom_uni_medida, m.nombre as nom_marca, fa.nombre as nom_familia, bo.nombre as nom_bodega, ag.nombre as nom_agrupacion, sb.nombre as nom_subfamilia FROM productos acc
 			left join mae_ubica c on (acc.id_ubi_prod = c.id)
@@ -514,7 +516,28 @@ class Productos extends CI_Controller {
 			');
 			
 
-			}else{ 	   
+			}else{ 
+			
+			$count = $this->db->query('SELECT acc.*, c.nombre as nom_ubi_prod, ca.nombre as nom_uni_medida, m.nombre as nom_marca, fa.nombre as nom_familia, bo.nombre as nom_bodega, ag.nombre as nom_agrupacion, sb.nombre as nom_subfamilia FROM productos acc
+			left join mae_ubica c on (acc.id_ubi_prod = c.id)
+			left join marcas m on (acc.id_marca = m.id)
+			left join mae_medida ca on (acc.id_uni_medida = ca.id)
+			left join familias fa on (acc.id_familia = fa.id)
+			left join agrupacion ag on (acc.id_agrupacion = ag.id)
+			left join subfamilias sb on (acc.id_subfamilia = sb.id)
+			left join bodegas bo on (acc.id_bodega = bo.id)
+			WHERE acc.stock > 0
+			');   
+
+			$total= 0;
+				
+			foreach ($count->result() as $row)
+			{
+				$total = $total+1;
+				
+			}
+
+			$countAll = $total;
 		
 			$query = $this->db->query('SELECT acc.*, c.nombre as nom_ubi_prod, ca.nombre as nom_uni_medida, m.nombre as nom_marca, fa.nombre as nom_familia, bo.nombre as nom_bodega, ag.nombre as nom_agrupacion, sb.nombre as nom_subfamilia FROM productos acc
 			left join mae_ubica c on (acc.id_ubi_prod = c.id)

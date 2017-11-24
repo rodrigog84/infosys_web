@@ -165,7 +165,7 @@ Ext.define('Infosys_web.controller.Produccion', {
                 idcliente: idcliente,
                 numproduccion: numproduccion,
                 idproduccion: idproduccion,
-                horatermino: horatermino,
+                horatermino: Ext.Date.format(horatermino,'H:i'),
                 items: Ext.JSON.encode(dataItems),
             },
              success: function(response){
@@ -453,7 +453,7 @@ Ext.define('Infosys_web.controller.Produccion', {
                 lote: lote,
                 nombreproducto: nombreproducto,
                 idproducto: idproducto,
-                horainicio: horainicio,
+                horainicio: Ext.Date.format(horainicio,'H:i'),
                 encargado: encargado,                
                 items: Ext.JSON.encode(dataItems),
             },
