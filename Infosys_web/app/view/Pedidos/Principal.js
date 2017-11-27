@@ -184,6 +184,20 @@ Ext.define('Infosys_web.view.Pedidos.Principal' ,{
                 action:'exportarpdf'
             },'->',{
                 xtype: 'combo',
+                itemId: 'vendedorId',
+                labelWidth: 80,
+                width: 360,
+                fieldCls: 'required',
+                maxHeight: 25,
+                fieldLabel: 'VENDEDOR',
+                forceSelection : true,
+                name : 'id_seleccion',
+                valueField : 'id',
+                displayField : 'nombre',
+                emptyText : "Seleccione",
+                store : 'Vendedores'
+            },'-',{
+                xtype: 'combo',
                 itemId: 'Seleccion2Id',
                 labelWidth: 60,
                 width: 205,

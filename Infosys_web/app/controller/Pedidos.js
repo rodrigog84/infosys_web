@@ -20,7 +20,8 @@ Ext.define('Infosys_web.controller.Pedidos', {
             'facturapedidos',
             'Bodegas',
             'Factura',
-            'FormulasPedidos'
+            'FormulasPedidos',
+            'Vendedores'
              ],
 
     
@@ -209,6 +210,9 @@ Ext.define('Infosys_web.controller.Pedidos', {
             },
             'pedidosprincipal button[action=exportarexcelpedidoscaja]': {
                 click: this.exportarlibrorecaudacion
+            },
+            'pedidosprincipal #vendedorId': {
+                change: this.changedctofinal9                
             },
             'pedidosprincipal #Seleccion2Id': {
                 change: this.changedctofinal8                
@@ -542,6 +546,10 @@ Ext.define('Infosys_web.controller.Pedidos', {
    
     changedctofinal8: function(){
         this.buscarpedidos2();
+    },
+    
+    changedctofinal9: function(){
+        this.buscarpedidos3();
     },    
 
     buscarDoc: function(){
@@ -1720,6 +1728,30 @@ Ext.define('Infosys_web.controller.Pedidos', {
                                 estado : estado,
                                 opcion : opcion,
                                 idbodega : idbodega}
+        var idvendedor = view.down('#vendedorId').setValue(cero);
+        st.load();
+
+
+    },
+
+    buscarpedidos3: function(){
+        
+        var view = this.getPedidosprincipal();
+        var st = this.getPedidosStore();
+        var cero="";
+        var nombre = view.down('#nombreId').getValue();
+        var idbodega = view.down('#bodegaId').getValue();
+        var idvendedor = view.down('#vendedorId').getValue();
+        if (nombre){
+            view.down("#nombreId").setValue(cero);            
+        };
+        var estado = view.down('#Seleccion2Id').getValue();
+        var opcion = view.down('#tipoSeleccionId').getValue();
+        st.proxy.extraParams = {nombre : nombre,
+                                estado : estado,
+                                opcion : opcion,
+                                idbodega : idbodega,
+                                idvendedor: idvendedor }
         st.load();
 
 
