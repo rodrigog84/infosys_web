@@ -243,6 +243,14 @@ class Produccion extends CI_Controller {
 	   	
 		};
 
+		$pedidos = array(
+	        'estado' => 2
+			);			
+
+			
+		$this->db->where('id', $idpedido);
+		$this->db->update('pedidos', $pedidos);
+
         $resp['idproduccion'] = $idproduccion;		
         $resp['success'] = true;
        
@@ -261,6 +269,7 @@ class Produccion extends CI_Controller {
 		$idproducto = $this->input->post('idproducto');
 		$idcliente = $this->input->post('idcliente');
 		$idproduccion = $this->input->post('idproduccion');
+		$idpedido = $this->input->post('idpedido');
 		$idbodega = $this->input->post('idbodega');
 		$items = json_decode($this->input->post('items'));
 		$horatermino = $this->input->post('horatermino');
@@ -386,6 +395,14 @@ class Produccion extends CI_Controller {
 		};		
         $resp['idproduccion'] = $idproduccion;		
         $resp['success'] = true;
+
+        $pedidos = array(
+	        'estado' => 3
+			);			
+
+			
+		$this->db->where('id', $idpedido);
+		$this->db->update('pedidos', $pedidos);
        
 		$this->Bitacora->logger("M", 'produccion', $idproduccion);
 		$this->Bitacora->logger("M", 'produccion_detalle', $idproduccion);        

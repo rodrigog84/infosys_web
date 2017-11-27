@@ -133,6 +133,7 @@ Ext.define('Infosys_web.controller.Produccion', {
         var idproducto = view.down('#productoId').getValue();
         var numproduccion = view.down('#ticketId').getValue();
         var idproduccion = view.down('#idId').getValue();
+        var idpedido = view.down('#pedidoId').getValue();
         var horatermino = view.down('#horaterminoId').getValue();
         var bodega = view.down('#bodegaId').getValue();
         var stItem = this.getProduccionTerminoStore();
@@ -162,6 +163,7 @@ Ext.define('Infosys_web.controller.Produccion', {
                 cantidadproduccion: cantidadproduccion,
                 idproducto: idproducto,
                 idbodega: bodega,
+                idpedido: idpedido,
                 idcliente: idcliente,
                 numproduccion: numproduccion,
                 idproduccion: idproduccion,
