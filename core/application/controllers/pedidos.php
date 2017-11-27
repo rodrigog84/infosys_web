@@ -1018,7 +1018,7 @@ class Pedidos extends CI_Controller {
         $estado = $this->input->post('estado');
         if(!$estado){
         	$opcion = "Todos";
-        	$estado = 1;
+        	$estado = 4;
         };
         if(!$opcion){
         	$opcion = "Todos";
