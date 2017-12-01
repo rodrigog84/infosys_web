@@ -9,6 +9,29 @@ class Pedidos extends CI_Controller {
 		$this->load->database();
 	}
 
+	public function estado(){
+
+		$resp = array();
+		$idpedidos = $this->input->get('idpedidos');
+		
+		$query = $this->db->query('SELECT acc.*, pr.id as id_produccion, pr.num_produccion as num_produccion, pr.fecha_produccion as fecha_inicio,  pr.fecha_termino as fecha_termino, fo.nom_formula as nom_formula, pro.nombre as nom_producto, pe.cantidad as cantidad, pr.cantidad_prod as cantidad_prod, pr.hora_inicio as hora_inicio, pr.hora_termino as hora_termino FROM pedidos acc
+		left join produccion pr on (acc.id = pr.id)
+		left join formula_pedido fo on (acc.id = fo.id)
+		left join pedidos_detalle pe on (acc.id = pe.id)
+		left join productos pro on (pe.id_producto = pro.id)
+		WHERE acc.id = "'.$idpedidos.'"
+		');
+
+		$row1 = $query->result();
+		$row = $row1[0];
+		$row = $query->first_row();
+
+	   	$resp['cliente'] = $row;
+	    $resp['success'] = true;
+	   
+        echo json_encode($resp);
+	}
+
 	public function validaformula(){
 
 		$resp = array();
@@ -527,6 +550,16 @@ class Pedidos extends CI_Controller {
 		$row = $row[0];
 		//items
 		$items = $this->db->get_where('pedidos_detalle', array('id_pedido' => $idpedidos));
+		foreach($items->result() as $c){
+			$this->db->where('id', $c->id_producto);
+			$producto = $this->db->get("productos");	
+			$producto = $producto->result();
+			$producto = $producto[0];
+			$nomproducto = $producto->nombre;
+			$cantProducto = $c->cantidad;
+		}
+			
+		$items2 = $this->db->get_where('formula_pedido', array('id_pedido' => $idpedidos));
 		//variables generales
 		$codigo = $row->num_pedido;
 		$nombreformula = $row->nombre_formula;
@@ -573,7 +606,7 @@ class Pedidos extends CI_Controller {
 		    <p>http://www.lircay.cl</p>
 		    </td>
 	    <td width="296px" style="font-size: 16px;text-align:left;vertical-align:text-top"	>
-	          <p>pedidos N°: '.$codigo.'</p>
+	          <p>PEDIDO N°: '.$codigo.'</p>
 	          <!--p>&nbsp;</p-->
 	          <p>FECHA EMISION : '.$fecha.'</p>
 	          <!--p>&nbsp;</p-->		         
@@ -596,6 +629,12 @@ class Pedidos extends CI_Controller {
 		    		<td width="197px">'.$nombreformula.'</td>
 		    		<td width="197px">VENDEDOR:</td>
 		    		<td width="197px">'.$row->nom_vendedor.'</td>
+		    		</tr>
+		    		<tr>
+		    		<td width="197px">PRODUCTO:</td>
+		    		<td width="197px">'.$nomproducto.'</td>
+		    		<td width="197px">CANTIDAD:</td>
+		    		<td width="197px">'.$cantProducto.'</td>
 		    		</tr>    	
 		    		
 		    	</table>
@@ -605,17 +644,16 @@ class Pedidos extends CI_Controller {
 		    <td colspan="3" >
 		    	<table width="987px" cellspacing="0" cellpadding="0" >
 		      <tr>
-		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Cantidad</td>
-		        <td width="395px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:center;" >Descripci&oacute;n</td>
-		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Precio/Unidad</td>
+		        <td width="395px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:center;" >Descripcion</td>
 		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" ></td>
-		       
-		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Neto</td>
-		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Total</td>
-		      </tr>';
+		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" ></td>
+		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Cantidad</td>
+		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Porcentaje</td>
+		        
+		       </tr>';
 		$descripciones = '';
 		$i = 0;
-		foreach($items->result() as $v){
+		foreach($items2->result() as $v){
 			//$i = 0;
 			//while($i < 30){
 			$this->db->where('id', $v->id_producto);
@@ -624,12 +662,12 @@ class Pedidos extends CI_Controller {
 			$producto = $producto[0];
 			
 			$html .= '<tr>
-			<td style="text-align:right">'.$v->cantidad.'&nbsp;&nbsp;</td>			
-			<td style="text-align:left">'.$producto->nombre.'</td>			
-			<td align="right">$ '.number_format($v->precio, 3, '.', ',').'</td>
-			<td align="right"></td>
-			<td align="right">$ '.number_format($v->neto, 0, '.', ',').'</td>			
-			<td align="right">$ '.number_format($v->total, 0, '.', ',').'</td>
+			<td style="text-align:left">'.$producto->nombre.'</td>
+			<td style="text-align:left"></td>
+			<td style="text-align:left"></td>
+			<td align="right"> '.number_format($v->cantidad, 2, '.', ',').'</td>
+			<td align="right">% '.number_format($v->porcentaje, 2, '.', ',').'</td>
+			
 			</tr>';
 			
 			//}
@@ -645,10 +683,6 @@ class Pedidos extends CI_Controller {
 
 		$html .= '<tr><td colspan="5">&nbsp;</td></tr></table></td>
 		  </tr>
-		  <tr>
-		  	<td colspan="3" style="border-top:1pt solid black;text-align:center;"><p><b>VALORES EN DETALLE NETOS+IVA</b></p></td>
-		  </tr>
-		  
 		  <tr>
 		  	<td colspan="2" rowspan="6" style="font-size: 12px;border-bottom:1pt solid black;border-top:1pt solid black;border-left:1pt solid black;border-right:1pt solid black;text-align:left;">'.$observacion.'</td>
 		  	<td>
@@ -706,9 +740,7 @@ class Pedidos extends CI_Controller {
 		  <tr>
 		  	<td>&nbsp;</td>		  
 		  </tr>		  		  		  	  
-		  <tr>
-		    <td colspan="2" style="text-align:right;font-style: italic;"><b>EL SERVICIO MARCA LA DIFERENCIA!!!</b></td>
-		  </tr>
+		 
 		  
 		</table>
 		</body>

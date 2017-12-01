@@ -288,6 +288,8 @@ class Produccion extends CI_Controller {
     		$this->db->update('productos', $datos);
 		};
 
+		$producto=$idproducto;
+
 		$query = $this->db->query('SELECT * FROM existencia WHERE id_producto='.$idproducto.' and id_bodega='.$idbodega.'');
     	 $row = $query->result();
     	 if ($query->num_rows()>0){
@@ -661,18 +663,7 @@ class Produccion extends CI_Controller {
 		$fechatermino = $row->fecha_termino;		
 		$hora = $row->hora_inicio;
 		$horatermino= $row->hora_termino;
-		/*if(!$row->id_sucursal){
-			$direccion = $row->direccion;
-			$comuna = $row->comuna;
-			$ciudad = $row->ciudad;			
-		}else{
-
-			$direccion = $row->direccion_sucursal;
-			$comuna = $row->comuna_suc;
-			$ciudad = $row->ciudad_suc;
-			
-		};*/
-
+		
 		$this->load->model('facturaelectronica');
       $empresa = $this->facturaelectronica->get_empresa();
 
@@ -784,13 +775,6 @@ class Produccion extends CI_Controller {
 			//}
 			$i++;
 		}
-
-		// RELLENA ESPACIO
-		/*while($i < 30){
-			$html .= '<tr><td colspan="5">&nbsp;</td></tr>';
-			$i++;
-		}*/
-
 
 		$html .= '<tr><td colspan="5">&nbsp;</td></tr></table></td>
 		  </tr>

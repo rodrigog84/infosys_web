@@ -36,7 +36,8 @@ Ext.define('Infosys_web.controller.Pedidos', {
             'Pedidos.Observaciones2',
             'Pedidos.Exportar',
             'Pedidos.Exportar2',
-            'Pedidos.Facturas'
+            'Pedidos.Facturas',
+            'Pedidos.EstadoPedido'
             ],
 
     //referencias, es un alias interno para el controller
@@ -87,8 +88,10 @@ Ext.define('Infosys_web.controller.Pedidos', {
     },{
         ref: 'buscarformulas',
         selector: 'buscarformulas'
+    },{
+        ref: 'estadopedidos',
+        selector: 'estadopedidos'
     }
-
   
     ],
     
@@ -109,6 +112,15 @@ Ext.define('Infosys_web.controller.Pedidos', {
             },
             'pedidosprincipal button[action=agregarpedido]': {
                 click: this.agregarpedido
+            },
+            'pedidosprincipal button[action=estadopedidos]': {
+                click: this.estadopedidos
+            },
+            'estadopedidos button[action=cerrarestado]': {
+                click: this.cerrarestado
+            },
+            'estadopedidos button[action=verproduccion]': {
+                click: this.verproduccion
             },
             'pedidosprincipal button[action=cerrarpedidos]': {
                 click: this.cerrarpedidos
@@ -231,6 +243,73 @@ Ext.define('Infosys_web.controller.Pedidos', {
             },
            
         });
+    },
+
+    verproduccion: function(){
+
+        var view = this.getEstadopedidos(); 
+        var idproduccion = view.down('#produccionId').getValue();  
+        if(idproduccion){
+        window.open(preurl + 'produccion/exportPDF2/?idproduccion='+idproduccion);
+        }else{
+            Ext.Msg.alert('Produccion No Terminada');
+            return;
+            
+        }
+
+        
+    },
+
+
+    estadopedidos: function(){
+
+        var view = this.getPedidosprincipal(); 
+        var id_bodega = view.down('#bodegaId').getValue();                  
+        if (view.getSelectionModel().hasSelection()) {
+            var row = view.getSelectionModel().getSelection()[0];
+            var view = this.getEditarpedidos();
+            var stItem = this.getPedidosEditarStore();
+            var idpedidos = row.data.id;
+            var estado = row.data.estado;
+            Ext.Ajax.request({
+            url: preurl +'pedidos/estado/?idpedidos=' + row.data.id,
+            params: {
+                id: 1
+            },
+            success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                if (resp.success == true) {                    
+                    var view = Ext.create('Infosys_web.view.Pedidos.EstadoPedido').show();                   
+                    var cliente = resp.cliente;
+                    view.down('#pedidoId').setValue(cliente.id);
+                    view.down('#numpedidoId').setValue(cliente.num_pedido); 
+                    view.down('#numproduccionId').setValue(cliente.num_produccion);
+                    view.down('#produccionId').setValue(cliente.id_produccion); 
+                    view.down('#fechaPEDIDOId').setValue(cliente.fecha_pedido);
+                    view.down('#fechaproduccionId').setValue(cliente.fecha_inicio);
+                    view.down('#nomformulaId').setValue(cliente.nom_formula);
+                    view.down('#nomProductoId').setValue(cliente.nom_producto);
+                    view.down('#cantpedidoId').setValue(cliente.cantidad);
+                    view.down('#cantproducidoId').setValue(cliente.cantidad_prod);
+                    view.down('#fechainicioId').setValue(cliente.fecha_inicio);
+                    view.down('#fechaterminoId').setValue(cliente.fecha_termino); 
+                    view.down('#horainicioId').setValue(cliente.hora_inicio);
+                    view.down('#horaterminoId').setValue(cliente.hora_termino);                 
+                                   
+                }else{
+                    Ext.Msg.alert('Correlativo no Existe');
+                    return;
+                }
+
+            }
+            
+        });      
+
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }
+              
     },
 
     seleccionarformula: function(){
@@ -1872,6 +1951,12 @@ Ext.define('Infosys_web.controller.Pedidos', {
     cerrarpedidos: function(){
         var viewport = this.getPanelprincipal();
         viewport.removeAll();
+     
+    },
+
+    cerrarestado: function(){
+        var view = this.getEstadopedidos();
+        view.close();
      
     },
   

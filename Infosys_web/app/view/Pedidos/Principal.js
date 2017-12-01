@@ -126,11 +126,9 @@ Ext.define('Infosys_web.view.Pedidos.Principal' ,{
                 action:'exportarexcelpedidos'
             },{
                 xtype: 'button',
-                width: 120,
-                iconCls : 'icon-edit',
-                text: 'Genera Venta',
-                action:'generafactura',
-                hidden: true
+                iconCls: 'icon-add',
+                action: 'estadopedidos',
+                text : 'Estado Pedido'
             },'->',{
                 xtype: 'combo',
                 width: 130,
@@ -181,7 +179,8 @@ Ext.define('Infosys_web.view.Pedidos.Principal' ,{
                 width: 160,
                 iconCls : 'icon-pdf',
                 text: 'Informe Produccion',
-                action:'exportarpdf'
+                action:'exportarpdf',
+                hidden: true
             },'->',{
                 xtype: 'combo',
                 itemId: 'vendedorId',

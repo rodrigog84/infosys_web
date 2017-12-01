@@ -197,9 +197,7 @@ Ext.define('Infosys_web.controller.Produccion', {
         var precio = ((view.down('#precioId').getValue()));
         var porcentaje = view.down('#valorporId').getValue(); 
         var porcentaje_pro = view.down('#valorporproId').getValue(); 
-        var exists = 0;
-
-       
+        var exists = 0;       
         if(!producto){            
             Ext.Msg.alert('Alerta', 'Debe Seleccionar un Producto');
             return false;
@@ -207,8 +205,7 @@ Ext.define('Infosys_web.controller.Produccion', {
         if(precio==0){
             Ext.Msg.alert('Alerta', 'Debe Ingresar Precio Producto');
             return false;
-        } 
-         
+        };
        
         var porcentaje_pro =  ((cantidad_pro / cantidad)*100);      
        
@@ -219,7 +216,7 @@ Ext.define('Infosys_web.controller.Produccion', {
                 exists = 1;
                 cero="";
                 view.down('#codigoId').setValue(cero);
-                view.down('#productoId').setValue(cero);
+                view.down('#productoforId').setValue(cero);
                 view.down('#nombreproductoforId').setValue(cero);
                 view.down('#precioId').setValue(cero);
                 view.down('#valorporproId').setValue(cero);
@@ -249,7 +246,7 @@ Ext.define('Infosys_web.controller.Produccion', {
         cero1=0;
         cero2=0;
         view.down('#codigoId').setValue(cero);
-        view.down('#productoId').setValue(cero);
+        view.down('#productoforId').setValue(cero);
         view.down('#nombreproductoforId').setValue(cero);
         view.down('#precioId').setValue(cero);
         view.down('#valorporproId').setValue(cero);
@@ -336,7 +333,6 @@ Ext.define('Infosys_web.controller.Produccion', {
             var stItem = this.getProduccionTerminoStore();
             var idproduccion = row.data.id;
             var estado = row.data.estado;
-
             if(estado=="2"){
                 Ext.Msg.alert('Produccion Realizada');
             return;               
@@ -353,7 +349,11 @@ Ext.define('Infosys_web.controller.Produccion', {
             success: function(response){
                 var resp = Ext.JSON.decode(response.responseText);
                 if (resp.success == true) {                    
-                    var cliente = resp.cliente; 
+                    var cliente = resp.cliente;
+                    if (cliente.estado=="2"){
+                        Ext.Msg.alert('Produccion Realizada');
+                        return;                           
+                    }else{ 
                     var view = Ext.create('Infosys_web.view.Produccion.ProduccionTermino').show();                   
                     view.down("#ticketId").setValue(cliente.num_produccion);
                     view.down("#idId").setValue(idproduccion);                    
@@ -371,7 +371,7 @@ Ext.define('Infosys_web.controller.Produccion', {
                     view.down("#productoId").setValue(cliente.id_producto);
                     view.down("#nombreproductoId").setValue(cliente.nom_producto);
                     view.down("#encargadoId").setValue(cliente.encargado);
-                    
+                    };                    
                 }else{
                     Ext.Msg.alert('Correlativo no Existe');
                     return;
@@ -386,6 +386,9 @@ Ext.define('Infosys_web.controller.Produccion', {
             Ext.Msg.alert('Alerta', 'Selecciona un registro.');
             return;
         }
+
+        var stProduccion = this.getProduccionStore();
+        stProduccion.load();
         
     },
 
