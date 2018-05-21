@@ -9,6 +9,23 @@ class Produccion extends CI_Controller {
 		$this->load->database();
 	}
 
+	public function consulta(){
+
+		$resp = array();
+	    $idproduccion = $this->input->post('idproduccion');
+
+		$items = $this->db->get_where('produccion', array('id' => $idproduccion));
+
+		foreach($items->result() as $item){			
+			$fecha= $item->fecha_produccion;
+		}
+
+	   	$resp['success'] = true;
+        $resp['fechadoc'] = $fecha;
+        echo json_encode($resp);
+
+	}
+
 	public function producciontermino(){
 
 		$resp = array();
@@ -41,10 +58,11 @@ class Produccion extends CI_Controller {
 
 	   $resp = array();
 	   $idproduccion = $this->input->get('idproduccion');
-
-       $query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, p.fecha_pedido as fecha_pedido, p.num_pedido as num_pedido FROM produccion acc
+	  
+	   $query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, p.fecha_pedido as fecha_pedido, p.num_pedido as num_pedido, pr.diasvencimiento as dias FROM produccion acc
 		left join clientes c on (acc.id_cliente = c.id)
 		left join pedidos p on (acc.id_pedido = p.id)
+		left join productos pr on (acc.id_producto = pr.id)
 		WHERE acc.id = "'.$idproduccion.'"');
 
 		foreach ($query->result() as $row){
@@ -211,7 +229,7 @@ class Produccion extends CI_Controller {
 	        'id_pedido' => $idpedido,
 	        'id_formula_pedido' => $idformula,
 	        'id_cliente' => $idcliente,
-	        'num_produccion' => $idcliente,
+	        'num_produccion' => $numproduccion,
 	        'fecha_produccion' => $fechaproduccion,
 	        'nom_formula' => $nombreformula,
 	        'nom_producto' => $nombreproducto,
@@ -264,6 +282,7 @@ class Produccion extends CI_Controller {
 		
 		$resp = array();
 		$fechaproduccion = $this->input->post('fechaproduccion');
+		$fechavenc = $this->input->post('fechavenc');
 		$numproduccion = $this->input->post('numproduccion');
 		$cantidadproduccion = $this->input->post('cantidadproduccion');
 		$idproducto = $this->input->post('idproducto');
@@ -271,6 +290,7 @@ class Produccion extends CI_Controller {
 		$idproduccion = $this->input->post('idproduccion');
 		$idpedido = $this->input->post('idpedido');
 		$idbodega = $this->input->post('idbodega');
+		$lote = $this->input->post('lote');
 		$items = json_decode($this->input->post('items'));
 		$horatermino = $this->input->post('horatermino');
 
@@ -323,7 +343,10 @@ class Produccion extends CI_Controller {
 		        'cantidad_entrada' => $cantidadproduccion,
 		        'fecha_movimiento' => $fechaproduccion,
 		        'id_bodega' => $idbodega,
-		        'id_cliente' => $idcliente
+		        'id_cliente' => $idcliente,
+		        'lote' => $lote,
+		        'fecha_vencimiento' => $fechavenc
+
 		);
 		$this->db->insert('existencia_detalle', $datos2);	   	
 									
@@ -331,6 +354,7 @@ class Produccion extends CI_Controller {
 	        'fecha_termino' => $fechaproduccion,
 	        'cantidad_prod' => $cantidadproduccion,
 	        'hora_termino' => $horatermino,
+	        'fecha_vencimiento' => $fechavenc,
 	        'estado' => 2
 		);
 		$this->db->where('id', $idproduccion);		  
@@ -391,7 +415,8 @@ class Produccion extends CI_Controller {
 		        'fecha_movimiento' => $fechaproduccion,
 		        'id_bodega' => 1,
 		        'id_cliente' => $idcliente,
-		        'p_promedio' => $v->valor_compra
+		        'p_promedio' => $v->valor_compra,
+		       
 		);
 		$this->db->insert('existencia_detalle', $datos2);	   	
 		};		

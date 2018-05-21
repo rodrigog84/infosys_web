@@ -12,6 +12,8 @@ Ext.define('Infosys_web.model.existencias', {
         {name: 'p_costo'},        
         {name: 'p_venta'}, 
         {name: 'fecha_ultimo_movimiento',type:'date',dateFormat:"Y-m-d"},
+        {name: 'saldo', decimalPrecision:2},
+        {name: 'fecha_vencimiento', type:'date',dateFormat:"Y-m-d"},        
        
     ]
 });

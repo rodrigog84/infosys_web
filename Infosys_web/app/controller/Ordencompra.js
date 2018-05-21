@@ -5,6 +5,7 @@ Ext.define('Infosys_web.controller.Ordencompra', {
              'Orden_compratodas',
              'Proveedores',
              'Productosf',
+             'Productosfo',
              'ordencompra.Items',
               'Recepcion', 'Orden_compradetalle', 
               'Ordencomprarecepcion',
@@ -182,6 +183,13 @@ Ext.define('Infosys_web.controller.Ordencompra', {
             'buscarproductos button[action=seleccionarproductos2]': {
                 click: this.seleccionarproductos2
             },
+            'buscarproductos button[action=buscarPR]': {
+                click: this.buscarP
+            },
+            'buscarproductos2 button[action=buscarp3]': {
+                click: this.buscarp3
+            },
+            
             'ordencompraprincipalrecepcion button[action=exportarordencomprarecepcion]': {
                 click: this.exportarordencomprarecepcion
             },
@@ -442,7 +450,7 @@ Ext.define('Infosys_web.controller.Ordencompra', {
             viewIngresa.down('#productoId').setValue(row.data.id);
             viewIngresa.down('#nombreproductoId').setValue(row.data.nombre);
             viewIngresa.down('#codigoId').setValue(row.data.codigo);
-            viewIngresa.down('#precioId').setValue(row.data.p_venta);
+            //viewIngresa.down('#precioId').setValue(row.data.p_venta);
             viewIngresa.down('#cantidadOriginalId').setValue(row.data.stock);
             view.close();
         }else{
@@ -462,7 +470,7 @@ Ext.define('Infosys_web.controller.Ordencompra', {
         var cantidad = view.down('#cantidadId').getValue();
         var cantidadori = view.down('#cantidadOriginalId').getValue();
         var precio = ((view.down('#precioId').getValue()));
-        var precioun = ((view.down('#precioId').getValue())/ 1.19);
+        var precioun = ((view.down('#precioId').getValue()));
         var descuento = view.down('#totdescuentoId').getValue(); 
         var iddescuento = view.down('#DescuentoproId').getValue();
         var bolEnable = true;
@@ -577,6 +585,8 @@ Ext.define('Infosys_web.controller.Ordencompra', {
             var ivanue = iva - (row.data.iva);
             var afectonue = afecto - (row.data.neto);
             var netonue = neto - (row.data.neto);
+            var neto = (row.data.neto);
+            console.log(neto);
 
             Ext.Ajax.request({
             url: preurl + 'productos/buscarp?nombre='+id_producto,
@@ -588,7 +598,7 @@ Ext.define('Infosys_web.controller.Ordencompra', {
                 if (resp.success == true) { 
                     if(resp.cliente){
                         var cliente = resp.cliente;
-                        view.down('#precioId').setValue(cliente.p_venta);
+                        view.down('#precioId').setValue(neto);
                         view.down('#productoId').setValue(row.data.id_producto);
                         view.down('#nombreproductoId').setValue(row.data.nombre);
                         view.down('#codigoId').setValue(cliente.codigo);
@@ -632,6 +642,7 @@ Ext.define('Infosys_web.controller.Ordencompra', {
         if (grid.getSelectionModel().hasSelection()) {
             var row = grid.getSelectionModel().getSelection()[0];
             var id_producto = row.data.id_producto;
+            var neto = (row.data.neto);
             Ext.Ajax.request({
             url: preurl + 'productos/buscarp?nombre='+id_producto,
             params: {
@@ -642,7 +653,7 @@ Ext.define('Infosys_web.controller.Ordencompra', {
                 if (resp.success == true) { 
                     if(resp.cliente){
                         var cliente = resp.cliente;
-                        view.down('#precioId').setValue(cliente.p_venta);
+                        view.down('#precioId').setValue(neto);
                         view.down('#productoId').setValue(row.data.id_producto);
                         view.down('#nombreproductoId').setValue(row.data.nombre);
                         view.down('#codigoId').setValue(cliente.codigo);
@@ -798,7 +809,7 @@ Ext.define('Infosys_web.controller.Ordencompra', {
 
      buscarproductosl: function(){
 
-        var st = this.getProductosfStore()
+        var st = this.getProductosfoStore()
         st.load();
         var view = Ext.create('Infosys_web.view.ordencompra.BuscarProductos').show();
         view.down("#nombreId").focus();
@@ -810,7 +821,7 @@ Ext.define('Infosys_web.controller.Ordencompra', {
     buscarproductos: function(){
 
 
-        var st = this.getProductosfStore()
+        var st = this.getProductosfoStore()
         st.load();
         var view = Ext.create('Infosys_web.view.ordencompra.BuscarProductos2').show();
         view.down("#nombreId").focus();
@@ -845,6 +856,22 @@ Ext.define('Infosys_web.controller.Ordencompra', {
     buscarp2: function(){
         var view = this.getBuscarproductospreventa2();
         var st = this.getProductosfStore()
+        var nombre = view.down('#nombreId').getValue()
+        st.proxy.extraParams = {nombre : nombre}
+        st.load();
+    },
+
+    buscarp: function(){
+        var view = this.getBuscarproductos();
+        var st = this.getProductosfoStore()
+        var nombre = view.down('#nombreId').getValue()
+        st.proxy.extraParams = {nombre : nombre}
+        st.load();
+    },
+
+    buscarp3: function(){
+        var view = this.getBuscarproductos2();
+        var st = this.getProductosfoStore()
         var nombre = view.down('#nombreId').getValue()
         st.proxy.extraParams = {nombre : nombre}
         st.load();
@@ -1197,7 +1224,7 @@ Ext.define('Infosys_web.controller.Ordencompra', {
             viewIngresa.down('#productoId').setValue(row.data.id);
             viewIngresa.down('#nombreproductoId').setValue(row.data.nombre);
             viewIngresa.down('#codigoId').setValue(row.data.codigo);
-            viewIngresa.down('#precioId').setValue(row.data.p_venta);
+            //viewIngresa.down('#precioId').setValue(row.data.p_venta);
             viewIngresa.down('#cantidadOriginalId').setValue(row.data.stock);
             view.close();
         }else{

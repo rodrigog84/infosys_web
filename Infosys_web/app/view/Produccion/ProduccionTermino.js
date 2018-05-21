@@ -226,7 +226,7 @@ Ext.define('Infosys_web.view.Produccion.ProduccionTermino', {
                                     msgTarget: 'side',
                                     labelWidth: 80,
                                     maxHeight: 25,
-                                    width: 440,
+                                    width: 400,
                                     fieldLabel: '<b>PRODUCTO</b>',
                                     itemId: 'nombreproductoId',
                                     name : 'nom_producto'                                         
@@ -235,7 +235,25 @@ Ext.define('Infosys_web.view.Produccion.ProduccionTermino', {
                                     itemId: 'productoId',
                                     name : 'id_producto',
                                     hidden: true
-                                }
+                                },{
+                                    xtype: 'numberfield',
+                                    itemId: 'diasvencId',
+                                    name : 'diasvenc',
+                                    hidden: true
+                                },{
+                                    xtype: 'displayfield',
+                                    width: 10                                   
+                                },{
+                                    xtype: 'datefield',
+                                    fieldCls: 'required',
+                                    maxHeight: 25,
+                                    labelWidth: 100,
+                                    width: 200,
+                                    fieldLabel: '<b>FECHA VENC.</b>',
+                                    itemId: 'fechavencId',
+                                    name: 'fecha_vencimiento',
+                                    readOnly: true,
+                            }
                             ]
                         },{
                             xtype: 'fieldcontainer',
@@ -272,6 +290,17 @@ Ext.define('Infosys_web.view.Produccion.ProduccionTermino', {
                                     fieldLabel: '<b>HORA TERMINO</b>',
                                     itemId: 'horaterminoId',
                                     name : 'hora_inicio'                                         
+                                },{
+                                    xtype: 'datefield',
+                                    fieldCls: 'required',
+                                    maxHeight: 25,
+                                    labelWidth: 50,
+                                    width: 170,
+                                    fieldLabel: '<b>FECHA inicio</b>',
+                                    itemId: 'fechainicioId',
+                                    name: 'fecha_docum',
+                                    value: new Date(),
+                                    hidden: true
                                 },{
                                     xtype: 'displayfield',
                                     width: 10                                   

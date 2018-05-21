@@ -71,7 +71,7 @@ Ext.define('Infosys_web.view.ordencompra.BuscarProductos2' ,{
             {
                 xtype: 'button',
                 iconCls: 'icon-search',
-                action: 'buscar',
+                action: 'buscarp3',
                 text : 'Buscar'
             }
             ]      

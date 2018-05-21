@@ -48,6 +48,21 @@ Ext.define('Infosys_web.view.productos.Principal' ,{
         renderer: function(valor){return Ext.util.Format.number((valor),"0,00.00")}
 
     },{
+        header: "Stock Critico",
+        flex: 1,
+        dataIndex: 'stock_critico',
+        align: 'right',
+        renderer: function(valor){return Ext.util.Format.number((valor),"0,00.00")},
+        hidden: true
+
+    },{
+        header: "Dias Venc.",
+        flex: 1,
+        dataIndex: 'diasvencimiento',
+        align: 'right',
+        renderer: function(valor){return Ext.util.Format.number((valor),"0,00.00")},
+        hidden: true
+    },{
         header: "Ubicacion Fisica",
         flex: 1,
         dataIndex: 'nom_ubi_prod',

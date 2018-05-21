@@ -966,6 +966,7 @@ Ext.define('Infosys_web.controller.Pedidos', {
         var idcliente = viewIngresa.down('#id_cliente').getValue();
         var vendedor = viewIngresa.down('#tipoVendedorId');
         var idbodega = viewIngresa.down('#bodegaId').getValue();
+        var cantidadfor = viewIngresa.down('#cantidadformId').getValue();        
         var stCombo = vendedor.getStore();
         var record = stCombo.findRecord('id', vendedor.getValue()).data;
         var finalafectoId = viewIngresa.down('#finaltotalnetoId').getValue();
@@ -1004,6 +1005,7 @@ Ext.define('Infosys_web.controller.Pedidos', {
                 idpedido: idpedido, 
                 nomcliente: nomcliente,
                 idformula: idFormula,
+                cantidadfor: cantidadfor,
                 nomformula: nomformula,
                 items: Ext.JSON.encode(dataItems),
                 vendedor : vendedor,
@@ -1849,6 +1851,7 @@ Ext.define('Infosys_web.controller.Pedidos', {
         var fechapedidos = viewIngresa.down('#fechapedidoId').getValue();
         var fechadocum = viewIngresa.down('#fechadocumId').getValue();
         var idbodega = viewIngresa.down('#bodegaId').getValue();
+        var cantidadfor = viewIngresa.down('#cantidadformId').getValue();
         var stCombo = vendedor.getStore();
         var record = stCombo.findRecord('id', vendedor.getValue()).data;
         var finalafectoId = viewIngresa.down('#finaltotalnetoId').getValue();
@@ -1885,6 +1888,7 @@ Ext.define('Infosys_web.controller.Pedidos', {
                 nomcliente: nomcliente,
                 items: Ext.JSON.encode(dataItems),
                 vendedor : vendedor,
+                cantidadfor: cantidadfor,
                 idformula: idFormula,
                 nomformula: nomformula,
                 id_observa: id_observa,

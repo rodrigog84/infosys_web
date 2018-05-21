@@ -11,6 +11,8 @@ Ext.define('Infosys_web.model.existenciasclientes', {
         {name: 'num_movimiento'},
         {name: 'codigo'},
         {name: 'fecha_movimiento',type:'date',dateFormat:"Y-m-d"},
+        {name: 'saldo', decimalPrecision:2},
+        {name: 'fecha_vencimiento', type:'date',dateFormat:"Y-m-d"},        
        
     ]
 });

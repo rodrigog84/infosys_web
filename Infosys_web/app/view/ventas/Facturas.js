@@ -473,6 +473,19 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                                 width: 80,
                                 allowBlank: true,
                                 action: 'agregarItem'
+                            },{
+                                xtype: 'numberfield',
+                                width: 120,
+                                labelWidth: 60,
+                                fieldLabel: 'Stock',
+                                itemId: 'stock',
+                                hidden: true
+                            },{
+                                xtype: 'numberfield',
+                                width: 120,
+                                fieldLabel: 'Stock Critico',
+                                itemId: 'stock_critico',
+                                hidden: true
                             }]
                         }
 

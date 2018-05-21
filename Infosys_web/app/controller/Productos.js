@@ -366,18 +366,24 @@ Ext.define('Infosys_web.controller.Productos', {
         var precioun = ((view.down('#precioId').getValue())/ 1.19);
         var descuento = view.down('#totdescuentoId').getValue(); 
         var iddescuento = view.down('#DescuentoproId').getValue();
+        var stock = view.down('#stock').getValue();
+        var stockcritico = view.down('#stock_critico').getValue();
         var bolEnable = true;
-        
+
+        var stock = cantidad - stock;
+
+        if(stockcritico > stock ){            
+            Ext.Msg.alert('Alerta', 'Producto Con Stock Critico Informar ');
+            //return false;
+        };        
         if (descuento == 1){            
             var descuento = 0;
             var iddescuento = 0;
         };
-
         if (descuento > 0){            
             view.down('#tipoDescuentoId').setDisabled(bolEnable);
             view.down('#descuentovalorId').setDisabled(bolEnable);
         };
-
         if (tipo_documento.getValue() == 2){
 
              var neto = (Math.round(cantidad * precio) - descuento);

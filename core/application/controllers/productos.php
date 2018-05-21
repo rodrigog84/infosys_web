@@ -80,6 +80,8 @@ class Productos extends CI_Controller {
 		        'p_venta' => $_REQUEST['p_venta'],
 		        'p_costo' => $_REQUEST['p_costo'],
 		        'stock' => $_REQUEST['stock'],
+		        'stock_critico' => $_REQUEST['stock_critico'],
+		        'diasvencimiento' => $_REQUEST['diasvencimiento'],
 		        'id_ubi_prod' => $_REQUEST['id_ubi_prod'],
 		        'id_marca' => $_REQUEST['id_marca'],
 		        'id_uni_medida' => $_REQUEST['id_uni_medida'],
@@ -90,33 +92,7 @@ class Productos extends CI_Controller {
 		        'clasificacion' => $_REQUEST['clasificacion']
 		);
 
-
-	    /*if($this->upload->do_upload("foto")) {
-
-	 	$file_data = $this->upload->data();
-			
-			$data = array(
-		        'nombre' => strtoupper($_REQUEST['nombre']),
-		        'codigo' => $_REQUEST['codigo'],			
-		        'p_ult_compra' => $_REQUEST['p_ult_compra'],
-		        'p_may_compra' => $_REQUEST['p_may_compra'],
-		        'p_promedio' => $_REQUEST['p_promedio'],
-		        'stock' => $_REQUEST['stock'],
-		        'id_ubi_prod' => $_REQUEST['id_ubi_prod'],
-		        'id_uni_medida' => $_REQUEST['id_uni_medida'],
-		        'id_bodega' => $_REQUEST['id_bodega'],
-		        'id_familia' => $_REQUEST['id_familia'],
-		        'id_agrupacion' => $_REQUEST['id_agrupacion'],
-		        'id_subfamilia' => $_REQUEST['id_subfamilia'],
-		        'foto' => $file_data['file_name']
-		        );
-
-			$resp['success'] = true;
-	        $this->db->insert('productos', $data); 
-          }else{
-          	$resp['success'] = false;
-          }*/
-
+	    
           $this->db->insert('productos', $data); 
 
           $resp['success'] = true;
@@ -144,6 +120,8 @@ class Productos extends CI_Controller {
 	        'p_venta' => $_REQUEST['p_venta'],
 	        'p_costo' => $_REQUEST['p_costo'],
 	        'stock' => $_REQUEST['stock'],
+	        'stock_critico' => $_REQUEST['stock_critico'],
+	        'diasvencimiento' => $_REQUEST['diasvencimiento'],	        
 	        'id_ubi_prod' => $_REQUEST['id_ubi_prod'],
 	        'id_uni_medida' => $_REQUEST['id_uni_medida'],
 	        'id_bodega' => $_REQUEST['id_bodega'],

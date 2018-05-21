@@ -98,8 +98,56 @@ Ext.define('Infosys_web.controller.Produccion', {
             },
             'produccionprincipal button[action=exportarpedidos]': {
                 click: this.exportarpedidos
-            },          
+            },
+            'producciontermino #horaterminoId': {
+                change: this.horatermino                
+            },      
         });
+    },
+
+    horatermino: function(){
+
+        var view = this.getProducciontermino();
+        var fechaproduccion = view.down('#fechadocumId').getValue();
+        var fechainicio = view.down('#fechainicioId').getValue();
+        var horainicio = view.down('#horainicioId').getValue();
+        var horatermino = view.down('#horaterminoId').getValue();
+        var idproduccion = view.down('#idId').getValue();
+        var idproducto = view.down('#productoId').getValue();
+        var dias = view.down('#diasvencId').getValue();
+        
+        var dero="";
+
+        Ext.Ajax.request({
+            url: preurl + 'facturas/calculofechas',
+            params: {
+                dias: dias,
+                fechafactura : fechaproduccion
+            },
+            success: function(response){
+               var resp = Ext.JSON.decode(response.responseText);
+               var fecha_final= resp.fecha_final;
+               view.down("#fechavencId").setValue(fecha_final);
+                           
+            }
+           
+        });
+
+                    
+        /*if (fechainicio != fechaproduccion ){
+
+            if (horainicio < horatermino){
+                view.down('#horaterminoId').setValue(dero);
+                Ext.Msg.alert('Alerta', 'Hora no Puede ser Menor que Hora de Termino');
+            return;               
+
+            }
+            
+        };*/
+
+       
+
+        
     },
 
     exportarpedidos: function(){
@@ -135,6 +183,8 @@ Ext.define('Infosys_web.controller.Produccion', {
         var idproduccion = view.down('#idId').getValue();
         var idpedido = view.down('#pedidoId').getValue();
         var horatermino = view.down('#horaterminoId').getValue();
+        var fechavenc = view.down('#fechavencId').getValue();
+        var lote = view.down('#numLoteId').getValue();
         var bodega = view.down('#bodegaId').getValue();
         var stItem = this.getProduccionTerminoStore();
         var stProduccion = this.getProduccionStore();
@@ -167,6 +217,8 @@ Ext.define('Infosys_web.controller.Produccion', {
                 idcliente: idcliente,
                 numproduccion: numproduccion,
                 idproduccion: idproduccion,
+                lote: lote,
+                fechavenc: Ext.Date.format(fechavenc,'Y-m-d'),
                 horatermino: Ext.Date.format(horatermino,'H:i'),
                 items: Ext.JSON.encode(dataItems),
             },
@@ -359,6 +411,7 @@ Ext.define('Infosys_web.controller.Produccion', {
                     view.down("#idId").setValue(idproduccion);                    
                     view.down("#npedidoId").setValue(cliente.num_pedido);
                     view.down("#horainicioId").setValue(cliente.hora_inicio);
+                    view.down("#fechainicioId").setValue(cliente.fecha_produccion);
                     view.down("#pedidoId").setValue(cliente.id_pedido);
                     view.down("#numLoteId").setValue(cliente.lote);
                     view.down("#rutId").setValue(cliente.rut_cliente);                                       
@@ -371,6 +424,8 @@ Ext.define('Infosys_web.controller.Produccion', {
                     view.down("#productoId").setValue(cliente.id_producto);
                     view.down("#nombreproductoId").setValue(cliente.nom_producto);
                     view.down("#encargadoId").setValue(cliente.encargado);
+                    view.down("#diasvencId").setValue(cliente.dias);
+                    
                     };                    
                 }else{
                     Ext.Msg.alert('Correlativo no Existe');
@@ -450,7 +505,8 @@ Ext.define('Infosys_web.controller.Produccion', {
                 numproduccion: numproduccion,
                 fechaproduccion: Ext.Date.format(fechaproduccion,'Y-m-d'),
                 idpedido: idpedido,
-                numpedido: numpedido,            
+                numpedido: numpedido, 
+                numproduccion: numproduccion,           
                 idcliente: idcliente,
                 idformula: idformula,
                 nombreformula: nombreformula,

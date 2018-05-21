@@ -234,10 +234,31 @@ Ext.define('Infosys_web.view.productos.Desplegar', {
                     xtype: 'textfield',
                     fieldLabel: 'Stock',
                     name:'stock',
-                    anchor: '30%',
+                    labelWidth: 50,
+                    width: 160,
                     align: 'right',
                     renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")},
                     readOnly : true
+                },{
+                    xtype: 'displayfield',
+                    width: 40 
+                },{
+                    xtype: 'numberfield',
+                    fieldLabel: 'Stock Critico',
+                    name:'stock_critico',
+                    labelWidth: 90,
+                    width: 200,
+                    //readOnly : true
+                },{
+                    xtype: 'displayfield',
+                    width: 40 
+                },{
+                    xtype: 'numberfield',
+                    fieldLabel: 'Dias Venc.',
+                    name:'diasvencimiento',
+                    labelWidth: 90,
+                    width: 200,
+                    //readOnly : true
                 }
 
                 ]

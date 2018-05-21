@@ -785,7 +785,7 @@ class Pedidos extends CI_Controller {
 		$vendedor = $this->input->post('vendedor');
 		$sucursal = $this->input->post('sucursal');
 		$nomformula = $this->input->post('nomformula');
-		$cantidadform = $this->input->post('cantidad');
+		$cantidadform = $this->input->post('cantidadfor');
 		$items = json_decode($this->input->post('items'));
 		$neto = $this->input->post('neto');
 		$fiva = $this->input->post('iva');
@@ -919,6 +919,7 @@ class Pedidos extends CI_Controller {
 		$idbodega = $this->input->post('idbodega');
 		$idformula = $this->input->post('idformula');
 		$fechapedidos = $this->input->post('fechapedido');
+		$cantidadform = $this->input->post('cantidadfor');
 		$fechadoc = $this->input->post('fechadocum');
 		$vendedor = $this->input->post('vendedor');
 		$items = json_decode($this->input->post('items'));
@@ -985,6 +986,7 @@ class Pedidos extends CI_Controller {
 	        'nombre_cliente' => strtoupper($nomcliente),
 	        'id_bodega' => $idbodega,
 	        'id_formula' => $idformula,
+	        'cantidad' => $cantidadform,
 	        'id_vendedor' => $vendedor,
 	        'fecha_pedido' => $fechapedidos,
 	        'neto' => $neto,

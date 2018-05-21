@@ -19,6 +19,8 @@ Ext.define('Infosys_web.model.Produccion', {
         {name: 'hora_termino'},
         {name: 'fecha_termino'},
         {name: 'encargado'},
-        {name: 'estado'}            
+        {name: 'estado'},
+        {name: 'saldo', decimalPrecision:2},
+        {name: 'fecha_vencimiento', type:'date',dateFormat:"Y-m-d"},         
     ]
 });

@@ -837,13 +837,13 @@ class Cotizaciones extends CI_Controller {
 
 			$content = chunk_split(base64_encode($content));
 			$mailto = $email;
-			$from_name = 'Ferrital';
-			$from_mail = 'contacto@ferrital.cl';
-			$replyto = 'contacto@ferrital.cl';
+			$from_name = 'Infosys';
+			$from_mail = 'sergarr@hotmail.cl';
+			$replyto = 'sergarr@hotmail.cl';
 			$uid = md5(uniqid(time())); 
 			$subject = 'Envio de Cotizacion';
 			$message = $mensaje;
-			$filename = 'CotizacionFerrital.pdf';
+			$filename = 'CotizacionLircay.pdf';
 
 			$header = "From: ".$from_name." <".$from_mail.">\r\n";
 			$header .= "Reply-To: ".$replyto."\r\n";

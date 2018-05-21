@@ -59,6 +59,18 @@ Ext.define('Infosys_web.view.facturacompra.BuscarProductos' ,{
                 flex: 1,
                 align: 'right',
                 dataIndex: 'stock'
+            },{
+                header: "Stock Critico",
+                flex: 1,
+                align: 'right',
+                dataIndex: 'stock_critico',
+                hidden: true
+            },{
+                header: "Dias Venc.",
+                flex: 1,
+                align: 'right',
+                dataIndex: 'diasvencimiento',
+                hidden: true
             }],
         };
         this.dockedItems = [{

@@ -1358,6 +1358,8 @@ Ext.define('Infosys_web.controller.Facturacion', {
             };
             viewIngresa.down('#preciopromId').setValue(row.data.p_promedio);
             viewIngresa.down('#cantidadOriginalId').setValue(row.data.stock);
+            viewIngresa.down('#stock').setValue(row.data.stock);
+            viewIngresa.down('#stock_critico').setValue(row.data.stock_critico);
             view.close();
         }else{
             Ext.Msg.alert('Alerta', 'Selecciona un registro.');

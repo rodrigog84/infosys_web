@@ -55,6 +55,18 @@ Ext.define('Infosys_web.view.ordencompra.BuscarProductos' ,{
                 width: 100,
                 align: 'right',
                 dataIndex: 'stock'
+            },{
+                header: "Stock Critico",
+                flex: 1,
+                align: 'right',
+                dataIndex: 'stock_critico',
+                hidden: true
+            },{
+                header: "Dias Venc.",
+                flex: 1,
+                align: 'right',
+                dataIndex: 'diasvencimiento',
+                hidden: true
             }],
         };
         this.dockedItems = [{
@@ -71,7 +83,7 @@ Ext.define('Infosys_web.view.ordencompra.BuscarProductos' ,{
             {
                 xtype: 'button',
                 iconCls: 'icon-search',
-                action: 'buscar',
+                action: 'buscarPR',
                 text : 'Buscar'
             }
             ]      

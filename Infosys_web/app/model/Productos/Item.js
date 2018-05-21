@@ -36,6 +36,8 @@ Ext.define('Infosys_web.model.Productos.Item', {
         {name: 'totaliva'},
         {name: 'precio', decimalPrecision:2},
         {name: 'clasificacion'},
+        {name: 'stock_critico'},
+        {name: 'diasvencimiento'},
 
         
         

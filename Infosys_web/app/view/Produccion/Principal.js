@@ -6,7 +6,7 @@ Ext.define('Infosys_web.view.Produccion.Principal' ,{
     
     iconCls: 'icon-grid',
 
-    title : 'Nota Pedido',
+    title : 'Produccion',
     store: 'Produccion',
     height: 300,
     viewConfig: {
@@ -27,14 +27,14 @@ Ext.define('Infosys_web.view.Produccion.Principal' ,{
         header: "Fecha Pedido",
         flex: 1,
         dataIndex: 'fecha_pedido',
-        type: 'date',
-        renderer:Ext.util.Format.dateRenderer('d/m/Y')
+        type: 'date'
     },{
         header: "Fecha Producc.",
         flex: 1,
         dataIndex: 'fecha_produccion',
         type: 'date',
-        renderer:Ext.util.Format.dateRenderer('d/m/Y') 
+        //renderer: Ext.util.Format.dateRenderer('d/m/Y'),
+        align: 'center'
     },{
         header: "Rut",
         flex: 1,

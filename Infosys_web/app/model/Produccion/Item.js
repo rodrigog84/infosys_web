@@ -12,6 +12,8 @@ Ext.define('Infosys_web.model.Produccion.Item', {
         {name: 'porcentaje', decimalPrecision:2},
         {name: 'cantidad_pro', decimalPrecision:2},
         {name: 'valor_produccion', decimalPrecision:2},
-        {name: 'porcentaje_pro', decimalPrecision:2}
+        {name: 'porcentaje_pro', decimalPrecision:2},
+        {name: 'fecha_vencimiento', type:'date',dateFormat:"Y-m-d"},
+        {name: 'saldo', decimalPrecision:2},
     ]
 });
