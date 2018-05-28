@@ -71,6 +71,9 @@ Ext.define('Infosys_web.controller.Clientes', {
     },{
         ref: 'autorizacionclientes',
         selector: 'autorizacionclientes'
+    },{
+        ref: 'topmenus',
+        selector: 'topmenus'
     }
 
 
@@ -156,15 +159,26 @@ Ext.define('Infosys_web.controller.Clientes', {
     autorizaclientes: function(){
 
        var view = this.getClientesdesplegar()
+       var viewn = this.getTopmenus();
+       var idnue = viewn.down('#IdUsuario').getValue();
        var opcion = view.down('#estadocId').getValue();
        var estado = view.down('#tipoEstadoId').getValue();
-       console.log(opcion);
+       var rut = view.down('#rutId').getValue();
+       var nombre = view.down('#nombre_id').getValue();
        var clave = this.getAutorizacionclientes()
+       
        var usua = clave.down('#enterId').getValue();
+       var observacion = clave.down('#observaId').getValue();       
+       if(!observacion){            
+            Ext.Msg.alert('Debe Agregar Observaciones');
+            return;            
+       }; 
        Ext.Ajax.request({
             url: preurl + 'clientes/autoriza',
             params: {
                 usua: usua,
+                observacion: observacion,
+                idusuario: idnue,
                 tipo: 1                
             },
             success: function(response){
@@ -172,7 +186,6 @@ Ext.define('Infosys_web.controller.Clientes', {
                 if (resp.success == false) {
                     clave.close();
                     view.down('#tipoEstadoId').setValue(opcion);
-                    console.log(opcion);
                     Ext.Msg.alert('Modificacion no autorizada');
                     return;                                
 
@@ -187,9 +200,19 @@ Ext.define('Infosys_web.controller.Clientes', {
 
     tipoestado: function(){
        var view = this.getClientesdesplegar()
+       var rut = view.down('#rutId').getValue();
+       var nombre = view.down('#nombre_id').getValue();
        var opcion = view.down('#tipoEstadoId').getValue();
+
+        var estado = view.down('#tipoEstadoId');
+        var stCombo = estado.getStore();
+        var record = stCombo.findRecord('id', estado.getValue()).data;
+        var nomestado = (record.nombre);
+
+       var observacion = nombre + "Rut : " + rut + "   " + nomestado;
        var view = Ext.create('Infosys_web.view.clientes.Autoriza').show();
        var view = this.getAutorizacionclientes();
+       view.down('#observaId').setValue(observacion);
        view.down('#enterId').focus();
     },
 

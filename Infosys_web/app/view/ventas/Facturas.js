@@ -518,6 +518,8 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                                 { text: 'Id descuento',  dataIndex: 'id_descuento', width: 250, hidden : true },
                                 { text: 'codigo',  dataIndex: 'codigo', width: 250, hidden : true },
                                 { text: 'Producto',  dataIndex: 'nombre', width: 250 },
+                                { text: 'Lote',  dataIndex: 'lote', width: 250 },
+                                { text: 'Fecha Venc.',  dataIndex: 'fecha_vencimiento', width: 250 },
                                 { text: 'Precio Unitario',  dataIndex: 'precio', align: 'right',flex:1, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} },
                                 { text: 'Precio Promedio',  dataIndex: 'p_promedio', align: 'right',flex:1,hidden: true },
                                 { text: 'Cantidad',  dataIndex: 'cantidad', align: 'right',width: 150},

@@ -14,11 +14,34 @@ class Clientes extends CI_Controller {
 		$resp = array();
 	    $tipo = $this->input->post('tipo');
 	    $clave = $this->input->post('usua');
+	    $observacion = $this->input->post('observacion');
+	    $usuario = $this->input->post('idusuario');
+	    $estado=1;
 
 	    $query = $this->db->query('SELECT * FROM autoriza WHERE id ="'.$tipo.'" and clave ="'.$clave.'"');
 
 	    if($query->num_rows()>0){
+
+			$query2 = $this->db->query('SELECT * FROM email_autorizados WHERE id_bloqueos ="'.$estado.'"');
+
+			if($query2->num_rows()>0){
+
+			foreach ($query2->result() as $row)
+			{
+				$data = array(
+				'observacion' => $observacion,
+				'id_email' => $row->id,
+				'id_usuario' => $usuario,
+				'fecha_aviso' => date('Y-m-d'),
+				);		
+				$this->db->insert('bitacora_avisos', $data); 
+			   
+			};	
+			
+			};		
+
 	    	$resp['success'] = true;
+
 	    }else{
 	    	$resp['success'] = false;
 	    };

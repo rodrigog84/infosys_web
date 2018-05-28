@@ -184,7 +184,7 @@ Ext.define('Infosys_web.controller.Ordencompra', {
                 click: this.seleccionarproductos2
             },
             'buscarproductos button[action=buscarPR]': {
-                click: this.buscarP
+                click: this.buscarPR
             },
             'buscarproductos2 button[action=buscarp3]': {
                 click: this.buscarp3
@@ -809,10 +809,100 @@ Ext.define('Infosys_web.controller.Ordencompra', {
 
      buscarproductosl: function(){
 
-        var st = this.getProductosfoStore()
-        st.load();
-        var view = Ext.create('Infosys_web.view.ordencompra.BuscarProductos').show();
-        view.down("#nombreId").focus();
+        var viewIngresa = this.getOrdencompraingresar();
+        var codigo = viewIngresa.down('#codigoId').getValue();
+
+        if (!codigo){
+            var st = this.getProductosfoStore()
+            st.load();
+            var view = Ext.create('Infosys_web.view.ordencompra.BuscarProductos').show();
+            view.down("#nombreId").focus();
+        }else{
+
+            Ext.Ajax.request({
+            url: preurl + 'productos/buscacodigo?codigo='+codigo,
+            params: {
+                id: 1
+            },
+            success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                var cero = "";
+                if (resp.success == true){                    
+                    if(resp.cliente){
+                        var cliente = resp.cliente;                        
+                        viewIngresa.down('#productoId').setValue(cliente.id);
+                        viewIngresa.down('#nombreproductoId').setValue(cliente.nombre);
+                        viewIngresa.down('#codigoId').setValue(codigo);
+                        viewIngresa.down('#cantidadOriginalId').setValue(cliente.stock);
+                        viewIngresa.down("#precioId").focus();
+                                             
+                    }
+                }else{
+
+                      var view = Ext.create('Infosys_web.view.ordencompra.BuscarProductos').show();
+                      view.down("#nombreId").setValue(codigo);
+                      
+                }
+
+              
+            }
+
+        });           
+
+        }
+
+        
+       
+
+
+    },
+
+    buscarproductos2: function(){
+
+        var viewIngresa = this.getOrdencompraeditar();
+        var codigo = viewIngresa.down('#codigoId').getValue();
+
+        if (!codigo){
+            var st = this.getProductosfoStore()
+            st.load();
+            var view = Ext.create('Infosys_web.view.ordencompra.BuscarProductos2').show();
+            view.down("#nombreId").focus();
+        }else{
+
+            Ext.Ajax.request({
+            url: preurl + 'productos/buscacodigo?codigo='+codigo,
+            params: {
+                id: 1
+            },
+            success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                var cero = "";
+                if (resp.success == true){                    
+                    if(resp.cliente){
+                        var cliente = resp.cliente;                        
+                        viewIngresa.down('#productoId').setValue(cliente.id);
+                        viewIngresa.down('#nombreproductoId').setValue(cliente.nombre);
+                        viewIngresa.down('#codigoId').setValue(codigo);
+                        viewIngresa.down('#cantidadOriginalId').setValue(cliente.stock);
+                        viewIngresa.down("#precioId").focus();
+                                             
+                    }
+                }else{
+
+                      var view = Ext.create('Infosys_web.view.ordencompra.BuscarProductos2').show();
+                      view.down("#nombreId").setValue(codigo);
+                      
+                }
+
+              
+            }
+
+        });           
+
+        }
+
+        
+       
 
 
     },
@@ -837,13 +927,13 @@ Ext.define('Infosys_web.controller.Ordencompra', {
 
     special3 : function(f,e){
         if (e.getKey() == e.ENTER) {
-            this.buscacodigo()
+            this.buscarproductosl()
         }
     },
 
     special5 : function(f,e){
         if (e.getKey() == e.ENTER) {
-            this.buscacodigo2()
+            this.buscarproductos2()
         }
     },
 
@@ -861,9 +951,9 @@ Ext.define('Infosys_web.controller.Ordencompra', {
         st.load();
     },
 
-    buscarp: function(){
+    buscarPR: function(){
         var view = this.getBuscarproductos();
-        var st = this.getProductosfoStore()
+        var st = this.getProductosfStore()
         var nombre = view.down('#nombreId').getValue()
         st.proxy.extraParams = {nombre : nombre}
         st.load();
@@ -1251,9 +1341,7 @@ Ext.define('Infosys_web.controller.Ordencompra', {
             
 
         };
-
-        console.log(recepcion);
-
+        
         if (!recepcion){
 
              Ext.Msg.alert('Debe Ingresar Docuemnto Recepcion');
@@ -1268,13 +1356,24 @@ Ext.define('Infosys_web.controller.Ordencompra', {
         stItem.each(function(r){
             dataItems.push(r.data);
             cant = (r.data.stock)
+            fechavenc = (r.data.fecha_vencimiento)
+            lote = (r.data.lote)
         });
 
-         if (!cant){
+        if (!cant){
              Ext.Msg.alert('Recepcione producto');
              return;
         };
 
+        if (!fechavenc){
+             Ext.Msg.alert('Ingrese Fecha Vencimiento');
+             return;
+        };
+
+        if (!lote){
+             Ext.Msg.alert('Ingrese Lote');
+             return;
+        };
        
         Ext.Ajax.request({
             url: preurl + 'ordencompra/update',

@@ -265,7 +265,21 @@ Ext.define('Infosys_web.view.ordencompra.Recepcionforzada', {
                         { text: 'Valor', dataIndex: 'valor', width: 100, 
                         renderer: function(valor){
                             return valor
-                        }, editor: {xtype: 'numberfield', allowBlank: false,minValue: 0,maxValue: 10000000000}}
+                        }, editor: {xtype: 'numberfield', allowBlank: false,minValue: 0,maxValue: 10000000000}},
+                        { text: 'Lote', 
+                          dataIndex: 'lote',
+                          width: 100,
+                          editor: {xtype: 'textfield', 
+                                   allowBlank: false,
+                                   }
+                        },{ text: 'Fecha Venc.', 
+                          dataIndex: 'fecha_vencimiento',
+                          width: 100,
+                          editor: {xtype: 'datefield', 
+                                   allowBlank: false,
+                                   value: new Date()
+                                   }
+                        }  
                         
                     ]
                 }

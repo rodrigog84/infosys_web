@@ -23,11 +23,13 @@ Ext.define('Infosys_web.model.Orden_compra', {
         {name: 'empresa'},
         {name: 'descuento'},
         {name: 'pretotal'},
+        {name: 'lote'},
         {name: 'iva'},
         {name: 'neto'},
         {name: 'afecto'},
         {name: 'total'},
-        {name: 'fecha', type:'date',dateFormat:"Y-m-d"}
+        {name: 'fecha', type:'date',dateFormat:"Y-m-d"},
+        {name: 'fecha_vencimiento', type:'date',dateFormat:"Y-m-d"}
 
     ]
 });

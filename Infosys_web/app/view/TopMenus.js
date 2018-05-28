@@ -3,7 +3,7 @@ Ext.define('Infosys_web.view.TopMenus' ,{
     alias : 'widget.topmenus',    
     requires: [
         'Ext.button.Split'
-    ],    
+    ],
     initComponent: function() {
         var me = this
         this.items = [{
@@ -21,7 +21,6 @@ Ext.define('Infosys_web.view.TopMenus' ,{
             name: 'Id_usuario',
             itemId: 'IdUsuario',
             hidden: true
-            //hidden: true
         },{
             xtype: 'button',
             iconCls: 'icon-note',
@@ -65,8 +64,15 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                 action: 'mcambioClave'
                 //hidden: true
                      
-            },
-            {
+            },{
+                text: 'Email Autorizados',
+                iconCls: '',
+                itemId: 'pg_email_autoriza',
+                disabled: true,
+                action: 'memailautorizados'
+                //hidden: true
+                     
+            },{
                 text: 'Parametros de Sistema',
                 iconCls: '',
                 itemId: 'pg_psistema',
@@ -873,6 +879,8 @@ Ext.define('Infosys_web.view.TopMenus' ,{
             }
        
             ];
+
+            
         
         this.callParent(arguments);
     }

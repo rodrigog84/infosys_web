@@ -395,7 +395,10 @@ class Ordencompra extends CI_Controller {
 		        'id_tipo_movimiento' => $tipdoc,
 		        'valor_producto' =>  $v->valor,
 		        'cantidad_entrada' => $v->stock,
+		        'saldo' => $v->stock,
 		        'fecha_movimiento' => $fecha,
+		        'fecha_vencimiento' => $v->fecha_vencimiento,
+		        'lote' => $v->lote,
 		        'p_promedio' => $ppm
 			);
 
@@ -447,7 +450,9 @@ class Ordencompra extends CI_Controller {
 	    		$data4 = array(
 		        'cant_final' => $v->stock,
 		        'valor_prom' => $v->valor,
-		        'id_bodega' => $idbodega
+		        'id_bodega' => $idbodega,
+		        'fecha_vencimiento' => $v->fecha_vencimiento,
+		        'lote' => $v->lote,
 		    	);
 
 	    		$this->db->where('id', $v->id);
@@ -472,7 +477,9 @@ class Ordencompra extends CI_Controller {
 		        'total' => $total1,
 		        'neto' => $neto1,
 		        'iva' => $iva1,
-		        'valor_prom' => $v->subtotal
+		        'valor_prom' => $v->subtotal,
+		        'fecha_vencimiento' => $v->fecha_vencimiento,
+		        'lote' => $v->lote,
 		    	);
 
 		    	$this->db->where('id', $v->id);
@@ -498,7 +505,9 @@ class Ordencompra extends CI_Controller {
 		        'total' => $total,
 		        'neto' => $neto,
 		        'iva' => $iva,
-		        'valor_prom' => $v->subtotal
+		        'valor_prom' => $v->subtotal,
+		        'fecha_vencimiento' => $v->fecha_vencimiento,
+		        'lote' => $v->lote,
 			);
 
 			$this->db->insert('orden_compra_item', $orden_compra_item);	

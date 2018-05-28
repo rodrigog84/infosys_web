@@ -1,6 +1,6 @@
-Ext.define('Infosys_web.store.Bitacora', {
+Ext.define('Infosys_web.store.Bitacora_aviso', {
     extend: 'Ext.data.Store',
-    model: 'Infosys_web.model.bitacora',
+    model: 'Infosys_web.model.bitacora_avisos',
     autoLoad: true,
     pageSize: 14,
     

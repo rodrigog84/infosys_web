@@ -14,8 +14,8 @@ Ext.define('Infosys_web.view.clientes.Autoriza', {
     ],
 
     draggable: false,
-    height: 145,
-    width: 285,
+    height: 200,
+    width: 350,
     resizable: false,
     //closable: false,
     layout: 'fit',
@@ -56,12 +56,19 @@ Ext.define('Infosys_web.view.clientes.Autoriza', {
                         
                         {
                             xtype: 'textfield',
-                            anchor: '80%',
+                            anchor: '100%',
                             //value: '123456',
                             fieldLabel: 'Clave Autoriza',
                             name: 'password',
                             itemId: 'enterId',
                             inputType: 'password'
+                        },{
+                            xtype: 'textareafield',
+                            anchor: '100%',
+                            //value: '123456',
+                            fieldLabel: 'Observacion',
+                            name: 'observacion',
+                            itemId: 'observaId'
                         }
                     ]
                 }

@@ -1173,9 +1173,14 @@ Ext.define('Infosys_web.controller.General', {
                     var vport = Ext.create('Infosys_web.view.Viewport');
                     var mtop = vport.down("topmenus")
                     var modules = objs.modules
+                    var resp = objs.resp;
+                    var nombre = objs.nombre;
+                    data_sess.modules = modules;
+                    me.modules_security(modules, mtop);
+                    mtop.down('#IdUsuario').setValue(resp);
+                    mtop.down('#Usnombre').setValue(nombre);
                     data_sess.modules = modules
                     me.modules_security(modules, mtop)
-
                     view.close();
                 }else{
                     Ext.Msg.alert('Alerta', 'Usuario/Contraseña Invalidos.');

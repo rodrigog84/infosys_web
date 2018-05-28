@@ -1,9 +1,9 @@
 Ext.util.Format.thousandSeparator = '.';
 //variables globales
 
-//var gbl_site = 'http://localhost/Infosys_web/';
+var gbl_site = 'http://localhost/Infosys_web/';
 
-var gbl_site = 'http://angus.agricultorestalca.cl/Infosys_web/';
+//var gbl_site = 'http://angus.agricultorestalca.cl/Infosys_web/';
 var preurl = gbl_site + 'core/index.php/';
 var preurl_img = gbl_site + 'core/archivos/';
 var preurl_js = gbl_site + 'Infosys_web/';
@@ -23,7 +23,7 @@ Ext.application({
                   "Recaudacion", "Notacredito","Caja", "Guiasdespacho",
                   "Comisiones","Notadebito","Tipodocumentocompras", "Precios",
                   "Facturaglosa", "Facturaganado","Pedidos","ExistenciasClientes",
-                  "FacturaCompra", "Formulas", "Produccion"],
+                  "FacturaCompra", "Formulas", "Produccion", "Emailautorizados"],
 	   
     views: [
         'Infosys_web.view.WLogin',
@@ -40,13 +40,7 @@ Ext.application({
 	launch: function() {
         _myAppGlobal = this;
 
-        if(!data_sess.modules){
-            Ext.create('Infosys_web.view.Login');
-        }else{
-            var vport = Ext.create('Infosys_web.view.Viewport');
-            var mtop = vport.down("topmenus")
-            var modules = data_sess.modules
-            _myAppGlobal.getController('General').modules_security(modules, mtop);
-        }
+       Ext.create('Infosys_web.view.Login');
+        
     }
 });

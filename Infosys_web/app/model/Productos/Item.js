@@ -27,6 +27,8 @@ Ext.define('Infosys_web.model.Productos.Item', {
         {name: 'nom_agrupacion'},
         {name: 'nom_subfamilia'},
         {name: 'stock'},
+        {name: 'lote'},
+        {name: 'fecha_vencimiento', type:'date',dateFormat:"Y-m-d"},
         {name: 'nom_bodega'},
         {name: 'cantidad', decimalPrecision:3},
         {name: 'dcto', decimalPrecision:3},

@@ -240,15 +240,10 @@ Ext.define('Infosys_web.view.ordencompra.Editar', {
                             {
                                 xtype: 'button',
                                 text: 'Buscar',
-                                 maxHeight: 25,
+                                maxHeight: 25,
                                 width: 140,
                                 allowBlank: true,
-                                icon: gbl_site + 'Infosys_web/resources/images/search.png',
-                                tooltip: 'Buscar',
-                                handler: function (grid, rowIndex, colIndex, id) {
-                                    var view = Ext.create('Infosys_web.view.ordencompra.BuscarProductos2');
-                                    view.down("#nombreId").focus();
-                                }
+                                action: 'buscarproductos2',
                             },
                             {xtype: 'splitter'},
                             {

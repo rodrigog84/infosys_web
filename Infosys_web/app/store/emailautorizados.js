@@ -1,14 +1,19 @@
-Ext.define('Infosys_web.store.Bitacora', {
+Ext.define('Infosys_web.store.emailautorizados', {
     extend: 'Ext.data.Store',
-    model: 'Infosys_web.model.bitacora',
+    model: 'Infosys_web.model.Emailautorizados',
     autoLoad: true,
     pageSize: 14,
     
     proxy: {
         type: 'ajax',
-       
+        actionMethods:  {
+            read: 'POST'
+         },
         api: {
-            read: preurl + 'bitacora_aviso/getAll',
+            create: preurl + 'emailautorizados/save', 
+            read: preurl + 'emailautorizados/getAll',
+            update: preurl + 'emailautorizados/update'
+            //destroy: 'php/deletaContacto.php'
         },
         reader: {
             type: 'json',

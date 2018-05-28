@@ -97,6 +97,7 @@ class Login extends CI_Controller {
 			}
 			$resp['nombre'] = $nombre." ".$apellido;
 			$resp['username'] = $username;
+			$resp['resp'] = $id_usu;
 			$resp['modules'] = $mods;
 
 			$this->session->set_userdata( array(

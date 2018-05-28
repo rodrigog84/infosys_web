@@ -34,13 +34,8 @@ Ext.application({
 	launch: function() {
         _myAppGlobal = this;
 
-        if(!data_sess.modules){
             Ext.create('Infosys_web.view.Login');
-        }else{
-            var vport = Ext.create('Infosys_web.view.Viewport');
-            var mtop = vport.down("topmenus")
-            var modules = data_sess.modules
-            _myAppGlobal.getController('General').modules_security(modules, mtop);
-        }
+           
+        
     }
 });

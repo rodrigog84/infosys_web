@@ -147,6 +147,14 @@ Ext.define('Infosys_web.view.clientes.Principal' ,{
             xtype: 'toolbar',
             dock: 'top',
             items: [{
+                xtype: 'textfield',
+                //anchor: '80%',
+                fieldLabel: 'Usuario',
+                name: 'Id_usuario',
+                itemId: 'IdUsuario',
+                hidden: true
+                //hidden: true
+            },{
                 xtype: 'button',
                 iconCls: 'icon-add',
                 action: 'validar',
