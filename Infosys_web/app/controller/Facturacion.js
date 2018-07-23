@@ -8,6 +8,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
              'Factura',
              'Clientes',
              'Productosf',
+             'Existencias4',
              'Tipo_documento',
              'Sucursales_clientes',
              'Tipo_documento.Selector',
@@ -30,7 +31,8 @@ Ext.define('Infosys_web.controller.Facturacion', {
              'facturaelectronica.RegistroEmpresa',                        
              'ventas.Exportar',
              'ventas.Observaciones',
-             'ventas.Facturaseditar'],
+             'ventas.Facturaseditar',
+             'ventas.detalle_stock'],
 
     //referencias, es un alias interno para el controller
     //podemos dejar el alias de la vista en el ref y en el selector
@@ -71,6 +73,9 @@ Ext.define('Infosys_web.controller.Facturacion', {
     },{
         ref: 'facturaseditar',
         selector: 'facturaseditar'
+    },{
+        ref: 'detallestock',
+        selector: 'detallestock'
     }
     
     ],
@@ -1294,12 +1299,15 @@ Ext.define('Infosys_web.controller.Facturacion', {
         
         var viewIngresa = this.getFacturasingresar();
         var tipo = viewIngresa.down('#tipoDocumentoId').getValue();
-        var codigo = viewIngresa.down('#codigoId').getValue()
-        if (!codigo){
+        var codigo = viewIngresa.down('#codigoId').getValue();
+        var id = viewIngresa.down('#productoId').getValue();
+        if(!codigo){
             var st = this.getProductosfStore();
             Ext.create('Infosys_web.view.productos.BuscarProductos').show();
             st.load();
-        }else{
+        };
+
+        if(codigo){
 
             Ext.Ajax.request({
             url: preurl + 'productos/buscacodigo?codigo='+codigo,
@@ -1312,18 +1320,12 @@ Ext.define('Infosys_web.controller.Facturacion', {
                 if (resp.success == true){                    
                     if(resp.cliente){
                         var cliente = resp.cliente;                        
+                        var id = (cliente.id);
                         viewIngresa.down('#productoId').setValue(cliente.id);
-                        viewIngresa.down('#nombreproductoId').setValue(cliente.nombre);
-                        viewIngresa.down('#codigoId').setValue(cliente.codigo);
-                        if (tipo==2){
-                            viewIngresa.down('#precioId').setValue(cliente.p_venta);
-                        }else{
-                            viewIngresa.down('#precioId').setValue(cliente.p_venta);
-                        }
-                        viewIngresa.down('#preciopromId').setValue(cliente.p_promedio);
+                        viewIngresa.down('#precioId').setValue(cliente.p_venta);
                         viewIngresa.down('#cantidadOriginalId').setValue(cliente.stock);
-                        viewIngresa.down("#precioId").focus();
-                                             
+                        viewIngresa.down('#nombreproductoId').setValue(cliente.nombre); 
+                                        
                     }
                 }else{
 
@@ -1338,11 +1340,50 @@ Ext.define('Infosys_web.controller.Facturacion', {
         });           
 
         }
+        if(id){
+
+            if(codigo){
+
+            this.seleccionarproductos2();    
+            
+            }; 
+
+        };
+
+        
     },
 
-    seleccionarproductos: function(){
+    seleccionarproductos2 : function(){
 
-        var view = this.getBuscarproductos();
+        var viewIngresa1 = this.getFacturasingresar();
+        var bodega = viewIngresa1.down('#bodegaId').getValue();
+        var tipo = viewIngresa1.down('#tipoDocumentoId').getValue();
+        var id = viewIngresa1.down('#productoId').getValue();
+        var p_venta = viewIngresa1.down('#precioId').getValue();
+        var p_neto = viewIngresa1.down('#precioId').getValue();
+        var stock = viewIngresa1.down('#productoId').getValue();
+        if(!tipo){
+            tipo=1;
+        };
+        var st = this.getExistencias4Store();
+        st.proxy.extraParams = {id : id,
+                               bodega : bodega}
+        st.load();
+        if(id){
+        viewIngresa = Ext.create('Infosys_web.view.ventas.detalle_stock').show();
+        viewIngresa.down('#stockId').setValue(stock);
+        if (tipo==2){
+                viewIngresa.down('#pventaId').setValue(p_neto);
+            }else{
+                viewIngresa.down('#pventaId').setValue(p_venta);
+            };  
+        };            
+        
+    },
+
+    seleccionarproductosstock: function(){
+
+        var view = this.getDetallestock();
         var viewIngresa = this.getFacturasingresar();
         var tipo = viewIngresa.down('#tipoDocumentoId').getValue();
         var grid  = view.down('grid');
@@ -1359,7 +1400,42 @@ Ext.define('Infosys_web.controller.Facturacion', {
             viewIngresa.down('#preciopromId').setValue(row.data.p_promedio);
             viewIngresa.down('#cantidadOriginalId').setValue(row.data.stock);
             viewIngresa.down('#stock').setValue(row.data.stock);
+            viewIngresa.down('#loteId').setValue(row.data.lote);
+            viewIngresa.down('#fechavencimientoId').setValue(row.data.fecha_vencimiento);
             viewIngresa.down('#stock_critico').setValue(row.data.stock_critico);
+            view.close();
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }
+    },
+
+
+
+    seleccionarproductos : function(){
+
+        var view = this.getBuscarproductos();
+        var viewIngresa1 = this.getFacturasingresar();
+        var bodega = viewIngresa1.down('#bodegaId').getValue();
+        var tipo = viewIngresa1.down('#tipoDocumentoId').getValue();
+        if(!tipo){
+            tipo=1;
+        };
+        var grid  = view.down('grid');
+        if (grid.getSelectionModel().hasSelection()) {
+            var row = grid.getSelectionModel().getSelection()[0];
+            var id = (row.data.id);
+            var st = this.getExistencias4Store();
+            st.proxy.extraParams = {id : id,
+                                    bodega : bodega}
+            st.load();
+            viewIngresa = Ext.create('Infosys_web.view.ventas.detalle_stock').show();
+            viewIngresa.down('#stockId').setValue(row.data.stock);
+            if (tipo==2){
+                viewIngresa.down('#pventaId').setValue(row.data.p_neto);
+            }else{
+                viewIngresa.down('#pventaId').setValue(row.data.p_venta);
+            };            
             view.close();
         }else{
             Ext.Msg.alert('Alerta', 'Selecciona un registro.');

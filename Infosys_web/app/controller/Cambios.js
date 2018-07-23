@@ -20,6 +20,7 @@ Ext.define('Infosys_web.controller.Cambios', {
              'Cambios.BuscarProductos',
              'Cambios.BuscarProductos2'],
 
+
     //referencias, es un alias interno para el controller
     //podemos dejar el alias de la vista en el ref y en el selector
     //tambien, asi evitamos enredarnos
