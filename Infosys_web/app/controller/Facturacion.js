@@ -343,7 +343,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
 
         var view = this.getFacturasprincipal();
         var idbodega = view.down('#bodegaId').getValue();
-        var idtipo = 1;
+        var idtipo = 101;
         var st = this.getFacturaStore();
         st.proxy.extraParams = {documento: idtipo,
                                 idbodega: idbodega }
