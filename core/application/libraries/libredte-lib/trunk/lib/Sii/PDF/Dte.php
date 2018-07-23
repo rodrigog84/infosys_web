@@ -23,7 +23,7 @@
 
 namespace sasco\LibreDTE\Sii\PDF;
 
-/**
+/****
  * Clase para generar el PDF de un documento tributario electrónico (DTE)
  * chileno.
  * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
@@ -33,6 +33,13 @@ class Dte extends \sasco\LibreDTE\PDF
 {
 
     private $logo; ///< Ubicación del logo del emisor que se incluirá en el pdf
+
+    private $giroCliente; //Giro de cliente completo
+    private $giroEmisor; //Giro de emisor completo
+    private $condpago;
+    private $vendedor;
+
+
     private $resolucion; ///< Arreglo con los datos de la resolución (índices: NroResol y FchResol)
     private $cedible = false; ///< Por defecto DTEs no son cedibles
     protected $papelContinuo = false; ///< Indica si se usa papel continuo o no
@@ -107,6 +114,29 @@ class Dte extends \sasco\LibreDTE\PDF
     {
         $this->logo = $logo;
     }
+
+
+    public function setGiroCliente($giro)
+    {
+        $this->giroCliente = $giro;
+    }
+
+
+    public function setGiroEmisor($giro)
+    {
+        $this->giroEmisor = $giro;
+    }    
+
+
+    public function setCondPago($condpago)
+    {
+        $this->condpago = $condpago;
+    }   
+
+    public function setVendedor($vendedor)
+    {
+        $this->vendedor = $vendedor;
+    } 
 
     /**
      * Método que asigna los datos de la resolución del SII que autoriza al
@@ -184,19 +214,26 @@ class Dte extends \sasco\LibreDTE\PDF
         $this->setY(max($y));
         $this->Ln();
         $this->agregarFechaEmision($dte['Encabezado']['IdDoc']['FchEmis']);
+        
+
+        
         $this->agregarCondicionVenta($dte['Encabezado']['IdDoc']);
         $this->agregarReceptor($dte['Encabezado']['Receptor']);
+
         $this->agregarTraslado(
             !empty($dte['Encabezado']['IdDoc']['IndTraslado']) ? $dte['Encabezado']['IdDoc']['IndTraslado'] : null,
             !empty($dte['Encabezado']['Transporte']) ? $dte['Encabezado']['Transporte'] : null
         );
+        $this->agregarCondPago();
+        $this->agregarVendedor();
+        
         //if (!empty($dte['Referencia']))
             $this->agregarReferencia($dte['Referencia']);
 
         //AGREGAR RECUADRO PARA DATOS DEL DESTINATARIO
         $y = 50;
         $y = $dte['Encabezado']['IdDoc']['TipoDTE'] == 34 || $dte['Encabezado']['IdDoc']['TipoDTE'] == 61  || $dte['Encabezado']['IdDoc']['TipoDTE'] == 52 ? $y + 5 : $y;
-        $this->Rect(10, $y, 190, 22, 'D', ['all' => ['width' => 0.1, 'color' => [0, 0, 0]]]);
+        $this->Rect(10, $y, 190, 29, 'D', ['all' => ['width' => 0.1, 'color' => [0, 0, 0]]]);
 
 
         $this->agregarDetalle($dte['Detalle']);
@@ -206,7 +243,7 @@ class Dte extends \sasco\LibreDTE\PDF
 
         //AGREGAR RECUADRO PARA DATOS DEL DESTINATARIO
 
-        $y = 195;
+        $y = 200;
         //$y = $dte['Encabezado']['IdDoc']['TipoDTE'] == 34 ? $y + 5 : $y;
         $this->Rect(155, $y, 45, 13, 'D', ['all' => ['width' => 0.1, 'color' => [0, 0, 0]]]);
 
@@ -311,7 +348,8 @@ class Dte extends \sasco\LibreDTE\PDF
         }
         // agregar datos del emisor
         $this->setFont('', 'B', $font_size ? $font_size : 10);
-        $this->SetTextColorArray([32, 92, 144]);
+        //$this->SetTextColorArray([32, 92, 144]);
+        $this->SetTextColorArray([0, 0, 0]);
         $this->MultiTexto(isset($emisor['RznSoc']) ? $emisor['RznSoc'] : $emisor['RznSocEmisor'], $x, $this->y+2, 'L', $w);
         $this->setFont('', 'B', $font_size ? $font_size : 9);
         $this->SetTextColorArray([0,0,0]);
@@ -422,6 +460,27 @@ class Dte extends \sasco\LibreDTE\PDF
         $this->MultiTexto($this->date($date, $mostrar_dia), $x+$offset+2);
     }
 
+
+
+    private function agregarCondPago($x = 10, $offset = 22, $mostrar_dia = true)
+    {
+        $this->setFont('', 'B', 8);
+        $this->Texto('Cond. Pago', $x);
+        $this->Texto(':', $x+$offset);
+        $this->setFont('', 'C', 8);
+        $this->MultiTexto($this->condpago, $x+$offset+2);
+    }
+
+    private function agregarVendedor($x = 10, $offset = 22, $mostrar_dia = true)
+    {
+        $this->setFont('', 'B', 8);
+        $this->Texto('Vendedor', $x);
+        $this->Texto(':', $x+$offset);
+        $this->setFont('', 'C', 8);
+        $this->MultiTexto($this->vendedor, $x+$offset+2);
+    }    
+
+
     /**
      * Método que agrega la condición de venta del documento
      * @param IdDoc Información general del documento
@@ -482,7 +541,8 @@ class Dte extends \sasco\LibreDTE\PDF
             $this->Texto('Giro', $x);
             $this->Texto(':', $x+$offset);
             $this->setFont('', 'C', 8);
-            $this->MultiTexto($receptor['GiroRecep'], $x+$offset+2);
+            //$this->MultiTexto($receptor['GiroRecep'], $x+$offset+2);
+            $this->MultiTexto(is_null($this->giroCliente) ? $receptor['GiroRecep'] : $this->giroCliente, $x+$offset+2);
         }
         $this->setFont('', 'B', 8);
         $this->Texto('Dirección', $x);
@@ -561,7 +621,10 @@ class Dte extends \sasco\LibreDTE\PDF
         if (!isset($referencias[0]))
             $referencias = [$referencias];
         foreach($referencias as $r) {
-            $texto = $vacio ? "" : $r['NroLinRef'].' - '.$this->getTipo($r['TpoDocRef']).' N° '.$r['FolioRef'].' del '.$r['FchRef'];
+            
+            $txt_nro_docto = $r['TpoDocRef'] == 801 ? ' N°  ORDEN DE COMPRA  ' : ' N°  ';
+
+            $texto = $vacio ? "" : $r['NroLinRef'].' - '.$this->getTipo($r['TpoDocRef']).$txt_nro_docto.$r['FolioRef'].' del '.$r['FchRef'];
             if (isset($r['RazonRef']) and $r['RazonRef']!==false)
                 $texto = $texto.': '.$r['RazonRef'];
             $this->setFont('', 'B', 8);
@@ -692,7 +755,7 @@ class Dte extends \sasco\LibreDTE\PDF
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
      * @version 2016-03-10
      */
-    private function agregarTotales(array $totales, $y = 195, $x = 145, $offset = 25)
+    private function agregarTotales(array $totales, $y = 200, $x = 145, $offset = 25)
     {
         // normalizar totales
         $totales = array_merge([
@@ -757,7 +820,7 @@ class Dte extends \sasco\LibreDTE\PDF
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
      * @version 2016-03-10
      */
-    private function agregarTimbre($timbre, $x_timbre = 20, $x = 20, $y = 195, $w = 70, $font_size = 8)
+    private function agregarTimbre($timbre, $x_timbre = 20, $x = 20, $y = 200, $w = 70, $font_size = 8)
     {
         $style = [
             'border' => false,
@@ -787,7 +850,7 @@ class Dte extends \sasco\LibreDTE\PDF
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
      * @version 2015-09-08
      */
-    private function agregarAcuseRecibo($x = 93, $y = 195, $w = 55, $h = 40)
+    private function agregarAcuseRecibo($x = 93, $y = 200, $w = 55, $h = 40)
     {
         $this->SetTextColorArray([0,0,0]);
         $this->Rect($x, $y, $w, $h, 'D', ['all' => ['width' => 0.1, 'color' => [0, 0, 0]]]);

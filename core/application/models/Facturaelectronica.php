@@ -86,14 +86,13 @@ class Facturaelectronica extends CI_Model
 		  $this->db->where('idfactura',$idfactura);
 		  $this->db->update('folios_caf',array('trackid' => $trackid));
 		return 1;
-	 }	
-
+	 }		 
 
 	  public function put_trackid_libro($idlibro,$trackid){
 		  $this->db->where('id',$idlibro);
 		  $this->db->update('log_libros',array('trackid' => $trackid));
 		return 1;
-	 }		 	 
+	 }	 
 
 	 public function contribuyentes_autorizados($start = null,$limit = null){
 
@@ -126,8 +125,8 @@ class Facturaelectronica extends CI_Model
 
 	 }
 
-	public function get_empresa(){  // OBTIENE DATOS EMPRESA
-		$this->db->select('rut, dv, razon_social, giro, cod_actividad, dir_origen, comuna_origen, fec_resolucion, nro_resolucion, logo, fono ')
+	public function get_empresa(){
+		$this->db->select('rut, dv, razon_social, giro, cod_actividad, dir_origen, comuna_origen, fec_resolucion, nro_resolucion, logo ')
 		  ->from('empresa')
 		  ->limit(1);
 		$query = $this->db->get();
@@ -171,9 +170,6 @@ class Facturaelectronica extends CI_Model
 	}
 
 
-
-
-
 	public function genera_libro($id_libro,$tipo,$archivo,$xml_libro){
 		$array_update = array(
 					'estado' => 'G',
@@ -186,7 +182,7 @@ class Facturaelectronica extends CI_Model
 		$this->db->update('log_libros',$array_update); 
 
 
-		//echo $this->db->last_query();
+
 
 		//$this->db->insert('log_libros',$array_insert); 
 		return true;
@@ -230,7 +226,7 @@ class Facturaelectronica extends CI_Model
 
 
 	public function get_detalle_factura($id_factura){
-		$this->db->select('p.nombre, f.precio, f.cantidad, f.descuento , f.iva, f.totalproducto')
+		$this->db->select('p.nombre, f.precio, f.cantidad, f.descuento , f.neto, f.iva, f.totalproducto')
 		  ->from('detalle_factura_cliente f')
 		  ->join('productos p','f.id_producto = p.id')
 		  ->where('f.id_factura',$id_factura);
@@ -239,7 +235,7 @@ class Facturaelectronica extends CI_Model
 	 }
 
 	public function get_detalle_factura_glosa($id_factura){
-		$this->db->select('f.glosa, f.neto, f.iva, f.total ')
+		$this->db->select('f.glosa, f.neto, f.iva, f.total, f.num_guia ')
 		  ->from('detalle_factura_glosa f')
 		  ->where('f.id_factura',$id_factura);
 		$query = $this->db->get();
@@ -256,7 +252,7 @@ class Facturaelectronica extends CI_Model
 		  ->where('c.estado','O');
 		$query = $this->db->get();
 		return $query->result();
-	 }	
+	 }
 
 	public function get_content_caf_folio($folio,$tipo_documento){
 		$this->db->select('f.estado, c.archivo, c.caf_content ')
@@ -272,7 +268,7 @@ class Facturaelectronica extends CI_Model
 
 	public function datos_dte($idfactura){
 
-		$this->db->select('f.id, f.folio, f.path_dte, f.archivo_dte, f.archivo_dte_cliente, f.dte, f.dte_cliente, f.pdf, f.pdf_cedible, f.trackid, c.tipo_caf, tc.nombre as tipo_doc, cae.nombre as giro, cp.nombre as cond_pago, v.nombre as vendedor ')
+		$this->db->select('f.id, f.folio, f.path_dte, f.archivo_dte,  f.archivo_dte_cliente, f.dte, f.dte_cliente, f.pdf, f.pdf_cedible, f.trackid, c.tipo_caf, tc.nombre as tipo_doc, cae.nombre as giro, cp.nombre as cond_pago, v.nombre as vendedor ')
 		  ->from('folios_caf f')
 		  ->join('caf c','f.idcaf = c.id')
 		  ->join('tipo_caf tc','c.tipo_caf = tc.id')
@@ -289,17 +285,17 @@ class Facturaelectronica extends CI_Model
 	}
 
 
+
+
 	public function get_libro_by_id($idlibro){
 		$this->db->select('id, mes, anno, tipo_libro, archivo, date_format(fecha_solicita,"%d/%m/%Y %H:%i:%s") as fecha_solicita, date_format(fecha_procesa,"%d/%m/%Y %H:%i:%s") as fecha_creacion, estado, trackid, xml_libro, created_at',false)
 		  ->from('log_libros')
 		  ->where('id',$idlibro);
 		$query = $this->db->get();
 		return $query->row();
-	}
+	}	
 
-
-
-	public function datos_dte_by_trackid($trackid){
+public function datos_dte_by_trackid($trackid){
 		$this->db->select('f.id, f.folio, f.path_dte, f.archivo_dte, f.dte, f.pdf, f.pdf_cedible, f.trackid, c.tipo_caf, tc.nombre as tipo_doc, cae.nombre as giro, cp.nombre as cond_pago, v.nombre as vendedor    ')
 		  ->from('folios_caf f')
 		  ->join('caf c','f.idcaf = c.id')
@@ -316,10 +312,11 @@ class Facturaelectronica extends CI_Model
 	}
 
 
+
 	public function datos_dte_provee($iddte){
-		$this->db->select('d.id, c.nombres as proveedor, c.e_mail, d.path_dte, d.arch_rec_dte, d.arch_res_dte, d.arch_env_rec, date_format(d.fecha_documento,"%d/%m/%Y") as fecha_documento , date_format(d.created_at,"%d/%m/%Y") as fecha_creacion ',false)
+		$this->db->select('d.id, p.nombres as proveedor, p.e_mail, d.path_dte, d.arch_rec_dte, d.arch_res_dte, d.arch_env_rec, date_format(d.fecha_documento,"%d/%m/%Y") as fecha_documento , date_format(d.created_at,"%d/%m/%Y") as fecha_creacion ',false)
 		  ->from('dte_proveedores d')
-		  ->join('clientes c','d.idproveedor = c.id')
+		  ->join('proveedores p','d.idproveedor = p.id')
 		  ->where('d.id',$iddte)
 		  ->order_by('d.id','desc');
 		$query = $this->db->get();
@@ -380,13 +377,16 @@ class Facturaelectronica extends CI_Model
 			        die('No se pudieron obtener los datos del DTE');
 			    $pdf = new \sasco\LibreDTE\Sii\PDF\Dte(false); // =false hoja carta, =true papel contínuo (false por defecto si no se pasa)
 			    $pdf->setFooterText();
-			    $pdf->setLogo('./facturacion_electronica/images/logo_empresa.png'); // debe ser PNG!
-			    $pdf->setGiroCliente($factura->giro); 
+			    $pdf->setLogo($base_path . '/../../facturacion_electronica/images/logo_empresa.png'); // debe ser PNG!
+			    if($factura->giro != ""){
+			    	$pdf->setGiroCliente($factura->giro); 
+			    }
 
 			    $pdf->setCondPago($factura->cond_pago); 
-			    $pdf->setVendedor($factura->vendedor); 
-
+			    $pdf->setVendedor($factura->vendedor); 			    			    
 			    $pdf->setGiroEmisor($empresa->giro); 
+
+			    
 			    $pdf->setResolucion(['FchResol'=>$Caratula['FchResol'], 'NroResol'=>$Caratula['NroResol']]);
 			    /*if(!is_null($cedible)){
 			    	$pdf->setCedible(true);
@@ -400,7 +400,6 @@ class Facturaelectronica extends CI_Model
 
 			    //$pdf->Output('facturacion_electronica/pdf/'.$factura->path_dte.'dte_'.$Caratula['RutEmisor'].'_'.$DTE->getID().'.pdf', 'FI');
 			    $archivo = 'dte_'.$Caratula['RutEmisor'].'_'.$DTE->getID();
-			    //$nombre_archivo = is_null($cedible) ? $archivo.".pdf" : $archivo."_CED.pdf";
 			    $nombre_archivo = $archivo.".pdf";
 			    //$tipo_generacion = is_null($cedible) ? 'FI' : 'F';
 			    $tipo_generacion = 'FI';
@@ -502,9 +501,8 @@ class Facturaelectronica extends CI_Model
 			$factura = $this->datos_dte($idfactura);
 			$track_id = $factura->trackid;
 			$path = $factura->path_dte;
-
-			$nombre_dte = $factura->archivo_dte_cliente != '' ? $factura->archivo_dte_cliente : $factura->archivo_dte;
 			//$nombre_dte = $factura->archivo_dte;
+			$nombre_dte = $factura->archivo_dte_cliente != '' ? $factura->archivo_dte_cliente : $factura->archivo_dte;
 
 			$empresa = $this->get_empresa();
 			$datos_empresa_factura = $this->get_empresa_factura($idfactura);
@@ -549,9 +547,9 @@ class Facturaelectronica extends CI_Model
 			    $this->email->message($messageBody);
 
 			    //$this->email->attach('./facturacion_electronica/dte/'.$path.$nombre_dte);
-				$ruta =  $factura->archivo_dte_cliente != '' ? 'dte_cliente' : 'dte';
- 			    $this->email->attach('./facturacion_electronica/' . $ruta .'/'.$path.$nombre_dte);	
 
+				$ruta =  $factura->archivo_dte_cliente != '' ? 'dte_cliente' : 'dte';
+ 			    $this->email->attach('./facturacion_electronica/' . $ruta .'/'.$path.$nombre_dte);		
 
 			    try {
 			      $this->email->send();
@@ -646,7 +644,7 @@ class Facturaelectronica extends CI_Model
 		foreach ($data_doctos as $docto) {
 
 
-			//header('Content-type: text/plain; charset=ISO-8859-1');
+			header('Content-type: text/plain; charset=ISO-8859-1');
 			
 
 			$this->db->select('tipocaf, folio, fechafactura, condicion, rut, dv, razonsocial, giro, direccion, comuna, ciudad, cuenta, neto, iva, total, codigo, cantidad, unidad, nombre, preciounit, totaldetalle ')
@@ -769,12 +767,12 @@ class Facturaelectronica extends CI_Model
 							];								
 										// Objetos de Firma y Folios
 							$Firma = new sasco\LibreDTE\FirmaElectronica($config['firma']); //lectura de certificado digital		
-
 							$caf = $this->get_content_caf_folio($docto->folio,$tipo_caf);
 							
 							$Folios = new sasco\LibreDTE\Sii\Folios($caf->caf_content);
 								
 							$DTE = new \sasco\LibreDTE\Sii\Dte($factura);
+
 
 							$DTE->timbrar($Folios);
 							$DTE->firmar($Firma);		
@@ -853,39 +851,13 @@ class Facturaelectronica extends CI_Model
 		return $query->row();
 	 }	 
 
-
-	public function crea_archivo_dte($xml,$idfactura,$tipo_caf,$tipo_dte){
-
-				$datos_factura = $this->get_factura($idfactura);
-				$datos_empresa_factura = $this->get_empresa_factura($idfactura);
-				$rutCliente = substr($datos_empresa_factura->rut_cliente,0,strlen($datos_empresa_factura->rut_cliente) - 1)."-".substr($datos_empresa_factura->rut_cliente,-1);
-
-			    $xml_dte = $tipo_dte == 'sii' ? $xml : str_replace("60803000-K",$rutCliente,$xml);
-
-				$file_name = $tipo_dte == 'sii' ? "SII_" : "CLI_";
-				$nombre_dte = $datos_factura->num_factura."_". $tipo_caf ."_".$idfactura."_".$file_name.date("His").".xml"; // nombre archivo
-				$ruta = $tipo_dte == 'sii' ? 'dte' : 'dte_cliente';
-				$path = date('Ym').'/'; // ruta guardado
-				if(!file_exists('./facturacion_electronica/' . $ruta . '/'.$path)){
-					mkdir('./facturacion_electronica/' . $ruta . '/'.$path,0777,true);
-				}				
-				$f_archivo = fopen('./facturacion_electronica/' . $ruta .'/'.$path.$nombre_dte,'w');
-				fwrite($f_archivo,$xml_dte);
-				fclose($f_archivo);
-
-				return array('xml_dte' => $xml_dte,
-							 'nombre_dte' => $nombre_dte,
-							 'path' => $path);
-
-	 }	 	 
-
 	public function crea_dte($idfactura,$tipo = 'sii'){
 
 		$data_factura = $this->get_factura($idfactura);
+
 		$tipodocumento = $data_factura->tipo_documento;
 		$numfactura = $data_factura->num_factura;
 		$fecemision = $data_factura->fecha_factura;
-
 		if($tipodocumento == 101){
 			$tipo_caf = 33;
 		}else if($tipodocumento == 103){
@@ -895,7 +867,6 @@ class Facturaelectronica extends CI_Model
 		}else if($tipodocumento == 102){
 			$tipo_caf = 61;
 		}		
-
 
 		header('Content-type: text/plain; charset=ISO-8859-1');
 		$this->load->model('facturaelectronica');
@@ -912,10 +883,8 @@ class Facturaelectronica extends CI_Model
 		$lista_detalle = array();
 		$i = 0;
 		foreach ($detalle_factura as $detalle) {
-
 			$lista_detalle[$i]['NmbItem'] = $data_factura->forma == 1 ? $detalle->glosa : $detalle->nombre;
 			$lista_detalle[$i]['QtyItem'] = $data_factura->forma == 1 ? 1 : $detalle->cantidad;
-
 			//$lista_detalle[$i]['PrcItem'] = $detalle->precio;
 			//$lista_detalle[$i]['PrcItem'] = round((($detalle->precio*$detalle->cantidad)/1.19)/$detalle->cantidad,0);
 			//$total = $detalle->precio*$detalle->cantidad;
@@ -928,24 +897,25 @@ class Facturaelectronica extends CI_Model
 			if($data_factura->forma == 1){
 				$lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 || $tipo_caf == 52 ? floor($detalle->neto) : floor($detalle->total);
 			}else{
-				$lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 ? floor(($detalle->totalproducto - $detalle->iva)/$detalle->cantidad) : round($detalle->precio,3);
+				$lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 ? floor(($detalle->totalproducto - $detalle->iva)/$detalle->cantidad) : round($detalle->precio);
 			}
-
 
 
 			if($tipo_caf == 33 && $data_factura->forma != 1){
 				$lista_detalle[$i]['MontoItem'] = ($detalle->totalproducto - $detalle->iva);
 			}				
-		
 
-			if($data_factura->forma != 1){
+			if(isset($detalle->descuento)){
 				if($detalle->descuento != 0){
 					$porc_descto = round(($detalle->descuento/($detalle->cantidad*$lista_detalle[$i]['PrcItem'])*100),0);
 					$lista_detalle[$i]['DescuentoPct'] = $porc_descto;		
 					//$lista_detalle[$i]['PrcItem'] =- $lista_detalle[$i]['PrcItem']*$porc_descto;
 
 				}
+
 			}
+
+
 
 			$i++;
 		}
@@ -1008,7 +978,7 @@ class Facturaelectronica extends CI_Model
 			        'Receptor' => [
 			            'RUTRecep' => substr($datos_empresa_factura->rut_cliente,0,strlen($datos_empresa_factura->rut_cliente) - 1)."-".substr($datos_empresa_factura->rut_cliente,-1),
 			            'RznSocRecep' => substr($datos_empresa_factura->nombre_cliente,0,100), //LARGO DE RAZON SOCIAL NO PUEDE SER SUPERIOR A 100 CARACTERES
-			            'GiroRecep' => substr($datos_empresa_factura->giro,0,40),  //LARGO DEL GIRO NO PUEDE SER SUPERIOR A 40 CARACTERES
+			            'GiroRecep' => substr($datos_empresa_factura->giro,0,35),  //LARGO DEL GIRO NO PUEDE SER SUPERIOR A 40 CARACTERES
 			            'DirRecep' => substr($datos_empresa_factura->direccion,0,70), //LARGO DE DIRECCION NO PUEDE SER SUPERIOR A 70 CARACTERES
 			            'CmnaRecep' => substr($datos_empresa_factura->nombre_comuna,0,20), //LARGO DE COMUNA NO PUEDE SER SUPERIOR A 20 CARACTERES
 			        ],
@@ -1018,7 +988,6 @@ class Facturaelectronica extends CI_Model
 
 		}
 
-
 		//FchResol y NroResol deben cambiar con los datos reales de producción
 		$caratula = [
 		    //'RutEnvia' => '11222333-4', // se obtiene de la firma
@@ -1027,17 +996,18 @@ class Facturaelectronica extends CI_Model
 		    'NroResol' => $empresa->nro_resolucion
 		];
 
-
 		$Firma = new sasco\LibreDTE\FirmaElectronica($config['firma']); //lectura de certificado digital		
 		$caf = $this->facturaelectronica->get_content_caf_folio($numfactura,$tipo_caf);
 		$Folios = new sasco\LibreDTE\Sii\Folios($caf->caf_content);
-
 		$DTE = new \sasco\LibreDTE\Sii\Dte($factura);
 
-
 		$DTE->timbrar($Folios);
-		//var_dump($Firma); exit;
+		#var_dump($Firma);
 		$DTE->firmar($Firma);		
+
+
+
+
 
 		// generar sobre con el envío del DTE y enviar al SII
 		$EnvioDTE = new \sasco\LibreDTE\Sii\EnvioDte();
@@ -1065,7 +1035,7 @@ class Facturaelectronica extends CI_Model
 																					  'path_dte' => $dte['path'],
 																					  $campos['archivo_dte'] => $dte['nombre_dte'],
 																					  'trackid' => $track_id
-																					  )); 		    
+																					  )); 	
 
 			/*if($track_id != 0 && $datos_empresa_factura->e_mail != ''){ //existe track id, se envía correo
 				$this->envio_mail_dte($idfactura);
@@ -1076,6 +1046,32 @@ class Facturaelectronica extends CI_Model
 		return $this->datos_dte($idfactura);
 
 	}
+
+
+	public function crea_archivo_dte($xml,$idfactura,$tipo_caf,$tipo_dte){
+
+				$datos_factura = $this->get_factura($idfactura);
+				$datos_empresa_factura = $this->get_empresa_factura($idfactura);
+				$rutCliente = substr($datos_empresa_factura->rut_cliente,0,strlen($datos_empresa_factura->rut_cliente) - 1)."-".substr($datos_empresa_factura->rut_cliente,-1);
+
+			    $xml_dte = $tipo_dte == 'sii' ? $xml : str_replace("60803000-K",$rutCliente,$xml);
+
+				$file_name = $tipo_dte == 'sii' ? "SII_" : "CLI_";
+				$nombre_dte = $datos_factura->num_factura."_". $tipo_caf ."_".$idfactura."_".$file_name.date("His").".xml"; // nombre archivo
+				$ruta = $tipo_dte == 'sii' ? 'dte' : 'dte_cliente';
+				$path = date('Ym').'/'; // ruta guardado
+				if(!file_exists('./facturacion_electronica/' . $ruta . '/'.$path)){
+					mkdir('./facturacion_electronica/' . $ruta . '/'.$path,0777,true);
+				}				
+				$f_archivo = fopen('./facturacion_electronica/' . $ruta .'/'.$path.$nombre_dte,'w');
+				fwrite($f_archivo,$xml_dte);
+				fclose($f_archivo);
+
+				return array('xml_dte' => $xml_dte,
+							 'nombre_dte' => $nombre_dte,
+							 'path' => $path);
+
+	 }	
 
 
 
@@ -1133,7 +1129,6 @@ class Facturaelectronica extends CI_Model
 		$this->db->trans_complete(); 		
 
 	}	
-
-
+	 
 
 }

@@ -62,6 +62,8 @@ if (!function_exists('month2string'))
 
 if (!function_exists('valorEnLetras'))
 {
+
+
   function valorEnLetras($x) 
   { 
   if ($x<0) { $signo = "menos ";} 
@@ -104,7 +106,7 @@ if (!function_exists('valorEnLetras'))
 
   ///////////////////////////// 
       if($G6==0) { $I6=" "; } 
-  elseif($G6==1) { $I6="Millon "; } 
+  elseif($G6==1) { $I6="Millón "; } 
            else { $I6="Millones "; } 
             
   if ($G8==0 AND $G7==0) { $I8=" "; } 
@@ -114,7 +116,7 @@ if (!function_exists('valorEnLetras'))
   $I11 = "/100 M.N. "; 
 
   //$C3 = $signo.$H6.$I6.$H7.$I7.$H8.$I8.$H9.$I9.$H10.$I10.$H11.$I11; 
-  $C3 = $signo.$H6.$I6.$H7.$H8.$I8.$H9.$H10.$I10; 
+  $C3 = $signo.$H6.$I6.$H7.$I7.$H8.$I8.$H9.$I9.$H10.$I10; 
 
   return $C3; //Retornar el resultado 
 
@@ -394,6 +396,63 @@ if (!function_exists('date2string'))
 
   }
 
+
+if (!function_exists('caftotd'))
+{
+
+  function caftotd($caf)
+  {
+      if($caf == 33){
+        $tipodocumento = 101;
+      }else if($caf == 61){
+        $tipodocumento = 102;
+      }else if($caf == 34){
+        $tipodocumento = 103;
+      }else if($caf == 56){
+        $tipodocumento = 104;
+      }else if($caf == 52){
+        $tipodocumento = 105;
+      }
+    return $tipodocumento;
+  }
+
+}
+
            
 
-      
+if (!function_exists('permite_alfanumerico'))
+{
+
+  function permite_alfanumerico($string)
+  {
+
+
+    $conservar = '0-9a-z#, '; // juego de caracteres a conservar
+    $regex = sprintf('~[^%s]++~i', $conservar); // case insensitive
+    $string = preg_replace($regex, '', $string);
+ 
+    return $string;
+
+    
+  }
+}      
+
+
+if (!function_exists('formato_fecha'))
+{
+
+  function formato_fecha($fecha,$formato_origen,$formato_destino)
+  {
+    if($formato_origen == 'd/m/Y' && $formato_destino == 'Y-m-d'){
+      return substr($fecha,6,4)."-".substr($fecha,3,2)."-".substr($fecha,0,2);
+
+    }else if($formato_origen == 'Y-m-d' && $formato_destino == 'd/m/Y'){
+      return substr($fecha,8,2)."/".substr($fecha,5,2)."/".substr($fecha,0,4);
+    }else if($formato_origen == 'Y-m-d' && $formato_destino == 'd-m-Y'){
+      return substr($fecha,8,2)."-".substr($fecha,5,2)."-".substr($fecha,0,4);
+    }else if($formato_origen == 'd-m-Y' && $formato_destino == 'Y-m-d'){
+      return substr($fecha,6,4)."-".substr($fecha,3,2)."-".substr($fecha,0,2);
+    }
+
+  }
+}     
