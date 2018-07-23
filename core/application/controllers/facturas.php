@@ -9,6 +9,84 @@ class Facturas extends CI_Controller {
 		$this->load->database();
 	}
 
+    public function get_email(){
+        $this->load->model('facturaelectronica');
+        $email = $this->facturaelectronica->get_email();
+        $resp['data'] = count($email) > 0 ? json_encode($email) : false;
+        echo json_encode($resp);
+     }
+
+     public function dteproveegetAll(){
+    $this->db->select('d.id, p.nombres as proveedor, p.e_mail, d.path_dte, d.arch_rec_dte, d.arch_res_dte, d.arch_env_rec, date_format(d.fecha_documento,"%d/%m/%Y") as fecha_documento , date_format(d.created_at,"%d/%m/%Y") as fecha_creacion ',false)
+      ->from('dte_proveedores d')
+      ->join('proveedores p','d.idproveedor = p.id')
+      ->order_by('d.id','desc');
+        $query = $this->db->get();
+        $dte_provee = $query->result();
+        echo json_encode($dte_provee);
+    }
+
+    public function contribautorizadosgetAll(){
+        $start = $this->input->get('start');
+        $limit = $this->input->get('limit');
+
+        $this->load->model('facturaelectronica');
+        $datos_contribuyentes = $this->facturaelectronica->contribuyentes_autorizados($start,$limit);
+
+        $resp['success'] = true;
+        $resp['total'] = $datos_contribuyentes['total'];
+        $resp['data'] = $datos_contribuyentes['data'];
+
+        echo json_encode($resp);
+    }
+
+    public function librosgetAll(){
+        $start = $this->input->get('start');
+        $limit = $this->input->get('limit');
+
+        $this->load->model('facturaelectronica');
+        $datos_contribuyentes = $this->facturaelectronica->log_libros($start,$limit);
+
+
+        $data = array();
+        $nro = 1;
+        foreach($datos_contribuyentes['data'] as $data_contribuyentes){
+            $data_contribuyentes->mes = month2string($data_contribuyentes->mes);
+            $data[] = $data_contribuyentes;
+            $data_contribuyentes->estado = $data_contribuyentes->estado == 'P' ? 'Pendiente' : 'Generado';
+            $data_contribuyentes->nro = $nro;
+            $nro++;
+        }
+
+        $resp['success'] = true;
+        $resp['total'] = $datos_contribuyentes['total'];
+        $resp['data'] = $data;
+
+        echo json_encode($resp);
+    }
+
+   
+    public function estado_tipo_documento($tipo_documento){
+        $this->db->select('f.id ')
+                          ->from('folios_caf f')
+                          ->join('caf c','f.idcaf = c.id')
+                          ->where('c.tipo_caf',$tipo_documento)
+                          ->where("f.estado = 'P'");
+        $query = $this->db->get();
+        $folios_existentes = $query->result();              
+
+        $resp['cantidad'] = count($folios_existentes);
+        echo json_encode($resp);
+     }
+
+    public function busca_parametro_fe($parametro){
+
+        $this->load->model('facturaelectronica');
+        $datos = $this->facturaelectronica->busca_parametro_fe($parametro);
+        echo json_encode($datos);       
+    }
+
+
       public function folio_documento_electronico($tipo_doc){
 
             $tipo_caf = 0;
@@ -2476,6 +2554,7 @@ class Facturas extends CI_Controller {
 
 
         }
+    }
         
 		$resp['success'] = true;
 		$resp['idfactura'] = $idfactura;

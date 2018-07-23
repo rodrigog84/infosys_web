@@ -13,7 +13,11 @@ Ext.define('Infosys_web.controller.Facturacion', {
              'Sucursales_clientes',
              'Tipo_documento.Selector',
              'facturas.Selector',
-             'facturas.Selector2'],
+             'facturas.Selector2',
+             'Cargadteproveedores',
+             'Contribuyentesautorizados',
+             'Loglibros'
+             ],
 
     models: ['Facturas.Item',
              'Factura',
@@ -28,7 +32,19 @@ Ext.define('Infosys_web.controller.Facturacion', {
              'ventas.EstadisticasVentas',
              'ventas.InformeStock',
              'ventas.VerDetalleProductoStock',  
-             'facturaelectronica.RegistroEmpresa',                        
+             'facturaelectronica.CargaCertificadoDigital',
+             'facturaelectronica.CargaManualCaf',
+             'facturaelectronica.ParamGeneralesFe',
+             'facturaelectronica.RegistroEmpresa',
+             'facturaelectronica.verEstadoDte',
+             'facturaelectronica.verEstadoEnvio',
+             'facturaelectronica.DteProveedorPrincipal',
+             'facturaelectronica.CargaDteProveedor',
+             'facturaelectronica.LibroCompraVenta',
+             'facturaelectronica.ContribuyentesAutorizados',
+             'facturaelectronica.CargaListaContribuyentes',
+             'facturaelectronica.HistLibroCompraVenta',
+             'facturaelectronica.Emails',                        
              'ventas.Exportar',
              'ventas.Observaciones',
              'ventas.Facturaseditar',
@@ -76,6 +92,12 @@ Ext.define('Infosys_web.controller.Facturacion', {
     },{
         ref: 'detallestock',
         selector: 'detallestock'
+    },{
+        ref: 'registroempresa',
+        selector: 'registroempresa'
+    },{
+        ref: 'emails',
+        selector: 'emails'
     }
     
     ],
@@ -96,6 +118,9 @@ Ext.define('Infosys_web.controller.Facturacion', {
            
             'topmenus menuitem[action=mejemplo]': {
                 click: this.mejemplo
+            },
+            'topmenus menuitem[action=mparamgenerales]': {
+                click: this.mparamgenerales
             },
 
             'topmenus menuitem[action=resumenventas]': {
@@ -230,10 +255,89 @@ Ext.define('Infosys_web.controller.Facturacion', {
             },            
             'facturasingresar #codigoId': {
                 specialkey: this.special7
-            }
+            },
+            'topmenus menuitem[action=mcargacertdigital]': {
+                click: this.mcargacertdigital
+            },
+            'topmenus menuitem[action=mcargamanualcaf]': {
+                click: this.mcargamanualcaf
+            },
+            'topmenus menuitem[action=mcargadteprovee]': {
+                click: this.mcargadteprovee
+            },
+             'dteproveeprincipal button[action=adddteprovee]': {
+                click: this.adddteprovee
+            },   
+            'topmenus menuitem[action=mlibrocompraventa]': {
+                click: this.mlibrocompraventa
+            },
+            'topmenus menuitem[action=mcargacontribuyentes]': {
+                click: this.mcargacontribuyentes
+            },
+
+            'topmenus menuitem[action=memail]': {
+                click: this.memail
+            },  
+              
 
         });
     },
+
+    memail: function(){
+
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'emails'});
+        
+    },
+
+    mcargacontribuyentes: function(){
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'contribuyentesautorizados'});
+    },
+
+     mlibrocompraventa: function(){
+//
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'librocompraventa'});
+        
+    },    
+
+    adddteprovee: function(){
+              Ext.create('Infosys_web.view.facturaelectronica.CargaDteProveedor').show();
+    },
+
+    mcargadteprovee: function(){
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'dteproveeprincipal'});
+    },
+
+     mcargamanualcaf: function(){
+
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'cargamanualcaf'});
+        
+    },  
+
+     mcargacertdigital: function(){
+
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'cargacertificadodigital'});
+        
+    },
+
+    mparamgenerales: function(){
+
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'paramgeneralesfe'});
+        
+    },  
 
     despliegadocumentos: function(){
 
@@ -456,6 +560,8 @@ Ext.define('Infosys_web.controller.Facturacion', {
     },
 
     mregempresa: function(){
+
+        console.log("LLegamos")
 
         var viewport = this.getPanelprincipal();
         viewport.removeAll();
