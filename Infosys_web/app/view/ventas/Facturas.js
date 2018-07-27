@@ -394,6 +394,12 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                                 fieldLabel: 'Producto',
                                 name: 'Productos',                                
                                 hidden: true
+                            },{
+                                xtype: 'textfield',
+                                itemId: 'idpId',
+                                name : 'idp',
+                                fieldLabel: 'Id',
+                                hidden: true
                             },
                             {xtype: 'splitter'},
                             {
@@ -535,6 +541,7 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                             ],
                             height: 210,
                             columns: [
+                                { text: 'Id',  dataIndex: 'id', width: 100, hidden : true },
                                 { text: 'Id producto',  dataIndex: 'id_producto', width: 100, hidden : true },
                                 { text: 'Id descuento',  dataIndex: 'id_descuento', width: 100, hidden : true },
                                 { text: 'codigo',  dataIndex: 'codigo', width: 100, hidden : true },

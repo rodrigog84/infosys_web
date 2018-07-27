@@ -368,6 +368,9 @@ Ext.define('Infosys_web.controller.Productos', {
         var iddescuento = view.down('#DescuentoproId').getValue();
         var stock = view.down('#stock').getValue();
         var stockcritico = view.down('#stock_critico').getValue();
+        var fechavenc = view.down('#fechavencimientoId').getValue();
+        var lote = view.down('#loteId').getValue();
+        var id = view.down('#idpId').getValue();
         var bolEnable = true;
 
         var stock = cantidad - stock;
@@ -455,15 +458,18 @@ Ext.define('Infosys_web.controller.Productos', {
             return;
                 
         stItem.add(new Infosys_web.model.Productos.Item({
-            id: producto,
+            id: id,
             id_producto: producto,
             id_descuento: iddescuento,
+            fecha_vencimiento: fechavenc,
             nombre: nombre,
             precio: precio,
             p_promedio: precioprom,
             cantidad: cantidad,
             neto: neto,
+            stock_critico: stockcritico,
             total: total,
+            lote: lote,
             iva: iva,
             dcto: descuento
         }));

@@ -2314,6 +2314,18 @@ class Facturas extends CI_Controller {
 				$this->db->insert('existencia', $datos3);
 		    }
 
+            $queryt = $this->db->query('SELECT * FROM existencia_detalle WHERE id_producto='.$v->id.' and id_bodega='.$idbodega.'');
+             $row = $queryt->result();
+             if ($queryt->num_rows()>0){
+                $row = $row[0];
+                $saldoext=($row->saldo - $v->cantidad);                 
+                $datos5 = array(
+                    'saldo' => $saldoext
+                );   
+                $this->db->where('id', $v->id);
+                $this->db->update('existencia_detalle', $datos5);   
+            };
+
 		    $datos2 = array(
 				'num_movimiento' => $numfactura,
 		        'id_producto' => $v->id_producto,
@@ -2321,6 +2333,8 @@ class Facturas extends CI_Controller {
 		        'valor_producto' =>  $v->precio,
 		        'cantidad_salida' => $v->cantidad,
 		        'fecha_movimiento' => $fechafactura,
+                'fecha_vencimiento' => $v->fecha_vencimiento,
+                'lote' => $v->lote,
 		        'id_bodega' => $idbodega,
 		        'id_cliente' => $idcliente,
 		        'p_promedio' => $v->p_promedio

@@ -30,6 +30,12 @@ Ext.define('Infosys_web.view.ventas.detalle_stock' ,{
                 dataIndex: 'id',
                 hidden : true
             },{
+                header: "ID PRODUCTO",
+                flex: 1,
+                itemId: 'IdProducto',
+                dataIndex: 'id_producto',
+                hidden : true
+            },{
                 header: "Codigo",
                 width: 190,
                 dataIndex: 'codigo',
