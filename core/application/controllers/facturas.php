@@ -9,6 +9,43 @@ class Facturas extends CI_Controller {
 		$this->load->database();
 	}
 
+    public function cargacertificado(){
+        $password = $this->input->post('password');
+
+        $password_encrypt = md5($password.SALT);
+        $config['upload_path'] = "./facturacion_electronica/certificado/"   ;
+
+        $config['file_name'] = "certificado";
+        $config['allowed_types'] = "*";
+        $config['max_size'] = "10240";
+        $config['overwrite'] = TRUE;
+        //$config['max_width'] = "2000";
+        //$config['max_height'] = "2000";
+
+        $this->load->library('upload', $config);
+       // $this->upload->do_upload("certificado");
+
+
+        if (!$this->upload->do_upload("certificado")) {
+            //*** ocurrio un error
+            print_r($this->upload->data()); 
+            print_r($this->upload->display_errors());
+            //redirect('accounts/add_cuenta/2');
+            //return;
+        }else{
+            $this->db->where('nombre', 'cert_password');
+            $this->db->update('param_fe',array('valor' => $password)); 
+
+            $this->db->where('nombre', 'cert_password_encrypt'); //veremos si se puede usar la password encriptada
+            $this->db->update('param_fe',array('valor' => $password_encrypt)); 
+
+        }
+        $dataupload = $this->upload->data();
+
+        $resp['success'] = true;
+        echo json_encode($resp);
+     }
+
     public function get_email(){
         $this->load->model('facturaelectronica');
         $email = $this->facturaelectronica->get_email();

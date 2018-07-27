@@ -6,6 +6,7 @@ Ext.define('Infosys_web.model.existencias2', {
         {name: 'id_producto'},
         {name: 'id_bodega'},
         {name: 'nom_bodega'},
+        {name: 'codigo'},
         {name: 'nom_producto'},
         {name: 'tipo_movimiento'},
         {name: 'nom_tipo_movimiento'},
@@ -16,9 +17,13 @@ Ext.define('Infosys_web.model.existencias2', {
         {name: 'fecha_movimiento',type:'date',dateFormat:"Y-m-d"},
         {name: 'fecha_ultimo_movimiento',type:'date',dateFormat:"Y-m-d"},
 	{name: 'valor_producto', decimalPrecision: 3},
+        {name: 'valor_producto_neto', decimalPrecision: 3},
         {name: 'saldo', decimalPrecision:2},
         {name: 'fecha_vencimiento', type:'date',dateFormat:"Y-m-d"},  
-        {name: 'lote'},      
+        {name: 'lote'}, 
+        {name: 'stock_critico'}, 
+        {name: 'p_promedio'}, 
+             
 
             
     ]

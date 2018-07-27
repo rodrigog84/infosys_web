@@ -278,6 +278,11 @@ Ext.define('Infosys_web.controller.Facturacion', {
             'topmenus menuitem[action=memail]': {
                 click: this.memail
             },  
+            'detallestock button[action=seleccionarproductosstock]': {
+                click: this.seleccionarproductosstock
+            }, 
+
+            
               
 
         });
@@ -1531,19 +1536,23 @@ Ext.define('Infosys_web.controller.Facturacion', {
         var viewIngresa = this.getFacturasingresar();
         var tipo = viewIngresa.down('#tipoDocumentoId').getValue();
         var grid  = view.down('grid');
+        //console.log(grid);
+        console.log(tipo);
+
         if (grid.getSelectionModel().hasSelection()) {
             var row = grid.getSelectionModel().getSelection()[0];
             viewIngresa.down('#productoId').setValue(row.data.id);
-            viewIngresa.down('#nombreproductoId').setValue(row.data.nombre);
+            viewIngresa.down('#nombreproductoId').setValue(row.data.nom_producto);
+            console.log(row);
             viewIngresa.down('#codigoId').setValue(row.data.codigo);
             if (tipo==2){
-                viewIngresa.down('#precioId').setValue(row.data.p_neto);
+                viewIngresa.down('#precioId').setValue(row.data.valor_producto_neto);
             }else{
-                viewIngresa.down('#precioId').setValue(row.data.p_venta);
+                viewIngresa.down('#precioId').setValue(row.data.valor_producto);
             };
             viewIngresa.down('#preciopromId').setValue(row.data.p_promedio);
-            viewIngresa.down('#cantidadOriginalId').setValue(row.data.stock);
-            viewIngresa.down('#stock').setValue(row.data.stock);
+            viewIngresa.down('#cantidadOriginalId').setValue(row.data.saldo);
+            viewIngresa.down('#stock').setValue(row.data.saldo);
             viewIngresa.down('#loteId').setValue(row.data.lote);
             viewIngresa.down('#fechavencimientoId').setValue(row.data.fecha_vencimiento);
             viewIngresa.down('#stock_critico').setValue(row.data.stock_critico);

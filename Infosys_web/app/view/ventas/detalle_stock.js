@@ -30,13 +30,19 @@ Ext.define('Infosys_web.view.ventas.detalle_stock' ,{
                 dataIndex: 'id',
                 hidden : true
             },{
+                header: "Codigo",
+                width: 190,
+                dataIndex: 'codigo',
+                hidden: true               
+            },{
                 header: "Producto",
                 width: 190,
                 dataIndex: 'nom_producto'                
             },{
                 header: "Numero",
                 flex: 1,
-                dataIndex: 'num_movimiento'
+                dataIndex: 'num_movimiento',
+                hidden: true
             },{
                 header: "Lote",
                 flex: 1,
@@ -62,11 +68,27 @@ Ext.define('Infosys_web.view.ventas.detalle_stock' ,{
                 renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")}
 
             },{
-                header: "Valor",
+                header: "Stock Critico",
+                flex: 1,
+                dataIndex: 'stock_critico',
+                align: 'right',
+                renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")},
+                hidden: true
+
+            },{
+                header: "Precio Venta",
                 flex: 1,
                 dataIndex: 'valor_producto',
                 align: 'right',
                 renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")}
+
+            },{
+                header: "Precio Neto Venta",
+                flex: 1,
+                dataIndex: 'valor_producto_neto',
+                align: 'right',
+                renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")},
+                hidden: true
 
             }],
             };

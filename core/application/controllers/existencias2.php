@@ -34,7 +34,7 @@ class Existencias2 extends CI_Controller {
 		//$countAll = $this->db->count_all_results("existencia");
         
 		if($nombres){			
-			$query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, bod.nombre as nom_bodega  FROM existencia acc
+			$query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, bod.nombre as nom_bodega, c.codigo as codigo FROM existencia acc
 			left join productos c on (acc.id_producto = c.id)
 			left join bodegas bod on (acc.id_bodega = bod.id)
 			WHERE acc.id_producto="'.$nombres.'"');
@@ -45,14 +45,14 @@ class Existencias2 extends CI_Controller {
 			}
 			$countAll = $total;
 
-			$query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, bod.nombre as nom_bodega  FROM existencia acc
+			$query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, bod.nombre as nom_bodega, c.codigo as codigo  FROM existencia acc
 			left join productos c on (acc.id_producto = c.id)
 			left join bodegas bod on (acc.id_bodega = bod.id)
 			WHERE acc.id_producto="'.$nombres.'"
 			 order by acc.id desc
 		    limit '.$start.', '.$limit.'');
 		}else{
-			$query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, bod.nombre as nom_bodega  FROM existencia acc
+			$query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, bod.nombre as nom_bodega, c.codigo as codigo  FROM existencia acc
 			left join productos c on (acc.id_producto = c.id)
 			left join bodegas bod on (acc.id_bodega = bod.id)
 			WHERE acc.id_producto="'.$nombres.'"
@@ -212,11 +212,11 @@ class Existencias2 extends CI_Controller {
            
 		if($nombres){
 		    if ($bodega){			
-			$query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, bod.nombre as nom_bodega, cor.nombre as nom_tipo_movimiento FROM existencia_detalle acc
+			$query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, bod.nombre as nom_bodega, cor.nombre as nom_tipo_movimiento, c.codigo as codigo, c.p_venta as valor_producto, c.stock_critico as stock_critico, c.p_promedio as p_promedio FROM existencia_detalle acc
 			left join productos c on (acc.id_producto = c.id)
 			left join bodegas bod on (acc.id_bodega = bod.id)
 			left join correlativos cor on (acc.id_tipo_movimiento = cor.id)
-			WHERE acc.id_producto="'.$nombres.'" and acc.cantidad_entrada > 0 and acc.id_bodega="'.$bodega.'" ');
+			WHERE acc.id_producto="'.$nombres.'" and acc.saldo > 0 and acc.id_bodega="'.$bodega.'" ');
 
 			foreach ($query->result() as $row)		    
 			{
@@ -224,11 +224,11 @@ class Existencias2 extends CI_Controller {
 			}
 			$countAll = $total;
 
-			$query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, bod.nombre as nom_bodega, cor.nombre as nom_tipo_movimiento FROM existencia_detalle acc
+			$query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, bod.nombre as nom_bodega, cor.nombre as nom_tipo_movimiento, c.codigo as codigo, c.p_venta as valor_producto, c.stock_critico as stock_critico, c.p_promedio as p_promedio FROM existencia_detalle acc
 			left join productos c on (acc.id_producto = c.id)
 			left join bodegas bod on (acc.id_bodega = bod.id)
 			left join correlativos cor on (acc.id_tipo_movimiento = cor.id)
-			WHERE acc.id_producto="'.$nombres.'" and acc.cantidad_entrada > 0 and acc.id_bodega="'.$bodega.'" 
+			WHERE acc.id_producto="'.$nombres.'" and acc.saldo > 0 and acc.id_bodega="'.$bodega.'" 
 			order by acc.id desc
 		    limit '.$start.', '.$limit.'');
 			}
@@ -238,6 +238,7 @@ class Existencias2 extends CI_Controller {
 		
 		foreach ($query->result() as $row)
 		{
+			$row->valor_producto_neto = ($row->valor_producto/1.19);
 			$data[] = $row;
 		}
         $resp['success'] = true;
