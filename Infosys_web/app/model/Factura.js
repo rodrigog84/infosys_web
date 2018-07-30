@@ -5,6 +5,7 @@ Ext.define('Infosys_web.model.Factura', {
         {name: 'id_factura'},
         {name: 'forma'},
         {name: 'id_tip_docu'},
+        {name: 'tipo_documento'},
         {name: 'id_pago'},
         {name: 'nombre_docu'},
         {name: 'orden_compra'},

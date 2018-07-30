@@ -9,6 +9,131 @@ class Facturas extends CI_Controller {
 		$this->load->database();
 	}
 
+    public function cargacaf(){
+        $tipo_caf = $this->input->post('tipoCaf');
+        $config['upload_path'] = "./facturacion_electronica/caf/"   ;
+        $config['file_name'] = $tipo_caf."_".date("Ymdhis");
+        $config['allowed_types'] = "*";
+        $config['max_size'] = "10240";
+        $config['overwrite'] = TRUE;
+
+        //$config['max_width'] = "2000";
+        //$config['max_height'] = "2000";
+        $this->load->library('upload', $config);
+       // $this->upload->do_upload("certificado");
+
+        $error = false;
+        $carga = false;
+        if (!$this->upload->do_upload("caf")) {
+            print_r($this->upload->data()); 
+            print_r($this->upload->display_errors());
+            $error = true;
+            $message = "Error en subir archivo.  Intente nuevamente";
+        }else{
+            $data_file_upload = $this->upload->data();
+            $carga = true;
+            try {
+                $xml_content = file_get_contents($config['upload_path'].$config['file_name'].$data_file_upload['file_ext']);
+                $xml = new SimpleXMLElement($xml_content);
+            } catch (Exception $e) {
+                $error = true;
+                $message = "Error al cargar XML.  Verifique formato y cargue nuevamente";
+            }
+
+
+            if(!$error){ //Ya cargó.  Leemos si el archivo es del tipo que elegimos anteriormente
+                
+                $tipo_caf_subido = $xml->CAF->DA->TD; 
+                if($tipo_caf_subido != $tipo_caf){
+                    $error = true;
+                    $message = "CAF cargado no corresponde al seleccionado previamente.  Verifique archivo y cargue nuevamente";
+                }
+            }
+
+
+
+            // VALIDAR EL RUT DE EMPRESA DEL CAF
+            if(!$error){
+
+                $this->db->select('valor ')
+                  ->from('param_fe')
+                  ->where('nombre','rut_empresa');
+                $query = $this->db->get();
+                $parametro = $query->row(); 
+
+                $rut_parametro = $parametro->valor;
+
+                $rut_caf = $xml->CAF->DA->RE; 
+                if($rut_parametro != $rut_caf){
+                    $error = true;
+                    $message = "CAF cargado no corresponde a empresa registrada.  Verifique archivo y cargue nuevamente";
+                }                       
+            }
+
+
+            if(!$error){ //Ya cargó y el archivo es correcto
+                $folio_desde = $xml->CAF->DA->RNG->D; 
+                $folio_hasta = $xml->CAF->DA->RNG->H; 
+
+                //VALIDAMOS SI LOS FOLIOS YA ESTÁN CARGADOS.  SI YA ESTÁN CARGADOS, DAREMOS ERROR INDICANDO QUE CAF YA EXISTE
+                $this->db->select('f.id ')
+                                  ->from('folios_caf f')
+                                  ->join('caf c','f.idcaf = c.id')
+                                  ->where('c.tipo_caf',$tipo_caf)
+                                  ->where('f.folio between ' . $folio_desde . ' and ' . $folio_hasta);
+
+                $query = $this->db->get();
+                $folios_existentes = $query->result();              
+
+                if(count($folios_existentes) > 0){
+                    $error = true;
+                    $message = "CAF cargado contiene folios ya existentes.  Verifique archivo y cargue nuevamente";
+                }else{
+
+                    // SE CREA LOG DE CARGA DE FOLIOS
+                    $data_array = array(
+                        'tipo_caf' => $tipo_caf,
+                        'fd' => $folio_desde,
+                        'fh' => $folio_hasta,                   
+                        'archivo' => $config['file_name'].".xml",
+                        'caf_content' => $xml_content,
+                        );
+                    $this->db->insert('caf',$data_array); 
+                    $idcaf = $this->db->insert_id();
+
+                    // SE CREA DETALLE DE FOLIOS
+
+                    for($folio_carga = (int)$folio_desde; $folio_carga <= (int)$folio_hasta; $folio_carga++){
+                        $data_folio = array(
+                            'folio' => $folio_carga,
+                            'idcaf' => $idcaf,
+                            'created_at' => date("Y-m-d H:i:s")
+                            );
+                        $this->db->insert('folios_caf',$data_folio);
+                    }
+                }
+
+
+
+
+
+            }
+
+
+        }
+
+
+
+        if($error && $carga){
+            unlink($config['upload_path'].$config['file_name'].$data_file_upload['file_ext']);
+        }
+
+
+        $resp['success'] = true;
+        $resp['message'] = $error ? $message : "Carga realizada correctamente";
+        echo json_encode($resp);
+     }
+
     public function cargacertificado(){
         $password = $this->input->post('password');
 
@@ -100,6 +225,82 @@ class Facturas extends CI_Controller {
         $resp['data'] = $data;
 
         echo json_encode($resp);
+    }
+
+    public function estado_dte($idfactura){
+        $this->load->model('facturaelectronica');
+        $datos_dte = $this->facturaelectronica->datos_dte($idfactura);
+        $config = $this->facturaelectronica->genera_config();
+        include $this->facturaelectronica->ruta_libredte();
+
+        $Firma = new \sasco\LibreDTE\FirmaElectronica($config['firma']); //lectura de certificado digital
+        $rut = $Firma->getId(); 
+        $rut_consultante = explode("-",$rut);
+
+        $empresa = $this->facturaelectronica->get_empresa();
+        $datos_empresa_factura = $this->facturaelectronica->get_empresa_factura($idfactura);
+
+        $result = array();
+        $result['error'] = false;
+        $result['glosa_estado'] = "";
+        $result['glosa_err'] = "";
+
+        $token = \sasco\LibreDTE\Sii\Autenticacion::getToken($config['firma']);
+        if (!$token) {
+            foreach (\sasco\LibreDTE\Log::readAll() as $error){
+                $result['error'] = true;
+
+            }
+            $result['message'] = "Error de conexión con SII";          
+            echo json_encode($result);
+            exit;
+        }
+
+        $EnvioDte = new \sasco\LibreDTE\Sii\EnvioDte();
+        $EnvioDte->loadXML($datos_dte->dte);
+        $Documentos = $EnvioDte->getDocumentos();
+        //print_r($Documentos); exit;
+        foreach ($Documentos as $DTE) {
+        
+            if ($DTE->getDatos()){
+                $fecemision = $DTE->getFechaEmision();
+                $monto_dte = $DTE->getMontoTotal();
+            }
+            break; // siempre será sólo 1 documento
+        }       
+
+        // consultar estado dte
+        $xml = \sasco\LibreDTE\Sii::request('QueryEstDte', 'getEstDte', [
+            'RutConsultante'    => $rut_consultante[0],
+            'DvConsultante'     => $rut_consultante[1],
+            'RutCompania'       => $empresa->rut,
+            'DvCompania'        => $empresa->dv,
+            'RutReceptor'       => substr($datos_empresa_factura->rut_cliente,0,strlen($datos_empresa_factura->rut_cliente) - 1),
+            'DvReceptor'        => substr($datos_empresa_factura->rut_cliente,-1),
+            'TipoDte'           => $datos_dte->tipo_caf,
+            'FolioDte'          => $datos_dte->folio,
+            'FechaEmisionDte'   => substr($fecemision,8,2).substr($fecemision,5,2).substr($fecemision,0,4),
+            'MontoDte'          => $monto_dte,
+            'token'             => $token,
+        ]);
+
+        // si el estado se pudo recuperar se muestra
+        if ($xml!==false) {
+            $array_result = (array)$xml->xpath('/SII:RESPUESTA/SII:RESP_HDR')[0];
+            $result['error'] = false;
+            $result['glosa_estado'] = $array_result['GLOSA_ESTADO'];
+            $result['glosa_err'] = $array_result['GLOSA_ERR'];
+            echo json_encode($result);
+            exit;           
+        }
+
+        // mostrar error si hubo
+        foreach (\sasco\LibreDTE\Log::readAll() as $error){
+            $result['error'] = true;
+            $result['message'] = "Error de conexión con SII";
+        }
+        echo json_encode($result);
+        exit;
     }
 
    
@@ -6160,25 +6361,67 @@ class Facturas extends CI_Controller {
 
 	public function exportPDF(){
 
-		$idfactura = $this->input->get('idfactura');
-		$numero = $this->input->get('numfactura');
-		$cabecera = $this->db->get_where('factura_clientes', array('id' => $idfactura));	
-		$tipodocumento = 1;
-		foreach($cabecera->result() as $v){  
-				$tipodocumento = $v->tipo_documento; 
-		}
+        $idfactura = $this->input->get('idfactura');
+        $numero = $this->input->get('numfactura');
 
-		if($tipodocumento == 2){
-				$this->exportBoletaPDF($idfactura,$numero);
+        $this->load->model('facturaelectronica');
+        $datos_factura = $this->facturaelectronica->get_factura($idfactura);
 
-		}else{
+        //$cabecera = $this->db->get_where('factura_clientes', array('id' => $idfactura));  
+        $tipodocumento = isset($datos_factura->tipo_documento) ? $datos_factura->tipo_documento : 1;
+        /*foreach($cabecera->result() as $v){  
+                $tipodocumento = $v->tipo_documento; 
+        }*/
 
-				
-				$this->exportFacturaPDF($idfactura,$numero);
+        if($tipodocumento == 1){
+                $this->exportFacturaPDF($idfactura,$numero);
 
-		}
+        }else if($tipodocumento ==  101 || $tipodocumento == 103 || $tipodocumento == 105){ // FACTURA ELECTRONICA O FACTURA EXENTA ELECTRONCA O GUIA DE DESPACHO
+                //$es_cedible = is_null($cedible) ? false : true;
+                $this->load->model('facturaelectronica');
+                $this->facturaelectronica->exportFePDF($idfactura,'id');
 
-	}
+        }else{
+
+                $this->exportBoletaPDF($idfactura,$numero);
+
+        }
+
+    }
+
+    public function ver_dte($idfactura,$tipo = 'sii'){
+
+        $ruta = $tipo == 'cliente' ? 'dte_cliente' : 'dte';
+        $this->load->model('facturaelectronica');
+        $dte = $this->facturaelectronica->datos_dte($idfactura);
+
+        if(empty($dte)){
+            $dte = $this->facturaelectronica->crea_dte($idfactura);
+        }else{
+
+            if($dte->{$ruta} == ''){
+                $dte = $this->facturaelectronica->crea_dte($idfactura,$tipo);
+            }
+        }
+
+
+        $nombre_archivo = $tipo == 'cliente' ? $dte->archivo_dte_cliente : $dte->archivo_dte;
+        $path_archivo = "./facturacion_electronica/" . $ruta . "/".$dte->path_dte;
+        $data_archivo = basename($path_archivo.$nombre_archivo);
+
+        header('Content-Type: text/plain');
+        header('Content-Disposition: attachment; filename=' . $data_archivo);
+        header('Content-Length: ' . filesize($path_archivo.$nombre_archivo));
+        readfile($path_archivo.$nombre_archivo);                
+     }
+
+     public function datos_dte_json($idfactura){
+        $this->load->model('facturaelectronica');
+        $datos = $this->facturaelectronica->datos_dte($idfactura);
+        $empresa_factura = $this->facturaelectronica->get_empresa_factura($idfactura);
+        $datos->e_mail = $empresa_factura->e_mail;
+        echo json_encode($datos);
+    }
 
 	//$idfactura,$numero
 

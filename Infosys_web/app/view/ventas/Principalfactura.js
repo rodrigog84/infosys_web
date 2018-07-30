@@ -181,7 +181,7 @@ Ext.define('Infosys_web.view.ventas.Principalfactura' ,{
             width:90,
             align: 'center',
             items: [{
-                icon: 'images/xml-icon.png',  // Use a URL in the icon config
+                icon: 'images/xml-icon.png', // Use a URL in the icon config
                 tooltip: 'Descargar DTE',
                 handler: function(grid, rowIndex, colIndex) {
                     var rec = grid.getStore().getAt(rowIndex);
@@ -204,7 +204,7 @@ Ext.define('Infosys_web.view.ventas.Principalfactura' ,{
             width:70,
             align: 'center',
             items: [{
-                iconCls: 'icon-upload',  // Use a URL in the icon config
+                icon: 'images/xml-icon.png',  // Use a URL in the icon config
                 tooltip: 'Ver Estado Env&iacute;o',
                 handler: function(grid, rowIndex, colIndex) {
                     var rec = grid.getStore().getAt(rowIndex);

@@ -79,6 +79,7 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
             'facturaglosaingresar #nombreId': {
                 click: this.special
             },
+
             'facturaglosaingresar #netoId': {
                 specialkey: this.calculaiva
             },            
@@ -170,6 +171,44 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
         var cero1 = "";
         
         var nombre = (record.id);    
+        habilita = false;
+        if(nombre == 101 || nombre == 103){ // FACTURA ELECTRONICA
+
+            // se valida que exista certificado
+            response_certificado = Ext.Ajax.request({
+            async: false,
+            url: preurl + 'facturas/existe_certificado/'});
+
+            var obj_certificado = Ext.decode(response_certificado.responseText);
+
+            if(obj_certificado.existe == true){
+
+
+                //buscar folio factura electronica
+                // se buscan folios pendientes, o ocupados hace más de 4 horas
+
+                response_folio = Ext.Ajax.request({
+                async: false,
+                url: preurl + 'facturas/folio_documento_electronico/'+nombre});  
+                var obj_folio = Ext.decode(response_folio.responseText);
+                nuevo_folio = obj_folio.folio;
+                if(nuevo_folio != 0){
+                    view.down('#numfacturaId').setValue(nuevo_folio);  
+                    habilita = true;
+                }else{
+                    Ext.Msg.alert('Atención','No existen folios disponibles');
+                    view.down('#numfacturaId').setValue('');  
+
+                    //return
+                }
+
+            }else{
+                    Ext.Msg.alert('Atención','No se ha cargado certificado');
+                    view.down('#numfacturaId').setValue('');  
+            }
+
+
+        }else{        
          Ext.Ajax.request({
 
             url: preurl + 'correlativos/generafact?valida='+nombre,
@@ -193,6 +232,7 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
 
             }            
         });
+        }
         var grid  = view.down('#itemsgridId');
         view.down('#finaltotalId').setValue(Ext.util.Format.number(cero, '0,000'));
         view.down('#finaltotalpostId').setValue(Ext.util.Format.number(cero1, '0'));
@@ -201,7 +241,8 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
         view.down('#finalafectoId').setValue(Ext.util.Format.number(cero1, '0'));        
 
         
-        var bolDisabled = tipo_documento.getValue() == 2 ? true : false; // campos se habilitan sólo en factura
+        //var bolDisabled = tipo_documento.getValue() == 2 ? true : false; // campos se habilitan sólo en factura
+        var bolDisabled = tipo_documento.getValue() == 1 || tipo_documento.getValue() == 19 || ((tipo_documento.getValue() == 101 || tipo_documento.getValue() == 103) && habilita) ? false : true; // campos se habilitan sólo en factura o factura electronica
 
         if(bolDisabled == true){  // limpiar campos
            view.down('#rutId').setValue('19');
@@ -228,39 +269,24 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
 
         var view = this.getFacturaglosaingresar();
         var tipo_documento = view.down('#tipoDocumentoId').getValue();
-        if (tipo_documento == 19 ){
+        if (tipo_documento == 19 || tipo_documento == 103 ){
             var iva = 0;
             var neto = view.down('#netoId').getValue();
             view.down('#totalId').setValue(neto);
             view.down('#ivaId').setValue(iva);
-        };
-
-        if (tipo_documento == 2 ){
+        }else if (tipo_documento == 2 ){
             
+            var iva = 0;
             var neto = view.down('#netoId').getValue();
-            var iva = (parseInt((neto * 19) / 100));
-            var total = (neto + iva);
+            view.down('#totalId').setValue(neto);
             view.down('#ivaId').setValue(iva);
-            view.down('#totalId').setValue(total);
 
-        };
-
-        if (tipo_documento == 3 ){
-            
-            var neto = view.down('#netoId').getValue();
-            var iva = (parseInt((neto * 19) / 100));
-            var total = (neto + iva);
-            view.down('#ivaId').setValue(iva);
-            view.down('#totalId').setValue(total);
-
-        };
-
-        if (tipo_documento == 1 ){
-            var neto = view.down('#netoId').getValue();
-            var iva = (parseInt((neto * 19) / 100));
-            var total = (neto + iva);
-            view.down('#ivaId').setValue(iva);
-            view.down('#totalId').setValue(total);
+        }else{
+        var neto = view.down('#netoId').getValue();
+        var iva = (((neto * 19) / 100));
+        var total = (neto + iva);
+        view.down('#ivaId').setValue(iva);
+        view.down('#totalId').setValue(total);
         };
     },
 
@@ -283,7 +309,7 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
         var total = 0;
         
         stItem.each(function(r){
-            pretotal = (parseInt(pretotal) + parseInt(r.data.totaliva))
+            pretotal = ((pretotal) + (r.data.totaliva))
           
         });
         total = pretotal;
@@ -324,26 +350,8 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
             Ext.Msg.alert('Alerta', 'Debe Ingresar Glosa.');
             return false;
         };
-
-        if(glosa.length > 50){
-            Ext.Msg.alert('Alerta', 'GLOSA SOBREPASA CANTIDAD DE CARACTERES POR LINEA');
-            return false;            
-        };
-
-        if (tipo_documento == 3){
-
-            if(!neto){
-                neto=0;
-            };
-            if(!iva){
-                iva=0;                
-            };
-            if(!total){
-                total=0;                
-            };
-        };
         
-        if (tipo_documento == 19){
+        if (tipo_documento == 19  || tipo_documento == 103){
         
         if(neto==0 ){  // se validan los datos sólo si es factura
             Ext.Msg.alert('Alerta', 'Debe Ingresar Valores.');
@@ -355,28 +363,21 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
             return false;
         };
         
-        };
+        }else if (tipo_documento == 2){
 
-        if (tipo_documento == 2){
-            if(neto==0 ){  // se validan los datos sólo si es factura
+             if(neto==0 ){  // se validan los datos sólo si es factura
             Ext.Msg.alert('Alerta', 'Debe Ingresar Valores.');
             return false;
             }; 
             
-            if(iva==0 ){  // se validan los datos sólo si es factura
-                Ext.Msg.alert('Alerta', 'Debe Ingresar Valores.');
-                return false;
-            }; 
-
             if(total==0 ){  // se validan los datos sólo si es factura
                 Ext.Msg.alert('Alerta', 'Debe Ingresar Valores.');
-                return false;         
+                return false;
+            };         
 
 
-        };
-        };
+        }else{
 
-        if (tipo_documento == 1){
             if(neto==0 ){  // se validan los datos sólo si es factura
             Ext.Msg.alert('Alerta', 'Debe Ingresar Valores.');
             return false;
@@ -402,7 +403,14 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
             return false;
         };
 
-         
+        if (tipo_documento == 2){
+
+             var iva = 0;
+             var total = neto;
+
+        };
+        
+          
 
         stItem.add(new Infosys_web.model.facturaglosa.Item({
                     glosa: glosa,
@@ -418,7 +426,7 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
         view.down('#ivaId').setValue(cero2);
         view.down('#totalId').setValue(cero2);
 
-        if (tipo_documento = 19){
+        if (tipo_documento = 2){
         
             totalfin = totalfin + total;
             ivafin = ivafin + iva;
@@ -447,9 +455,9 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
         var grid  = view.down('#itemsgridId');
         if (grid.getSelectionModel().hasSelection()) {
             var row = grid.getSelectionModel().getSelection()[0];
-            var total = (parseInt(total) - parseInt(row.data.total));
-            var neto = (parseInt(neto) - parseInt(row.data.neto));
-            var iva = (parseInt(iva) - parseInt(row.data.iva));
+            var total = ((total) - (row.data.total));
+            var neto = ((neto) - (row.data.neto));
+            var iva = ((iva) - (row.data.iva));
             var afecto = neto;
             view.down('#finaltotalId').setValue(Ext.util.Format.number(total, '0,000'));
             view.down('#finaltotalpostId').setValue(Ext.util.Format.number(total, '0'));
@@ -616,18 +624,19 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
         var idtipo= viewIngresa.down('#tipoDocumentoId').getValue();
         var idsucursal= viewIngresa.down('#id_sucursalID').getValue();
         var idcondventa= viewIngresa.down('#tipocondpagoId').getValue();
-        var ordencompra= viewIngresa.down('#ordencompraId').getValue();
         var vendedor = viewIngresa.down('#tipoVendedorId').getValue();
+        var ordencompra = viewIngresa.down('#ordencompraId').getValue();
         var numdocumento = viewIngresa.down('#numfacturaId').getValue();
         var fechafactura = viewIngresa.down('#fechafacturaId').getValue();
         var fechavenc = viewIngresa.down('#fechavencId').getValue();
+        var idbodega = view.down('#bodegaId').getValue();
         var stItem = this.getFacturaglosaItemsStore();
         var stFactura = this.getFacturaStore();        
         
         if(numdocumento==0){
             Ext.Msg.alert('Ingrese Datos a La Factura');
             return;   
-        }
+            }
 
         var dataItems = new Array();
         stItem.each(function(r){
@@ -641,8 +650,9 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
                 numdocumento: numdocumento,
                 idsucursal: idsucursal,
                 idcondventa: idcondventa,
-                ordencompra: ordencompra,
                 idtipo: idtipo,
+                idbodega: idbodega,
+                ordencompra: ordencompra,
                 items: Ext.JSON.encode(dataItems),
                 vendedor : vendedor,
                 fechafactura : fechafactura,
@@ -656,18 +666,9 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
              success: function(response){
                 var resp = Ext.JSON.decode(response.responseText);
                 var idfactura= resp.idfactura;
-                var forma = resp.forma;
-                var tipo = resp.tipo;
-                viewIngresa.close();
-                stFactura.load();
-                if (forma==1 && tipo==3){
-                window.open(preurl +'facturas/exportTXTGDGLO/?idfactura=' + idfactura)
-                };
-                if (forma==1 && tipo==1){
-                window.open(preurl +'facturas/exportTXTGLO/?idfactura=' + idfactura)
-                };
-                 
-                 //window.open(preurl + 'facturaglosa/exportfacturaglosaPDF/?idfactura='+idfactura);
+                 viewIngresa.close();
+                 stFactura.load();
+                 window.open(preurl + 'facturaglosa/exportfacturaglosaPDF/?idfactura='+idfactura);
 
             }
            
@@ -745,45 +746,19 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
     },
 
     mfacturaglosa: function(){
-
-        var viewIngresa = this.getFacturasprincipal();
-        var idbodega = viewIngresa.down('#bodegaId').getValue();
-        if(!idbodega){
+      
+         var viewIngresa = this.getFacturasprincipal();
+         var idbodega = viewIngresa.down('#bodegaId').getValue();
+         if(!idbodega){
             Ext.Msg.alert('Alerta', 'Debe Elegir Bodega');
             return;    
-        }else{
+         }else{
+            var view = Ext.create('Infosys_web.view.facturaglosa.Facturaglosa').show();
+             
+         }
+         view.down('#bodegaId').setValue(idbodega);
 
-        var nombre = 1;    
-        Ext.Ajax.request({
-
-            url: preurl + 'correlativos/generancred?valida='+nombre,
-            params: {
-                id: 1
-            },
-            success: function(response){
-                var resp = Ext.JSON.decode(response.responseText);
-
-                if (resp.success == true) {
-                    var cliente = resp.cliente;
-                    var correlanue = cliente.correlativo;
-                    var descripcion = cliente.nombre;
-                    var id = cliente.id;
-                    correlanue = (parseInt(correlanue)+1);
-                    var correlanue = correlanue;
-                    var view = Ext.create('Infosys_web.view.facturaglosa.Facturaglosa').show();
-                    view.down('#numfacturaId').setValue(correlanue);
-                    view.down('#tipoDocumentoId').setValue(id);
-                                       
-                }else{
-                    Ext.Msg.alert('Correlativo YA Existe');
-                    return;
-                }
-
-
-
-            }            
-        });
-        };
+        
     },
 
     buscarvendedor: function(){

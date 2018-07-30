@@ -81,12 +81,6 @@ Ext.define('Infosys_web.view.facturaglosa.Facturaglosa', {
                                             hidden: true
                                           
                                         },{
-                                            xtype: 'numberfield',
-                                            name: 'id_bodega',
-                                            itemId: 'bodegaId',
-                                            hidden: true
-                                          
-                                        },{
                                             xtype: 'textfield',
                                             fieldCls: 'required',
                                             maxHeight: 25,
@@ -157,6 +151,12 @@ Ext.define('Infosys_web.view.facturaglosa.Facturaglosa', {
                                             itemId: 'rutId',
                                             name : 'rut'
                                             //disabled : true                                            
+                                        },{
+                                            xtype: 'numberfield',
+                                            name: 'id_bodega',
+                                            itemId: 'bodegaId',
+                                            hidden: true
+                                          
                                         }, {xtype: 'splitter'},
                                         {
                                             xtype: 'button',
@@ -242,7 +242,7 @@ Ext.define('Infosys_web.view.facturaglosa.Facturaglosa', {
                                         align: 'stretch'
                                     },
                                     items: [
-                                       {
+                                        {
                                             xtype: 'textfield',
                                             fieldCls: 'required',
                                             itemId: 'tipoCiudadId',
@@ -338,11 +338,10 @@ Ext.define('Infosys_web.view.facturaglosa.Facturaglosa', {
                             layout: 'hbox',
                             align: 'center',     
                             items: [{
-                                xtype: 'textfield',
+                                xtype: 'textareafield',
                                 width: 550,
                                 height: 25,
                                 fieldLabel: 'Glosa',
-                                maxLength : 50,
                                 itemId: 'glosaId',
                                 style: 'font-weight: bold;'
                             },
@@ -404,9 +403,9 @@ Ext.define('Infosys_web.view.facturaglosa.Facturaglosa', {
                             height: 210,
                             columns: [
                                     { text: 'Glosa',  dataIndex: 'glosa', width: 780 },
-                                    { text: 'Neto',  dataIndex: 'neto', width: 120, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} },
-                                    { text: 'Iva',  dataIndex: 'iva', width: 120, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} },
-                                    { text: 'Total',  dataIndex: 'total', width: 120, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} }
+                                    { text: 'Neto',  dataIndex: 'neto', width: 120, renderer: function(valor){return Ext.util.Format.number((valor),"0,000")} },
+                                    { text: 'Iva',  dataIndex: 'iva', width: 120, renderer: function(valor){return Ext.util.Format.number((valor),"0,000")} },
+                                    { text: 'Total',  dataIndex: 'total', width: 120, renderer: function(valor){return Ext.util.Format.number((valor),"0,000")} }
                                 ]
                             },{
                         xtype: 'fieldset',

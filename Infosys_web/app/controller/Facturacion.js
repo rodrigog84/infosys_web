@@ -98,7 +98,12 @@ Ext.define('Infosys_web.controller.Facturacion', {
     },{
         ref: 'emails',
         selector: 'emails'
+    },{
+        ref: 'verEstadoDte',
+        selector: 'verEstadoDte'
     }
+
+
     
     ],
     //init es lo primero que se ejecuta en el controller
@@ -110,6 +115,9 @@ Ext.define('Infosys_web.controller.Facturacion', {
 
             'facturasingresar #rutId': {
                 specialkey: this.special
+            },
+            'facturasprincipal': {
+                verEstadoDte: this.verEstadoDte
             },
 
             'facturasprincipal button[action=mfactura]': {
@@ -286,6 +294,26 @@ Ext.define('Infosys_web.controller.Facturacion', {
               
 
         });
+    },
+
+    verEstadoDte: function(r,t){
+        if(t == 1){
+
+            Ext.create('Infosys_web.view.facturaelectronica.verEstadoDte', {idfactura: r.data.id});              
+        }else if(t == 2){
+            url = preurl + 'facturas/ver_dte/'+r.data.id+'/sii',
+            window.open(url,'_blank');           
+        }else if(t == 3){
+            Ext.create('Infosys_web.view.facturaelectronica.verEstadoEnvio', {idfactura: r.data.id});                          
+        }else if(t == 4){
+            url = preurl + 'facturas/ver_libro/'+r.data.id,
+            window.open(url,'_blank');           
+        }else if(t == 5){
+             url = preurl + 'facturas/ver_dte/'+r.data.id+'/cliente',
+             window.open(url,'_blank');   
+         }else if(t == 6){
+            Ext.create('Infosys_web.view.facturaelectronica.verEstadoEnvioLibro', {idlibro: r.data.id});                          
+        }         
     },
 
     memail: function(){
@@ -1096,26 +1124,33 @@ Ext.define('Infosys_web.controller.Facturacion', {
             console.log("Llegamos")
             console.log(row.data.forma)
             console.log(row.data.id_tip_docu)
-            if (row.data.forma==0 && row.data.id_tip_docu ==1){
-                window.open(preurl +'facturas/exportTXT/?idfactura=' + row.data.id)
+            if (row.data.forma==0 && row.data.id_tip_docu ==101){
+                //window.open(preurl +'facturas/exportTXT/?idfactura=' + row.data.id)
+                window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id)
             };
-            if (row.data.forma==0 && row.data.id_tip_docu ==3){
-            window.open(preurl +'facturas/exportTXTGD/?idfactura=' + row.data.id)
+            if (row.data.forma==0 && row.data.id_tip_docu ==103){
+            //window.open(preurl +'facturas/exportTXTGD/?idfactura=' + row.data.id)
+               window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id) 
             };
-            if (row.data.forma==1 && row.data.id_tip_docu ==3){
-            window.open(preurl +'facturas/exportTXTGDGLO/?idfactura=' + row.data.id)
+            if (row.data.forma==1 && row.data.id_tip_docu ==103){
+            //window.open(preurl +'facturas/exportTXTGDGLO/?idfactura=' + row.data.id)
+               window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id)
             };
-            if (row.data.forma==1 && row.data.id_tip_docu ==1){
-            window.open(preurl +'facturas/exportTXTGLO/?idfactura=' + row.data.id)
+            if (row.data.forma==1 && row.data.id_tip_docu ==101){
+            //window.open(preurl +'facturas/exportTXTGLO/?idfactura=' + row.data.id)
+            window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id)
             };
-            if (row.data.forma==2 && row.data.id_tip_docu ==1){
-            window.open(preurl +'facturas/exportTXTlote/?idfactura=' + row.data.id)
+            if (row.data.forma==2 && row.data.id_tip_docu ==101){
+            //window.open(preurl +'facturas/exportTXTlote/?idfactura=' + row.data.id)
+            window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id)
             };
-            if (row.data.forma==3 && row.data.id_tip_docu ==1){
-            window.open(preurl +'facturas/exportTXTGanado/?idfactura=' + row.data.id)
+            if (row.data.forma==3 && row.data.id_tip_docu ==101){
+            //window.open(preurl +'facturas/exportTXTGanado/?idfactura=' + row.data.id)
+            window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id)
             };
-            if (row.data.forma==3 && row.data.id_tip_docu ==3){
-            window.open(preurl +'facturas/exportTXTGDGanado/?idfactura=' + row.data.id)
+            if (row.data.forma==3 && row.data.id_tip_docu ==103){
+            //window.open(preurl +'facturas/exportTXTGDGanado/?idfactura=' + row.data.id)
+            window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id)
             };
         }else{
             Ext.Msg.alert('Alerta', 'Selecciona un registro.');
