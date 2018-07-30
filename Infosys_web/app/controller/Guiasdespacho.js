@@ -1650,38 +1650,49 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
             Ext.Msg.alert('Alerta', 'Debe Elegir Bodega');
             return;    
         }else{ 
-        var nombre = 1;    
-        Ext.Ajax.request({
 
-            url: preurl + 'correlativos/generancred?valida='+nombre,
-            params: {
-                id: 1
-            },
-            success: function(response){
-                var resp = Ext.JSON.decode(response.responseText);
+        var nombre = 101;
+        var descripcion = "FACTURA ELECTRONICA";    
+        habilita = false;
+        if(nombre == 101 || nombre == 103 || nombre == 105){ // FACTURA ELECTRONICA o FACTURA EXENTA
 
-                if (resp.success == true) {
-                    var cliente = resp.cliente;
-                    var correlanue = cliente.correlativo;
-                    var descripcion = cliente.nombre;
-                    var id = cliente.id;
-                    correlanue = (parseInt(correlanue)+1);
-                    var correlanue = correlanue;
+            response_certificado = Ext.Ajax.request({
+            async: false,
+            url: preurl + 'facturas/existe_certificado/'});
+
+            var obj_certificado = Ext.decode(response_certificado.responseText);
+
+            if(obj_certificado.existe == true){
+
+                response_folio = Ext.Ajax.request({
+                async: false,
+                url: preurl + 'facturas/folio_documento_electronico/'+nombre});  
+                var obj_folio = Ext.decode(response_folio.responseText);
+                //console.log(obj_folio); 
+                nuevo_folio = obj_folio.folio;
+                if(nuevo_folio != 0){
                     var view = Ext.create('Infosys_web.view.guiasdespacho.Facturaguias').show();
-                    view.down('#numfacturaId').setValue(correlanue);
+                    view.down('#numfacturaId').setValue(nuevo_folio);
                     view.down('#nomdocumentoId').setValue(descripcion);
-                    view.down('#tipodocumentoId').setValue(id);
+                    view.down('#tipodocumentoId').setValue(nombre);
                     view.down('#bodegaId').setValue(idbodega);
-                    
+          
+                    habilita = true;
                 }else{
-                    Ext.Msg.alert('Correlativo YA Existe');
-                    return;
+                    Ext.Msg.alert('Atención','No existen folios disponibles');
+                    view.down('#numfacturaId').setValue('');  
+
+                    //return
                 }
 
+            }else{
+                    Ext.Msg.alert('Atención','No se ha cargado certificado');
+                    view.down('#numfacturaId').setValue('');  
+            }
 
 
-            }            
-        });
+        }
+        
         };
     },
 

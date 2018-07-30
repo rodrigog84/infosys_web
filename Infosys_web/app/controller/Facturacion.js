@@ -1192,8 +1192,8 @@ Ext.define('Infosys_web.controller.Facturacion', {
                 var idfactura= resp.idfactura;
                  viewIngresa.close();
                  stFactura.load();
-                 window.open(preurl + 'facturas/exportTXT/?idfactura='+idfactura);
-                 //window.open(preurl + 'facturas/exportPDF/?idfactura='+idfactura);              
+                 //window.open(preurl + 'facturas/exportTXT/?idfactura='+idfactura);
+                 window.open(preurl + 'facturas/exportPDF/?idfactura='+idfactura);              
 
             }
            
