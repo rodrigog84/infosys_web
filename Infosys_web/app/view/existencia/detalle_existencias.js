@@ -61,6 +61,13 @@ Ext.define('Infosys_web.view.existencia.detalle_existencias' ,{
                 renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")}
 
             },{
+                header: "Saldo",
+                flex: 1,
+                dataIndex: 'saldo',
+                align: 'right',
+                renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")}
+
+            },{
                 header: "Valor",
                 flex: 1,
                 dataIndex: 'valor_producto',

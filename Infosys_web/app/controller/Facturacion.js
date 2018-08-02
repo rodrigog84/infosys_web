@@ -288,9 +288,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
             },  
             'detallestock button[action=seleccionarproductosstock]': {
                 click: this.seleccionarproductosstock
-            }, 
-
-            
+            },         
               
 
         });

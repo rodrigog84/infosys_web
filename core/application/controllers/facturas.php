@@ -6389,6 +6389,17 @@ class Facturas extends CI_Controller {
 
     }
 
+    public function ver_libro($idlibro){
+        $this->load->model('facturaelectronica');
+        $libro = $this->facturaelectronica->get_libro_by_id($idlibro);
+        $path_archivo = "./facturacion_electronica/libros/";
+        $data_archivo = basename($path_archivo.$libro->archivo);
+        header('Content-Type: text/plain');
+        header('Content-Disposition: attachment; filename=' . $data_archivo);
+        header('Content-Length: ' . filesize($path_archivo.$libro->archivo));
+        readfile($path_archivo.$libro->archivo);            
+     }
+
     public function ver_dte($idfactura,$tipo = 'sii'){
 
         $ruta = $tipo == 'cliente' ? 'dte_cliente' : 'dte';
