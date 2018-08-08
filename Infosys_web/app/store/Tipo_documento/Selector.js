@@ -3,7 +3,7 @@ Ext.define('Infosys_web.store.Tipo_documento.Selector', {
 	fields: ['id', 'nombre'],
     data : [
         {"id":"101", "nombre":"FACTURA ELECTRONICA"},
-        {"id":"21", "nombre":"FACTURA COMPRA"},
+        {"id":"107", "nombre":"FACTURA COMPRA"},
         {"id":"2", "nombre":"BOLETA"},
         {"id":"105", "nombre":"GUIA DESPACHO"},
         {"id":"103", "nombre":"FACTURA EXENTA"},    

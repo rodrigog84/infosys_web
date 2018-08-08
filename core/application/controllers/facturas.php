@@ -74,6 +74,19 @@ class Facturas extends CI_Controller {
             if(!$error){ //Ya cargó y el archivo es correcto
                 $folio_desde = $xml->CAF->DA->RNG->D; 
                 $folio_hasta = $xml->CAF->DA->RNG->H; 
+                $folio_fecha = (string)$xml->CAF->DA->FA;
+                //print_r($folio_fecha);
+
+                $meses = 6;
+                
+                $fecha= strtotime("+ $meses month", strtotime ($folio_fecha));
+                
+                $fecha = date('Y-m-d',$fecha);
+                //$folio_fecha = date('Y-m-d',$folio_fecha);
+
+                
+
+
 
                 //VALIDAMOS SI LOS FOLIOS YA ESTÁN CARGADOS.  SI YA ESTÁN CARGADOS, DAREMOS ERROR INDICANDO QUE CAF YA EXISTE
                 $this->db->select('f.id ')
@@ -94,12 +107,16 @@ class Facturas extends CI_Controller {
                     $data_array = array(
                         'tipo_caf' => $tipo_caf,
                         'fd' => $folio_desde,
-                        'fh' => $folio_hasta,                   
+                        'fh' => $folio_hasta,  
+                        'fecha_folios' => $folio_fecha,
+                        'fecha_vencimiento' => $fecha,                   
                         'archivo' => $config['file_name'].".xml",
                         'caf_content' => $xml_content,
                         );
                     $this->db->insert('caf',$data_array); 
                     $idcaf = $this->db->insert_id();
+                   
+                    //print_r($data_array);
 
                     // SE CREA DETALLE DE FOLIOS
 
@@ -328,6 +345,9 @@ class Facturas extends CI_Controller {
       public function folio_documento_electronico($tipo_doc){
 
             $tipo_caf = 0;
+            $valida="NO";
+            $fecha_hoy=date('Y-m-d');
+            
             if($tipo_doc == 101){
                   $tipo_caf = 33;
             }else if($tipo_doc == 102){
@@ -338,11 +358,13 @@ class Facturas extends CI_Controller {
                   $tipo_caf = 56;
             }else if($tipo_doc == 105){
                   $tipo_caf = 52;
+            }else if($tipo_doc == 107){
+                  $tipo_caf = 46;
             }
 
             $nuevo_folio = 0;
             //buscar primero si existe algún folio ocupado hace más de 4 horas.
-            $this->db->select('fc.id, fc.folio ')
+            $this->db->select('fc.id, fc.folio, c.fecha_vencimiento ')
               ->from('folios_caf fc')
               ->join('caf c','fc.idcaf = c.id')
               ->where('c.tipo_caf',$tipo_caf)
@@ -355,8 +377,16 @@ class Facturas extends CI_Controller {
             if(count($folios_caf) > 0){
                   $nuevo_folio = $folios_caf->folio;
                   $id_folio = $folios_caf->id;
+                  $fecha_venc = $folios_caf->fecha_vencimiento;
+                  $fecha_venc = $folios_caf->fecha_vencimiento;
+                  if(!$fecha_venc){
+                            $fecha_venc=$fecha_hoy;
+                        };
+                   if($fecha_venc < $fecha_hoy){
+                    $valida="SI";
+                  };
             }else{ // buscar folios pendientes
-                  $this->db->select('fc.id, fc.folio ')
+                  $this->db->select('fc.id, fc.folio, c.fecha_vencimiento ')
                     ->from('folios_caf fc')
                     ->join('caf c','fc.idcaf = c.id')
                     ->where('c.tipo_caf',$tipo_caf)
@@ -368,18 +398,31 @@ class Facturas extends CI_Controller {
                   if(count($folios_caf) > 0){
                         $nuevo_folio = $folios_caf->folio;
                         $id_folio = $folios_caf->id;
+                        $fecha_venc = $folios_caf->fecha_vencimiento;
+                        if(!$fecha_venc){
+                            $fecha_venc=$fecha_hoy;
+                        };
+                        if($fecha_venc < $fecha_hoy){
+                            $valida="SI";
+                        };
+                  }else{
+                     $fecha_venc=$fecha_hoy;
+                      
                   }
+
             }
 
 
             if($nuevo_folio != 0){
                   $this->db->where('id', $id_folio);
                   $this->db->update('folios_caf',array(
-                                                                  'estado' => 'T',
-                                                                  'updated_at' => date('Y-m-d H:i:s'))); 
+                  'estado' => 'T',
+                  'updated_at' => date('Y-m-d H:i:s'))); 
             }
 
             $resp['folio'] = $nuevo_folio;
+            $resp['fecha_venc'] = $fecha_venc;
+            $resp['valida'] = $valida;
             echo json_encode($resp);
        }
 

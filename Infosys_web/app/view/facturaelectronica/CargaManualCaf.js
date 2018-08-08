@@ -16,6 +16,7 @@ Ext.define('Infosys_web.view.facturaelectronica.CargaManualCaf' ,{
             fields: ['value', 'nombre'],
             data : [
                 {"value":33, "nombre":"(33) Factura Electronica"},
+                {"value":46, "nombre":"(46) Factura Compra Electronica"},
                 {"value":34, "nombre":"(34) Factura No Afecta Electronica"},
                 {"value":52, "nombre":"(52) Guía de Despacho Electronica"},
                 {"value":56, "nombre":"(56) Nota de Débito Electronica"},
@@ -53,6 +54,12 @@ Ext.define('Infosys_web.view.facturaelectronica.CargaManualCaf' ,{
         url: preurl + 'facturas/estado_tipo_documento/33'});
         var obj_33 = Ext.decode(response_33.responseText);
         var message_33 = obj_33.cantidad > 0 ? obj_33.cantidad + message_si : message_no;
+
+        response_46 = Ext.Ajax.request({
+        async: false,
+        url: preurl + 'facturas/estado_tipo_documento/46'});
+        var obj_46 = Ext.decode(response_46.responseText);
+        var message_46 = obj_46.cantidad > 0 ? obj_46.cantidad + message_si : message_no;
 
         response_34 = Ext.Ajax.request({
         async: false,
@@ -103,6 +110,14 @@ Ext.define('Infosys_web.view.facturaelectronica.CargaManualCaf' ,{
                         labelStyle: ' font-weight:bold',
                         //fieldStyle: 'font-weight:bold',
                         value : message_33,
+                        labelWidth: 200,
+                    },,{
+                        xtype: 'displayfield',
+                        itemId : 'estado_46',
+                        fieldLabel : 'Facturas Compra Electrónicas',
+                        labelStyle: ' font-weight:bold',
+                        //fieldStyle: 'font-weight:bold',
+                        value : message_46,
                         labelWidth: 200,
                     },{
                         xtype: 'displayfield',

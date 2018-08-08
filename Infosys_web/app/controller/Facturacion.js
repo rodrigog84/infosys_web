@@ -1249,12 +1249,13 @@ Ext.define('Infosys_web.controller.Facturacion', {
         
         var view =this.getFacturasingresar();
         var tipo_documento = view.down('#tipoDocumentoId');
+        var fecha_factura = view.down('#fechafacturaId').getSubmitValue(); 
         var stCombo = tipo_documento.getStore();
         var record = stCombo.findRecord('id', tipo_documento.getValue()).data;
         
         var nombre = (record.id);    
         habilita = false;
-        if(nombre == 101 || nombre == 103 || nombre == 105){ // FACTURA ELECTRONICA o FACTURA EXENTA
+        if(nombre == 101 || nombre == 103 || nombre == 105 || nombre == 107 ){ // FACTURA ELECTRONICA o FACTURA EXENTA
 
             // se valida que exista certificado
             response_certificado = Ext.Ajax.request({
@@ -1274,15 +1275,29 @@ Ext.define('Infosys_web.controller.Facturacion', {
                 var obj_folio = Ext.decode(response_folio.responseText);
                 //console.log(obj_folio); 
                 nuevo_folio = obj_folio.folio;
+                fecha_venc = obj_folio.fecha_venc;
+                valida = obj_folio.valida;
+                console.log(valida);
+                if (valida == "SI"){
+
+                    view.close();
+                    Ext.Msg.alert('Atención','Folios Vencidos');
+                    return;
+                    
+                }else{
+                     
                 if(nuevo_folio != 0){
                     view.down('#numfacturaId').setValue(nuevo_folio);  
                     habilita = true;
                 }else{
                     Ext.Msg.alert('Atención','No existen folios disponibles');
-                    view.down('#numfacturaId').setValue('');  
-
-                    //return
+                    view.down('#numfacturaId').setValue(''); 
+                    view.close();
+                    return;
                 }
+                }
+
+               
 
             }else{
                     Ext.Msg.alert('Atención','No se ha cargado certificado');
