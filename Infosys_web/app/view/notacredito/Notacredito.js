@@ -496,6 +496,12 @@ Ext.define('Infosys_web.view.notacredito.Notacredito', {
                                 hidden: true
                             },{
                                 xtype: 'textfield',
+                                name: 'Id Producto',
+                                itemId: 'pId',
+                                hidden: true
+                              
+                            },{
+                                xtype: 'textfield',
                                 width: 140,
                                 fieldLabel: 'Codigo',
                                 itemId: 'codigoId',

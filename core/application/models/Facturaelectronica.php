@@ -61,7 +61,7 @@ class Facturaelectronica extends CI_Model
 	public function ruta_certificado(){
 		$base_path = __DIR__;
 		$base_path = str_replace("\\", "/", $base_path);
-		$path = $base_path . "/../../facturacion_electronica/certificado/certificado.p12";		
+		$path = $base_path . "/../../facturacion_electronica/certificado/certificado.pfx";		
 		return $path;
 	}
 
@@ -392,7 +392,7 @@ public function datos_dte_by_trackid($trackid){
 			    	$pdf->setCedible(true);
 			    }*/
 			    $pdf->agregar($DTE->getDatos(), $DTE->getTED());
-			    if($factura->tipo_caf == 33 || $factura->tipo_caf == 34 || $factura->tipo_caf == 52){
+			    if($factura->tipo_caf == 33 || $factura->tipo_caf == 34 || $factura->tipo_caf == 46 || $factura->tipo_caf == 52){
 				    $pdf->setCedible(true);
 				    $pdf->agregar($DTE->getDatos(), $DTE->getTED());			    	
 			    }
@@ -729,7 +729,7 @@ public function datos_dte_by_trackid($trackid){
 				}// FIN REGCSV
 
 
-				if($tipodocumento == 101 || $tipodocumento == 103){  // SI ES FACTURA ELECTRONICA O FACTURA EXENTA ELECTRONICA
+				if($tipodocumento == 101 || $tipodocumento == 103 || $tipodocumento == 105 || $tipodocumento == 107){  // SI ES FACTURA ELECTRONICA O FACTURA EXENTA ELECTRONICA
 
 							$tipo_caf = $docto->tipocaf;
 
@@ -866,6 +866,8 @@ public function datos_dte_by_trackid($trackid){
 			$tipo_caf = 52;
 		}else if($tipodocumento == 102){
 			$tipo_caf = 61;
+		}else if($tipodocumento == 107){
+			$tipo_caf = 46;
 		}		
 
 		header('Content-type: text/plain; charset=ISO-8859-1');
@@ -895,13 +897,13 @@ public function datos_dte_by_trackid($trackid){
 
 
 			if($data_factura->forma == 1){
-				$lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 || $tipo_caf == 52 ? floor($detalle->neto) : floor($detalle->total);
+				$lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 || $tipo_caf == 52 || $tipo_caf == 46 ? floor($detalle->neto) : floor($detalle->total);
 			}else{
 				$lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 ? floor(($detalle->totalproducto - $detalle->iva)/$detalle->cantidad) : round($detalle->precio);
 			}
 
 
-			if($tipo_caf == 33 && $data_factura->forma != 1){
+			if($tipo_caf == 33 || $tipo_caf == 46 && $data_factura->forma != 1){
 				$lista_detalle[$i]['MontoItem'] = ($detalle->totalproducto - $detalle->iva);
 			}				
 

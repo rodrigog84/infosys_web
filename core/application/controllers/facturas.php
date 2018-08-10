@@ -1867,7 +1867,7 @@ class Facturas extends CI_Controller {
         $limit = $this->input->get('limit');
         $nombre = $this->input->get('nombre');
         $codigo = $this->input->get('codigo');        
-        $tipo = "1";
+        $tipo = "101";
 
 
 		$countAll = $this->db->count_all_results("detalle_factura_cliente");
@@ -2130,7 +2130,7 @@ class Facturas extends CI_Controller {
         $limit = $this->input->get('limit');
         $nombre = $this->input->get('nombre');
         $numero = $this->input->get('numero');        
-        $tipo = "1";
+        $tipo = "101";
 
 
 		$countAll = $this->db->count_all_results("factura_clientes");
@@ -2661,7 +2661,7 @@ class Facturas extends CI_Controller {
 
 		/*****************************************/
 
-        if($tipodocumento == 101 || $tipodocumento == 103 || $tipodocumento == 105){  // SI ES FACTURA ELECTRONICA O FACTURA EXENTA ELECTRONICA
+        if($tipodocumento == 101 || $tipodocumento == 103 || $tipodocumento == 105 || $tipodocumento == 107){  // SI ES FACTURA ELECTRONICA O FACTURA EXENTA ELECTRONICA
 
 
             if($tipodocumento == 101){
@@ -2670,6 +2670,8 @@ class Facturas extends CI_Controller {
                 $tipo_caf = 34;
             }else if($tipodocumento == 105){
                 $tipo_caf = 52;
+            }else if($tipodocumento == 107){
+                $tipo_caf = 46;
             }
 
 
@@ -2704,26 +2706,11 @@ class Facturas extends CI_Controller {
             foreach ($detalle_factura as $detalle) {
                 $lista_detalle[$i]['NmbItem'] = $detalle->nombre;
                 $lista_detalle[$i]['QtyItem'] = $detalle->cantidad;
-                //$lista_detalle[$i]['PrcItem'] = $detalle->precio;
-                //$lista_detalle[$i]['PrcItem'] = round((($detalle->precio*$detalle->cantidad)/1.19)/$detalle->cantidad,0);
-                //$total = $detalle->precio*$detalle->cantidad;
-                //$neto = round($total/1.19,2);
-
-                //$lista_detalle[$i]['PrcItem'] = round($neto/$detalle->cantidad,2);
-                //$lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 || $tipo_caf == 52 ? round(((($detalle->precio*$detalle->cantidad)-$detalle->descuento)/1.19)/$detalle->cantidad,3) : round($detalle->precio,3);
-                $lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 || $tipo_caf == 52 ? round($detalle->neto/$detalle->cantidad,2) : round($detalle->precio,2);
-                if($tipo_caf == 33){
-                    //$lista_detalle[$i]['MontoItem'] = ($detalle->totalproducto - $detalle->iva);
-                    $lista_detalle[$i]['MontoItem'] = $detalle->neto;
+                $lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 || $tipo_caf == 52 || $tipo_caf == 46 ? round($detalle->neto/$detalle->cantidad,2) : round($detalle->precio,2);
+                if($tipo_caf == 33 || $tipo_caf == 46){
+                   $lista_detalle[$i]['MontoItem'] = $detalle->neto;
                 }
-                //if($detalle->descuento != 0){
-                    //$porc_descto = round(($detalle->descuento/($detalle->cantidad*$lista_detalle[$i]['PrcItem'])*100),0);
-                    //$lista_detalle[$i]['DescuentoPct'] = $porc_descto;        
-                    //$lista_detalle[$i]['DescuentoMonto'] = round($detalle->descuento,0); //DESCUENTO DEBE SER ENTERO
-                    //$lista_detalle[$i]['PrcItem'] =- $lista_detalle[$i]['PrcItem']*$porc_descto;
-
-                //}
-
+               
                 $i++;
             }
 
@@ -6401,6 +6388,13 @@ class Facturas extends CI_Controller {
 		//unlink("C:\Users\Sergio\Downloads\facturacion.txt");
 	}
 
+    public function exportFePDF($idfactura,$cedible = null){
+
+        $this->load->model('facturaelectronica');
+        $this->facturaelectronica->exportFePDF($idfactura,'id',$cedible);       
+
+    }
+
 
 	public function exportPDF(){
 
@@ -6419,7 +6413,7 @@ class Facturas extends CI_Controller {
         if($tipodocumento == 1){
                 $this->exportFacturaPDF($idfactura,$numero);
 
-        }else if($tipodocumento ==  101 || $tipodocumento == 103 || $tipodocumento == 105){ // FACTURA ELECTRONICA O FACTURA EXENTA ELECTRONCA O GUIA DE DESPACHO
+        }else if($tipodocumento ==  101 || $tipodocumento == 103 || $tipodocumento == 105 || $tipodocumento == 107){ // FACTURA ELECTRONICA O FACTURA EXENTA ELECTRONCA O GUIA DE DESPACHO
                 //$es_cedible = is_null($cedible) ? false : true;
                 $this->load->model('facturaelectronica');
                 $this->facturaelectronica->exportFePDF($idfactura,'id');

@@ -1103,6 +1103,10 @@ Ext.define('Infosys_web.controller.Notacredito', {
             viewIngresa.down('#numfactId').setValue(row.data.num_factura);
             viewIngresa.down('#totfactId').setValue(row.data.totalfactura);
             viewIngresa.down('#factId').setValue(row.data.id);
+            var tipo_documento = viewIngresa.down('#tipodocumentoId').getValue();
+            if(tipo_documento == 102){
+                viewIngresa.down('#tipoNotaCredito').setDisabled(false);
+            }            
             view.close();
         }else{
             Ext.Msg.alert('Alerta', 'Selecciona un registro.');
@@ -1313,15 +1317,19 @@ Ext.define('Infosys_web.controller.Notacredito', {
         var view = this.getNotacreditoprincipal();
         if (view.getSelectionModel().hasSelection()) {
             var row = view.getSelectionModel().getSelection()[0];
-            if (row.data.forma==0){
-            window.open(preurl +'facturas/exportTXTNC/?idfactura=' + row.data.id)
-            };
-            if (row.data.forma==1){
-            window.open(preurl +'facturas/exportTXTNCGLO/?idfactura=' + row.data.id)
-            };
-            if (row.data.forma==2){
-            window.open(preurl +'facturaganado/exportTXTNCGANADO/?idfactura=' + row.data.id)
-            };
+             if(row.data.tipo_documento == 102){ // NOTA DE CREDITO ELECTRONICA
+                window.open(preurl +'facturas/exportFePDF/' + row.data.id);   
+             }else{
+                if (row.data.forma==0){
+                window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id)
+                };
+                if (row.data.forma==1){
+                window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id)
+                };
+                if (row.data.forma==2){
+                window.open(preurl +'facturaganado/exportfacturaganadoPDF/?idfactura=' + row.data.id)
+                };
+             }            
         }else{
             Ext.Msg.alert('Alerta', 'Selecciona un registro.');
             return;
