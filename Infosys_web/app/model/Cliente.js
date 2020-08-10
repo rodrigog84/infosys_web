@@ -20,6 +20,7 @@ Ext.define('Infosys_web.model.Cliente', {
         {name: 'rut'},
         {name: 'rutaut'},
         {name: 'descuento'},
+        {name: 'tipo_acuerdo'},
         {name: 'e_mail'},
         {name: 'fecha_incripcion', type:'date',dateFormat:"Y-m-d"},
         {name: 'fecha_ult_actualiz', type:'date',dateFormat:"Y-m-d"},
@@ -29,6 +30,11 @@ Ext.define('Infosys_web.model.Cliente', {
         {name: 'estadoc'},
         {name: 'cupo_disponible'},
         {name: 'imp_adicional'},
-        {name: 'tipo'}
+        {name: 'tipo'},
+        {name: 'id_credito'},
+        {name: 'uf_cred'},
+        {name: 'cred_util'},
+        {name: 'tipo_cliente'},
+
     ]
 });

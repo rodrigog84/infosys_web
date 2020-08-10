@@ -4,6 +4,6 @@ Ext.define('Infosys_web.store.Tipo_documento.Selector4', {
     data : [
         {"id":"101", "nombre":"FACTURA ELECTRONICA"},
         {"id":"105", "nombre":"GUIA DESPACHO"},
-        {"id":"21", "nombre":"FACTURA COMPRA"},
+        {"id":"107", "nombre":"FACTURA COMPRA"},
     ]
 });

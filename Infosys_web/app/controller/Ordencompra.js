@@ -16,7 +16,8 @@ Ext.define('Infosys_web.controller.Ordencompra', {
               'ordencompra.Selector',
               'Tipo_documento.Selector3',
               'Ordeneditar',
-              'Tabladescuento'],
+              'Tabladescuento',
+              'transportista'],
 
     models: ['Orden_compra', 'ordencompra.Item'],
 
@@ -35,7 +36,11 @@ Ext.define('Infosys_web.controller.Ordencompra', {
         'ordencompra.Exportar2',
         'ordencompra.Editar',
         'ordencompra.BuscarProductos2',
-        'ordencompra.OrdencompraMail'
+        'ordencompra.OrdencompraMail',
+        'ordencompra.BuscarTransportista',
+        'ordencompra.BuscarTransportista2',
+        'ordencompra.Observaciones',
+        'ordencompra.Observaciones2'
     ],
 
     refs: [{
@@ -98,7 +103,21 @@ Ext.define('Infosys_web.controller.Ordencompra', {
     },{
         ref: 'formularioexportarordencompra3',
         selector: 'formularioexportarordencompra3'
+    },{
+        ref: 'buscatrans',
+        selector: 'buscatrans'
+    },{
+        ref: 'buscatrans2',
+        selector: 'buscatrans2'
+    },{
+        ref: 'observacionesordencompra',
+        selector: 'observacionesordencompra'
+    },{
+        ref: 'observacionesordencompra2',
+        selector: 'observacionesordencompra2'
     }
+
+
        
     ],
 
@@ -211,6 +230,9 @@ Ext.define('Infosys_web.controller.Ordencompra', {
             'ordencompraprincipalrecepcion button[action=generapdf]': {
                 click: this.generapdf
             },
+            'ordencompraprincipalrecepcion button[action=generapdforiginal]': {
+                click: this.generapdforiginal
+            },
              'ordencompraingresar button[action=buscarcontactos]': {
                 click: this.buscarcontactos
             },
@@ -234,6 +256,9 @@ Ext.define('Infosys_web.controller.Ordencompra', {
             },
             'ordencompraprincipal button[action=buscarorden]': {
             click: this.buscarorden
+            },
+            'ordencompraprincipalrecepcion button[action=buscarordenrecepcion]': {
+            click: this.buscarordenrecepcion
             },
             'ordencompraprincipaltodas button[action=buscarorden]': {
             click: this.buscarorden2
@@ -282,9 +307,193 @@ Ext.define('Infosys_web.controller.Ordencompra', {
             },
              'ordencompramail button[action=ordencompraemail]': {
                 click: this.ordencompraemail
+            },
+             'ordencompraprincipal button[action=actualizarOrden]': {
+                click: this.actualizarOrden
+            },
+            'ordencomprarecepcionfinal button[action=tbuscar2]': {
+                click: this.tbuscar2
+            },
+            'buscatrans button[action=buscartran]': {
+                click: this.buscartran
+            },
+            'buscatrans button[action=seleccionartrans]': {
+                click: this.seleccionartrans
+            },
+
+            'ordencomprarecepcion button[action=tbuscar]': {
+                click: this.tbuscar
+            },
+            'buscatrans2 button[action=buscartran2]': {
+                click: this.buscartran2
+            },
+            'buscatrans2 button[action=seleccionartrans2]': {
+                click: this.seleccionartrans2
+            },
+            'pedidosprincipal button[action=generafactura]': {
+                click: this.generafactura
+            },
+            'ordencompraingresar button[action=observaciones]': {
+                click: this.agregarobserva
+            },
+            'observacionesordencompra button[action=ingresaobs]': {
+                click: this.ingresaobs
+            },
+             'observacionesordencompra2 button[action=ingresaobs2]': {
+                click: this.ingresaobs2
+            },
+             'ordencompraeditar button[action=observaciones2]': {
+                click: this.agregarobserva2
+            },
+          
+
+          
+        });
+    },
+
+    ingresaobs2: function(){
+
+        var view = this.getObservacionesordencompra2();
+        var viewIngresar = this.getOrdencompraeditar();                
+        var observa = view.down('#observaId').getValue();
+        
+        if (!observa){
+            Ext.Msg.alert('Alerta', 'Ingrese Observaciones');
+            return;
+        }else{
+            viewIngresar.down("#obsId").setValue(observa);
+            view.close();
+        };
+    },
+
+
+    ingresaobs: function(){
+
+        var view = this.getObservacionesordencompra();
+        var viewIngresar = this.getOrdencompraingresar();                
+        var observa = view.down('#observaId').getValue();
+        
+        if (!observa){
+            Ext.Msg.alert('Alerta', 'Ingrese Observaciones');
+            return;
+        }else{
+            viewIngresar.down("#obsId").setValue(observa);
+            view.close();
+        };
+    },
+
+     agregarobserva: function(){
+
+        var viewIngresa = this.getOrdencompraingresar();
+        var observa = viewIngresa.down('#obsId').getValue();
+        if (!observa){
+            var view = Ext.create('Infosys_web.view.ordencompra.Observaciones').show();
+            //view.down("#numpedidoId").setValue(numpedidos);
+        }else{
+            var view = Ext.create('Infosys_web.view.ordencompra.Observaciones').show();
+            view.down('#observaId').setValue(observa);
+        };
+       
+    },
+
+     agregarobserva2: function(){
+
+        var viewIngresa = this.getOrdencompraeditar();
+        var observa = viewIngresa.down('#obsId').getValue();
+        if (!observa){
+            var view = Ext.create('Infosys_web.view.ordencompra.Observaciones2').show();
+            //view.down("#numpedidoId").setValue(numpedidos);
+        }else{
+            var view = Ext.create('Infosys_web.view.ordencompra.Observaciones2').show();
+            view.down('#observaId').setValue(observa);
+        };
+       
+    },
+
+    seleccionartrans : function(){
+
+        var view = this.getBuscatrans()
+        var viewIngresa = this.getOrdencomprarecepcion();        
+        var grid  = view.down('grid');
+        if (grid.getSelectionModel().hasSelection()) {
+            var row = grid.getSelectionModel().getSelection()[0];
+            viewIngresa.down('#idtransportista').setValue(row.data.id);
+            viewIngresa.down('#nombre_choferId').setValue(row.data.nombre);
+            view.close();
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }
+       
+    },
+
+    seleccionartrans2 : function(){
+
+        var view = this.getBuscatrans2()
+        var viewIngresa = this.getOrdencomprarecepcionfinal();        
+        var grid  = view.down('grid');
+        if (grid.getSelectionModel().hasSelection()) {
+            var row = grid.getSelectionModel().getSelection()[0];
+            viewIngresa.down('#idtransportista').setValue(row.data.id);
+            viewIngresa.down('#nombre_choferId').setValue(row.data.nombre);
+            view.close();
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }
+       
+    },
+
+    buscartran : function(){
+
+        var view = this.getBuscatrans()
+        var st = this.getTransportistaStore()
+        var nombre = view.down('#nombreId').getValue()
+        var patente = view.down('#patenteId').getValue()
+        st.proxy.extraParams = {nombre : nombre,
+                                patente : patente}
+        st.load();
+
+    },
+
+    buscartran2 : function(){
+
+        var view = this.getBuscatrans2()
+        var st = this.getTransportistaStore()
+        var nombre = view.down('#nombreId').getValue()
+        var patente = view.down('#patenteId').getValue()
+        st.proxy.extraParams = {nombre : nombre,
+                                patente : patente}
+        st.load();
+
+    },
+
+    tbuscar: function(){
+        var edit = Ext.create('Infosys_web.view.ordencompra.BuscarTransportista');        
+    },
+
+    tbuscar2: function(){
+        var edit = Ext.create('Infosys_web.view.ordencompra.BuscarTransportista2');        
+    },
+
+    actualizarOrden : function(){
+
+        Ext.Ajax.request({
+            url: preurl + 'ordencompra/actualizaocompra',
+            params: {
+                id: 1
+            },
+            success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                if (resp.success == true) { 
+
+                    Ext.Msg.alert('Informacion', 'Actualizada Correctamente');
+                    return;
+                    
+                }
             }
 
-        });
+        });        
     },
 
     ordencompraemail : function(){
@@ -688,6 +897,7 @@ Ext.define('Infosys_web.controller.Ordencompra', {
         var iva = view.down('#finaltotalivaId').getValue();
         var total = view.down('#finaltotalpostId').getValue();
         var afecto = view.down('#finalafectoId').getValue();
+        var observacion = view.down('#obsId').getValue();
         var descuentofinal = view.down('#descuentovalorId').getValue();
         var stItem = this.getOrdeneditarStore();
         var stCotiz = this.getOrden_compraStore();
@@ -726,6 +936,7 @@ Ext.define('Infosys_web.controller.Ordencompra', {
                 dataproveedor: Ext.JSON.encode(dataproveedor),
                 items: Ext.JSON.encode(dataItems),
                 afecto : afecto,
+                observacion : observacion,
                 neto: neto,
                 iva: iva,
                 descuento: descuentofinal,
@@ -786,6 +997,8 @@ Ext.define('Infosys_web.controller.Ordencompra', {
                     view.down('#nombre_contactoId').setValue(cliente.nombre_contacto);
                     view.down('#fono_contactoId').setValue(cliente.telefono_contacto);
                     view.down('#mail_contactoId').setValue(cliente.mail_contacto);
+                    view.down('#obsId').setValue(cliente.observacion);
+                    
                     var total = (cliente.total);
                     var neto = (cliente.neto);
                     var iva = (cliente.total - cliente.neto);
@@ -833,7 +1046,9 @@ Ext.define('Infosys_web.controller.Ordencompra', {
                         viewIngresa.down('#productoId').setValue(cliente.id);
                         viewIngresa.down('#nombreproductoId').setValue(cliente.nombre);
                         viewIngresa.down('#codigoId').setValue(codigo);
+                        viewIngresa.down('#uloteId').setValue(cliente.u_lote);
                         viewIngresa.down('#cantidadOriginalId').setValue(cliente.stock);
+                        viewIngresa.down('#ultimoloteId').setValue(cliente.u_lote);
                         viewIngresa.down("#precioId").focus();
                                              
                     }
@@ -952,10 +1167,12 @@ Ext.define('Infosys_web.controller.Ordencompra', {
     },
 
     buscarPR: function(){
-        var view = this.getBuscarproductos();
+        var view = this.getBuscarproductos();        
         var st = this.getProductosfStore()
-        var nombre = view.down('#nombreId').getValue()
-        st.proxy.extraParams = {nombre : nombre}
+        var nombre = view.down('#nombreId').getValue();
+        var codigo = view.down('#codigoId').getValue();
+        st.proxy.extraParams = {nombre : nombre,
+                                codigo : codigo}
         st.load();
     },
 
@@ -963,7 +1180,9 @@ Ext.define('Infosys_web.controller.Ordencompra', {
         var view = this.getBuscarproductos2();
         var st = this.getProductosfoStore()
         var nombre = view.down('#nombreId').getValue()
-        st.proxy.extraParams = {nombre : nombre}
+        var codigo = view.down('#codigoId').getValue();
+        st.proxy.extraParams = {nombre : nombre,
+                                codigo: codigo}
         st.load();
     },
 
@@ -1049,6 +1268,18 @@ Ext.define('Infosys_web.controller.Ordencompra', {
         
         var view = this.getOrdencompraprincipal();
         var st = this.getOrden_compraStore()
+        var opcion = view.down('#tipoSeleccionId').getValue()
+        var nombre = view.down('#nombreId').getValue()
+        st.proxy.extraParams = {nombre : nombre,
+                                opcion : opcion}
+        st.load();
+
+    },
+
+    buscarordenrecepcion: function(){
+        
+        var view = this.getOrdencompraprincipalrecepcion();
+        var st = this.getOrdencomprarecepcionStore()
         var opcion = view.down('#tipoSeleccionId').getValue()
         var nombre = view.down('#nombreId').getValue()
         st.proxy.extraParams = {nombre : nombre,
@@ -1217,6 +1448,20 @@ Ext.define('Infosys_web.controller.Ordencompra', {
 
     },
 
+    generapdforiginal: function(){
+
+        var view = this.getOrdencompraprincipalrecepcion();
+        if (view.getSelectionModel().hasSelection()) {
+            var row = view.getSelectionModel().getSelection()[0];
+            window.open(preurl +'ordencompra/exportPDForiginal/?idordencompra=' + row.data.id)
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }
+        
+
+    },
+
     cerrarordendecompra: function(){
         var viewport = this.getPanelprincipal();
         viewport.removeAll();
@@ -1314,8 +1559,8 @@ Ext.define('Infosys_web.controller.Ordencompra', {
             viewIngresa.down('#productoId').setValue(row.data.id);
             viewIngresa.down('#nombreproductoId').setValue(row.data.nombre);
             viewIngresa.down('#codigoId').setValue(row.data.codigo);
-            //viewIngresa.down('#precioId').setValue(row.data.p_venta);
             viewIngresa.down('#cantidadOriginalId').setValue(row.data.stock);
+            viewIngresa.down('#uloteId').setValue(row.data.u_lote);
             view.close();
         }else{
             Ext.Msg.alert('Alerta', 'Selecciona un registro.');
@@ -1326,16 +1571,25 @@ Ext.define('Infosys_web.controller.Ordencompra', {
     grabarrecepcion: function(){
 
         var view = this.getOrdencomprarecepcion();
+        var bolEnable = true;
+         var bolDisable = false;
+        view.down('#grabaorden').setDisabled(bolEnable);
         var id = view.down('#Id').getValue();
         var idbodega = view.down('#bodegaId').getValue();
         var numero = view.down('#numeroId').getValue();
         var idproveedor = view.down('#idproveedor').getValue();
         var numerodoc = view.down('#numdocId').getValue();
         var recepcion = view.down('#recepcionId').getValue();
+        var chofer = view.down('#nombre_choferId').getValue();
+        var id_chofer = view.down('#idtransportista').getValue();
         var fecha = view.down('#fechaordenId').getValue();
+        var idprovee = view.down('#idproveedor').getValue();
+
+
+        
 
         if (!idbodega){
-
+             view.down('#grabaorden').setDisabled(bolDisable);
              Ext.Msg.alert('Debe Ingresar Bodega');
              return;
             
@@ -1343,7 +1597,7 @@ Ext.define('Infosys_web.controller.Ordencompra', {
         };
         
         if (!recepcion){
-
+             view.down('#grabaorden').setDisabled(bolDisable);
              Ext.Msg.alert('Debe Ingresar Docuemnto Recepcion');
              return;          
 
@@ -1358,34 +1612,46 @@ Ext.define('Infosys_web.controller.Ordencompra', {
             cant = (r.data.stock)
             fechavenc = (r.data.fecha_vencimiento)
             lote = (r.data.lote)
-        });
+            cant_rec = (r.data.val_real)
 
-        if (!cant){
+            if (!cant){
+             view.down('#grabaorden').setDisabled(bolDisable);
              Ext.Msg.alert('Recepcione producto');
              return;
-        };
-
-        if (!fechavenc){
+            };
+            if (!fechavenc){
+             view.down('#grabaorden').setDisabled(bolDisable);
              Ext.Msg.alert('Ingrese Fecha Vencimiento');
              return;
-        };
+            };
+            if (!lote){
+                 view.down('#grabaorden').setDisabled(bolDisable);
+                 Ext.Msg.alert('Ingrese Lote');
+                 return;
+            };
+            if (cant_rec==0){
+                 view.down('#grabaorden').setDisabled(bolDisable);
+                 Ext.Msg.alert('Ingrese Cantidad Final');
+                 return;
+            };
+        });
 
-        if (!lote){
-             Ext.Msg.alert('Ingrese Lote');
-             return;
-        };
+        
        
         Ext.Ajax.request({
             url: preurl + 'ordencompra/update',
             params: {
                 items: Ext.JSON.encode(dataItems),
                 id: id,
+                idprovee: idproveedor,
                 idbodega: idbodega,
                 numero: numero,
                 numerodoc: numerodoc,
                 recepcion: recepcion,
                 idproveedor: idproveedor,
-                fecha: fecha
+                fecha: fecha,
+                chofer: chofer,
+                id_chofer: id_chofer
             },
             success: function(response){
                 var text = response.responseText;
@@ -1400,21 +1666,29 @@ Ext.define('Infosys_web.controller.Ordencompra', {
     grabarrecepcionfinal: function(){
 
         var view = this.getOrdencomprarecepcionfinal();
+        var bolEnable = true;
+        var bolDisable = false;
+        view.down('#grabaorden').setDisabled(bolEnable);
         var id = view.down('#Id').getValue();
+        var idproveedor = view.down('#idproveedor').getValue();
         var idbodega = view.down('#bodegaId').getValue();
         var numero = view.down('#numeroId').getValue();
         var numerodoc = view.down('#numdocId').getValue();
         var recepcion = view.down('#recepcionId').getValue();
+        var chofer = view.down('#nombre_choferId').getValue();
+        var id_chofer = view.down('#idtransportista').getValue();
         var stItem = view.down('#itemsgridId');
 
         var fecha = view.down('#fechaordenId').getValue();
 
         if (!idbodega){
+            view.down('#grabaorden').setDisabled(bolDisable);
              Ext.Msg.alert('Debe Ingresar Bodega');
              return; 
         };
 
         if (!recepcion){
+            view.down('#grabaorden').setDisabled(bolDisable);
              Ext.Msg.alert('Debe Ingresar Docuemnto Recepcion');
              return;
         };
@@ -1426,18 +1700,47 @@ Ext.define('Infosys_web.controller.Ordencompra', {
         stItem.each(function(r){
             dataItems.push(r.data);
             cant = (r.data.stock)
-        });
-        
+            fechavenc = (r.data.fecha_vencimiento)
+            lote = (r.data.lote)
+            cant_rec = (r.data.val_real)
+            if(r.data.existe==true){
+                if (!cant){
+                    view.down('#grabaorden').setDisabled(bolDisable);
+                    Ext.Msg.alert('Recepcione producto');
+                    return;
+                    };
+                    if (!fechavenc){
+                    view.down('#grabaorden').setDisabled(bolDisable);
+                    Ext.Msg.alert('Ingrese Fecha Vencimiento');
+                    return;
+                    };
+                    if (!lote){
+                     view.down('#grabaorden').setDisabled(bolDisable);
+                     Ext.Msg.alert('Ingrese Lote');
+                     return;
+                    };
+                    if (cant_rec==0){
+                     view.down('#grabaorden').setDisabled(bolDisable);
+                     Ext.Msg.alert('Ingrese Cantidad Final');
+                     return;
+                    };                
+            }
+
+        });        
+                       
         Ext.Ajax.request({
             url: preurl + 'ordencompra/updatefinal',
             params: {
                 items: Ext.JSON.encode(dataItems),
                 id: id,
                 idbodega: idbodega,
+                idprovee: idproveedor,
                 numero: numero,
                 numerodoc: numerodoc,
                 recepcion: recepcion,
-                fecha: fecha
+                fecha: fecha,
+                chofer: chofer,
+                id_chofer: id_chofer
             },
             success: function(response){
                 var text = response.responseText;
@@ -1734,6 +2037,7 @@ Ext.define('Infosys_web.controller.Ordencompra', {
         var stItem = this.getOrdencompraItemsStore();
         var tipo_documento = view.down('#tipoDocumentoId');
         var rut = view.down('#rutId').getValue();
+        var lote = view.down('#uloteId').getValue();
         var producto = view.down('#productoId').getValue();
         var nombre = view.down('#nombreproductoId').getValue();
         var cantidad = view.down('#cantidadId').getValue();
@@ -1746,6 +2050,8 @@ Ext.define('Infosys_web.controller.Ordencompra', {
         cero="";
         cero1=0;
         cero2=1;
+
+        console.log(precio);
         
         if (descuento == 1){            
             var descuento = 0;
@@ -1766,7 +2072,8 @@ Ext.define('Infosys_web.controller.Ordencompra', {
 
         }
 
-        if(precio==0){
+       
+        if(!precio){
 
             Ext.Msg.alert('Alerta', 'Debe Ingresar Precio Producto');
             return false;
@@ -1789,6 +2096,7 @@ Ext.define('Infosys_web.controller.Ordencompra', {
                 view.down('#nombreproductoId').setValue(cero);
                 view.down('#cantidadId').setValue(cero2);
                 view.down('#precioId').setValue(cero);
+                view.down('#uloteId').setValue(cero);
                 view.down('#cantidadOriginalId').setValue(cero);
                 view.down('#totdescuentoId').setValue(cero1);
                 view.down('#DescuentoproId').setValue(cero);
@@ -1805,6 +2113,7 @@ Ext.define('Infosys_web.controller.Ordencompra', {
             nombre: nombre,
             precio: precio,
             cantidad: cantidad,
+            u_lote: lote,
             neto: neto,
             total: total,
             iva: iva,
@@ -1874,16 +2183,22 @@ Ext.define('Infosys_web.controller.Ordencompra', {
     grabar: function() {
 
         var view = this.getOrdencompraingresar();
+        var bolEnable = true;
+        var bolDisable = false;
+        view.down('#grabaorden').setDisabled(bolEnable);
         var idproveedor = view.down('#idproveedor').getValue();
         var neto = view.down('#finaltotalnetoId').getValue();
         var iva = view.down('#finaltotalivaId').getValue();
         var total = view.down('#finaltotalpostId').getValue();
         var afecto = view.down('#finalafectoId').getValue();
+        var observacion = view.down('#obsId').getValue();
         var descuentofinal = view.down('#descuentovalorId').getValue();
         var stItem = this.getOrdencompraItemsStore();
         var stCotiz = this.getOrden_compraStore();
 
         if (!idproveedor){            
+             
+             view.down('#grabaorden').setDisabled(bolDisable);
              Ext.Msg.alert('Debe Ingresar Datos del Proveedor');
              return;
         }
@@ -1899,7 +2214,8 @@ Ext.define('Infosys_web.controller.Ordencompra', {
             dataItems.push(r.data)
         });
 
-        if (!neto){            
+        if (!neto){
+              view.down('#grabaorden').setDisabled(bolDisable);           
              Ext.Msg.alert('Debe Ingresar Productos');
              return;
         }
@@ -1913,6 +2229,7 @@ Ext.define('Infosys_web.controller.Ordencompra', {
                 items: Ext.JSON.encode(dataItems),
                 afecto : afecto,
                 neto: neto,
+                observacion: observacion,
                 iva: iva,
                 descuento: descuentofinal,
                 total: view.down('#finaltotalpostId').getValue()

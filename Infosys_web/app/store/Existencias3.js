@@ -2,7 +2,7 @@ Ext.define('Infosys_web.store.Existencias3', {
     extend: 'Ext.data.Store',
     model: 'Infosys_web.model.existencias2',
     autoLoad: true,
-    pageSize: 14,
+    //pageSize: 14,
     
     proxy: {
         type: 'ajax',

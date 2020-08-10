@@ -20,7 +20,7 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
 
     autoShow: true,
     height: 640,
-    width: 1300,
+    width: 1320,
     layout: 'fit',
     title: 'Factura Ganado',
 
@@ -110,6 +110,18 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                                             fieldLabel: '<b>NUMERO DOCUMENTO</b>',
                                             readOnly: true
 
+
+                                        },{
+                                            xtype: 'textfield',
+                                            fieldCls: 'required',
+                                            maxHeight: 25,
+                                            width: 250,
+                                            labelWidth: 150,
+                                            allowBlank: false,
+                                            name: 'id_folio',
+                                            itemId: 'idfolio',
+                                            fieldLabel: '<b>ID FOLIO</b>',
+                                            hidden: true
 
                                         },{
                                             xtype: 'displayfield',
@@ -245,13 +257,25 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                                             xtype: 'textfield',
                                             fieldCls: 'required',
                                             fieldLabel: '<b>GIRO</b>',
+                                            labelWidth: 60,
                                             maxHeight: 25,
-                                            width: 495,
+                                            width: 405,
                                             itemId: 'giroId',
                                             readOnly: true,
                                             //disabled : true,                                           
                                             name : 'giro'
                                           
+                                        },{xtype: 'splitter'},{
+                                            xtype: 'textfield',
+                                            fieldCls: 'required',
+                                            itemId: 'tipoCiudadId',
+                                            name : 'nombre_ciudad',
+                                            maxHeight: 25,
+                                            width: 200,
+                                            labelWidth: 60,
+                                            readOnly: true,
+                                            //disabled : true,                                            
+                                            fieldLabel: '<b>CIUDAD</b>'
                                         }
                                     ]
                                 },{
@@ -265,17 +289,6 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                                     },
                                     items: [
                                         {
-                                            xtype: 'textfield',
-                                            fieldCls: 'required',
-                                            itemId: 'tipoCiudadId',
-                                            name : 'nombre_ciudad',
-                                            maxHeight: 25,
-                                            width: 200,
-                                            labelWidth: 60,
-                                            readOnly: true,
-                                            //disabled : true,                                            
-                                            fieldLabel: '<b>CIUDAD</b>'
-                                        },{
                                             xtype: 'displayfield',
                                             width: 15
                                             //labelWidth: 50
@@ -335,6 +348,24 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                                             name: 'guias_despacho',
                                             itemId: 'guiasdespachoId',
                                             style: 'font-weight: bold;'
+                                        },{xtype: 'splitter'},{
+                                            xtype: 'textfield',
+                                            width: 200,
+                                            labelWidth: 85,
+                                            maxHeight: 25,
+                                            fieldLabel: '<b>GUIAS</b>',
+                                            name: 'id_despacho',
+                                            itemId: 'idguiasdespachoId',
+                                            style: 'font-weight: bold;',
+                                            hidden: true
+                                        },{xtype: 'splitter'},,
+                                        {
+                                            xtype: 'button',
+                                            text: 'Buscar Guias',
+                                            iconCls: 'icon-plus',
+                                            width: 105,
+                                            itemId: 'guiasdespacho2Id',                                            
+                                            action: 'buscarguias'
                                         }
                                     ]
                                     },{
@@ -442,6 +473,24 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                                 itemId: 'netoId',
                                 style: 'font-weight: bold;'
                             },
+                            {xtype: 'splitter'},{
+                                xtype: 'numberfield',
+                                width: 155,
+                                labelWidth: 30,
+                                fieldLabel: 'Iva',
+                                itemId: 'ivaId',
+                                style: 'font-weight: bold;',
+                                hidden: true
+                            },,
+                            {xtype: 'splitter'},{
+                                xtype: 'numberfield',
+                                width: 155,
+                                labelWidth: 30,
+                                fieldLabel: 'Total',
+                                itemId: 'totalId',
+                                style: 'font-weight: bold;',
+                                hidden: true
+                            },
                             {xtype: 'splitter'},
                             {
                                 xtype: 'button',
@@ -467,9 +516,13 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                             store: 'facturaganado.Items',
                             tbar: [{
                                 iconCls: 'icon-delete',
+                                text: 'Editar',
+                                action: 'EditarItem'
+                            },'->',{
+                                iconCls: 'icon-delete',
                                 text: 'Eliminar',
                                 action: 'eliminaritem'
-                            }
+                            },
                             ],
                             height: 210,
                             columns: [
@@ -555,7 +608,11 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                         align: 'middle',
                         pack: 'center'
                     },
-                    items: ['->',
+                    items: [{
+                            iconCls: 'icon-reset',
+                            text: 'Cancelar',
+                            action: 'cancelar',
+                        },'->',
                         {
                             xtype: 'button',
                             //iconCls: 'icono',

@@ -190,7 +190,45 @@ Ext.define('Infosys_web.view.Produccion.Produccion', {
                                     width: 520,
                                     fieldLabel: '<b>NOMBRE FORMULA</b>',
                                     itemId: 'nombreformulaId',
-                                    name : 'nombre'                                         
+                                    name : 'nombre',
+                                    hidden: true                                         
+                                },{
+                                    xtype: 'textfield',
+                                    fieldCls: 'required',
+                                    msgTarget: 'side',
+                                    labelWidth: 60,
+                                    maxHeight: 25,
+                                    width: 180,
+                                    fieldLabel: '<b>CODIGO</b>',
+                                    itemId: 'codigoId',
+                                    name : 'codigo',
+                                    readOnly: true                                         
+                                },{
+                                    xtype: 'displayfield',
+                                    width: 10                                   
+                                },{
+                                    xtype: 'textfield',
+                                    fieldCls: 'required',
+                                    msgTarget: 'side',
+                                    labelWidth: 80,
+                                    maxHeight: 25,
+                                    width: 340,
+                                    fieldLabel: '<b>PRODUCTO</b>',
+                                    itemId: 'nombreproductoId',
+                                    name : 'nom_producto'                                         
+                                },{
+                                    xtype: 'displayfield',
+                                    width: 10                                   
+                                },{
+                                    xtype: 'textfield',
+                                    fieldCls: 'required',
+                                    msgTarget: 'side',
+                                    labelWidth: 60,
+                                    maxHeight: 25,
+                                    width: 180,
+                                    fieldLabel: '<b>LOTE</b>',
+                                    itemId: 'numLoteId',
+                                    name : 'num_lote'                                         
                                 },{
                                     xtype: 'displayfield',
                                     width: 10                                   
@@ -209,28 +247,16 @@ Ext.define('Infosys_web.view.Produccion.Produccion', {
                                     xtype: 'displayfield',
                                     width: 10                                   
                                 },{
-                                    xtype: 'textfield',
+                                    xtype: 'numberfield',
                                     fieldCls: 'required',
                                     msgTarget: 'side',
-                                    labelWidth: 60,
+                                    labelWidth: 120,
                                     maxHeight: 25,
-                                    width: 180,
-                                    fieldLabel: '<b>LOTE</b>',
-                                    itemId: 'numLoteId',
-                                    name : 'num_lote'                                         
-                                },{
-                                    xtype: 'displayfield',
-                                    width: 10                                   
-                                },{
-                                    xtype: 'textfield',
-                                    fieldCls: 'required',
-                                    msgTarget: 'side',
-                                    labelWidth: 80,
-                                    maxHeight: 25,
-                                    width: 340,
-                                    fieldLabel: '<b>PRODUCTO</b>',
-                                    itemId: 'nombreproductoId',
-                                    name : 'num_lote'                                         
+                                    width: 200,
+                                    fieldLabel: '<b>CANTIDAD PRO</b>',
+                                    itemId: 'cantidadPROId',
+                                    name : 'cantidad_pro',
+                                    readOnly: true                                           
                                 },{
                                     xtype: 'textfield',
                                     itemId: 'productoId',
@@ -332,6 +358,8 @@ Ext.define('Infosys_web.view.Produccion.Produccion', {
                             iconCls: 'icon-save',
                             scale: 'large',
                             action: 'grabarproduccion',
+                            itemId: 'grabarproduccion',
+                            disabled : false,  
                             text: 'Grabar / Emitir'
                         },
                         {

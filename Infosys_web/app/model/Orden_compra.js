@@ -28,8 +28,11 @@ Ext.define('Infosys_web.model.Orden_compra', {
         {name: 'neto'},
         {name: 'afecto'},
         {name: 'total'},
+        {name: 'transportista'},
+        {name: 'observacion'},
         {name: 'fecha', type:'date',dateFormat:"Y-m-d"},
-        {name: 'fecha_vencimiento', type:'date',dateFormat:"Y-m-d"}
+        {name: 'fecha_vencimiento', type:'date',dateFormat:"Y-m-d"},
+        {name: 'val_real'}      
 
     ]
 });

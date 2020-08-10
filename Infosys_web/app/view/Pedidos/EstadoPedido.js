@@ -125,7 +125,8 @@ Ext.define('Infosys_web.view.Pedidos.EstadoPedido', {
                                     name: 'nom_formula',
                                     itemId: 'nomformulaId',
                                     fieldLabel: '<b>FORMULA</b>',
-                                    readOnly: true
+                                    readOnly: true,
+                                    hidden: true
                                 },{
                                     xtype: 'displayfield',
                                     width: 10                                   
@@ -152,28 +153,46 @@ Ext.define('Infosys_web.view.Pedidos.EstadoPedido', {
                                 align: 'stretch'
                             },
                             items: [ {
-                                    xtype: 'numberfield',
+                                    xtype: 'textfield',
                                     fieldCls: 'required',
                                     maxHeight: 25,
-                                    width: 260,
-                                    labelWidth: 180,
+                                    width: 240,
+                                    labelWidth: 140,
                                     name: 'cant_pedido',
                                     itemId: 'cantpedidoId',
                                     fieldLabel: '<b>CANTIDAD PEDIDO</b>',
-                                    align: 'right',
+                                    align: 'left',
+                                    //renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00")},
                                     readOnly: true
                                 },{
                                     xtype: 'displayfield',
                                     width: 10                                   
                                 },{
-                                    xtype: 'numberfield',
+                                    xtype: 'textfield',
                                     fieldCls: 'required',
                                     maxHeight: 25,
                                     width: 260,
                                     labelWidth: 180,
+                                    align: 'left',
                                     name: 'cant_producido',
                                     itemId: 'cantproducidoId',
                                     fieldLabel: '<b>CANTIDAD PRODUCIDO</b>',
+                                    //renderer: function(valor){return Ext.util.Format.number((valor),"0,00")},
+                                    readOnly: true
+                                },{
+                                    xtype: 'displayfield',
+                                    width: 10                                   
+                                },{
+                                    xtype: 'textfield',
+                                    fieldCls: 'required',
+                                    maxHeight: 25,
+                                    width: 300,
+                                    labelWidth: 200,
+                                    align: 'left',
+                                    name: 'cant_real',
+                                    itemId: 'cantprodrealId',
+                                    fieldLabel: '<b>CANTIDAD REAL PRODUCIDO</b>',
+                                    renderer: function(valor){return Ext.util.Format.number((valor),"0.000,00")},
                                     readOnly: true
                                 }
                             ]

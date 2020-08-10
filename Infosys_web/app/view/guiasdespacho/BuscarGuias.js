@@ -13,11 +13,6 @@ Ext.define('Infosys_web.view.guiasdespacho.BuscarGuias' ,{
     y: 10,
     initComponent: function() {
         var me = this
-        /*var opcion = "Numero";
-        var st = Ext.getStore('Guiasdespachopendientes');        
-        st.proxy.extraParams = {nombre : '',
-                                opcion : opcion};
-        st.load();/*/
         this.items = {
             xtype: 'grid',
             iconCls: 'icon-grid',

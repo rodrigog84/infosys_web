@@ -2,6 +2,7 @@ Ext.define('Infosys_web.model.Producto', {
     extend: 'Ext.data.Model',
     fields: [
         {name: 'id'},
+        {name: 'id_existencia'},
         {name: 'nombre'},
         {name: 'codigo'},
         {name: 'p_ult_compra'},
@@ -9,6 +10,8 @@ Ext.define('Infosys_web.model.Producto', {
         {name: 'p_venta', decimalPrecision:3},
         {name: 'p_neto', decimalPrecision:3},
         {name: 'p_costo', decimalPrecision:3},
+        {name: 'cantidad_real', decimalPrecision:4},
+        {name: 'cantidad', decimalPrecision:4},
         {name: 'nom_uni_medida'},
         {name: 'id_marca'},
         {name: 'nom_marca'},
@@ -28,6 +31,7 @@ Ext.define('Infosys_web.model.Producto', {
         {name: 'stock_critico'},
         {name: 'diasvencimiento'},
         {name: 'nom_bodega'},
+        {name: 'u_lote'},
         {name: 'clasificacion'},        
     ]
 });

@@ -16,7 +16,10 @@ Ext.define('Infosys_web.model.Notadebito', {
         {name: 'descuento'},
         {name: 'neto'},
         {name: 'iva'},
-        {name: 'totalfactura'}
+        {name: 'totalfactura'},
+        {name: 'tipo_documento'}
+
+        
        
     ]
 });

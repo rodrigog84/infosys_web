@@ -19,7 +19,7 @@ Ext.define('Infosys_web.view.Pedidos.Pedidos', {
     ],
 
     autoShow: true,
-    height: 640,
+    height: 520,
     width: 1300,
     layout: 'fit',
     title: 'Pedido',
@@ -39,7 +39,7 @@ Ext.define('Infosys_web.view.Pedidos.Pedidos', {
                 },
                 items: [{
                     xtype: 'container',
-                    height: 170,
+                    height: 140,
                     layout: {
                         type: 'vbox',
                         align: 'stretch'
@@ -71,15 +71,19 @@ Ext.define('Infosys_web.view.Pedidos.Pedidos', {
                             },{
                                 xtype: 'displayfield',
                                 fieldLabel: '<b>AGRICOLA Y COMERCIAL LIRCAY SPA.</b>',
-                                labelWidth: 500,
-                                width: 500
+                                labelWidth: 310,
+                                width: 310
+                               
+                            },{
+                                xtype: 'displayfield',
+                                width: 15
                                
                             },{
                                 xtype: 'datefield',
                                 fieldCls: 'required',
                                 maxHeight: 25,
                                 labelWidth: 50,
-                                width: 170,
+                                width: 165,
                                 fieldLabel: '<b>FECHA</b>',
                                 itemId: 'fechadocumId',
                                 name: 'fecha_docum',
@@ -92,12 +96,25 @@ Ext.define('Infosys_web.view.Pedidos.Pedidos', {
                                 xtype: 'datefield',
                                 fieldCls: 'required',
                                 maxHeight: 25,
-                                labelWidth: 120,
-                                width: 290,
+                                labelWidth: 110,
+                                width: 225,
                                 fieldLabel: '<b>FECHA PEDIDO</b>',
                                 itemId: 'fechapedidoId',
                                 name: 'fecha_pedido',
                                 value: new Date()
+                            },{
+                                xtype: 'displayfield',
+                                width: 15
+                               
+                            },{
+                                xtype: 'datefield',
+                                fieldCls: 'required',
+                                maxHeight: 25,
+                                labelWidth: 130,
+                                width: 240,
+                                fieldLabel: '<b>FECHA DESPACHO</b>',
+                                itemId: 'fechadespachoId',
+                                name: 'fecha_despacho'
                             }
                             ]
                         },{
@@ -172,7 +189,8 @@ Ext.define('Infosys_web.view.Pedidos.Pedidos', {
                                 hidden: true
                             }
                             ]
-                        },{
+                        }/*
+                        ,{
                             xtype: 'fieldcontainer',
                             height: 30,
                             width: 462,
@@ -218,15 +236,10 @@ Ext.define('Infosys_web.view.Pedidos.Pedidos', {
                                     name : 'id_formula',
                                     fieldLabel: 'Id Formula',
                                     hidden: true
-                                },{
-                                    xtype: 'textfield',
-                                    itemId: 'obsId',
-                                    name : 'id_observa',
-                                    fieldLabel: 'Id Formula',
-                                    hidden: true
                                 }
                             ]
-                        },{
+                        }*/
+                        ,{
                     xtype: 'fieldset',
                     title: 'Items Documento',
                     fieldDefaults: {
@@ -249,6 +262,12 @@ Ext.define('Infosys_web.view.Pedidos.Pedidos', {
                             layout: 'hbox',
                             align: 'center',     
                             items: [{
+                                    xtype: 'textfield',
+                                    itemId: 'obsId',
+                                    name : 'id_observa',
+                                    fieldLabel: 'Id Formula',
+                                    hidden: true
+                            },{
                                 xtype: 'textfield',
                                 width: 140,
                                 labelWidth: 40,
@@ -441,6 +460,8 @@ Ext.define('Infosys_web.view.Pedidos.Pedidos', {
                             iconCls: 'icon-save',
                             scale: 'large',
                             action: 'grabarpedidos',
+                            itemId: 'grabarpedidos',
+                            disabled : false,
                             text: 'Grabar / Emitir'
                         },
                         {

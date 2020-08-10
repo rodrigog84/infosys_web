@@ -231,14 +231,14 @@ Ext.define('Infosys_web.view.productos.Desplegar', {
                 layout: 'hbox',
                 items: [
                 {
-                    xtype: 'textfield',
+                    xtype: 'numberfield',
                     fieldLabel: 'Stock',
                     name:'stock',
                     labelWidth: 50,
                     width: 160,
                     align: 'right',
-                    renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")},
-                    readOnly : true
+                    renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.000")},
+                    //readOnly : true
                 },{
                     xtype: 'displayfield',
                     width: 40 

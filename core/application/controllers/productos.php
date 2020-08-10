@@ -9,8 +9,220 @@ class Productos extends CI_Controller {
 		$this->load->database();
 	}
 
-	public function actualiza(){
+	public function enviarMail(){
+		
+		$resp = array();
+		$nombre = $this->input->post('nombre');
+		$idproducto = $this->input->post('producto');
+		$fechavenc = $this->input->post('fecha');
+		$fecha_actual = date("d-m-Y");
 
+		$items = $this->db->get_where('productos', array('id' => $idproducto));
+
+		foreach($items->result() as $item){			
+			$dias= $item->diasvencimiento;
+		};
+
+		if(!$dias){
+			$factura=10;
+		};
+		
+		$factura = $dias;
+		$factura2 = 0;
+		$fechafactura = $this->input->post('fecha');
+
+		$fechafactura = substr($fechafactura,0,10);
+		$fecha= strtotime("- $factura days", strtotime ($fechafactura));
+
+		$fecha2 = date("d-m-Y", strtotime($fechavenc));		
+		$fechaa = date('d-m-Y',$fecha);	
+
+		
+		if ($fecha_actual>$fechaa){
+
+			$inicio = strtotime($fecha_actual);
+		    $fin = strtotime($fecha2);
+		    $dif = $fin - $inicio;
+		    $diasFalt = intval(( ( $dif / 60 ) / 60 ) / 24);
+		    
+			/*print_r($fecha2);
+			print_r($fecha_actual);
+			print_r($diasFalt);
+			exit;*/
+
+			if ($diasFalt < 20){
+
+			if ($diasFalt < 0){
+
+				$mensaje="Producto ".$nombre.".    "."Esta Vencido ".$fecha2."   hace ".$diasFalt."  "."dias";
+				
+			}else{
+
+				$mensaje="Producto ".$nombre.".    "."Esta Pronto a Vencer   ".$fecha2."   Faltan    ".$diasFalt."  "."dias";
+				
+			};
+			
+
+			$resp['success'] = true;
+			$resp['dias'] = $diasFalt;		
+
+			$items = $this->db->get_where('productos', array('id' => $idproducto));
+
+			foreach($items->result() as $item){			
+				$familia= $item->id_familia;
+			}
+
+			$query = $this->db->query('SELECT * FROM mail_autorizados');
+
+		foreach($query->result() as $item){	
+				
+			$veterinaria= $item->veterinaria;
+			$productos= $item->productos;
+			$ganado= $item->ganado;
+
+			if ($veterinaria=="SI"&$familia=="1"){
+
+				$html = 'Mensaje de Prueba';
+				$email=$item->email;
+				
+		
+			$this->load->model('facturaelectronica');
+			$email_data = $this->facturaelectronica->get_email();
+
+			if(count($email_data) > 0){
+				$this->load->library('email');
+				$config['protocol']    = $email_data->tserver_intercambio;
+				$config['smtp_host']    = $email_data->host_intercambio;
+				$config['smtp_port']    = $email_data->port_intercambio;
+				$config['smtp_timeout'] = '7';
+				$config['smtp_user']    = $email_data->email_intercambio;
+				$config['smtp_pass']    = $email_data->pass_intercambio;
+				$config['charset']    = 'utf-8';
+				$config['newline']    = "\r\n";
+				$config['mailtype'] = 'html'; // or html
+				$config['validation'] = TRUE; // bool whether to validate email or not      			
+				$this->email->initialize($config);		  		
+
+			    $this->email->from($email_data->email_intercambio, NOMBRE_EMPRESA);
+			    $this->email->to($email);
+			    $this->email->subject('Aviso');
+			    $this->email->message($mensaje);
+				try {
+			      $this->email->send();
+			      //exit;
+			    } catch (Exception $e) {
+			      echo $e->getMessage() . '<br />';
+			      echo $e->getCode() . '<br />';
+			      echo $e->getFile() . '<br />';
+			      echo $e->getTraceAsString() . '<br />';
+			      echo "no";
+
+			    }
+		    }
+				
+			}
+
+			if ($ganado=="SI"&$familia=="3"){
+
+				$html = 'Mensaje de Prueba';
+				$email=$item->email;
+				
+		
+			$this->load->model('facturaelectronica');
+			$email_data = $this->facturaelectronica->get_email();
+
+			if(count($email_data) > 0){
+				$this->load->library('email');
+				$config['protocol']    = $email_data->tserver_intercambio;
+				$config['smtp_host']    = $email_data->host_intercambio;
+				$config['smtp_port']    = $email_data->port_intercambio;
+				$config['smtp_timeout'] = '7';
+				$config['smtp_user']    = $email_data->email_intercambio;
+				$config['smtp_pass']    = $email_data->pass_intercambio;
+				$config['charset']    = 'utf-8';
+				$config['newline']    = "\r\n";
+				$config['mailtype'] = 'html'; // or html
+				$config['validation'] = TRUE; // bool whether to validate email or not      			
+				$this->email->initialize($config);		  		
+
+			    $this->email->from($email_data->email_intercambio, NOMBRE_EMPRESA);
+			    $this->email->to($email);
+			    $this->email->subject('Aviso');
+			    $this->email->message($mensaje);
+				try {
+			      $this->email->send();
+			      //exit;
+			    } catch (Exception $e) {
+			      echo $e->getMessage() . '<br />';
+			      echo $e->getCode() . '<br />';
+			      echo $e->getFile() . '<br />';
+			      echo $e->getTraceAsString() . '<br />';
+			      echo "no";
+
+			    }
+		    }
+				
+			}
+
+			if ($productos=="SI"&$familia=="8"){
+
+				$html = 'Mensaje de Prueba';
+				$email=$item->email;
+				
+		
+			$this->load->model('facturaelectronica');
+			$email_data = $this->facturaelectronica->get_email();
+
+			if(count($email_data) > 0){
+				$this->load->library('email');
+				$config['protocol']    = $email_data->tserver_intercambio;
+				$config['smtp_host']    = $email_data->host_intercambio;
+				$config['smtp_port']    = $email_data->port_intercambio;
+				$config['smtp_timeout'] = '7';
+				$config['smtp_user']    = $email_data->email_intercambio;
+				$config['smtp_pass']    = $email_data->pass_intercambio;
+				$config['charset']    = 'utf-8';
+				$config['newline']    = "\r\n";
+				$config['mailtype'] = 'html'; // or html
+				$config['validation'] = TRUE; // bool whether to validate email or not      			
+				$this->email->initialize($config);		  		
+
+			    $this->email->from($email_data->email_intercambio, NOMBRE_EMPRESA);
+			    $this->email->to($email);
+			    $this->email->subject('Aviso');
+			    $this->email->message($mensaje);
+				try {
+			      $this->email->send();
+			      //exit;
+			    } catch (Exception $e) {
+			      echo $e->getMessage() . '<br />';
+			      echo $e->getCode() . '<br />';
+			      echo $e->getFile() . '<br />';
+			      echo $e->getTraceAsString() . '<br />';
+			      echo "no";
+
+			    }
+		    }
+				
+			}		
+
+
+		}		
+				
+			}
+
+			
+		}
+
+		
+		$resp['fechaa'] = $fechaa;
+		$resp['fechaven'] = $fecha_actual;
+        echo json_encode($resp);
+
+	   
+	}
+
+	public function actualiza(){
 		$resp = array();
 
 		$query = $this->db->query('SELECT * FROM existencia ');
@@ -94,10 +306,19 @@ class Productos extends CI_Controller {
 
 	    
           $this->db->insert('productos', $data); 
+          $producto = $this->db->insert_id();
+          $datos3 = array(
+			'id_producto' => $producto,
+	        'stock' =>  0,
+	        'fecha_ultimo_movimiento' => date("Y-m-d H:i:s"),
+	        'id_bodega' => $_REQUEST['id_bodega'],			
+		  );
+		  $this->db->insert('existencia', $datos3);
 
           $resp['success'] = true;
 
-          $this->Bitacora->logger("I", 'productos', $id);
+          $this->Bitacora->logger("I", 'productos', $producto);
+          $this->Bitacora->logger("I", 'existencias', $producto);
 	      
         echo json_encode($resp);
 
@@ -107,8 +328,26 @@ class Productos extends CI_Controller {
 	public function update(){
 
 		$resp = array();
-
 		$id = $_REQUEST['id'];
+		$idBodega=1;
+		$stock=0;
+
+		$query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, b.nombre as nom_bodega, c.codigo as codigo FROM existencia acc
+			left join productos c on (acc.id_producto = c.id)
+			left join bodegas b on (acc.id_bodega = b.id)
+			WHERE acc.id_producto="'.$id.'" and acc.id_bodega = "'.$idBodega.'"
+		' );
+
+		foreach ($query->result() as $row)
+		{
+			$stock = $row->stock;
+			//print_r($stock);
+		};
+
+		/*print_r($stock);
+		print_r($id);
+		exit;*/
+
 
 		$data = array(
 
@@ -119,7 +358,7 @@ class Productos extends CI_Controller {
 	        'p_promedio' => $_REQUEST['p_promedio'],
 	        'p_venta' => $_REQUEST['p_venta'],
 	        'p_costo' => $_REQUEST['p_costo'],
-	        'stock' => $_REQUEST['stock'],
+	        'stock' => $stock,
 	        'stock_critico' => $_REQUEST['stock_critico'],
 	        'diasvencimiento' => $_REQUEST['diasvencimiento'],	        
 	        'id_ubi_prod' => $_REQUEST['id_ubi_prod'],
@@ -131,8 +370,7 @@ class Productos extends CI_Controller {
 	        'clasificacion' => $_REQUEST['clasificacion'],
 	    );
 
-		$this->db->where('id', $id);
-		
+		$this->db->where('id', $id);		
 		$this->db->update('productos', $data); 
 		$resp['success'] = true;
 
@@ -504,7 +742,6 @@ class Productos extends CI_Controller {
 			left join agrupacion ag on (acc.id_agrupacion = ag.id)
 			left join subfamilias sb on (acc.id_subfamilia = sb.id)
 			left join bodegas bo on (acc.id_bodega = bo.id)
-			WHERE acc.stock > 0
 			');   
 
 			$total= 0;
@@ -525,7 +762,6 @@ class Productos extends CI_Controller {
 			left join agrupacion ag on (acc.id_agrupacion = ag.id)
 			left join subfamilias sb on (acc.id_subfamilia = sb.id)
 			left join bodegas bo on (acc.id_bodega = bo.id)
-			WHERE acc.stock > 0 
 			limit '.$start.', '.$limit.' '
 			);
 			

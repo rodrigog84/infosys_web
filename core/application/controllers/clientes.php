@@ -134,33 +134,55 @@ class Clientes extends CI_Controller {
 	 }
 
 	public function save(){
+
 		$resp = array();
-
-		$data = json_decode($this->input->post('data'));
-		$id = $data->rut;
-
-		$data = array(
-	        'nombres' => strtoupper($data->nombres),
-	        'id_giro' => $data->id_giro,
-	        'fono' => $data->fono,			
-	        'direccion' => strtoupper($data->direccion),
-	        'id_ciudad' => $data->id_ciudad,
-	        'id_comuna' => $data->id_comuna,
-	        'rut' => $data->rut,
-	        'id_vendedor' => $data->id_vendedor,
-	        'e_mail' => $data->e_mail,
-	        'descuento' => $data->descuento,		
-	        'fecha_incripcion' => date('Y-m-d'),
-            'fecha_ult_actualiz' => date('Y-m-d'),
-            'estado' => $data->estado,
-          	'id_pago' => $data->id_pago,
-          	'cupo_disponible' => $data->cupo_disponible,
-          	'imp_adicional' => $data->imp_adicional,
-          	'tipo' => 1
-              
-		);
-
+		$nombres = $this->input->post('nombre');
+		$rut = $this->input->post('rut');
+		$id = $this->input->post('idcliente');
+		$direccion = $this->input->post('direccion');
+		$ciudad = $this->input->post('ciudad');		
+		$comuna = $this->input->post('comuna');		
+		$giro = $this->input->post('giro');
+		$fono = $this->input->post('fono');
+		$mail = $this->input->post('mail');
+		$vendedor = $this->input->post('vendedor');
+		$descuento = $this->input->post('descuento');
+		$tipopago = $this->input->post('tipopago');
+		$disponible = $this->input->post('disponible');
+		$impuesto = $this->input->post('impuesto');
+		$fechaincorporacion = $this->input->post('fechaincorporacion');
+		$fechaactualiza = $this->input->post('fechaactualiza');
+		$estado = $this->input->post('estado');
+		$tipocliente = $this->input->post('tipocliente');
+		$idcredito = $this->input->post('id_credito');
+		$ufcredito = $this->input->post('ufcredito');
+		$tcliente = $this->input->post('tcliente');	
 		
+		$data = array(
+			'nombres' => strtoupper($nombres),
+			'rut' => $rut,
+	        'id_giro' => $giro,
+	        'fono' => $fono,			
+	        'direccion' => strtoupper($direccion),
+	        'id_ciudad' => $ciudad,
+	        'id_comuna' => $comuna,
+	        'id_vendedor' => $vendedor,
+	        'e_mail' => $mail,
+	        'descuento' => $descuento,		
+	        'fecha_incripcion' => $fechaincorporacion,
+            'fecha_ult_actualiz' => date('Y-m-d'),
+            'estado' => $estado,
+          	'id_pago' => $tipopago,
+          	'cupo_disponible' => $disponible,
+          	'imp_adicional' => $impuesto,
+          	'tipo' => $tipocliente,
+          	'id_credito' => $idcredito,
+          	'uf_cred' => $ufcredito,
+          	'tipo_cliente' => $tcliente
+              
+	    );
+	    
+				
         $this->db->insert('clientes', $data); 
 
         $this->Bitacora->logger("I", 'clientes', $id);
@@ -191,6 +213,9 @@ class Clientes extends CI_Controller {
 		$fechaactualiza = $this->input->post('fechaactualiza');
 		$estado = $this->input->post('estado');
 		$tipocliente = $this->input->post('tipocliente');
+		$idcredito = $this->input->post('id_credito');
+		$ufcredito = $this->input->post('ufcredito');
+		$tcliente = $this->input->post('tcliente');
 		
 		
 		$data = array(
@@ -209,7 +234,10 @@ class Clientes extends CI_Controller {
           	'id_pago' => $tipopago,
           	'cupo_disponible' => $disponible,
           	'imp_adicional' => $impuesto,
-          	'tipo' => $tipocliente
+          	'tipo' => $tipocliente,
+          	'id_credito' => $idcredito,
+          	'uf_cred' => $ufcredito,
+          	'tipo_cliente' => $tcliente
               
 	    );
 	    

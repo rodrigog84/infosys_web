@@ -1,7 +1,8 @@
 Ext.util.Format.thousandSeparator = '.';
 //variables globales
 
-var gbl_site = 'http://localhost/Infosys_web/';
+//var gbl_site = 'http://angus.agricultorestalca.cl/Infosys_web/';
+var gbl_site = 'http://localhost/Infosys_web/Infosys_web/';
 
 //var gbl_site = 'http://angus.agricultorestalca.cl/Infosys_web/';
 var preurl = gbl_site + 'core/index.php/';
@@ -23,7 +24,8 @@ Ext.application({
                   "Recaudacion", "Notacredito","Caja", "Guiasdespacho",
                   "Comisiones","Notadebito","Tipodocumentocompras", "Precios",
                   "Facturaglosa", "Facturaganado","Pedidos","ExistenciasClientes",
-                  "FacturaCompra", "Formulas", "Produccion", "Emailautorizados"],
+                  "FacturaCompra", "Formulas", "Produccion", "Emailautorizados",
+                  "Consumos","Transportistas","Pedidos2"],
 	   
     views: [
         'Infosys_web.view.WLogin',

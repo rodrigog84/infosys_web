@@ -4,6 +4,7 @@ Ext.define('Infosys_web.model.Detalle_movimiento', {
     fields: [
     	{name: 'id'},
         {name: 'id_tipom'},
+        {name: 'codigo'},
         {name: 'id_movimiento'},
         {name: 'id_tipomd'},
         {name: 'id_producto'},

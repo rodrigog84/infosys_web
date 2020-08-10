@@ -202,10 +202,118 @@ Ext.define('Infosys_web.controller.Notacredito', {
             },
             'buscarfacturas button[action=buscar]': {
                 click: this.buscarfact
-            },      
+            },
+            'notacreditoingresar button[action=cancelar]': {
+                click: this.cancelar
+            },
+            'notacreditoglosa button[action=cancelarglosa]': {
+                click: this.cancelarglosa
+            },   
 
             
         });
+    },
+
+    cancelar: function(){
+
+        var viewIngresa = this.getNotacreditoingresar();
+        var view = this.getNotacreditoprincipal();
+        var idbodega = view.down('#bodegaId').getValue();
+        var documento = 102;
+        var numero = viewIngresa.down('#numfacturaId').getValue();
+        var folio = viewIngresa.down('#idfolio').getValue();
+        var stItem = this.getProductosItemsStore();
+
+        if(stItem){
+
+         var dataItems = new Array();
+        stItem.each(function(r){
+            dataItems.push(r.data)
+        });
+
+        Ext.Ajax.request({
+            url: preurl + 'facturas/stock3',
+            params: {               
+                items: Ext.JSON.encode(dataItems),
+                idbodega: idbodega                
+            },
+             success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+               
+            }
+           
+        });
+
+        };
+
+        if(documento){
+
+        if (documento != 2){
+             Ext.Ajax.request({
+            url: preurl + 'facturas/folio_documento_electronico2',
+            params: {
+                id_folio: folio
+            },
+             success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+            }
+           
+        });            
+        }
+        };       
+
+        viewIngresa.close();        
+    },
+
+    cancelarglosa: function(){
+
+        var viewIngresa = this.getNotacreditoglosa();
+        var view = this.getNotacreditoprincipal();
+        var idbodega = view.down('#bodegaId').getValue();
+        var documento = 102;
+        var numero = viewIngresa.down('#numfacturaId').getValue();
+        var folio = viewIngresa.down('#idfolio').getValue();
+        var stItem = this.getProductosItemsStore();
+
+        if(stItem){
+
+         var dataItems = new Array();
+        stItem.each(function(r){
+            dataItems.push(r.data)
+        });
+
+        Ext.Ajax.request({
+            url: preurl + 'facturas/stock3',
+            params: {               
+                items: Ext.JSON.encode(dataItems),
+                idbodega: idbodega                
+            },
+             success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+               
+            }
+           
+        });
+
+        };
+
+        if(documento){
+
+        if (documento != 2){
+             Ext.Ajax.request({
+            url: preurl + 'facturas/folio_documento_electronico2',
+            params: {
+                id_folio: folio
+            },
+             success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+            }
+           
+        });            
+        }
+        };       
+
+        viewIngresa.close();        
     },
 
     selectItemdocuemento: function() {
@@ -237,9 +345,11 @@ Ext.define('Infosys_web.controller.Notacredito', {
                 async: false,
                 url: preurl + 'facturas/folio_documento_electronico/'+nombre});  
                 var obj_folio = Ext.decode(response_folio.responseText);
+                id_folio = obj_folio.idfolio; 
                 nuevo_folio = obj_folio.folio;
                 if(nuevo_folio != 0){
                     view.down('#numfacturaId').setValue(nuevo_folio);  
+                    view.down('#idfolio').setValue(id_folio);  
                     //habilita = true;
                 }else{
                     Ext.Msg.alert('Atención','No existen folios disponibles');
@@ -376,7 +486,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
         var grid  = view.down('#itemsgridId');        
         grid.getStore().removeAll();  
         //var controller = this.getController('Productos');
-        this.recalcularFinal2();
+        //this.recalcularFinal2();
 
     },
 
@@ -709,55 +819,63 @@ Ext.define('Infosys_web.controller.Notacredito', {
         }
     },
 
-
-
     mnotacreditoglosa: function(){
-
-         var viewIngresa = this.getNotacreditoprincipal();
-         var idbodega = viewIngresa.down('#bodegaId').getValue();
-         if(!idbodega){
+      
+        var viewIngresa = this.getNotacreditoprincipal();
+        var idbodega = viewIngresa.down('#bodegaId').getValue();
+        if(!idbodega){
             Ext.Msg.alert('Alerta', 'Debe Elegir Bodega');
             return;    
-         }else{
-            var view = Ext.create('Infosys_web.view.notacredito.Notacreditoglosa').show();
-                   
-         }
-         view.down('#bodegaId').setValue(idbodega);
+        }else{ 
 
-        //var nombre = 11;  
-                       
-        /*Ext.Ajax.request({
+        var nombre = "102";
+        var descripcion = "NOTA DE CREDITO ELECTRONICA";    
+        habilita = false;
+        if(nombre == 102){ // FACTURA ELECTRONICA o FACTURA EXENTA
 
-            url: preurl + 'correlativos/generancred?valida='+nombre,
-            params: {
-                id: 1
-            },
-            success: function(response){
-                var resp = Ext.JSON.decode(response.responseText);
+            response_certificado = Ext.Ajax.request({
+            async: false,
+            url: preurl + 'facturas/existe_certificado/'});
 
-                if (resp.success == true) {
-                    var cliente = resp.cliente;
-                    var correlanue = cliente.correlativo;
-                    var descripcion = cliente.nombre;
-                    var id = cliente.id;
-                    correlanue = (parseInt(correlanue)+1);
-                    var correlanue = correlanue;
-                    var view = Ext.create('Infosys_web.view.notacredito.Notacreditoglosa').show();
-                    view.down('#numfacturaId').setValue(correlanue);
-                    view.down('#nomdocumentoId').setValue(descripcion);
-                    view.down('#tipodocumentoId').setValue(id);
-                    
+            var obj_certificado = Ext.decode(response_certificado.responseText);
+
+            if(obj_certificado.existe == true){
+
+                response_folio = Ext.Ajax.request({
+                async: false,
+                url: preurl + 'facturas/folio_documento_electronico/'+nombre});  
+                var obj_folio = Ext.decode(response_folio.responseText);
+                id_folio = obj_folio.idfolio;
+                nuevo_folio = obj_folio.folio;
+                if(nuevo_folio != 0){
+                    var view = Ext.create('Infosys_web.view.notacredito.Notacreditoglosa').show();                   
+                    view.down('#numfacturaId').setValue(nuevo_folio);
+                    view.down('#idfolio').setValue(id_folio);
+                    view.down('#tipodocumentoId').setValue(nombre);                    
+                    view.down('#bodegaId').setValue(idbodega);
+          
+                    habilita = true;
                 }else{
-                    Ext.Msg.alert('Correlativo YA Existe');
-                    return;
+                    Ext.Msg.alert('Atención','No existen folios disponibles');
+                    view.down('#numfacturaId').setValue('');  
+
+                    //return
                 }
 
+            }else{
+                    Ext.Msg.alert('Atención','No se ha cargado certificado');
+                    view.down('#numfacturaId').setValue('');  
+            }
 
 
-            }            
-        });*/
+        }
+        
+        };
+
+        
     },
 
+   
     special: function(f,e){
         if (e.getKey() == e.ENTER) {
             this.buscarproductos()
@@ -852,6 +970,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
         var stItem = this.getProductosItemsStore();
         var producto = view.down('#productoId').getValue();
         var idp = view.down('#pId').getValue();
+        var idext = view.down('#idext').getValue();
         var nomproducto = view.down('#nomproductoId').getValue();
         var cantidad = view.down('#cantidadId').getValue();
         var cantidadori = view.down('#cantidadOriginalId').getValue();
@@ -976,6 +1095,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
 
                     stItem.add(new Infosys_web.model.Productos.Item({
                         id: idp,
+                        id_existencia: idext, 
                         id_producto: producto,
                         nombre: nomproducto,
                         precio: precio,
@@ -1498,55 +1618,62 @@ Ext.define('Infosys_web.controller.Notacredito', {
         }
     },
 
-
-    
-    mnotacredito: function(){
-
-        console.log("llegamos")
-
+     mnotacredito: function(){
+      
         var viewIngresa = this.getNotacreditoprincipal();
-         var idbodega = viewIngresa.down('#bodegaId').getValue();
-         if(!idbodega){
+        var idbodega = viewIngresa.down('#bodegaId').getValue();
+        if(!idbodega){
             Ext.Msg.alert('Alerta', 'Debe Elegir Bodega');
             return;    
-         }else{
-            console.log("llegamos")
+        }else{ 
 
-            var view = Ext.create('Infosys_web.view.notacredito.Notacredito').show();
-             view.down('#bodegaId').setValue(idbodega);  
-         };
-        
+        var nombre = "102";
+        var descripcion = "NOTA DE CREDITO ELECTRONICA";    
+        habilita = false;
+        if(nombre == 102){ // FACTURA ELECTRONICA o FACTURA EXENTA
 
-        //var nombre = 11;    
-                     
-        /*Ext.Ajax.request({
+            response_certificado = Ext.Ajax.request({
+            async: false,
+            url: preurl + 'facturas/existe_certificado/'});
 
-            url: preurl + 'correlativos/generancred?valida='+nombre,
-            params: {
-                id: 1
-            },
-            success: function(response){
-                var resp = Ext.JSON.decode(response.responseText);
+            var obj_certificado = Ext.decode(response_certificado.responseText);
 
-                if (resp.success == true) {
-                    var cliente = resp.cliente;
-                    var correlanue = cliente.correlativo;
-                    var descripcion = cliente.nombre;
-                    var id = cliente.id;
-                    correlanue = (parseInt(correlanue)+1);
-                    var correlanue = correlanue;
+            if(obj_certificado.existe == true){
+
+                response_folio = Ext.Ajax.request({
+                async: false,
+                url: preurl + 'facturas/folio_documento_electronico/'+nombre});  
+                var obj_folio = Ext.decode(response_folio.responseText);
+                id_folio = obj_folio.idfolio;
+                nuevo_folio = obj_folio.folio;
+                if(nuevo_folio != 0){
                     var view = Ext.create('Infosys_web.view.notacredito.Notacredito').show();
-                    view.down('#numfacturaId').setValue(correlanue);
-                    view.down('#nomdocumentoId').setValue(descripcion);
-                    view.down('#tipodocumentoId').setValue(id);
-                    
+                    view.down('#numfacturaId').setValue(nuevo_folio);
+                    view.down('#idfolio').setValue(id_folio);
+                    view.down('#tipodocumentoId').setValue(nombre);                    
+                    view.down('#bodegaId').setValue(idbodega);
+          
+                    habilita = true;
                 }else{
-                    Ext.Msg.alert('Correlativo YA Existe');
-                    return;
+                    Ext.Msg.alert('Atención','No existen folios disponibles');
+                    view.down('#numfacturaId').setValue('');  
+
+                    //return
                 }
-            }            
-        });*/
+
+            }else{
+                    Ext.Msg.alert('Atención','No se ha cargado certificado');
+                    view.down('#numfacturaId').setValue('');  
+            }
+
+
+        }
+        
+        };
+
+        
     },
+    
 
     buscarvendedor: function(){
         Ext.create('Infosys_web.view.vendedores.BuscarVendedor').show();
@@ -1644,6 +1771,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
             var nomproducto = (row.data.nombre);
             var idfactura = (row.data.id_factura);
             var idp = (row.data.id);
+            var idexistencia = (row.data.id_existencia);
 
             Ext.Ajax.request({
                     url: preurl + 'notacredito/validaproducto',
@@ -1664,10 +1792,12 @@ Ext.define('Infosys_web.controller.Notacredito', {
                       viewIngresa.down('#precioId').setValue(row.data.p_venta);
                       viewIngresa.down('#factactId').setValue(row.data.id_factura);
                       viewIngresa.down('#pId').setValue(row.data.id);
+                      viewIngresa.down('#idext').setValue(row.data.id_existencia);
                       view.close();
                     }else{
                       viewIngresa.down('#productoId').setValue(idproducto);
-                      viewIngresa.down('#pId').setValue(idp);
+                      viewIngresa.down('#pId').setValue(id);
+                      viewIngresa.down('#idext').setValue(id_existencia);
                       viewIngresa.down('#nomproductoId').setValue(nomproducto);
                       viewIngresa.down('#codigoId').setValue(row.data.codigo);
                       viewIngresa.down('#precioId').setValue(row.data.p_venta);

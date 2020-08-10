@@ -252,6 +252,8 @@ class Correlativos extends CI_Controller {
 	   		}else{
 	   			if($row->fecha_venc<=$fecha){
 	   				$resp['fecha'] = "SI";
+	   				$resp['cliente'] = $row;
+			        $resp['success'] = true;
 			    	echo json_encode($resp);
 	   		}else{
 	   			$resp['cliente'] = $row;

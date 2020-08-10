@@ -257,6 +257,56 @@ Ext.define('Infosys_web.view.clientes.Desplegar', {
                         store : 'clientes.Clientes',
                         //allowBlank: false
                     },]
+                    },{
+                    xtype: 'fieldcontainer',
+                    height: 50,
+                    layout: 'hbox',
+                    anchor: '100%',
+                    items: [{
+                        xtype: 'combo',
+                        labelWidth: 70,
+                        width: 250,
+                        itemId: 'tipocredId',
+                        fieldLabel: 'Tipo Cred',
+                        forceSelection : true,
+                        editable : false,
+                        name : 'id_credito',
+                        valueField : 'id',
+                        displayField : 'nombre',
+                        emptyText : "Seleccione",
+                        store : 'clientes.Credito',
+                     
+                    },{xtype: 'splitter'},{
+                        xtype: 'numberfield',
+                        name : 'uf_cred',
+                        labelWidth: 70,
+                        width: 150,
+                        itemId: 'ufaprobId',
+                        fieldLabel: 'UF.Aprob.',
+                    },{xtype: 'splitter'},{
+                        xtype: 'numberfield',
+                        name : 'cred_util',
+                        labelWidth: 90,
+                        width: 250,
+                        itemId: 'credutilId',
+                        fieldLabel: 'Cred. Utilizado',
+                        readOnly: true
+
+                    },{xtype: 'splitter'},{
+                        xtype: 'combo',
+                        labelWidth: 90,
+                        width: 250,
+                        itemId: 'tipoclientId',
+                        fieldLabel: 'Tipo Cliente',
+                        forceSelection : true,
+                        editable : false,
+                        name : 'tipo_cliente',
+                        valueField : 'id',
+                        displayField : 'nombre',
+                        emptyText : "Seleccione",
+                        store : 'clientes.Tipo_cliente',
+                     
+                    },]
                     }
                 ]
             }
@@ -267,7 +317,11 @@ Ext.define('Infosys_web.view.clientes.Desplegar', {
             dock: 'bottom',
             id:'buttons',
             ui: 'footer',
-            items: ['->', {
+            items: ['->',{
+                iconCls: '',
+                text: 'Subir Convenio',
+                action: 'subirconvenio'
+            },{
                 iconCls: '',
                 text: 'Cuentas Corrientes',
                 action: ''

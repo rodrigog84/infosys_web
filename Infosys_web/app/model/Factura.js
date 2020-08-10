@@ -3,6 +3,8 @@ Ext.define('Infosys_web.model.Factura', {
     fields: [
         {name: 'id'},
         {name: 'id_factura'},
+        {name: 'id_producto'},
+        {name: 'id_existencia'},
         {name: 'forma'},
         {name: 'id_tip_docu'},
         {name: 'tipo_documento'},

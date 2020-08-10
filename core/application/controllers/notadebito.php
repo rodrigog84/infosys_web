@@ -457,7 +457,8 @@ class Notadebito extends CI_Controller {
 		$items = json_decode($this->input->post('items'));
 		$neto = $this->input->post('netofactura');
 		$fiva = $this->input->post('ivafactura');
-        $relacionado = $this->input->post('docurelacionado');
+            $relacionado = $this->input->post('docurelacionado');
+            $idbodega = $this->input->post('idbodega');
 		$fafecto = $this->input->post('afectofactura');
 		$ftotal = $this->input->post('totalfacturas');
 		$tipodocumento = $this->input->post('tipodocumento');
@@ -478,6 +479,7 @@ class Notadebito extends CI_Controller {
 	        'sub_total' => $neto,
 	        'neto' => $neto,
 	        'iva' => $fiva,
+              'id_bodega' => $idbodega,
 	        'totalfactura' => $ftotal,
 	        'fecha_factura' => $fechafactura,
 	        'id_factura' => $numfactura,

@@ -1152,6 +1152,7 @@ Ext.define('Infosys_web.controller.General', {
 
         if(modules){
             for(var i=0;i<modules.length;i++){
+			console.log('#'+modules[i].codigo);
                     mtop.down('#'+modules[i].codigo).setDisabled(false)
             }  
         }

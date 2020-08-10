@@ -287,13 +287,39 @@ Ext.define('Infosys_web.controller.Formulas', {
             var row = grid.getSelectionModel().getSelection()[0];
             var cantidad = row.data.cantidad;
             var cantidaddet = (cantidadformdet - cantidad );
-            view.down('#cantidadformdetId').setValue(cantidaddet);
+            //view.down('#cantidadformdetId').setValue(cantidaddet);
+            console.log(cantidaddet);
             grid.getStore().remove(row);
+            //this.recalcular();
         }else{
             Ext.Msg.alert('Alerta', 'Selecciona un registro.');
             return;
         }
+
+        this.recalcular();
+
+
             
+    },
+
+    recalcular: function(){
+
+        var view = this.getFormulaeditar();
+        var stItem = this.getFormulaEditarStore();
+        var pretotal = 0;
+        var total = 0;
+        
+        stItem.each(function(r){
+            pretotal = (pretotal + parseInt(r.data.cantidad))
+            
+        });
+        total = pretotal;
+
+        console.log(total);
+             
+        view.down('#cantidadformdetId').setValue(total);
+            
+        
     },
 
     eliminaritem: function() {
@@ -304,54 +330,36 @@ Ext.define('Infosys_web.controller.Formulas', {
             var row = grid.getSelectionModel().getSelection()[0];
             var cantidad = row.data.cantidad;
             var cantidaddet = (cantidadformdet - cantidad );
-            view.down('#cantidadformdetId').setValue(cantidaddet);
+            //view.down('#cantidadformdetId').setValue(cantidaddet);
             grid.getStore().remove(row);
+            //this.recalcular();
         }else{
             Ext.Msg.alert('Alerta', 'Selecciona un registro.');
             return;
         }
+
+        this.recalcular2();
             
     },
 
-    editaritem: function() {
-        var view = this.getFormulaingresar();
-        var cantidadformdet = view.down('#cantidadformdetId').getValue();
-        var grid  = view.down('#itemsgridId');
-        if (grid.getSelectionModel().hasSelection()) {
-            var row = grid.getSelectionModel().getSelection()[0];
-            var id_producto = row.data.id_producto;
-            var valorcompra = row.data.valor_compra;
-            var cantidad = row.data.cantidad;
-            var cantidaddet = (cantidadformdet - cantidad );
-            Ext.Ajax.request({
-            url: preurl + 'productos/buscarp?nombre='+id_producto,
-            params: {
-                id: 1
-            },
-            success: function(response){
-                var resp = Ext.JSON.decode(response.responseText);
-                if (resp.success == true) { 
-                    if(resp.cliente){
-                        var cliente = resp.cliente;
-                        view.down('#precioId').setValue(valorcompra);
-                        view.down('#productoId').setValue(row.data.id_producto);
-                        view.down('#nombreproductoId').setValue(row.data.nombre);                        
-                        view.down('#codigoId').setValue(cliente.codigo);
-                        view.down('#cantidadOriginalId').setValue(cliente.stock);
-                        view.down('#cantidadId').setValue(cantidad);
-                        view.down('#cantidadformdetId').setValue(cantidaddet);           
-                    }
-                    
-                }
-            }
+    recalcular2: function(){
 
+        var view = this.getFormulaingresar();
+        var stItem = this.getFormulaEditarStore();
+        var pretotal = 0;
+        var total = 0;
+        
+        stItem.each(function(r){
+            pretotal = (pretotal + parseInt(r.data.cantidad))
+            
         });
-        grid.getStore().remove(row);
-        }else{
-            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
-            return;
-        }
-       
+        total = pretotal;
+
+        console.log(total);
+             
+        view.down('#cantidadformdetId').setValue(total);
+            
+        
     },
 
     editarformula: function(){
@@ -580,8 +588,7 @@ Ext.define('Infosys_web.controller.Formulas', {
         var cantidaddet = view.down('#cantidadformdetId').getValue();
         var nombreformula = view.down('#nombreformulaId').getValue();
 
-        
-        
+              
         if(!porcentaje){            
             Ext.Msg.alert('Alerta', 'Ingrese Porcentaje');
             return false;
@@ -621,7 +628,7 @@ Ext.define('Infosys_web.controller.Formulas', {
             return false;          
         }
 
-        var cantidad = (parseInt(cantidador * porcentaje) /100)
+        var cantidad = ((cantidador * porcentaje) /100)
         var cantidaddet = (cantidaddet + cantidad);
 
         if (cantidaddet > cantidador){
@@ -1154,13 +1161,12 @@ Ext.define('Infosys_web.controller.Formulas', {
 
    
     buscarformulas: function(){
-
+        console.log("LLegamos")
         var view = this.getFormulaprincipal()
-        var st = this.getFormulaStore()
-        var opcion = view.down('#tipoSeleccionId').getValue()
+        var st = this.getFormulasStore()
         var nombre = view.down('#nombreId').getValue()
-        st.proxy.extraParams = {nombre : nombre,
-                                opcion : opcion}
+        st.proxy.extraParams = {nombre : nombre}
+        st.load();
     },
 
     

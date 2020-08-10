@@ -22,7 +22,6 @@ Ext.define('Infosys_web.view.ordencompra.BuscarProductos' ,{
             autoHeight: true,
             viewConfig: {
                 forceFit: true
-
             },
            columns: [{
                 header: "Codigo",
@@ -62,6 +61,12 @@ Ext.define('Infosys_web.view.ordencompra.BuscarProductos' ,{
                 dataIndex: 'stock_critico',
                 hidden: true
             },{
+                header: "Ult. Lote",
+                flex: 1,
+                align: 'right',
+                dataIndex: 'u_lote',
+                hidden: true
+            },{
                 header: "Dias Venc.",
                 flex: 1,
                 align: 'right',
@@ -72,7 +77,15 @@ Ext.define('Infosys_web.view.ordencompra.BuscarProductos' ,{
         this.dockedItems = [{
             xtype: 'toolbar',
             dock: 'top',
-            items: [
+            items:[
+            {
+                width: 180,
+                labelWidth: 60,
+                xtype: 'textfield',
+                itemId: 'codigoId',
+                fieldLabel: 'Codigo'
+            },
+            '-',
             {
                 width: 450,
                 xtype: 'textfield',

@@ -63,27 +63,36 @@ class Facturasvizualiza extends CI_Controller {
 		$camion = $this->input->post('camion');
 		$carro = $this->input->post('carro');
 		$fono = $this->input->post('fono');
+		$idtransp = $this->input->post('idtransportista');
 		$numero = $this->input->post('numero');
+		$observacion = $this->input->post('observa');
+
+		if(!$observacion){
+			$observacion="";
+		};
 
 		$observa = array(
 			'rut' => $rut,
 			'nombre' => $nombre,
 	        'id_documento' => $numero,
+	        'id_transportista' => $idtransp,
 	        'fono' => $fono,
 	        'pat_camion' => $camion,
-	        'pat_carro' => $carro	          
+	        'pat_carro' => $carro,
+	        'observacion' => $observacion	          
 		);
 
 		$this->db->insert('observacion_facturas', $observa);
 		$idobserva = $this->db->insert_id();
 		$resp['success'] = true;
 		$resp['idobserva'] = $idobserva;
+		$resp['idtransp'] = $idtransp;
 		echo json_encode($resp); 
 
 
 	}
 
-	public function validaRut(){
+	public function validaRutobserva(){
 
 		
 		$resp = array();
@@ -154,6 +163,161 @@ class Facturasvizualiza extends CI_Controller {
 	   		}else{
 
 	   			$rutautoriza = $rut;
+		   	if (strlen($rutautoriza) == 8){
+		      $ruta1 = substr($rutautoriza, -1);
+		      $ruta2 = substr($rutautoriza, -4, 3);
+		      $ruta3 = substr($rutautoriza, -7, 3);
+		      $ruta4 = substr($rutautoriza, -8, 1);
+		      $rut = ($ruta4.".".$ruta3.".".$ruta2."-".$ruta1);
+		    };
+		    if (strlen($rutautoriza) == 9){
+		      $ruta1 = substr($rutautoriza, -1);
+		      $ruta2 = substr($rutautoriza, -4, 3);
+		      $ruta3 = substr($rutautoriza, -7, 3);
+		      $ruta4 = substr($rutautoriza, -9, 2);
+		      $rut = ($ruta4.".".$ruta3.".".$ruta2."-".$ruta1);		   
+		    };
+		     if (strlen($rutautoriza) == 2){
+		      $ruta1 = substr($rutautoriza, -1);
+		      $ruta2 = substr($rutautoriza, -4, 1);
+		      $rut = ($ruta2."-".$ruta1);		     
+		    };		  
+			
+	        $resp['rut'] = $rut;
+	        $resp['existe'] = false;
+	        $resp['success'] = true;
+	        echo json_encode($resp);
+	        return false;
+
+	   		};
+
+	   		
+	   }else{
+	   	    $resp['success'] = false;
+	   	    echo json_encode($resp);
+	        return false;
+	   }
+	
+	}
+
+	public function validabserva(){
+
+		
+		$resp = array();
+		$id = $this->input->get('valida');	
+
+	    $query = $this->db->query('SELECT * FROM observacion_facturas 
+	    WHERE id like "'.$id.'"');
+
+	   	if($query->num_rows()>0){
+
+			$data = array();
+			foreach ($query->result() as $row)
+			{
+			$rutautoriza = $row->rut;
+			$row->rutm = $row->rut; 
+			if (strlen($rutautoriza) == 8){
+			$ruta1 = substr($rutautoriza, -1);
+			$ruta2 = substr($rutautoriza, -4, 3);
+			$ruta3 = substr($rutautoriza, -7, 3);
+			$ruta4 = substr($rutautoriza, -8, 1);
+			$row->rut = ($ruta4.".".$ruta3.".".$ruta2."-".$ruta1);
+			};
+			if (strlen($rutautoriza) == 9){
+			$ruta1 = substr($rutautoriza, -1);
+			$ruta2 = substr($rutautoriza, -4, 3);
+			$ruta3 = substr($rutautoriza, -7, 3);
+			$ruta4 = substr($rutautoriza, -9, 2);
+			$row->rut = ($ruta4.".".$ruta3.".".$ruta2."-".$ruta1);		   
+			};
+			if (strlen($rutautoriza) == 2){
+			$ruta1 = substr($rutautoriza, -1);
+			$ruta2 = substr($rutautoriza, -4, 1);
+			$row->rut = ($ruta2."-".$ruta1);		     
+			};	   
+			$data[] = $row;
+			}
+	   		$resp['observa'] = $row;
+   			$resp['existe'] = true;
+   			$resp['success'] = true;
+   			echo json_encode($resp);
+        	return false;
+
+	   	}		
+	
+	
+	}
+
+
+	public function validaRut(){
+
+		
+		$resp = array();
+		$rut = $this->input->get('valida');
+        $iddocu = 1;
+		
+		if(strpos($rut,"-")==false){
+	        $RUT[0] = substr($rut, 0, -1);
+	        $RUT[1] = substr($rut, -1);
+	    }else{
+	        $RUT = explode("-", trim($rut));
+	    }
+	    $elRut = str_replace(".", "", trim($RUT[0]));
+	    $factor = 2;
+	    $suma=0;
+	    for($i = strlen($elRut)-1; $i >= 0; $i--):
+	        $factor = $factor > 7 ? 2 : $factor;
+	        $suma += $elRut{$i}*$factor++;
+	    endfor;
+	    $resto = $suma % 11;
+	    $dv = 11 - $resto;
+	    if($dv == 11){
+	        $dv=0;
+	    }else if($dv == 10){
+	        $dv="k";
+	    }else{
+	        $dv=$dv;
+	    }
+
+	   if($dv == trim(strtolower($RUT[1]))){
+
+	   	    $query = $this->db->query('SELECT * FROM observacion_facturas 
+	   	    WHERE rut like "'.$rut.'"');
+
+	   	    if($query->num_rows()>0){
+			   $data = array();
+			   foreach ($query->result() as $row)
+				{
+				$rutautoriza = $row->rut;
+			   	if (strlen($rutautoriza) == 8){
+			      $ruta1 = substr($rutautoriza, -1);
+			      $ruta2 = substr($rutautoriza, -4, 3);
+			      $ruta3 = substr($rutautoriza, -7, 3);
+			      $ruta4 = substr($rutautoriza, -8, 1);
+			      $row->rut = ($ruta4.".".$ruta3.".".$ruta2."-".$ruta1);
+			    };
+			    if (strlen($rutautoriza) == 9){
+			      $ruta1 = substr($rutautoriza, -1);
+			      $ruta2 = substr($rutautoriza, -4, 3);
+			      $ruta3 = substr($rutautoriza, -7, 3);
+			      $ruta4 = substr($rutautoriza, -9, 2);
+			      $row->rut = ($ruta4.".".$ruta3.".".$ruta2."-".$ruta1);		   
+			    };
+			     if (strlen($rutautoriza) == 2){
+			      $ruta1 = substr($rutautoriza, -1);
+			      $ruta2 = substr($rutautoriza, -4, 1);
+			      $row->rut = ($ruta2."-".$ruta1);		     
+			    };	   
+				$data[] = $row;
+				}
+	   			$resp['observa'] = $row;
+	   			$resp['existe'] = true;
+	   			$resp['success'] = true;
+	   			echo json_encode($resp);
+	        	return false;
+	   		}else{
+
+	   		$rutautoriza = $rut;
 		   	if (strlen($rutautoriza) == 8){
 		      $ruta1 = substr($rutautoriza, -1);
 		      $ruta2 = substr($rutautoriza, -4, 3);

@@ -77,7 +77,8 @@ Ext.define('Infosys_web.view.notacredito.Notacreditoglosa', {
                                             fieldCls: 'required',
                                             store: 'Tipo_documento.Selectornc',
                                             valueField: 'id',
-                                            displayField: 'nombre'
+                                            displayField: 'nombre',
+                                            readOnly: true
                                         },{
                                             xtype: 'textfield',
                                             name: 'Id Bodega',
@@ -104,6 +105,18 @@ Ext.define('Infosys_web.view.notacredito.Notacreditoglosa', {
                                             itemId: 'numfacturaId',
                                             fieldLabel: '<b>NUMERO DOCUMENTO</b>',
                                             readOnly: true
+                                        },{
+                                            xtype: 'textfield',
+                                            fieldCls: 'required',
+                                            maxHeight: 25,
+                                            width: 250,
+                                            labelWidth: 150,
+                                            allowBlank: false,
+                                            name: 'id_folio',
+                                            itemId: 'idfolio',
+                                            fieldLabel: '<b>ID FOLIO</b>',
+                                            hidden: true
+
                                         },{
                                             xtype: 'displayfield',
                                             width: 45
@@ -550,7 +563,11 @@ Ext.define('Infosys_web.view.notacredito.Notacreditoglosa', {
                         align: 'middle',
                         pack: 'center'
                     },
-                    items: ['->',
+                    items: [{
+                            iconCls: 'icon-reset',
+                            text: 'Cancelar',
+                            action: 'cancelarglosa',
+                        },'->',
                         {
                             xtype: 'button',
                             iconCls: 'icon-save',

@@ -28,6 +28,12 @@ class Existencias extends CI_Controller {
         $limit = $this->input->get('limit');
         $nombres = $this->input->get('nombre');
         $idBodega = $this->input->get('bodega');
+        $tipo = $this->input->get('tipo');
+        $clasifica = $this->input->get('clasifica');
+
+        if (!$tipo){
+        	$tipo=3;
+        };
 
         if (!$idBodega){        	
         	$idBodega = 1;
@@ -35,19 +41,27 @@ class Existencias extends CI_Controller {
            
 		$countAll = $this->db->count_all_results("existencia");
         
-		if($nombres){
+		if($tipo == 1){
 			$sql_nombre = "";
 	        $arrayNombre =  explode(" ",$nombres);
 	        foreach ($arrayNombre as $nombre) {
 	        	$sql_nombre .= "c.nombre like '%".$nombre."%' and ";
 	        }
 
-			$query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, b.nombre as nom_bodega FROM existencia acc
+			$query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, b.nombre as nom_bodega, c.codigo as codigo FROM existencia acc
 			left join productos c on (acc.id_producto = c.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			WHERE ' . $sql_nombre . ' 1 = 1 and acc.id_bodega = "'.$idBodega.'"');
-		}else{
-			$query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, b.nombre as nom_bodega FROM existencia acc
+		}
+		if($tipo == 2){
+			$query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, b.nombre as nom_bodega, c.codigo as codigo FROM existencia acc
+			left join productos c on (acc.id_producto = c.id)
+			left join bodegas b on (acc.id_bodega = b.id)
+			WHERE c.codigo = "'.$nombres.'" and acc.id_bodega = "'.$idBodega.'"
+		    limit '.$start.', '.$limit.' ' );
+		}
+		if($tipo == 3){
+			$query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, b.nombre as nom_bodega, c.codigo as codigo FROM existencia acc
 			left join productos c on (acc.id_producto = c.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			WHERE acc.id_bodega = "'.$idBodega.'"

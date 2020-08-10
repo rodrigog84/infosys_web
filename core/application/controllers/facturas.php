@@ -9,6 +9,336 @@ class Facturas extends CI_Controller {
 		$this->load->database();
 	}
 
+     public function anulaguias(){
+
+        $resp = array();
+        $idfactura= $this->input->post('idfactura');
+        $idbodega= $this->input->post('idbodega');
+        $tipomov=105;
+
+        $fact = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, co.nombre as nombre_docu, v.nombre as nom_vendedor, acc.tipo_documento as id_tip_docu, td.descripcion as tipo_doc   FROM factura_clientes acc
+            left join clientes c on (acc.id_cliente = c.id)
+            left join vendedores v on (acc.id_vendedor = v.id)
+            left join tipo_documento td on (acc.tipo_documento = td.id)
+            left join correlativos co on (acc.tipo_documento = co.id)
+            WHERE acc.id='.$idfactura.' '            
+            );
+            $total = 0;
+
+          foreach ($fact->result() as $c)
+            {
+                $numfactura = $c->num_factura;
+            
+            }       
+
+        $query = $this->db->query('SELECT acc.*, p.nombre as nombre, p.codigo 
+        as codigo, acc.precio as p_venta, acc.cantidad as stock 
+        FROM detalle_factura_cliente acc    
+        left join productos p on (acc.id_producto = p.id)
+        WHERE acc.id_factura = "'.$idfactura.'"');
+        
+        $anula = array(
+            'estado' => 1            
+        );
+
+        $this->db->where('id', $idfactura);   
+        $this->db->update('factura_clientes', $anula);
+        $resp['success'] = true;
+        
+        if ($query->num_rows()>0){         
+
+        foreach ($query->result() as $v){
+
+         $id = ($v->id_existencia);
+         $cantidad = ($v->cantidad);
+         $producto = ($v->id_producto);
+
+         $edit = $this->db->query('SELECT acc.*, p.nombre as nom_producto, p.codigo as codigo, acc.fecha_vencimiento as fecha_vencimiento, p.stock as stockp, p.stock_critico as stock_critico FROM existencia_detalle acc
+         left join productos p on (acc.id_producto = p.id)
+         WHERE acc.id_tipo_movimiento='.$tipomov.' and acc.num_movimiento='.$numfactura.' and acc.id_bodega='.$idbodega.'');
+         if ($edit->num_rows()>0){
+            foreach ($edit->result() as $e){                 
+                $ida=($e->id);
+                $borr = $this->db->query('DELETE FROM existencia_detalle WHERE id = "'.$ida.'"');
+            }            
+         };
+
+         $queryt = $this->db->query('SELECT acc.*, p.nombre as nom_producto, p.codigo as codigo, acc.fecha_vencimiento as fecha_vencimiento, p.stock as stockp, p.stock_critico as stock_critico FROM existencia_detalle acc
+         left join productos p on (acc.id_producto = p.id)
+         WHERE acc.id='.$id.' and acc.id_bodega='.$idbodega.'');
+             $row = $queryt->result();
+             $data[] = $row;    
+             if ($queryt->num_rows()>0){
+                $row = $row[0];
+                $saldoext=($row->saldo + $cantidad);   
+                $saldoextp=($row->stockp + $cantidad);                 
+                $datos5 = array(
+                    'saldo' => $saldoext
+                );   
+                $this->db->where('id', $id);
+                $this->db->update('existencia_detalle', $datos5);                 
+            };           
+
+            $query = $this->db->query('SELECT * FROM existencia WHERE id_producto='.$producto.' and id_bodega='.$idbodega.'');
+            $row = $query->result();
+            if ($query->num_rows()>0){
+                $row = $row[0];  
+                if ($producto==($row->id_producto)){
+                      $saldo = ($row->stock)+($cantidad);
+                $datos3 = array(
+                  'stock' => $saldo,
+                );
+
+                $this->db->where('id_producto', $producto);
+                $this->db->update('existencia', $datos3);
+
+                $this->db->where('id', $producto);
+                $this->db->update('productos', $datos3);
+                }
+                 $resp['success'] = true;
+
+            };
+
+            }
+            
+            }         
+
+            echo json_encode($resp);
+    }
+
+     public function stock5(){
+
+        $resp = array();
+        $items = json_decode($this->input->post('items'));
+        $idbodega= $this->input->post('idbodega');
+
+        
+        if($items != null){           
+
+        foreach($items as $v){
+
+         $id = ($v->id_existencia);
+         $cantidad = ($v->cantidad_real);
+         $producto = ($v->id_producto);
+
+         $queryt = $this->db->query('SELECT acc.*, p.nombre as nom_producto, p.codigo as codigo, acc.fecha_vencimiento as fecha_vencimiento, p.stock as stockp, p.stock_critico as stock_critico FROM existencia_detalle acc
+         left join productos p on (acc.id_producto = p.id)
+         WHERE acc.id='.$id.' and acc.id_bodega='.$idbodega.'');
+             $row = $queryt->result();
+             $data[] = $row;    
+             if ($queryt->num_rows()>0){
+                $row = $row[0];
+                $saldoext=($row->saldo + $cantidad);   
+                $saldoextp=($row->stockp + $cantidad_real);                 
+                $datos5 = array(
+                    'saldo' => $saldoext
+                );   
+                $this->db->where('id', $id);
+                $this->db->update('existencia_detalle', $datos5);               
+             
+            };           
+
+            $query = $this->db->query('SELECT * FROM existencia WHERE id_producto='.$producto.' and id_bodega='.$idbodega.'');
+            $row = $query->result();
+            if ($query->num_rows()>0){
+                $row = $row[0];  
+                if ($producto==($row->id_producto)){
+                      $saldo = ($row->stock)+($cantidad);
+                  $datos3 = array(
+                  'stock' => $saldo,
+                );
+
+                $this->db->where('id_producto', $producto);
+                $this->db->update('existencia', $datos3);
+
+                $this->db->where('id', $producto);
+                $this->db->update('productos', $datos3);
+                };
+
+                 $resp['success'] = true;
+            };
+            };
+           }else{
+                 $resp['success'] = false;                
+            };
+
+            echo json_encode($resp);
+    }
+
+     public function stock3(){
+
+        $resp = array();
+        $items = json_decode($this->input->post('items'));
+        $idbodega= $this->input->post('idbodega');
+
+        
+        if($items != null){           
+
+        foreach($items as $v){
+
+         $id = ($v->id_existencia);
+         $cantidad = ($v->cantidad);
+         $producto = ($v->id_producto);
+
+         $queryt = $this->db->query('SELECT acc.*, p.nombre as nom_producto, p.codigo as codigo, acc.fecha_vencimiento as fecha_vencimiento, p.stock as stockp, p.stock_critico as stock_critico FROM existencia_detalle acc
+         left join productos p on (acc.id_producto = p.id)
+         WHERE acc.id='.$id.' and acc.id_bodega='.$idbodega.'');
+             $row = $queryt->result();
+             $data[] = $row;    
+             if ($queryt->num_rows()>0){
+                $row = $row[0];
+                $saldoext=($row->saldo + $cantidad);   
+                $saldoextp=($row->stockp + $cantidad);                 
+                $datos5 = array(
+                    'saldo' => $saldoext
+                );   
+                $this->db->where('id', $id);
+                $this->db->update('existencia_detalle', $datos5); 
+            };           
+
+            $query = $this->db->query('SELECT * FROM existencia WHERE id_producto='.$producto.' and id_bodega='.$idbodega.'');
+            $row = $query->result();
+            if ($query->num_rows()>0){
+                $row = $row[0];  
+                if ($producto==($row->id_producto)){
+                      $saldo = ($row->stock)+($cantidad);
+                $datos3 = array(
+                  'stock' => $saldo,
+                );
+
+                $this->db->where('id_producto', $producto);
+                $this->db->update('existencia', $datos3);
+                
+                $this->db->where('id', $producto);
+                $this->db->update('productos', $datos3);
+
+                }
+                 $resp['success'] = true;
+
+            }
+
+            }
+
+           }else{
+
+                 $resp['success'] = false;
+                
+            }
+
+            echo json_encode($resp);
+    }
+
+    public function stock2(){
+
+        $resp = array();
+        $id= $this->input->post('id');
+        $idbodega= 1;
+        $producto= $this->input->post('producto');
+        $cantidad= $this->input->post('cantidad');
+        $fechafactura= $this->input->post('fechafactura');       
+
+         $queryt = $this->db->query('SELECT acc.*, p.nombre as nom_producto, p.codigo as codigo, acc.fecha_vencimiento as fecha_vencimiento, p.stock as stockp, p.stock_critico as stock_critico FROM existencia_detalle acc
+         left join productos p on (acc.id_producto = p.id)
+         WHERE acc.id='.$id.' and acc.id_bodega='.$idbodega.'');
+             $row2 = $queryt->result();
+             $data[] = $row2;    
+             if ($queryt->num_rows()>0){
+                $row = $row2[0];
+                $saldoext=($row->saldo + $cantidad);   
+                $saldoextp=($row->stockp + $cantidad);                 
+                $datos5 = array(
+                    'saldo' => $saldoext
+                );   
+                $this->db->where('id', $id);
+                $this->db->update('existencia_detalle', $datos5);               
+                 
+            };           
+
+            $query = $this->db->query('SELECT * FROM existencia WHERE id_producto='.$producto.' and id_bodega='.$idbodega.'');
+            $row = $query->result();
+            if ($query->num_rows()>0){
+                $row = $row[0];  
+                if ($producto==($row->id_producto)){
+                      $saldo = ($row->stock)+($cantidad);
+                $datos3 = array(
+                  'stock' => $saldo,
+                  'fecha_ultimo_movimiento' => $fechafactura
+                );
+                $datos = array(
+                  'stock' => $saldo
+                );
+
+                $this->db->where('id_producto', $producto);
+                $this->db->update('existencia', $datos3);
+
+                $this->db->where('id', $producto);
+                $this->db->update('productos', $datos);
+                }
+            }
+
+            $resp['cliente'] = $row2;
+            $resp['saldo'] = $saldo;
+            $resp['success'] = true;
+            echo json_encode($resp);
+    }
+
+     public function stock(){
+
+        $resp = array();
+        $saldoext = 0;
+        $saldoextp =0;
+        $id= $this->input->post('id');
+        $idbodega= $this->input->post('idbodega');
+        $producto= $this->input->post('producto');
+        $cantidad= $this->input->post('cantidad');
+        $fechafactura= $this->input->post('fechafactura');
+        
+          $queryt = $this->db->query('SELECT acc.*, p.nombre as nom_producto, p.codigo as codigo, acc.fecha_vencimiento as fecha_vencimiento, p.stock as stockp, p.stock_critico as stock_critico FROM existencia_detalle acc
+         left join productos p on (acc.id_producto = p.id)
+         WHERE acc.id='.$id.' and acc.id_bodega='.$idbodega.'');
+             $row = $queryt->result();
+             $data[] = $row;    
+             if ($queryt->num_rows()>0){
+                $row = $row[0];
+                $saldoext=($row->saldo - $cantidad);   
+                $saldoextp=($row->stockp);                 
+                $datos5 = array(
+                    'saldo' => $saldoext
+                );   
+                $this->db->where('id', $id);
+                $this->db->update('existencia_detalle', $datos5);               
+                 
+            };     
+
+            $query = $this->db->query('SELECT * FROM existencia WHERE id_producto='.$producto.' and id_bodega='.$idbodega.'');
+            $row = $query->result();
+            if ($query->num_rows()>0){
+                $row = $row[0];  
+                if ($producto==($row->id_producto)){
+                      $saldo = ($row->stock)-($cantidad);
+                  $datos3 = array(
+                  'stock' => $saldo,
+                  'fecha_ultimo_movimiento' => $fechafactura
+                );
+
+                $datos2 = array(
+                  'stock' => $saldo,
+                );
+
+                $this->db->where('id_producto', $producto);
+                $this->db->update('existencia', $datos3);
+
+                $this->db->where('id', $producto);
+                $this->db->update('productos', $datos2);
+                }
+            };                      
+            $resp['success'] = true;
+            $resp['saldoext'] = $saldo;
+            echo json_encode($resp);
+    }
+
+
+
     public function cargacaf(){
         $tipo_caf = $this->input->post('tipoCaf');
         $config['upload_path'] = "./facturacion_electronica/caf/"   ;
@@ -341,11 +671,31 @@ class Facturas extends CI_Controller {
         echo json_encode($datos);       
     }
 
+    public function folio_documento_electronico2(){
+
+            $resp = array();
+            $tipo_doc = $this->input->post('tipo_doc');
+            $numero = $this->input->post('numero');
+            $folio = $this->input->post('id_folio');   
+
+            if($folio != 0){
+                  $this->db->where('id', $folio);
+                  $this->db->update('folios_caf',array(
+                  'estado' => 'P',
+                  )); 
+                  $resp['success'] = true;
+            }            
+            echo json_encode($resp);
+    }
 
       public function folio_documento_electronico($tipo_doc){
 
             $tipo_caf = 0;
             $valida="NO";
+            $red="NO";
+            $id_folio=0;
+            $nuevo_folio=0;
+
             $fecha_hoy=date('Y-m-d');
             
             if($tipo_doc == 101){
@@ -374,8 +724,9 @@ class Facturas extends CI_Controller {
               ->limit(1);
             $query = $this->db->get();
             $folios_caf = $query->row();  
-            if(count($folios_caf) > 0){
+            if(count($folios_caf) < 0){
                   $nuevo_folio = $folios_caf->folio;
+                  $red="no";
                   $id_folio = $folios_caf->id;
                   $fecha_venc = $folios_caf->fecha_vencimiento;
                   $fecha_venc = $folios_caf->fecha_vencimiento;
@@ -399,6 +750,7 @@ class Facturas extends CI_Controller {
                         $nuevo_folio = $folios_caf->folio;
                         $id_folio = $folios_caf->id;
                         $fecha_venc = $folios_caf->fecha_vencimiento;
+                        $red="si";
                         if(!$fecha_venc){
                             $fecha_venc=$fecha_hoy;
                         };
@@ -409,9 +761,7 @@ class Facturas extends CI_Controller {
                      $fecha_venc=$fecha_hoy;
                       
                   }
-
             }
-
 
             if($nuevo_folio != 0){
                   $this->db->where('id', $id_folio);
@@ -421,6 +771,8 @@ class Facturas extends CI_Controller {
             }
 
             $resp['folio'] = $nuevo_folio;
+            $resp['idfolio'] = $id_folio;
+            $resp['paso'] = $red;
             $resp['fecha_venc'] = $fecha_venc;
             $resp['valida'] = $valida;
             echo json_encode($resp);
@@ -1719,7 +2071,7 @@ class Facturas extends CI_Controller {
         $opcion = $this->input->get('opcion');
         $nombres = $this->input->get('nombre');
         $bodega = $this->input->get('idbodega');
-        $tipo = 1;
+        $tipo = 101;
         $tipo2 = 2;
         $tipo3 = 19;
         $estado = "";
@@ -1870,7 +2222,8 @@ class Facturas extends CI_Controller {
         $tipo = "101";
 
 
-		$countAll = $this->db->count_all_results("detalle_factura_cliente");
+
+		//$countAll = $this->db->count_all_results("detalle_factura_cliente");
 		$data = array();
 
 		if($nombre){
@@ -1886,24 +2239,21 @@ class Facturas extends CI_Controller {
 
 		 	    $forma = ($row->forma);
 
-		 	    if ($forma==1 or $forma==2){
+		 	    if ($forma==0 or $forma==2){
 
-		 	    	$query = $this->db->query('SELECT acc.*, p.nombre as nombre, p.codigo 
-		 	        as codigo, acc.precio as p_venta, acc.cantidad as stock 
-		   		  	FROM detalle_factura_cliente acc    
-		   		  	left join productos p on (acc.id_producto = p.id)
-					WHERE acc.id_despacho = "'.$nombre.'" and acc.id_notacredito = 0');
-
-		 	    	
-
+                $query = $this->db->query('SELECT acc.*, p.nombre as nombre, p.codigo 
+                as codigo, acc.precio as p_venta, acc.cantidad as stock 
+                FROM detalle_factura_cliente acc    
+                left join productos p on (acc.id_producto = p.id)
+                WHERE acc.id_factura = "'.$nombre.'" and acc.id_notacredito = 0');
 		 	    }else{
 
-		 	    	$query = $this->db->query('SELECT acc.*, p.nombre as nombre, p.codigo 
-		 	        as codigo, acc.precio as p_venta, acc.cantidad as stock 
-		   		  	FROM detalle_factura_cliente acc    
-		   		  	left join productos p on (acc.id_producto = p.id)
-					WHERE acc.id_factura = "'.$nombre.'" and acc.id_notacredito = 0'
-				    );
+                $query = $this->db->query('SELECT acc.*, p.nombre as nombre, p.codigo 
+                as codigo, acc.precios as p_venta, acc.cantidad as stock 
+                FROM detalle_factura_glosa acc    
+                left join productos p on (acc.id_producto = p.id)
+                WHERE acc.id_factura = "'.$nombre.'" '
+                );
 
 		 	        
 		 	    }
@@ -2050,6 +2400,7 @@ class Facturas extends CI_Controller {
         echo json_encode($resp);
 	}
 
+    
 	public function getAlldespachafactura(){
 		
 		$resp = array();
@@ -2376,7 +2727,7 @@ class Facturas extends CI_Controller {
 		}
 
 			
-		if ($tipodocumento != 3){
+		if ($tipodocumento != 105){
 
 
 		/******* CUENTAS CORRIENTES ****/
@@ -2388,7 +2739,7 @@ class Facturas extends CI_Controller {
 
 
 			// VERIFICAR SI CLIENTE YA TIENE CUENTA CORRIENTE
-		 $query = $this->db->query("SELECT co.idcliente, co.id as idcuentacorriente  FROM cuenta_corriente co
+		 $query = $this->db->query("SELECT co.idcliente, co.id as idcuentacorriente,  co.saldo as saldo FROM cuenta_corriente co
 		 							WHERE co.idcuentacontable = '$idcuentacontable' and co.idcliente = '" . $idcliente . "'");
     	 $row = $query->result();
 	
@@ -2402,11 +2753,27 @@ class Facturas extends CI_Controller {
 			$this->db->insert('cuenta_corriente', $cuenta_corriente); 
 			$idcuentacorriente = $this->db->insert_id();
 
+            $sadoctacte = array(
+             'cred_util' => $ftotal
+            );
+            $this->db->where('id', $idcliente);
+
+            $this->db->update('clientes', $sadoctacte);
 
 		}else{
 			$row = $row[0];
+            $saldoctacte=$row->saldo;
 			$query = $this->db->query("UPDATE cuenta_corriente SET saldo = saldo + " . $ftotal . " where id = " .  $row->idcuentacorriente );
 			$idcuentacorriente =  $row->idcuentacorriente;
+
+            $saldoctacte=$saldoctacte + $ftotal;
+
+            $sadoctacte = array(
+             'cred_util' => $ftotal
+            );
+            $this->db->where('id', $idcliente);
+
+            $this->db->update('clientes', $sadoctacte);
 		}
 
 		$detalle_cuenta_corriente = array(
@@ -2419,8 +2786,7 @@ class Facturas extends CI_Controller {
 	        'fecha' => $fechafactura
 		);
 
-		$this->db->insert('detalle_cuenta_corriente', $detalle_cuenta_corriente); 	
-
+		$this->db->insert('detalle_cuenta_corriente', $detalle_cuenta_corriente);
 
 		$cartola_cuenta_corriente = array(
 	        'idctacte' => $idcuentacorriente,
@@ -2461,6 +2827,7 @@ class Facturas extends CI_Controller {
 		$fechavenc = $this->input->post('fechavenc');
 		$vendedor = $this->input->post('vendedor');
 		$ordencompra = $this->input->post('ordencompra');
+    $idtransportista = $this->input->post('idtransportista');
 		$sucursal = $this->input->post('sucursal');
 		$datacliente = json_decode($this->input->post('datacliente'));
 		$items = json_decode($this->input->post('items'));
@@ -2470,373 +2837,341 @@ class Facturas extends CI_Controller {
 		$fafecto = $this->input->post('afectofactura');
 		$ftotal = $this->input->post('totalfacturas');
 		$tipodocumento = $this->input->post('tipodocumento');
-		
-		$data3 = array(
-	         'correlativo' => $numfactura
-	    );
-	    $this->db->where('id', $tipodocumento);
-	  
-	    $this->db->update('correlativos', $data3);
-			
+    $observacion = $this->input->post('observacion');
+    $idobserva = $this->input->post('idobserva');
+
+    if(!$observacion){
+    $observacion="";
+    };
+
+    if($idtransportista){
+    $query = $this->db->query('SELECT * FROM transportistas WHERE id like "'.$idtransportista.'"');
+    if($query->num_rows()>0){
+    $row = $query->first_row();
+    $transportista = ($row->nombre);        
+    };
+    }else{
+    $idtransportista="";
+    $transportista="";
+    };
+    if(!$idobserva){
+      $idobserva="";
+    };		
+    $data3 = array(
+     'correlativo' => $numfactura
+    );
+    $this->db->where('id', $tipodocumento);
+    $this->db->update('correlativos', $data3);
+
 		$factura_cliente = array(
 			'tipo_documento' => $tipodocumento,
 			'id_bodega' => $idbodega,
-	        'id_cliente' => $idcliente,
-	        'num_factura' => $numfactura,
-	        'id_vendedor' => $vendedor,
-	        'id_sucursal' => $sucursal,
-	        'id_cond_venta' => $formadepago,
-	        'sub_total' => $neto,
-	        'descuento' => ($neto - $fafecto),
-	        'neto' => $neto,
-	        'iva' => $fiva,
-	        'totalfactura' => $ftotal,
-	        'fecha_factura' => $fechafactura,
-	        'fecha_venc' => $fechavenc,
-	        'orden_compra' => $ordencompra
-	          
+      'id_cliente' => $idcliente,
+      'num_factura' => $numfactura,
+      'id_vendedor' => $vendedor,
+      'id_sucursal' => $sucursal,
+      'id_cond_venta' => $formadepago,
+      'sub_total' => $neto,
+      'descuento' => ($neto - $fafecto),
+      'neto' => $neto,
+      'iva' => $fiva,
+      'totalfactura' => $ftotal,
+      'fecha_factura' => $fechafactura,
+      'fecha_venc' => $fechavenc,
+      'orden_compra' => $ordencompra,
+      'id_observa' => $idobserva,
+      'observacion' => $observacion	          
 		);
-
 		$this->db->insert('factura_clientes', $factura_cliente); 
 		$idfactura = $this->db->insert_id();
 
+    $data8 = array(
+     'id_documento' => $idfactura
+    );
+    $this->db->where('id', $idobserva);
+
+    $this->db->update('observacion_facturas', $data8);
+
 		foreach($items as $v){
-			$factura_clientes_item = array(
-		        'id_producto' => $v->id_producto,
-		        'id_factura' => $idfactura,
-		        'num_factura' => $numfactura,
-		        'precio' => $v->precio,
-		        'p_promedio' => $v->p_promedio,
-		        'cantidad' => $v->cantidad,
-		        'neto' => ($v->total - $v->iva),
-		        'descuento' => $v->dcto,
-		        'iva' => $v->iva,
-		        'totalproducto' => $v->total,
-		        'fecha' => $fechafactura
-			);
 
+    if (!$v->fecha_vencimiento){
+      $v->fecha_vencimiento="0000-00-00";
+    };
+    $factura_clientes_item = array(
+      'id_producto' => $v->id_producto,
+      'nombre' => strtoupper($v->nombre),
+      'id_existencia' => $v->id_existencia,
+      'id_factura' => $idfactura,
+      'num_factura' => $numfactura,
+      'precio' => $v->precio,
+      'cantidad' => $v->cantidad,
+      'neto' => ($v->total - $v->iva),
+      'descuento' => $v->dcto,
+      'iva' => $v->iva,
+      'totalproducto' => $v->total,
+      'fecha' => $fechafactura,
+      'fecha_vencimiento' => $v->fecha_vencimiento,
+      'lote' => $v->lote,
+    );
 		$producto = $v->id_producto;
-
-		$this->db->insert('detalle_factura_cliente', $factura_clientes_item);
-		
+		$this->db->insert('detalle_factura_cliente', $factura_clientes_item);		
 		$query = $this->db->query('SELECT * FROM productos WHERE id="'.$producto.'"');
-		 if($query->num_rows()>0){
-		 	$row = $query->first_row();
-		 	$saldo = ($row->stock)-($v->cantidad);
-		 };
-
-		 $query = $this->db->query('SELECT * FROM existencia WHERE id_producto='.$producto.' and id_bodega='.$idbodega.'');
-    	       $row = $query->result();
-			if ($query->num_rows()>0){
-				$row = $row[0];	 
-		        if ($producto==($row->id_producto)){
-                      $saldo = ($row->stock)-($v->cantidad);
-		          $datos3 = array(
-				'stock' => $saldo,
-			      'fecha_ultimo_movimiento' => $fechafactura
-			    );
-
-			    $this->db->where('id_producto', $producto);
-		    	    $this->db->update('existencia', $datos3);
-	    	    }else{
-                        $saldo = $v->cantidad;
-                        $datos3 = array(
-                        'id_producto' => $producto,
-                        'stock' =>  $saldo,
-                        'fecha_ultimo_movimiento' =>$fechafactura,
-                        'id_bodega' => $idbodega				
-                        );
-                        $this->db->insert('existencia', $datos3);
-                  }
-			}else{
-    	    	$datos3 = array(
-				'id_producto' => $producto,
-		        'stock' =>  $saldo,
-		        'fecha_ultimo_movimiento' =>$fechafactura,
-		        'id_bodega' => $idbodega			
-				);
-				$this->db->insert('existencia', $datos3);
-		    }
-
-            $queryt = $this->db->query('SELECT * FROM existencia_detalle WHERE id_producto='.$v->id.' and id_bodega='.$idbodega.'');
-             $row = $queryt->result();
-             if ($queryt->num_rows()>0){
-                $row = $row[0];
-                $saldoext=($row->saldo - $v->cantidad);                 
-                $datos5 = array(
-                    'saldo' => $saldoext
-                );   
-                $this->db->where('id', $v->id);
-                $this->db->update('existencia_detalle', $datos5);   
-            };
-
-		    $datos2 = array(
-				'num_movimiento' => $numfactura,
-		        'id_producto' => $v->id_producto,
-		        'id_tipo_movimiento' => $tipodocumento,
-		        'valor_producto' =>  $v->precio,
-		        'cantidad_salida' => $v->cantidad,
-		        'fecha_movimiento' => $fechafactura,
-                'fecha_vencimiento' => $v->fecha_vencimiento,
-                'lote' => $v->lote,
-		        'id_bodega' => $idbodega,
-		        'id_cliente' => $idcliente,
-		        'p_promedio' => $v->p_promedio
+    if($query->num_rows()>0){
+    	$row = $query->first_row();
+    	$saldo = ($row->stock)-($v->cantidad);
+    }; 
+		$datos2 = array(
+      'num_movimiento' => $numfactura,
+      'id_producto' => $v->id_producto,
+      'id_tipo_movimiento' => $tipodocumento,
+      'valor_producto' =>  $v->precio,
+      'cantidad_salida' => $v->cantidad,
+      'fecha_movimiento' => $fechafactura,
+      'fecha_vencimiento' => $v->fecha_vencimiento,
+      'lote' => $v->lote,
+      'id_bodega' => $idbodega,
+      'id_cliente' => $idcliente,
+      'p_promedio' => $v->p_promedio,
+      'id_transportista' => $idtransportista,
+      'transportista' => $transportista
 		);
-
 		$this->db->insert('existencia_detalle', $datos2);
-
-		$datos = array(
-         'stock' => $saldo,
-    	);
-
-    	$this->db->where('id', $producto);
-
-    	$this->db->update('productos', $datos);
-
-
-
-		}
-
-			
-		if ($tipodocumento != 3){
-
-
-		/******* CUENTAS CORRIENTES ****/
-
+		};	
+    		
+		if ($tipodocumento != 105){		/******* CUENTAS CORRIENTES ****/
 		 $query = $this->db->query("SELECT cc.id as idcuentacontable FROM cuenta_contable cc WHERE cc.nombre = 'FACTURAS POR COBRAR'");
 		 $row = $query->result();
 		 $row = $row[0];
-		 $idcuentacontable = $row->idcuentacontable;	
-
-
+		 $idcuentacontable = $row->idcuentacontable;
 			// VERIFICAR SI CLIENTE YA TIENE CUENTA CORRIENTE
-		 $query = $this->db->query("SELECT co.idcliente, co.id as idcuentacorriente  FROM cuenta_corriente co
-		 							WHERE co.idcuentacontable = '$idcuentacontable' and co.idcliente = '" . $idcliente . "'");
-    	 $row = $query->result();
-	
-		if ($query->num_rows()==0){	
-			$cuenta_corriente = array(
-		        'idcliente' => $idcliente,
-		        'idcuentacontable' => $idcuentacontable,
-		        'saldo' => $ftotal,
-		        'fechaactualiza' => $fechafactura
-			);
-			$this->db->insert('cuenta_corriente', $cuenta_corriente); 
-			$idcuentacorriente = $this->db->insert_id();
+      $query = $this->db->query("SELECT co.idcliente, co.id as idcuentacorriente, co.saldo as saldo FROM cuenta_corriente co
+      WHERE co.idcuentacontable = '$idcuentacontable' and co.idcliente = '" . $idcliente . "'");
 
-
-		}else{
+      $row = $query->result();	
+      if ($query->num_rows()==0){	
+      	$cuenta_corriente = array(
+              'idcliente' => $idcliente,
+              'idcuentacontable' => $idcuentacontable,
+              'saldo' => $ftotal,
+              'fechaactualiza' => $fechafactura
+      	);
+      	$this->db->insert('cuenta_corriente', $cuenta_corriente); 
+      	$idcuentacorriente = $this->db->insert_id();
+              $sadoctacte = array(
+               'cred_util' => $ftotal
+              );
+              $this->db->where('id', $idcliente);
+              $this->db->update('clientes', $sadoctacte);
+      }else{
 			$row = $row[0];
+      $saldoctacte=$row->saldo;
 			$query = $this->db->query("UPDATE cuenta_corriente SET saldo = saldo + " . $ftotal . " where id = " .  $row->idcuentacorriente );
 			$idcuentacorriente =  $row->idcuentacorriente;
-		}
+      $saldoctacte=$saldoctacte + $ftotal;
+      $sadoctacte = array(
+       'cred_util' => $saldoctacte
+      );
+      $this->db->where('id', $idcliente);
+      $this->db->update('clientes', $sadoctacte);
 
-		$detalle_cuenta_corriente = array(
-	        'idctacte' => $idcuentacorriente,
-	        'tipodocumento' => $tipodocumento,
-	        'numdocumento' => $numfactura,
-	        'saldoinicial' => $ftotal,
-	        'saldo' => $ftotal,
-	        'fechavencimiento' => $fechavenc,
-	        'fecha' => $fechafactura
-		);
+  		};
 
-		$this->db->insert('detalle_cuenta_corriente', $detalle_cuenta_corriente); 	
+      $detalle_cuenta_corriente = array(
+        'idctacte' => $idcuentacorriente,
+        'tipodocumento' => $tipodocumento,
+        'numdocumento' => $numfactura,
+        'saldoinicial' => $ftotal,
+        'saldo' => $ftotal,
+        'fechavencimiento' => $fechavenc,
+        'fecha' => $fechafactura
+      );
+      $this->db->insert('detalle_cuenta_corriente', $detalle_cuenta_corriente);
+      $cartola_cuenta_corriente = array(
+        'idctacte' => $idcuentacorriente,
+        'idcuenta' => $idcuentacontable,
+        'tipodocumento' => $tipodocumento,
+        'numdocumento' => $numfactura,
+        'glosa' => 'Registro de Factura en Cuenta Corriente',
+        'fecvencimiento' => $fechavenc,
+        'valor' => $ftotal,
+        'origen' => 'VENTA',
+        'fecha' => $fechafactura
+      );
 
+      $this->db->insert('cartola_cuenta_corriente', $cartola_cuenta_corriente); 	 
 
-		$cartola_cuenta_corriente = array(
-	        'idctacte' => $idcuentacorriente,
-	        'idcuenta' => $idcuentacontable,
-	        'tipodocumento' => $tipodocumento,
-	        'numdocumento' => $numfactura,
-	        'glosa' => 'Registro de Factura en Cuenta Corriente',
-	        'fecvencimiento' => $fechavenc,
-	        'valor' => $ftotal,
-	        'origen' => 'VENTA',
-	        'fecha' => $fechafactura
-		);
+      }
 
-		$this->db->insert('cartola_cuenta_corriente', $cartola_cuenta_corriente); 			
+      /*****************************************/
+           
+           
 
-		/*****************************************/
+        if($tipodocumento == 101 || $tipodocumento == 103 || $tipodocumento == 105){  // SI ES FACTURA ELECTRONICA O FACTURA EXENTA ELECTRONICA
 
-        if($tipodocumento == 101 || $tipodocumento == 103 || $tipodocumento == 105 || $tipodocumento == 107){  // SI ES FACTURA ELECTRONICA O FACTURA EXENTA ELECTRONICA
+                  if($tipodocumento == 101){
+                      $tipo_caf = 33;
+                  }else if($tipodocumento == 103){
+                      $tipo_caf = 34;
+                  }else if($tipodocumento == 105){
+                      $tipo_caf = 52;
+                  } 
 
-
-            if($tipodocumento == 101){
-                $tipo_caf = 33;
-            }else if($tipodocumento == 103){
-                $tipo_caf = 34;
-            }else if($tipodocumento == 105){
-                $tipo_caf = 52;
-            }else if($tipodocumento == 107){
-                $tipo_caf = 46;
-            }
-
-
-            //$tipo_caf = $tipodocumento == 101 ? 33 : 34;
-
-            header('Content-type: text/plain; charset=ISO-8859-1');
-            $this->load->model('facturaelectronica');
-            $config = $this->facturaelectronica->genera_config();
-            include $this->facturaelectronica->ruta_libredte();
-
-
-            $empresa = $this->facturaelectronica->get_empresa();
-            $datos_empresa_factura = $this->facturaelectronica->get_empresa_factura($idfactura);
-
-            $detalle_factura = $this->facturaelectronica->get_detalle_factura($idfactura);
-            $datos_factura = $this->facturaelectronica->get_factura($idfactura);
-
-            $referencia = array();
-            $NroLinRef = 1;
-            if($ordencompra != ""){
-                $referencia[($NroLinRef-1)]['NroLinRef'] = $NroLinRef;
-                //$referencia['TpoDocRef'] = $datos_empresa_factura->tipodocref;
-                $referencia[($NroLinRef-1)]['TpoDocRef'] = 801;
-                $referencia[($NroLinRef-1)]['FolioRef'] = $ordencompra;
-                $referencia[($NroLinRef-1)]['FchRef'] = substr($fechafactura,0,10);
-                $NroLinRef++;
-            }
+                  header('Content-type: text/plain; charset=ISO-8859-1');
+                  $this->load->model('facturaelectronica');
+                  $config = $this->facturaelectronica->genera_config();
+                  include $this->facturaelectronica->ruta_libredte();
 
 
-            $lista_detalle = array();
-            $i = 0;
-            foreach ($detalle_factura as $detalle) {
-                $lista_detalle[$i]['NmbItem'] = $detalle->nombre;
-                $lista_detalle[$i]['QtyItem'] = $detalle->cantidad;
-                $lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 || $tipo_caf == 52 || $tipo_caf == 46 ? round($detalle->neto/$detalle->cantidad,2) : round($detalle->precio,2);
-                if($tipo_caf == 33 || $tipo_caf == 46){
-                   $lista_detalle[$i]['MontoItem'] = $detalle->neto;
-                }
-               
-                $i++;
-            }
+                  $empresa = $this->facturaelectronica->get_empresa();
+                  $datos_empresa_factura = $this->facturaelectronica->get_empresa_factura($idfactura);
 
-            $rutCliente = substr($datos_empresa_factura->rut_cliente,0,strlen($datos_empresa_factura->rut_cliente) - 1)."-".substr($datos_empresa_factura->rut_cliente,-1);
+                  $detalle_factura = $this->facturaelectronica->get_detalle_factura($idfactura);
+                  $datos_factura = $this->facturaelectronica->get_factura($idfactura);
 
-            $dir_cliente = is_null($datos_empresa_factura->dir_sucursal) ? permite_alfanumerico($datos_empresa_factura->direccion) : permite_alfanumerico($datos_empresa_factura->dir_sucursal);
+                  $referencia = array();
+                  $NroLinRef = 1;
+                  if($ordencompra != ""){
+                        $referencia[($NroLinRef-1)]['NroLinRef'] = $NroLinRef;
+                        //$referencia['TpoDocRef'] = $datos_empresa_factura->tipodocref;
+                        $referencia[($NroLinRef-1)]['TpoDocRef'] = 801;
+                        $referencia[($NroLinRef-1)]['FolioRef'] = $ordencompra;
+                        $referencia[($NroLinRef-1)]['FchRef'] = substr($fechafactura,0,10);
+                        $NroLinRef++;
+                  }
+                  
 
+                  $lista_detalle = array();
+                  $i = 0;
+                  foreach ($detalle_factura as $detalle) {
+                        $lista_detalle[$i]['NmbItem'] = $detalle->nombre."  ".substr($detalle->fecha_vencimiento,8,2)."/".substr($detalle->fecha_vencimiento,5,2)."/".substr($detalle->fecha_vencimiento,0,4);
+                        $lista_detalle[$i]['QtyItem'] = $detalle->cantidad;
+                        $lista_detalle[$i]['CdgItem'] = $detalle->codigo;
+                        $lista_detalle[$i]['UnmdItem'] = $detalle->lote;
+                        //$lista_detalle[$i]['PrcItem'] = $detalle->precio;
+                        //$lista_detalle[$i]['PrcItem'] = round((($detalle->precio*$detalle->cantidad)/1.19)/$detalle->cantidad,0);
+                        //$total = $detalle->precio*$detalle->cantidad;
+                        //$neto = round($total/1.19,2);
 
-            // datos
-            $factura = [
-                'Encabezado' => [
-                    'IdDoc' => [
-                        'TipoDTE' => $tipo_caf,
-                        'Folio' => $numfactura,
-                        'FchEmis' => substr($fechafactura,0,10)
-                    ],
-                    'Emisor' => [
-                        'RUTEmisor' => $empresa->rut.'-'.$empresa->dv,
-                        'RznSoc' => substr($empresa->razon_social,0,100), //LARGO DE RAZON SOCIAL NO PUEDE SER SUPERIOR A 100 CARACTERES
-                        'GiroEmis' => substr($empresa->giro,0,80), //LARGO DE GIRO DEL EMISOR NO PUEDE SER SUPERIOR A 80 CARACTERES
-                        'Acteco' => $empresa->cod_actividad,
-                        'DirOrigen' => substr($empresa->dir_origen,0,70), //LARGO DE DIRECCION DE ORIGEN NO PUEDE SER SUPERIOR A 70 CARACTERES
-                        'CmnaOrigen' => substr($empresa->comuna_origen,0,20), //LARGO DE COMUNA DE ORIGEN NO PUEDE SER SUPERIOR A 20 CARACTERES
-                    ],
-                    'Receptor' => [
-                        'RUTRecep' =>  $rutCliente,
-                        'RznSocRecep' => substr(permite_alfanumerico($datos_empresa_factura->nombre_cliente),0,100), //LARGO DE RAZON SOCIAL NO PUEDE SER SUPERIOR A 100 CARACTERES
-                        'GiroRecep' => substr(permite_alfanumerico($datos_empresa_factura->giro),0,35),  //LARGO DEL GIRO NO PUEDE SER SUPERIOR A 40 CARACTERES
-                        'DirRecep' => substr($dir_cliente,0,70), //LARGO DE DIRECCION NO PUEDE SER SUPERIOR A 70 CARACTERES
-                        'CmnaRecep' => substr($datos_empresa_factura->nombre_comuna,0,20), //LARGO DE COMUNA NO PUEDE SER SUPERIOR A 20 CARACTERES
-                    ],
-                    'Totales' => [
-                        // estos valores serán calculados automáticamente
-                        'MntNeto' => isset($datos_factura->neto) ? $datos_factura->neto : 0,
-                        'TasaIVA' => \sasco\LibreDTE\Sii::getIVA(),
-                        'IVA' => isset($datos_factura->iva) ? $datos_factura->iva : 0,
-                        'MntTotal' => isset($datos_factura->totalfactura) ? $datos_factura->totalfactura : 0,
-                    ],                      
-                ],
-                'Detalle' => $lista_detalle,
-                'Referencia' => $referencia
-            ];
+                        //$lista_detalle[$i]['PrcItem'] = round($neto/$detalle->cantidad,2);
+                        $lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 || $tipo_caf == 52 ? floor($detalle->neto) : floor($detalle->total);
 
-            //var_dump($factura); exit;
-
-            //FchResol y NroResol deben cambiar con los datos reales de producción
-            $caratula = [
-                //'RutEnvia' => '11222333-4', // se obtiene de la firma
-                'RutReceptor' => '60803000-K',
-                'FchResol' => $empresa->fec_resolucion,
-                'NroResol' => $empresa->nro_resolucion
-            ];      
-
-            //FchResol y NroResol deben cambiar con los datos reales de producción
-            $caratula_cliente = [
-                //'RutEnvia' => '11222333-4', // se obtiene de la firma
-                'RutReceptor' => $rutCliente,
-                'FchResol' => $empresa->fec_resolucion,
-                'NroResol' => $empresa->nro_resolucion
-            ];
-
-            //exit;
-            // Objetos de Firma y Folios
-            $Firma = new sasco\LibreDTE\FirmaElectronica($config['firma']); //lectura de certificado digital        
-            $caf = $this->facturaelectronica->get_content_caf_folio($numfactura,$tipo_caf);
-            $Folios = new sasco\LibreDTE\Sii\Folios($caf->caf_content);
-
-            $DTE = new \sasco\LibreDTE\Sii\Dte($factura);
-
-            $DTE->timbrar($Folios);
-            $DTE->firmar($Firma);       
+                        $i++;
+                  }
 
 
-            // generar sobre con el envío del DTE y enviar al SII
-            $EnvioDTE = new \sasco\LibreDTE\Sii\EnvioDte();
+                  // datos
+                  $factura = [
+                      'Encabezado' => [
+                          'IdDoc' => [
+                              'TipoDTE' => $tipo_caf,
+                              'Folio' => $numfactura,
+                              'FchEmis' => substr($fechafactura,0,10)
+                          ],
+                          'Emisor' => [
+                              'RUTEmisor' => $empresa->rut.'-'.$empresa->dv,
+                              'RznSoc' => substr($empresa->razon_social,0,100), //LARGO DE RAZON SOCIAL NO PUEDE SER SUPERIOR A 100 CARACTERES,
+                              'GiroEmis' => substr($empresa->giro,0,80), //LARGO DE GIRO DEL EMISOR NO PUEDE SER SUPERIOR A 80 CARACTERES
+                              'Acteco' => $empresa->cod_actividad,
+                              'DirOrigen' => substr($empresa->dir_origen,0,70), //LARGO DE DIRECCION DE ORIGEN NO PUEDE SER SUPERIOR A 70 CARACTERES
+                              'CmnaOrigen' => substr($empresa->comuna_origen,0,20), //LARGO DE COMUNA DE ORIGEN NO PUEDE SER SUPERIOR A 20 CARACTERES
+                          ],
+                          'Receptor' => [
+                              'RUTRecep' => substr($datos_empresa_factura->rut_cliente,0,strlen($datos_empresa_factura->rut_cliente) - 1)."-".substr($datos_empresa_factura->rut_cliente,-1),
+                              'RznSocRecep' => substr($datos_empresa_factura->nombre_cliente,0,100), //LARGO DE RAZON SOCIAL NO PUEDE SER SUPERIOR A 100 CARACTERES
+                              'GiroRecep' => substr($datos_empresa_factura->giro,0,40),  //LARGO DEL GIRO NO PUEDE SER SUPERIOR A 40 CARACTERES
+                              'DirRecep' => substr($datos_empresa_factura->direccion,0,70), //LARGO DE DIRECCION NO PUEDE SER SUPERIOR A 70 CARACTERES
+                              'CmnaRecep' => substr($datos_empresa_factura->nombre_comuna,0,20), //LARGO DE COMUNA NO PUEDE SER SUPERIOR A 20 CARACTERES
+                          ],
+                        'Totales' => [
+                            // estos valores serán calculados automáticamente
+                            'MntNeto' => isset($datos_factura->neto) ? $datos_factura->neto : 0,
+                            'TasaIVA' => \sasco\LibreDTE\Sii::getIVA(),
+                            'IVA' => isset($datos_factura->iva) ? $datos_factura->iva : 0,
+                            'MntTotal' => isset($datos_factura->totalfactura) ? $datos_factura->totalfactura : 0,
+                        ],                        
+                      ],
+                        'Detalle' => $lista_detalle,
+                        'Referencia' => $referencia
+                  ];
 
-            $EnvioDTE->agregar($DTE);
-            $EnvioDTE->setFirma($Firma);
-            $EnvioDTE->setCaratula($caratula);
-            $EnvioDTE->generar();
+                  //FchResol y NroResol deben cambiar con los datos reales de producción
+                  $caratula = [
+                      //'RutEnvia' => '11222333-4', // se obtiene de la firma
+                      'RutReceptor' => '60803000-K',
+                      'FchResol' => $empresa->fec_resolucion,
+                      'NroResol' => $empresa->nro_resolucion
+                  ];
 
-            if ($EnvioDTE->schemaValidate()) { // REVISAR PORQUÉ SE CAE CON ESTA VALIDACION
-                
-                $track_id = 0;
-                $xml_dte = $EnvioDTE->generar();
+                  
+                  //exit;
+                  // Objetos de Firma y Folios
+                  $Firma = new sasco\LibreDTE\FirmaElectronica($config['firma']); //lectura de certificado digital            
 
-                #GENERACIÓN DTE CLIENTE
-                $EnvioDTE_CLI = new \sasco\LibreDTE\Sii\EnvioDte();
-                $EnvioDTE_CLI->agregar($DTE);
-                $EnvioDTE_CLI->setFirma($Firma);
-                $EnvioDTE_CLI->setCaratula($caratula_cliente);
-                $xml_dte_cliente = $EnvioDTE_CLI->generar();
+                  $caf = $this->facturaelectronica->get_content_caf_folio($numfactura,$tipo_caf);
+                  $Folios = new sasco\LibreDTE\Sii\Folios($caf->caf_content);
 
+                  $DTE = new \sasco\LibreDTE\Sii\Dte($factura);
 
-                $tipo_envio = $this->facturaelectronica->busca_parametro_fe('envio_sii'); //ver si está configurado para envío manual o automático
-
-                $dte = $this->facturaelectronica->crea_archivo_dte($xml_dte,$idfactura,$tipo_caf,'sii');
-                $dte_cliente = $this->facturaelectronica->crea_archivo_dte($xml_dte_cliente,$idfactura,$tipo_caf,'cliente');
+                  $DTE->timbrar($Folios);
+                  $DTE->firmar($Firma);         
 
 
-                if($tipo_envio == 'automatico'){
-                    $track_id = $EnvioDTE->enviar();
-                }
-
-                $this->db->where('f.folio', $numfactura);
-                $this->db->where('c.tipo_caf', $tipo_caf);
-                $this->db->update('folios_caf f inner join caf c on f.idcaf = c.id',array('dte' => $dte['xml_dte'],
-                                                                                          'dte_cliente' => $dte_cliente['xml_dte'],
-                                                                                          'estado' => 'O',
-                                                                                          'idfactura' => $idfactura,
-                                                                                          'path_dte' => $dte['path'],
-                                                                                          'archivo_dte' => $dte['nombre_dte'],
-                                                                                          'archivo_dte_cliente' => $dte_cliente['nombre_dte'],
-                                                                                          'trackid' => $track_id
-                                                                                          )); 
-
-                //echo $this->db->last_query();
-                if($track_id != 0 && $datos_empresa_factura->e_mail != ''){ //existe track id, se envía correo
-                    $this->facturaelectronica->envio_mail_dte($idfactura);
-                }
-
-            }
+                  // generar sobre con el envío del DTE y enviar al SII
+                  $EnvioDTE = new \sasco\LibreDTE\Sii\EnvioDte();
+                  $EnvioDTE->agregar($DTE);
+                  $EnvioDTE->setFirma($Firma);
+                  $EnvioDTE->setCaratula($caratula);
+                  $xml_dte = $EnvioDTE->generar();
+                  
+                  if ($EnvioDTE->schemaValidate()) { // REVISAR PORQUÉ SE CAE CON ESTA VALIDACION
+                        
+                        $track_id = 0;
+                      $xml_dte = $EnvioDTE->generar();
+                      //$track_id = $EnvioDTE->enviar();
+                      $tipo_envio = $this->facturaelectronica->busca_parametro_fe('envio_sii'); //ver si está configurado para envío manual o automático
 
 
-        }
-    }
+                        $nombre_dte = $numfactura."_". $tipo_caf ."_".$idfactura."_".date("His").".xml"; // nombre archivo
+                        $path = date('Ym').'/'; // ruta guardado
+                        if(!file_exists('./facturacion_electronica/dte/'.$path)){
+                              mkdir('./facturacion_electronica/dte/'.$path,0777,true);
+                        }                       
+                        $f_archivo = fopen('./facturacion_electronica/dte/'.$path.$nombre_dte,'w');
+                        fwrite($f_archivo,$xml_dte);
+                        fclose($f_archivo);
+
+                      if($tipo_envio == 'automatico'){
+                            $track_id = $EnvioDTE->enviar();
+                      }
+
+
+
+                      $this->db->where('f.folio', $numfactura);
+                      $this->db->where('c.tipo_caf', $tipo_caf);
+                        $this->db->update('folios_caf f inner join caf c on f.idcaf = c.id',array('dte' => $xml_dte,
+                                                                                                                                      'estado' => 'O',
+                                                                                                                                      'idfactura' => $idfactura,
+                                                                                                                                      'path_dte' => $path,
+                                                                                                                                      'archivo_dte' => $nombre_dte,
+                                                                                                                                      'trackid' => $track_id
+                                                                                                                                      )); 
+                        if($track_id != 0 && $datos_empresa_factura->e_mail != ''){ //existe track id, se envía correo
+                              $this->facturaelectronica->envio_mail_dte($idfactura);
+                        }
+
+
+
+
+                  }
+
+                  /***********************************************/
+
+
+            } 
+           
+      //$this->ver_dte->($idfactura,"sii"); 
+
+    
         
 		$resp['success'] = true;
 		$resp['idfactura'] = $idfactura;
@@ -2859,8 +3194,8 @@ class Facturas extends CI_Controller {
         header("Content-Transfer-Encoding: binary");
         header("Content-disposition: attachment; filename=facturacion.txt");*/
 
-        $file_content = "";         
-        $data = array();
+      $file_content = "";         
+      $data = array();
 			$query = $this->db->query('SELECT acc.*, c.direccion as direccion, e.nombre as giro, c.nombres as nombre_cliente, c.rut as rut_cliente, m.nombre as nombre_comuna, s.nombre as nombre_ciudad, v.nombre as nom_vendedor, ob.nombre as nom_observ, ob.rut as rut_obs, ob.pat_camion as patente, ob.pat_carro as carro, c.fono, cp.nombre as cond_pago, cp.codigo as codigo_con_pago, cs.direccion as direc_sucursal, sa.nombre as ciu_sucursal, cor.nombre as nomdocumento, ma.nombre as com_sucursal, v.cod_interno as cod_interno FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join cod_activ_econ e on (c.id_giro = e.id)
@@ -6400,7 +6735,7 @@ class Facturas extends CI_Controller {
 
         $idfactura = $this->input->get('idfactura');
         $numero = $this->input->get('numfactura');
-
+       
         $this->load->model('facturaelectronica');
         $datos_factura = $this->facturaelectronica->get_factura($idfactura);
 
@@ -6443,6 +6778,7 @@ class Facturas extends CI_Controller {
         $this->load->model('facturaelectronica');
         $dte = $this->facturaelectronica->datos_dte($idfactura);
 
+       
         if(empty($dte)){
             $dte = $this->facturaelectronica->crea_dte($idfactura);
         }else{
@@ -6450,8 +6786,7 @@ class Facturas extends CI_Controller {
             if($dte->{$ruta} == ''){
                 $dte = $this->facturaelectronica->crea_dte($idfactura,$tipo);
             }
-        }
-
+        }       
 
         $nombre_archivo = $tipo == 'cliente' ? $dte->archivo_dte_cliente : $dte->archivo_dte;
         $path_archivo = "./facturacion_electronica/" . $ruta . "/".$dte->path_dte;

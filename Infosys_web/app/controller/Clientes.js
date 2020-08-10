@@ -8,8 +8,15 @@ Ext.define('Infosys_web.controller.Clientes', {
             'Sucursales_clientes',
             'clientes.Clientes',
             'clientes.Selector',
+            'clientes.Selector1',
+            'clientes.Selector2',
+            'clientes.Selector6',
+            'clientes.Selector7',
+            'clientes.Selector4',
             'Contacto_clientes',
-            'clientes.Activo'
+            'clientes.Activo',
+            'clientes.Credito',
+            'clientes.Tipo_cliente',
              ],
 
     models: ['Cliente',
@@ -21,12 +28,16 @@ Ext.define('Infosys_web.controller.Clientes', {
             'clientes.Ingresar',
             'clientes.Desplegar',
             'clientes.Validar',
+            'clientes.SubirConvenio',
+            'clientes.Acuerdo',
+            'clientes.Acuerdo2',
             'clientes.Eliminar',
             'clientes.Desplieguesucursales',
             'clientes.IngresarSucursales',
             'clientes.Desplieguecontactos',
             'clientes.IngresarContactos',
-            'clientes.Autoriza'],
+            'clientes.Autoriza',
+            'clientes.Exportar'],
 
     //referencias, es un alias interno para el controller
     //podemos dejar el alias de la vista en el ref y en el selector
@@ -74,6 +85,18 @@ Ext.define('Infosys_web.controller.Clientes', {
     },{
         ref: 'topmenus',
         selector: 'topmenus'
+    },{
+        ref: 'exportarseguro',
+        selector: 'exportarseguro'
+    },{
+        ref: 'subirConvenio',
+        selector: 'subirConvenio'
+    },{
+        ref: 'acuerdodepagoclientes',
+        selector: 'acuerdodepagoclientes'
+    },{
+        ref: 'acuerdodepagoconcretado',
+        selector: 'acuerdodepagoconcretado'
     }
 
 
@@ -152,8 +175,258 @@ Ext.define('Infosys_web.controller.Clientes', {
             },
             'autorizacionclientes button[action=autorizaclientes]': {
                 click: this.autorizaclientes
-            }, 
+            },
+            'exportarseguro button[action=exportarformularioseguros]': {
+                click: this.exportarformularioseguros
+            },
+            'clientesprincipal button[action=exportarexcelseguros]': {
+                click: this.exportarexcelseguros
+            },
+            'clientesdesplegar button[action=subirconvenio]': {
+                click: this.subirconvenio
+            },
+            'subirConvenio button[action=Subironvenio2]': {
+                click: this.Subironvenio2
+            },
+            'clientesprincipal button[action=acuerdodepago]': {
+                click: this.acuerdodepago
+            },
+            'acuerdodepagoclientes button[action=generaacuerdopdf]': {
+                click: this.generaacuerdopdf
+            },  
+            'acuerdodepagoconcretado button[action=generarpdf]': {
+                click: this.generarpdf
+            },  
         });
+    },
+
+    generarpdf : function() {
+
+        var view = this.getAcuerdodepagoconcretado();
+        var tiposelec = view.down('#tipoSeleccionAId').getValue();
+        var id = view.down('#id_cliente').getValue();
+        if (!tiposelec){
+             Ext.Msg.alert('Debe Selecionar el Tipo de Acuerdo');
+            return;
+            
+        };
+        if (tiposelec==1){
+
+            Ext.Ajax.request({
+                url: preurl + 'formularioconvenio/valida2',
+                params: {
+                id: id,
+                tipo: tiposelec
+                },
+                success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                if (resp.success == false) {
+                    view.close();
+                    Ext.Msg.alert('Documento no Disponible');
+                    return;
+                }else{
+                  window.open(preurl + 'formularioconvenio/compromisopdf1/?id='+id);  
+           
+                }
+                }
+            });
+
+            
+        };
+        if (tiposelec==2){
+
+            Ext.Ajax.request({
+                url: preurl + 'formularioconvenio/valida2',
+                params: {
+                    id: id,
+                    tipo: tiposelec
+                },
+                success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                if (resp.success == false) {
+                    view.close();
+                    Ext.Msg.alert('Documento no Disponible');
+                    return;
+                }else{
+                   window.open(preurl + 'formularioconvenio/compromisopdf4/?id='+id);  
+            
+                }
+                }
+            });           
+        };
+        if (tiposelec==3){
+
+              Ext.Ajax.request({
+                url: preurl + 'formularioconvenio/valida2',
+                params: {
+
+                id: id,
+                tipo: tiposelec
+
+                },
+                success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                if (resp.success == false) {
+                    view.close();
+                    Ext.Msg.alert('Documento no Disponible');
+                    return;
+                }else{
+                   window.open(preurl + 'formularioconvenio/compromisopdf3/?id='+id);  
+            
+                }
+                }
+            });
+        };        
+
+        view.close();
+        
+    },
+
+    generaacuerdopdf : function() {
+
+        var view = this.getAcuerdodepagoclientes();
+        var giro = view.down('#giroId').getValue();
+        var rut1 = view.down('#rutId').getValue();
+        var ciudad = view.down('#tipoSeleccionId').getValue();
+        var fecha = view.down('#fechaId').getSubmitValue();  
+        var represent1 = view.down('#prepresentaId').getValue();
+        var rut2 = view.down('#rut2Id').getValue();
+        var represent2 = view.down('#representante2Id').getValue();
+        var id = view.down('#idId').getValue();
+        var correo = view.down('#correoId').getValue();
+        var opcion = view.down('#tipoSeleccion2Id').getValue();
+        if (!opcion){
+             Ext.Msg.alert('Debe Selecionar Tipo de Acuerdo');
+            return;   
+            
+        }
+        if (!ciudad){
+             Ext.Msg.alert('Debe Selecionar Ciudad Donde se Firma el Acuerdo');
+            return;   
+            
+        }
+        if (opcion=="Persona Natural"){
+             window.open(preurl + 'formularioconvenio/compromisopdf/?giro='+giro+'&rut1='+rut1+'&rut2='+rut2+'&id='+id+'&represent1='+represent1+'&represent2='+represent2+'&correo='+correo+'&fecha='+fecha+'&ciudad='+ciudad);
+        }else{
+             if (!represent1){
+                 Ext.Msg.alert('Debe Selecionar Al menos un representante Legal');
+              return;}
+              if (!rut1){
+                 Ext.Msg.alert('Debe Ingresar Rut De Representante Legal');
+              return;}
+
+            window.open(preurl + 'formularioconvenio/compromisopdf2/?giro='+giro+'&rut1='+rut1+'&rut2='+rut2+'&id='+id+'&represent1='+represent1+'&represent2='+represent2+'&correo='+correo+'&fecha='+fecha+'&ciudad='+ciudad);
+        };
+        view.close();
+    },
+
+
+    acuerdodepago: function() {
+
+        var viewedit = this.getClientesprincipal();
+        var grid =this.getClientesprincipal()     
+        if (grid.getSelectionModel().hasSelection()) {
+            var row = grid.getSelectionModel().getSelection()[0];
+            var acuerdo = (row.get('tipo_acuerdo'));
+            var id = (row.get('id'));
+            console.log(acuerdo);
+            if (acuerdo==0){
+                var edit = Ext.create('Infosys_web.view.clientes.Acuerdo').show();               
+                var nombre = (row.get('nombre'));
+                var correo = (row.get('mail'));
+                edit.down('#idId').setValue(id); 
+                edit.down('#nombreId').setValue(nombre);
+                edit.down('#correoId').setValue(correo);
+            };
+            if (acuerdo==1){
+               var edit = Ext.create('Infosys_web.view.clientes.Acuerdo2').show();
+               edit.down('#id_cliente').setValue(id);
+            }
+            if (acuerdo==2){
+                   var edit = Ext.create('Infosys_web.view.clientes.Acuerdo2').show();
+                   edit.down('#id_cliente').setValue(id);
+            }                 
+                   
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        };
+
+       
+       
+    },
+
+    subirconvenio : function() {        
+
+        var view = this.getClientesdesplegar();
+        var id = view.down('#id_cliente').getValue();
+        //var usuario = view.down('#iduSUARIO').getValue();
+        view.close();
+        var edit = Ext.create('Infosys_web.view.clientes.SubirConvenio').show();
+        edit.down('#id_cliente').setValue(id);
+        console.log("Llegamos")
+        //edit.down('#iduSUARIO').setValue(usuario);
+
+    },
+
+    Subironvenio2 : function(){
+
+        var view = this.getSubirConvenio();
+        console.log("Llegamos2")
+        var tiposelec = view.down('#tipoSeleccionAId').getValue();
+        var archivo = view.down('#archivoId').getValue();
+        var fecha = view.down('#fechasubidaId').getSubmitValue();  
+        var id = view.down('#id_cliente').getValue();
+        var form = view.down('form').getForm();
+        if(form.isValid()){
+            form.submit({
+                url:preurl + 'formularioconvenio/rescatar',
+                waitMsg: 'Cargando Archivo...',                    
+                success: function(success) {
+                   Ext.Msg.alert('Atención', 'Subio Correctamente');
+                   view.close();                        
+                }
+            });
+        }        
+    },
+
+
+     exportarexcelseguros: function(){
+
+        //var viewnew =this.getTipomovimientoinventarioprincipal()       
+        Ext.create('Infosys_web.view.clientes.Exportar').show();
+    
+     },  
+
+     exportarformularioseguros: function(){
+
+        var jsonCol = new Array()
+        var i = 0;
+        var grid =this.getClientesprincipal()
+        Ext.each(grid.columns, function(col, index){
+          if(!col.hidden){
+              jsonCol[i] = col.dataIndex;
+          }
+          
+          i++;
+        })
+
+        var view =this.getExportarseguro()
+        var viewnew =this.getClientesprincipal()
+        var fecha = view.down('#fechaId').getSubmitValue();        
+        var fecha2 = view.down('#fecha2Id').getSubmitValue();
+                
+        if (fecha > fecha2) {
+        
+               Ext.Msg.alert('Alerta', 'Fechas Incorrectas');
+            return;          
+
+        };   
+        
+        window.open(preurl + 'adminServicesExcel/exportarExcelseguros?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2);
+        view.close();    
+  
+ 
     },
 
     autorizaclientes: function(){
@@ -424,10 +697,18 @@ Ext.define('Infosys_web.controller.Clientes', {
         if(numero == 9){
                 var1 = rut.substr(0,2);
                 var2 = rut.substr(2,3);
+                var3 = rut.substr(5,3);
+                var4 = rut.substr(8,1);
+                rutdes = var1 + "." +var2 + "." + var3 + "-" + var4;
+                
+        }
+
+        if(numero == 8){
+                var1 = rut.substr(0,1);
+                var2 = rut.substr(1,3);
                 var3 = rut.substr(4,3);
-                var4 = rut.substr(6,3);
-                var5 = rut.substr(8,1);
-                rutdes = var1 + "." +var2 + "." + var3 + "." + var4 + "-" + var5;
+                var4 = rut.substr(7,1);
+                rutdes = var1 + "." +var2 + "." + var3 + "-" + var4 ;
                 
         }
        
@@ -451,7 +732,7 @@ Ext.define('Infosys_web.controller.Clientes', {
             success: function(response){
                 var resp = Ext.JSON.decode(response.responseText);
 
-                if (resp.success == true) {                    
+                if (resp.success == true) {                   
                     
                     if(resp.cliente){
                         var cliente = resp.cliente;
@@ -475,6 +756,9 @@ Ext.define('Infosys_web.controller.Clientes', {
                         edit.down("#rutId").setValue(rutdes)
                         edit.down("#disponibleId").setValue(cliente.cupo_disponible)
                         edit.down("#impuestoId").setValue(cliente.imp_adicional)
+                        edit.down("#tipocredId").setValue(cliente.id_credito)
+                        edit.down("#ufaprobId").setValue(cliente.uf_cred)
+                        edit.down("#credutilId").setValue(cliente.cred_util)
                     }else{
                         console.log("llegamos")
                         var edit = Ext.create('Infosys_web.view.clientes.Ingresar').show();
@@ -523,39 +807,62 @@ Ext.define('Infosys_web.controller.Clientes', {
 
     
     grabarclientes: function(){
-        var win    = this.getClientesingresar(),
-            form   = win.down('form'),
-            record = form.getRecord(),
-            values = form.getValues();
-
-             
-        if(!form.getForm().isValid()){
-            Ext.Msg.alert('Informacion', 'Rellene todo los campos');
-            return false;
-        };
-
-
+        var view = this.getClientesingresar();
+        var rut = view.down('#rutId').getValue();
+        var nombre = view.down('#nombre_id').getValue();
+        var idcliente = view.down('#id_cliente').getValue();
+        var direccion = view.down('#direccionId').getValue();
+        var ciudad = view.down('#tipoCiudadId').getValue();
+        var comuna = view.down('#tipoComunaId').getValue();
+        var giro = view.down('#giroId').getValue();
+        var fono = view.down('#fonoId').getValue();
+        var mail = view.down('#e_mailId').getValue();
+        var vendedor = view.down('#tipoVendedorId').getValue();
+        var descuento = view.down('#descuentoId').getValue();
+        var tipopago = view.down('#tipopagoId').getValue();
+        var disponible = view.down('#disponibleId').getValue();
+        var impuesto = view.down('#impuestoId').getValue();
+        var fechaincorporacion = view.down('#fecha_incripcionId').getValue();
+        var fechaactualiza = view.down('#fecha_ult_actualizId').getValue();
+        var estado = view.down('#tipoEstadoId').getValue();
+        var tipocliente = view.down('#tipoClienteId').getValue();
+        var id_credito = view.down('#tipocredId').getValue();
+        var ufcredito = view.down('#ufaprobId').getValue();
+        var tcliente = view.down('#tipoclientId').getValue();
         var st = this.getClientesStore();
-        
-        var nuevo = false;
-        
-        if (values.id > 0){
-            record.set(values);
-        }else{
-            record = Ext.create('Infosys_web.model.Cliente');
-            record.set(values);
-            st.add(record);
-            nuevo = true;
-        }
-        
-        win.close();
-        st.sync({
-            success: function(){
-                st.load();
-            }
-        }
 
-        );
+         Ext.Ajax.request({
+            url: preurl + 'clientes/save',
+            params: {
+                rut: rut,
+                nombre: nombre,
+                idcliente: idcliente,
+                direccion: direccion,
+                ciudad: ciudad,
+                comuna: comuna,
+                giro : giro,
+                fono : fono,
+                mail : mail,
+                tcliente: tcliente,
+                vendedor : vendedor,
+                descuento: descuento,
+                tipopago: tipopago,
+                disponible: disponible,
+                impuesto: impuesto,
+                fechaincorporacion : fechaincorporacion,
+                fechaactualiza : fechaactualiza,
+                estado : estado,
+                tipocliente : tipocliente,
+                id_credito: id_credito,
+                ufcredito: ufcredito
+            },
+             success: function(response){
+                view.close();
+                st.load();
+
+            }
+           
+        });
     },
 
     desplegarclientes: function(){
@@ -579,6 +886,9 @@ Ext.define('Infosys_web.controller.Clientes', {
         var fechaactualiza = view.down('#fecha_ult_actualizId').getValue();
         var estado = view.down('#tipoEstadoId').getValue();
         var tipocliente = view.down('#tipoClienteId').getValue();
+        var id_credito = view.down('#tipocredId').getValue();
+        var ufcredito = view.down('#ufaprobId').getValue();
+        var tcliente = view.down('#tipoclientId').getValue();
         var st = this.getClientesStore();
 
          Ext.Ajax.request({
@@ -593,6 +903,7 @@ Ext.define('Infosys_web.controller.Clientes', {
                 giro : giro,
                 fono : fono,
                 mail : mail,
+                tcliente: tcliente,
                 vendedor : vendedor,
                 descuento: descuento,
                 tipopago: tipopago,
@@ -601,7 +912,9 @@ Ext.define('Infosys_web.controller.Clientes', {
                 fechaincorporacion : fechaincorporacion,
                 fechaactualiza : fechaactualiza,
                 estado : estado,
-                tipocliente : tipocliente
+                tipocliente : tipocliente,
+                id_credito: id_credito,
+                ufcredito: ufcredito
             },
              success: function(response){
                 view.close();

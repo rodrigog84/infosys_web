@@ -6,7 +6,7 @@ Ext.define('Infosys_web.view.movimiento_diario_inventario.Desplegar', {
 
     title : 'Movimiento Diario Inventario',
     autoShow: true,
-    width: 880,
+    width: 1020,
     modal: true,
     iconCls: 'icon-sheet',
     bodyPadding: 7,
@@ -30,6 +30,7 @@ Ext.define('Infosys_web.view.movimiento_diario_inventario.Desplegar', {
                     {
                         xtype: 'numberfield',
                         name : 'id',
+                        itemId : 'idId',
                         hidden:true
                     },{
                         xtype: 'fieldcontainer',
@@ -204,32 +205,17 @@ Ext.define('Infosys_web.view.movimiento_diario_inventario.Desplegar', {
                         store: 'Detalle_tipo_movimiento',
                         height: 300,
                         columns: [
+                        { text: 'Codigo',  dataIndex: 'codigo', width: 100 },
                         { text: 'Producto',  dataIndex: 'nom_producto', width: 350 },
-                        
-                        {
-                            xtype: 'actioncolumn',
-                            width: 80,
-                            text: 'Buscar',
-                            align: 'center',
-                            items: [{
-                                icon: gbl_site + 'Infosys_web/resources/images/search.png',
-                                // Use a URL in the icon config
-                                tooltip: 'Buscar',
-                                handler: function (grid, rowIndex, colIndex) {
-                                    var rec = grid.getStore().getAt(rowIndex);
-                                    //alert("Edit " + rec.get('stock'));
-                                    Ext.create('Infosys_web.view.movimiento_diario_inventario.BuscarProductos', {record: rec});
-                                }
-                            }]
-                        },
-                        { text: 'Stock',  dataIndex: 'stock', width: 100 },
-                        { text: 'Valor', dataIndex: 'valor', width: 100, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")}, editor: {xtype: 'numberfield', allowBlank: false,minValue: 0,maxValue: 10000000000}},
-                        { text: 'Cantidad', dataIndex: 'cantidad', width: 100, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")}, editor: {xtype: 'numberfield', allowBlank: false,minValue: 0,maxValue: 10000000000}},
+                        { text: 'Stock',  dataIndex: 'stock', readOnly: true, width: 100 },
+                        { text: 'Valor', dataIndex: 'valor', readOnly: true , width: 100, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")}, editor: {xtype: 'numberfield', allowBlank: false,minValue: 0,maxValue: 10000000000}},
+                        { text: 'Cantidad', dataIndex: 'cantidad', readOnly: true, width: 100, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")}, editor: {xtype: 'numberfield', allowBlank: false,minValue: 0,maxValue: 10000000000}},
                         {
                             xtype: 'actioncolumn',
                             width: 80,
                             text: 'Eliminar',
                             align: 'center',
+                            hidden: true,
                             items: [{
                                 icon: gbl_site + 'Infosys_web/resources/images/delete.png',
                                 // Use a URL in the icon config
@@ -256,15 +242,14 @@ Ext.define('Infosys_web.view.movimiento_diario_inventario.Desplegar', {
             dock: 'bottom',
             id:'buttons',
             ui: 'footer',
-            items: ['->', {
-                iconCls: 'icon-save',
+            items: [{
+                iconCls: 'icon-exel',
+                text: 'Excel',
+                action: 'envioexcel'
+            },'->', {
+                iconCls: 'icon-pdf',
                 text: 'Imprimir',
-                action: '',
-                hidden:true
-            },'-',{
-                iconCls: 'icon-save',
-                text: 'Grabar',
-                action: ''
+                action: 'imprimirdetalle'
             },'-',{
                 iconCls: 'icon-reset',
                 text: 'Cancelar',

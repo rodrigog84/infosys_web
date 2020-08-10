@@ -7,7 +7,7 @@ Ext.define('Infosys_web.view.ordencompra.Recepcion', {
     title : 'Recepcionar Orden de Compra',
     layout: 'fit',
     autoShow: true,
-    width: 940,
+    width: 1220,
     height: 550,
     modal: true,
     iconCls: 'icon-sheet',
@@ -106,7 +106,28 @@ Ext.define('Infosys_web.view.ordencompra.Recepcion', {
                                 store: 'Bodegas',
                                 valueField: 'id',
                                 displayField: 'nombre'
-                            }]
+                            },{
+                                xtype: 'textfield',
+                                width: 120,
+                                labelWidth: 40,
+                                minValue: 0,
+                                fieldLabel: 'U.lote',
+                                hidden: true,
+                                itemId: 'ultimoloteId',
+                                style: 'font-weight: bold;'
+
+                            },{
+                                xtype: 'textfield',
+                                width: 120,
+                                labelWidth: 40,
+                                minValue: 0,
+                                fieldLabel: 'U.lote',
+                                hidden: true,
+                                itemId: 'uloteId',
+                                style: 'font-weight: bold;',
+                                hidden: true
+
+                            },]
                         }
 
                         ]
@@ -204,7 +225,30 @@ Ext.define('Infosys_web.view.ordencompra.Recepcion', {
                                     itemId: 'fonoId',
                                     fieldLabel: 'Telefono Empresa',
                                     readOnly : true
-                                }
+                                },{xtype: 'splitter'},{
+                                    xtype: 'textfield',
+                                     labelWidth: 90,
+                                    width: 350,
+                                    fieldLabel: 'Transportista',
+                                    itemId: 'nombre_choferId',
+                                    name : 'chofer',
+                                    readOnly : true
+                                },{xtype: 'splitter'},{
+                                    xtype: 'textfield',
+                                    labelWidth: 90,
+                                    width: 350,
+                                    fieldLabel: 'id_transportistaransportista',
+                                    itemId: 'idtransportista',
+                                    name : 'transportista',
+                                    hidden: true
+                                },{xtype: 'splitter'},{
+                                    xtype: 'button',
+                                    iconCls: 'icon-search',
+                                    text: 'Buscar',
+                                    width: 90,
+                                    allowBlank: true,
+                                    action: 'tbuscar'
+                                },
                                 
                                
                                 ]
@@ -265,6 +309,7 @@ Ext.define('Infosys_web.view.ordencompra.Recepcion', {
                     ],
                     columns: [
                         { text: 'Id',  dataIndex: 'id', width: 250, hidden: true },
+                        { text: 'Id_producto',  dataIndex: 'id_producto', width: 250, hidden: true },
                         { text: 'Nombre',  dataIndex: 'nombre', width: 250 },
                         { text: 'Precio Unitario',  dataIndex: 'subtotal', flex:1 },
                         { text: 'Cantidad',  dataIndex: 'cantidad', width: 80 },
@@ -272,18 +317,15 @@ Ext.define('Infosys_web.view.ordencompra.Recepcion', {
                         listeners : {
                             checkchange : function(column, recordIndex, checked) {
                                 var store = this.up('ordencomprarecepcion').down('#itemsgridId').getStore()
-                                var record = store.getAt(recordIndex);
-
-                                
+                                var record = store.getAt(recordIndex);                                
                                 if(checked){
                                     record.set({stock: record.get('cantidad')})
                                     if(parseInt(record.get('total'))>0 && parseInt(record.get('cantidad'))>0){
-                                        var valor_calc = Math.round(parseInt(record.get('total')) / parseInt(record.get('cantidad')) );
+                                        var valor_calc = Math.round(parseInt(record.get('subtotal')));
                                         record.set({
                                             valor: valor_calc
                                         });             
                                     }
-
                                 }else{
                                     record.set({stock: "", valor: ""})
                                 }
@@ -295,6 +337,14 @@ Ext.define('Infosys_web.view.ordencompra.Recepcion', {
                         { text: 'Recibido', dataIndex: 'stock', width: 100, 
                         renderer: function(valor,r , e){
                            return valor
+                        }, editor: {xtype: 'numberfield', allowBlank: false,minValue: 0,maxValue: 10000000000}},
+                        { text: 'Rec. Real', dataIndex: 'val_real', width: 100, 
+                        renderer: function(valor,r , e){
+                           return valor
+                        }, editor: {xtype: 'numberfield', allowBlank: false,minValue: 0,maxValue: 10000000000}},
+                        { text: 'Valor', dataIndex: 'valor', width: 100, 
+                        renderer: function(valor){
+                            return valor
                         }, editor: {xtype: 'numberfield', allowBlank: false,minValue: 0,maxValue: 10000000000}},
                         { text: 'Valor', dataIndex: 'valor', width: 100, 
                         renderer: function(valor){
@@ -327,7 +377,8 @@ Ext.define('Infosys_web.view.ordencompra.Recepcion', {
             items: ['->', {
                 iconCls: 'icon-save',
                 text: 'Grabar',
-                action: 'grabarrecepcion'
+                action: 'grabarrecepcion',
+                itemId: 'grabaorden',
             },'-',{
                 iconCls: 'icon-reset',
                 text: 'Cancelar',

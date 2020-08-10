@@ -65,9 +65,26 @@ Ext.define('Infosys_web.controller.ExistenciasClientes', {
                  click: this.seleccionarexitenciacliente
                 
             },
+            'existenciaprincipalclientes button[action=exportarexcelexistenciacliente]': {
+                click: this.exportarexcelexistenciacliente
+            },
            
         });
     },
+
+    exportarexcelexistenciacliente: function(){ 
+
+        var viewIngresa = this.getExistenciaprincipalclientes();
+        var rut = viewIngresa.down('#rutId').getValue()
+        if(!rut){
+            Ext.Msg.alert('Alerta', 'Selecciona un Cliente.');
+            return;            
+        }else{
+        window.open(preurl + 'adminServicesExcel/exportarExcelExistenciaCliente?rut='+rut);
+        };
+        
+    },
+
 
     buscarexistenciacliente: function(){       
         var view = this.getBuscarclientesexistencia()

@@ -7,6 +7,7 @@ Ext.define('Infosys_web.model.existenciasclientes', {
         {name: 'id_cliente'},
         {name: 'nom_producto'},
         {name: 'cantidad_salida'},
+        {name: 'cantidad_entrada'},
         {name: 'nom_tipo_movimiento'},
         {name: 'num_movimiento'},
         {name: 'codigo'},

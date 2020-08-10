@@ -78,6 +78,23 @@ Ext.define('Infosys_web.view.clientes.Principal' ,{
         dataIndex: 'nom_id_pago',
         hidden: true
     },{
+        header: "Acuerdo",
+        width: 130,
+        dataIndex: 'tipo_acuerdo',
+        renderer: function(value){
+            if (value == 0) {
+                return 'Sin Acuerdo';
+            }
+            if (value == 1) {
+                return 'Persona Natural';
+            }
+            if (value == 2) {
+            return 'Representante';   
+            }
+           
+        },
+        hidden: true
+    },{
         header: "Cupo Disponible",
         flex: 1,
         dataIndex: 'cupo_disponible',
@@ -94,7 +111,7 @@ Ext.define('Infosys_web.view.clientes.Principal' ,{
         renderer: function(value){
             if (value == 1) {
                 return 'VIGENTE';
-             }
+            }
             if (value == 2) {
              //return '<img src="http://localhost:999/rutaimg.jpg" />'
                return 'INACTIVO';   
@@ -174,7 +191,18 @@ Ext.define('Infosys_web.view.clientes.Principal' ,{
                 iconCls : 'icon-exel',
                 text: 'Exportar EXCEL',
                 action:'exportarexcelclientes'
+            },{
+                xtype: 'button',
+                width: 120,
+                iconCls : 'icon-exel',
+                text: 'EXCEL Seguros',
+                action:'exportarexcelseguros'
             },'->',{
+                xtype: 'button',
+                iconCls : 'icon-search',
+                text: 'Acuero de Pago',
+                action:'acuerdodepago'
+            },{
                 xtype: 'button',
                 iconCls : 'icon-search',
                 text: 'Contactos',

@@ -60,7 +60,14 @@ Ext.define('Infosys_web.view.ordencompra.BuscarProductos2' ,{
         this.dockedItems = [{
             xtype: 'toolbar',
             dock: 'top',
-            items: [
+            items: [{
+                width: 180,
+                labelWidth: 60,
+                xtype: 'textfield',
+                itemId: 'codigoId',
+                fieldLabel: 'Codigo'
+            },
+            '-',
             {
                 width: 450,
                 xtype: 'textfield',

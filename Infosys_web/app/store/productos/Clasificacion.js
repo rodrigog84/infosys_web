@@ -4,7 +4,8 @@ Ext.define('Infosys_web.store.productos.Clasificacion', {
     data : [
         {"id":"1", "nombre":"Materia Prima"},
         {"id":"2", "nombre":"Producto Terminado"},
-        {"id":"3", "nombre":"Ambos"}
+        {"id":"4", "nombre":"Producto Fabricado"},
+        {"id":"3", "nombre":"Todos"}
            
     ]
 });

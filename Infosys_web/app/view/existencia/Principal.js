@@ -17,9 +17,11 @@ Ext.define('Infosys_web.view.existencia.Principal' ,{
         header: "Id Producto",
         width: 390,
         dataIndex: 'id_producto',
-         hidden: true
-
-        
+         hidden: true        
+    },{
+        header: "codigo",
+        width: 100,
+        dataIndex: 'codigo'        
     },{
         header: "Nombre Producto",
         width: 390,
@@ -30,7 +32,7 @@ Ext.define('Infosys_web.view.existencia.Principal' ,{
         flex: 1,
         dataIndex: 'stock',
         align: 'right',
-        renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")}
+        renderer: function(valor){return Ext.util.Format.number((valor),"0,000.00")}
 
     },{
         header: "Bodega",
@@ -75,10 +77,33 @@ Ext.define('Infosys_web.view.existencia.Principal' ,{
                 text: 'Exportar EXCEL',
                 action:'exportarexcelexistencia'
             },'->',{
-                width: 250,
+                    xtype: 'combo',
+                    itemId: 'clasificacionId',
+                    fieldLabel: 'Clasificacion',
+                    forceSelection : true,
+                    editable : false,
+                    name : 'clasificacion',
+                    value: "3",
+                    valueField : 'id',
+                    displayField : 'nombre',
+                    emptyText : "Seleccione",
+                    store : 'productos.Clasificacion'
+            },{
+                xtype: 'combo',
+                itemId: 'tipoSeleccionId',
+                fieldLabel: '',
+                forceSelection : true,
+                editable : false,
+                valueField : 'id',
+                value: "1",
+                displayField : 'nombre',
+                emptyText : "Seleccione",
+                store : 'existenciabusca'
+            },{
+                width: 200,
                 xtype: 'textfield',
                 itemId: 'nombreId',
-                fieldLabel: 'Producto'
+                fieldLabel: ''
             },'-',{
                 xtype: 'button',
                 iconCls: 'icon-search',

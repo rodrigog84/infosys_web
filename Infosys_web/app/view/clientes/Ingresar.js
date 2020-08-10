@@ -12,7 +12,6 @@ Ext.define('Infosys_web.view.clientes.Ingresar', {
     iconCls: 'icon-sheet',
 
     initComponent: function() {
-
         this.items = [
             {
                 xtype: 'form',
@@ -84,8 +83,8 @@ Ext.define('Infosys_web.view.clientes.Ingresar', {
                         width: 417,
                         fieldLabel: 'Direccion',
                         allowBlank: false
-                    },{xtype: 'splitter'}, {
-                        xtype: 'combo',
+                    },{xtype: 'splitter'},{
+                       xtype: 'combo',
                         itemId: 'tipoCiudadId',
                         fieldLabel: 'Ciudad',
                         name: 'id_ciudad',
@@ -95,12 +94,12 @@ Ext.define('Infosys_web.view.clientes.Ingresar', {
                         displayField: 'nombre',
                         valueField: 'id',
                          anchor: '65%',
-                         listConfig: {
+                        /*listConfig: {
                             minWidth: 450
-                        }
-                        
+                        },
+                        width: 140*/
                     },{xtype: 'splitter'},{
-                        xtype: 'combo',
+                       xtype: 'combo',
                         itemId: 'tipoComunaId',
                         fieldLabel: 'Comuna',
                         name: 'id_comuna',
@@ -110,12 +109,11 @@ Ext.define('Infosys_web.view.clientes.Ingresar', {
                         displayField: 'nombre',
                         valueField: 'id',
                         anchor: '65%',
-                        listConfig: {
+                        /*listConfig: {
                             minWidth: 450
-                        }
-                        
-                    }
-                    ,]
+                        },
+                        width: 140*/
+                    },]
                     },{
                     xtype: 'fieldcontainer',
                     height: 50,
@@ -135,21 +133,20 @@ Ext.define('Infosys_web.view.clientes.Ingresar', {
                             minWidth: 450
                         },
                         width: 480
-                        
                     },{xtype: 'splitter'},{
                         xtype: 'textfield',
                         name : 'fono',
                         itemId: 'fonoId',
                         width: 210,
-                        fieldLabel: 'Telefono',
-                        allowBlank: true
+                        fieldLabel: 'Telefono'
+                       
                     },{xtype: 'splitter'},{
                         xtype: 'textfield',
                         name : 'e_mail',
                         width: 350,
                         itemId: 'e_mailId',
-                        fieldLabel: 'E-Mail',
-                        allowBlank: true
+                        fieldLabel: 'E-Mail'
+                        
                     },]
                     },{
                     xtype: 'fieldcontainer',
@@ -159,26 +156,23 @@ Ext.define('Infosys_web.view.clientes.Ingresar', {
                     items: [{
                         xtype: 'combo',
                         itemId: 'tipoVendedorId',
-                        fieldLabel: 'Vendedor',
                         width: 350,
-                        name: 'id_vendedor',
-                        store: 'Vendedores',
-                        queryMode: 'local',
-                        forceSelection: true,
-                        displayField: 'nombre',
-                        valueField: 'id',
-                        /*listConfig: {
-                            minWidth: 450
-                        },
-                        width: 140*/
-                        
+                        fieldLabel: 'Vendedor',
+                        forceSelection : true,
+                        editable : false,
+                        name : 'id_vendedor',
+                        valueField : 'id',
+                        displayField : 'nombre',
+                        emptyText : "Seleccione",
+                        store : 'Vendedores',
+                        allowBlank: false
                     },{xtype: 'splitter'},{
                         xtype: 'numberfield',
                         name : 'descuento',
                         width: 160,
                         itemId: 'descuentoId',
-                        fieldLabel: 'Descuento',
-                        allowBlank: false
+                        fieldLabel: 'Descuento'
+                       
                     },{xtype: 'splitter'},{
                         xtype: 'combo',
                         itemId: 'tipopagoId',
@@ -190,52 +184,47 @@ Ext.define('Infosys_web.view.clientes.Ingresar', {
                         valueField : 'id',
                         displayField : 'nombre',
                         emptyText : "Seleccione",
-                        store : 'Cond_pago',
-                        allowBlank: false
+                        store : 'Cond_pago'
                     },{xtype: 'splitter'},{
                         xtype: 'numberfield',
                         name : 'cupo_disponible',
                         width: 180,
                         itemId: 'disponibleId',
-                        fieldLabel: 'Cupo Dispon.',
-                        allowBlank: false
+                        fieldLabel: 'Cupo Dispon.'
                     },{xtype: 'splitter'},{
                         xtype: 'numberfield',
                         name : 'imp_adicional',
                         width: 150,
                         itemId: 'impuestoId',
-                        fieldLabel: 'Imp.Adicional',
-                        allowBlank: false
+                        fieldLabel: 'Imp.Adicional'
                     },]
                     },{
                     xtype: 'fieldcontainer',
                     height: 50,
+                    labelAlign: 'center',
                     layout: 'hbox',
-                    anchor: '100%',
+                    //anchor: '100%',
                     items: [{
                         xtype: 'datefield',
                         name : 'fecha_incripcion',
                         fieldLabel: 'Fecha Incorporacion',
                         itemId: 'fecha_incripcionId',
-                        value: new Date(),
-                        format: 'd-m-Y',
                         anchor: '65%',
-                        allowBlank: true
-                     
+                        format: 'd-m-Y',
                     },{xtype: 'splitter'},{
                         xtype: 'datefield',
                         name : 'fecha_ult_actualiz',
                         itemId: 'fecha_ult_actualizId',
-                        value: new Date(),
                         fieldLabel: 'Fecha Ultima Actualizacion',
+                        format: 'd-m-Y',
                         anchor: '65%',
-                        allowBlank: true,
-                        format: 'd-m-Y'
+                        value: new Date(),
+                        format: 'Y-m-d'
                     },{xtype: 'splitter'},{
                         xtype: 'combo',
                         itemId: 'tipoEstadoId',
                         anchor: '65%',
-                        fieldLabel: 'Estado         ',
+                        fieldLabel: 'Estado',
                         forceSelection : true,
                         editable : false,
                         name : 'estado',
@@ -243,12 +232,85 @@ Ext.define('Infosys_web.view.clientes.Ingresar', {
                         displayField : 'nombre',
                         emptyText : "Seleccione",
                         store : 'clientes.Activo',
-                        allowBlank: false
-                    },,]
+                        //allowBlank: false
+                    },{
+                        xtype: 'textfield',
+                        name : 'estadoc',
+                        width: 350,
+                        itemId: 'estadocId',
+                        fieldLabel: 'Estadoc',
+                        hidden: true
+                        
+                    },{xtype: 'splitter'},{
+                        xtype: 'combo',
+                        labelWidth: 50,
+                        width: 250,
+                        itemId: 'tipoClienteId',
+                        fieldLabel: 'Tipo',
+                        forceSelection : true,
+                        editable : false,
+                        name : 'tipo',
+                        valueField : 'id',
+                        displayField : 'nombre',
+                        emptyText : "Seleccione",
+                        store : 'clientes.Clientes',
+                        //allowBlank: false
+                    },]
+                    },{
+                    xtype: 'fieldcontainer',
+                    height: 50,
+                    layout: 'hbox',
+                    anchor: '100%',
+                    items: [{
+                        xtype: 'combo',
+                        labelWidth: 70,
+                        width: 250,
+                        itemId: 'tipocredId',
+                        fieldLabel: 'Tipo Cred',
+                        forceSelection : true,
+                        editable : false,
+                        name : 'id_credito',
+                        valueField : 'id',
+                        displayField : 'nombre',
+                        emptyText : "Seleccione",
+                        store : 'clientes.Credito',
+                     
+                    },{xtype: 'splitter'},{
+                        xtype: 'numberfield',
+                        name : 'uf_cred',
+                        labelWidth: 70,
+                        width: 150,
+                        itemId: 'ufaprobId',
+                        fieldLabel: 'UF.Aprob.',
+                    },{xtype: 'splitter'},{
+                        xtype: 'numberfield',
+                        name : 'cred_util',
+                        labelWidth: 90,
+                        width: 250,
+                        itemId: 'credutilId',
+                        fieldLabel: 'Cred. Utilizado',
+                        readOnly: true
+
+                    },{xtype: 'splitter'},{
+                        xtype: 'combo',
+                        labelWidth: 90,
+                        width: 250,
+                        itemId: 'tipoclientId',
+                        fieldLabel: 'Tipo Cliente',
+                        forceSelection : true,
+                        editable : false,
+                        name : 'tipo_cliente',
+                        valueField : 'id',
+                        displayField : 'nombre',
+                        emptyText : "Seleccione",
+                        store : 'clientes.Tipo_cliente',
+                     
+                    },]
                     }
                 ]
             }
         ];
+        
         
         this.dockedItems = [{
             xtype: 'toolbar',

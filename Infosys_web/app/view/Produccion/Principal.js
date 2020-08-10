@@ -66,6 +66,11 @@ Ext.define('Infosys_web.view.Produccion.Principal' ,{
         dataIndex: 'nom_formula',
         hidden: true
     },{
+        header: "Lote",
+        flex: 1,
+        dataIndex: 'lote',
+        hidden: true
+    },{
         header: "Id Formula",
         flex: 1,
         dataIndex: 'id_formula_pedido',
@@ -75,6 +80,22 @@ Ext.define('Infosys_web.view.Produccion.Principal' ,{
         flex: 1,
         dataIndex: 'cantidad',
         hidden: true
+    },{
+        header: "Estado",
+        flex: 1,
+        dataIndex: 'estado',
+        renderer: function(value){
+        if (value == 1 ) {
+            return '<img src="http://angus.agricultorestalca.cl/Infosys_web/Infosys_web/resources/images/add.png"/>';
+         }
+         if (value == 4 ) {
+            return '<img src="http://angus.agricultorestalca.cl/Infosys_web/Infosys_web/resources/images/add.png"/>';
+         }
+        if (value == 2) {
+         //return '<img src="http://localhost:999/rutaimg.jpg" />'
+           return '<img src="http://angus.agricultorestalca.cl/Infosys_web/Infosys_web/resources/images/stop.png"/>';   
+        }
+        }
     },{
         header: "Estado",
         flex: 1,
@@ -96,19 +117,29 @@ Ext.define('Infosys_web.view.Produccion.Principal' ,{
             },{
                 xtype: 'button',
                 iconCls: 'icon-add',
+                action: 'generaproduccionformula',
+                text : 'Produccion Formula'
+            },{
+                xtype: 'button',
+                iconCls: 'icon-add',
+                action: '',
+                text : 'Editar Produccion'
+            },{
+                xtype: 'button',
+                iconCls: 'icon-add',
                 action: 'terminoproduccion',
                 text : 'Termino Produccion'
             },{
                 xtype: 'button',
                 iconCls : 'icon-pdf',
                 text: 'Imprimir PDF',
-                action:'exportarpedidos'
+                action:'exportarproduccion'
             },{
                 xtype: 'button',
                 width: 120,
                 iconCls : 'icon-exel',
                 text: 'Exportar EXCEL',
-                action:'exportarexcelpedidos'
+                action:'exportarexcelproduccion'
             },{
                 xtype: 'button',
                 width: 120,
@@ -126,7 +157,7 @@ Ext.define('Infosys_web.view.Produccion.Principal' ,{
                 valueField : 'id',
                 displayField : 'nombre',
                 emptyText : "Seleccione",
-                store : 'clientes.Selector2'
+                store : 'clientes.Selector3'
             },{
                 width: 240,
                 xtype: 'textfield',
@@ -135,7 +166,7 @@ Ext.define('Infosys_web.view.Produccion.Principal' ,{
             },'-',{
                 xtype: 'button',
                 iconCls: 'icon-search',
-                action: 'buscarpedido',
+                action: 'buscarpedidoprincipal',
                 text : 'Buscar'
             },{
                 xtype: 'button',

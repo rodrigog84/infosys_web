@@ -80,11 +80,16 @@ Ext.define('Infosys_web.view.ordencompra.Principal_recepcion' ,{
                 iconCls: 'icon-export',
                 text: 'Exportar',
                 action: 'exportarordencomprarecepcion'
-            },{
+            },'-',{
                 xtype: 'button',
                 iconCls : 'icon-pdf',
                 text: 'Edita / Imprimir PDF',
                 action:'generapdf'
+            },'-',{
+                xtype: 'button',
+                iconCls : 'icon-pdf',
+                text: 'Imprimir / Original PDF',
+                action:'generapdforiginal'
             },
             '->',
             {
@@ -109,6 +114,7 @@ Ext.define('Infosys_web.view.ordencompra.Principal_recepcion' ,{
             {
                 xtype: 'button',
                 iconCls: 'icon-search',
+                action: 'buscarordenrecepcion',
                 text : 'Buscar'
             },{
                 xtype: 'button',

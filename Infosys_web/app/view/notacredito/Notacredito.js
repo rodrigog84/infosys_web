@@ -77,7 +77,8 @@ Ext.define('Infosys_web.view.notacredito.Notacredito', {
                                             fieldCls: 'required',
                                             store: 'Tipo_documento.Selectornc',
                                             valueField: 'id',
-                                            displayField: 'nombre'
+                                            displayField: 'nombre',
+                                            readOnly: true
                                         },{
                                             xtype: 'textfield',
                                             name: 'Id Bodega',
@@ -343,6 +344,18 @@ Ext.define('Infosys_web.view.notacredito.Notacredito', {
                                             width: 210,
                                             fieldLabel: '<b>FACTURA</b>'
                                         },{
+                                            xtype: 'textfield',
+                                            fieldCls: 'required',
+                                            maxHeight: 25,
+                                            width: 250,
+                                            labelWidth: 150,
+                                            allowBlank: false,
+                                            name: 'id_folio',
+                                            itemId: 'idfolio',
+                                            fieldLabel: '<b>ID FOLIO</b>',
+                                            hidden: true
+
+                                        },{
                                             xtype: 'displayfield',
                                             flex: 1,
                                             maxWidth: 25
@@ -376,6 +389,7 @@ Ext.define('Infosys_web.view.notacredito.Notacredito', {
                                             fieldLabel: 'TIPO NOTA DE CR&Eacute;DITO',
                                             labelStyle: ' font-weight:bold',
                                             labelWidth: 200,
+                                            maxHeight: 25,
                                             emptyText : 'Seleccionar',
                                             editable: false,
                                             itemId : 'tipoNotaCredito' ,
@@ -393,7 +407,6 @@ Ext.define('Infosys_web.view.notacredito.Notacredito', {
                                                             me.down('#precioId').setValue('');
                                                             me.down('#cantidadOriginalId').setValue('');
                                                             me.down('#cantidadId').setValue('');
-
                                                             me.down('#codigoId').setDisabled(true);
                                                             me.down('#buscarproc').setDisabled(true);
                                                             me.down('#precioId').setDisabled(true);
@@ -414,7 +427,8 @@ Ext.define('Infosys_web.view.notacredito.Notacredito', {
                                                             var neto = 0;
                                                             for(i=0;i<cantidad;i++){
                                                                 stItms.add(new Infosys_web.model.Productos.Item({
-                                                                    id: detalle_factura[i].id_producto,
+                                                                    id: detalle_factura[i].id,
+                                                                    id_existencia: detalle_factura[i].id_existencia,
                                                                     id_producto: detalle_factura[i].id_producto,
                                                                     nombre: detalle_factura[i].nombre,
                                                                     precio: detalle_factura[i].precio,
@@ -498,6 +512,12 @@ Ext.define('Infosys_web.view.notacredito.Notacredito', {
                                 xtype: 'textfield',
                                 name: 'Id Producto',
                                 itemId: 'pId',
+                                hidden: true
+                              
+                            },{
+                                xtype: 'textfield',
+                                name: 'Id Producto',
+                                itemId: 'idext',
                                 hidden: true
                               
                             },{
@@ -603,6 +623,8 @@ Ext.define('Infosys_web.view.notacredito.Notacredito', {
                             ],
                             height: 210,
                             columns: [
+                                    { text: 'Id',  dataIndex: 'id', width: 250, hidden: true },
+                                    { text: 'Id_existencia',  dataIndex: 'id_existencia', width: 250, hidden: true },
                                     { text: 'Producto',  dataIndex: 'nombre', width: 250 },
                                     { text: 'IdProducto',  dataIndex: 'id_producto', width: 350,hidden: true },
                                     { text: 'Cantidad',  dataIndex: 'cantidad', flex:1 },
@@ -674,8 +696,7 @@ Ext.define('Infosys_web.view.notacredito.Notacredito', {
                     ]
                 }
             ],
-            dockedItems: [
-                {
+            dockedItems: [{
                     xtype: 'toolbar',
                     dock: 'bottom',
                     layout: {
@@ -683,7 +704,11 @@ Ext.define('Infosys_web.view.notacredito.Notacredito', {
                         align: 'middle',
                         pack: 'center'
                     },
-                    items: ['->',
+                    items: [{
+                            iconCls: 'icon-reset',
+                            text: 'Cancelar',
+                            action: 'cancelar',
+                        },'->',
                         {
                             xtype: 'button',
                             iconCls: 'icon-save',

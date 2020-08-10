@@ -13,14 +13,14 @@ Ext.define('Infosys_web.model.Produccion', {
         {name: 'nom_formula'},
         {name: 'nom_producto'},
         {name: 'id_producto'},
-        {name: 'cantidad', decimalPrecision:2},
+        {name: 'cantidad', decimalPrecision:4},
         {name: 'lote'},
         {name: 'hora_inicio'},
         {name: 'hora_termino'},
         {name: 'fecha_termino'},
         {name: 'encargado'},
         {name: 'estado'},
-        {name: 'saldo', decimalPrecision:2},
+        {name: 'saldo', decimalPrecision:4},
         {name: 'fecha_vencimiento', type:'date',dateFormat:"Y-m-d"},         
     ]
 });

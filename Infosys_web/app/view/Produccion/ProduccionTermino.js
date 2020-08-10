@@ -19,10 +19,11 @@ Ext.define('Infosys_web.view.Produccion.ProduccionTermino', {
     ],
 
     autoShow: true,
-    height: 640,
+    height: 520,
     width: 1300,
     layout: 'fit',
     title: 'PRODUCCION TERMINO',
+    closable: false,
 
     initComponent: function() {
         var me = this;
@@ -58,6 +59,12 @@ Ext.define('Infosys_web.view.Produccion.ProduccionTermino', {
                                 xtype: 'textfield',
                                 itemId: 'idId',
                                 name : 'id',
+                                hidden: true
+                            },{
+                                xtype: 'numberfield',
+                                itemId: 'corrId',
+                                name : 'corr_id',
+                                value: 0,
                                 hidden: true
                             },{
                                 xtype: 'textfield',
@@ -164,7 +171,8 @@ Ext.define('Infosys_web.view.Produccion.ProduccionTermino', {
                                     width: 420,
                                     fieldLabel: '<b>NOMBRE FORMULA</b>',
                                     itemId: 'nombreformulaId',
-                                    name : 'nombre'                                         
+                                    name : 'nombre',
+                                    hidden: true                                         
                                 },
                             ]
                         },{
@@ -201,12 +209,22 @@ Ext.define('Infosys_web.view.Produccion.ProduccionTermino', {
                                     maxHeight: 25,
                                     width: 220,
                                     fieldLabel: '<b>CANTIDAD PROD</b>',
-                                    itemId: 'cantidadproducId',
-                                    name : 'cantidad',
-                                    readOnly: true                                           
+                                    itemId: 'cantidadproduccalId',
+                                    value:0,
+                                    name : 'cantidad'                                       
                                 },{
                                     xtype: 'displayfield',
                                     width: 10                                   
+                                },{
+                                    xtype: 'numberfield',
+                                    fieldCls: 'required',
+                                    msgTarget: 'side',
+                                    labelWidth: 120,
+                                    maxHeight: 25,
+                                    width: 220,
+                                    fieldLabel: '<b>CANTIDAD REAL</b>',
+                                    itemId: 'cantidadproducId',
+                                    name : 'cantidad'                                       
                                 },{
                                     xtype: 'textfield',
                                     fieldCls: 'required',
@@ -232,7 +250,7 @@ Ext.define('Infosys_web.view.Produccion.ProduccionTermino', {
                                     name : 'nom_producto'                                         
                                 },{
                                     xtype: 'textfield',
-                                    itemId: 'productoId',
+                                    itemId: 'productoproId',
                                     name : 'id_producto',
                                     hidden: true
                                 },{
@@ -251,8 +269,7 @@ Ext.define('Infosys_web.view.Produccion.ProduccionTermino', {
                                     width: 200,
                                     fieldLabel: '<b>FECHA VENC.</b>',
                                     itemId: 'fechavencId',
-                                    name: 'fecha_vencimiento',
-                                    readOnly: true,
+                                    name: 'fecha_vencimiento'
                             }
                             ]
                         },{
@@ -274,8 +291,7 @@ Ext.define('Infosys_web.view.Produccion.ProduccionTermino', {
                                     width: 250,
                                     fieldLabel: '<b>HORA INICIO</b>',
                                     itemId: 'horainicioId',
-                                    name : 'hora_inicio',
-                                    readOnly: true                                        
+                                    name : 'hora_inicio'                                 
                                 },{
                                     xtype: 'displayfield',
                                     width: 10                                   
@@ -338,40 +354,56 @@ Ext.define('Infosys_web.view.Produccion.ProduccionTermino', {
                         ]
                         },{
                             xtype: 'fieldcontainer',
-                            height: 30,
-                            width: 262,
-                            fieldLabel: '',
-                            layout: {
-                                type: 'hbox',
-                                align: 'stretch'
-                            },
-                             items: [
-
-                        {
-                            xtype: 'fieldcontainer',
                             layout: 'hbox',
                             align: 'center',     
                             items: [{
                                 xtype: 'textfield',
                                 width: 140,
                                 labelWidth: 40,
+                                fieldLabel: 'id_producto',
+                                itemId: 'productoId',
+                                style: 'font-weight: bold;',
+                                hidden: true
+                            },{
+                                xtype: 'textfield',
+                                width: 140,
+                                labelWidth: 40,
+                                fieldLabel: 'id_existencia',
+                                itemId: 'idpId',
+                                style: 'font-weight: bold;',
+                                hidden: true
+                            },{
+                                xtype: 'textfield',
+                                width: 140,
+                                labelWidth: 40,
                                 fieldLabel: 'Codigo',
                                 itemId: 'codigoId',
                                 style: 'font-weight: bold;'
-                            }, {xtype: 'splitter'},{
+                            },
+                            {xtype: 'splitter'},
+                            {
+                                xtype: 'button',
+                                text: 'Buscar',
+                                maxHeight: 25,
+                                width: 60,
+                                allowBlank: true,
+                                action: 'buscarproductosconsumopro',
+                                itemId: 'buscarproc'
+                            },{xtype: 'splitter'},{
                                 xtype: 'textfield',
                                 align: 'center',
                                 labelWidth: 60,
-                                width: 280,
+                                width: 310,
                                 itemId: 'nombreproductoforId',
                                 fieldLabel: 'Producto',
                                 name: 'nom_producto_for',                                
                                 readOnly: true
-                            },{
+                            },
+                            ,{xtype: 'splitter'},{
                                 xtype: 'textfield',
                                 align: 'center',
                                 labelWidth: 60,
-                                width: 280,
+                                width: 310,
                                 itemId: 'productoforId',
                                 fieldLabel: 'Producto',
                                 name: 'id_producto_for',                                
@@ -379,41 +411,11 @@ Ext.define('Infosys_web.view.Produccion.ProduccionTermino', {
                             },
                             {xtype: 'splitter'},
                             {
-                                xtype: 'numberfield',
-                                width: 180,
+                                xtype: 'textfield',
+                                width: 110,
                                 labelWidth: 40,
-                                fieldLabel: 'Precio',
-                                itemId: 'precioId',
-                                style: 'font-weight: bold;',
-                                readOnly: true
-                            },
-                            {xtype: 'splitter'},
-                            {
-                                xtype: 'numberfield',
-                                width: 180,
-                                labelWidth: 85,
-                                minValue: 0,
-                                fieldLabel: 'Cantidad KG.',
-                                itemId: 'cantidadoriId',
-                                readOnly: true
-                            },
-                            {xtype: 'splitter'},
-                            {
-                                xtype: 'numberfield',
-                                width: 220,
-                                labelWidth: 115,
-                                minValue: 0,
-                                fieldLabel: 'Cantidad Pro KG.',
-                                itemId: 'cantidadoproId'
-                            },
-                            {xtype: 'splitter'},
-                            {
-                                xtype: 'numberfield',
-                                width: 160,
-                                labelWidth: 60,
-                                minValue: 0,
-                                fieldLabel: 'Orig %.',
-                                itemId: 'valorporId',
+                                fieldLabel: 'Lote',
+                                itemId: 'loteId',
                                 style: 'font-weight: bold;',
                                 readOnly: true,
                                 hidden: true
@@ -421,14 +423,73 @@ Ext.define('Infosys_web.view.Produccion.ProduccionTermino', {
                             {xtype: 'splitter'},
                             {
                                 xtype: 'numberfield',
-                                width: 160,
-                                labelWidth: 60,
-                                minValue: 0,
-                                fieldLabel: 'Prod. %.',
-                                itemId: 'valorporproId',
+                                width: 110,
+                                labelWidth: 40,
+                                fieldLabel: 'Precio',
+                                itemId: 'precioId',
                                 style: 'font-weight: bold;',
+                                minValue: 0,
+                            },
+                            {xtype: 'splitter'},
+                            {
+                                xtype: 'numberfield',
+                                width: 100,
+                                labelWidth: 40,
+                                minValue: 0,
+                                fieldLabel: 'Stock',
+                                itemId: 'cantidadoriId',
+                                readOnly: true,
+                                //hidden: true
+                            },
+                            {
+                                xtype: 'numberfield',
+                                width: 100,
+                                labelWidth: 40,
+                                minValue: 0,
+                                fieldLabel: 'Stock',
+                                itemId: 'stockTotalId',
+                                readOnly: true,
                                 hidden: true
+                            },
+                            {xtype: 'splitter'},
+                            {
+                                xtype: 'numberfield',
+                                width: 100,
+                                labelWidth: 40,
+                                minValue: 0,
+                                fieldLabel: 'stock_critico',
+                                itemId: 'stockcriticoId',
+                                readOnly: true,
+                                hidden: true
+                            },
+                            {xtype: 'splitter'},
+                            {
+                                xtype: 'numberfield',
+                                width: 200,
+                                labelWidth: 115,
+                                minValue: 0,
+                                fieldLabel: 'Cantidad Pro KG.',
+                                itemId: 'cantidadoproId'
+                            },{xtype: 'splitter'},{
+                                xtype: 'numberfield',
+                                width: 200,
+                                labelWidth: 115,
+                                minValue: 0,
+                                fieldLabel: 'Cantidad For KG.',
+                                itemId: 'cantidadforId',
+                                readOnly: true,
                             },{
+                                xtype: 'datefield',
+                                fieldCls: 'required',
+                                maxHeight: 25,
+                                labelWidth: 50,
+                                width: 150,
+                                fieldLabel: '<b>VENC.</b>',
+                                itemId: 'fechavencimientoId',
+                                name: 'fecha_vencimiento',
+                                //value: new Date(),
+                                hidden: true,
+                            },{xtype: 'splitter'},{
                                 xtype: 'button',
                                 text: 'Agregar',
                                 iconCls: 'icon-plus',
@@ -436,13 +497,11 @@ Ext.define('Infosys_web.view.Produccion.ProduccionTermino', {
                                 allowBlank: true,
                                 action: 'agregarItem'
                             }]
-                        }
-
-                        ]
+                        
                         },{
                             xtype: 'grid',
                             itemId: 'itemsgridId',
-                            title: 'Detalle Produccion Final',
+                            title: 'Detalle Consumo Produccion',
                             labelWidth: 50,
                             store: 'ProduccionTermino',
                             tbar: [
@@ -452,17 +511,20 @@ Ext.define('Infosys_web.view.Produccion.ProduccionTermino', {
                                 action: 'editaritem'
                             }
                             ],
-                            height: 340,
+                            height: 225,
                             columns: [
+                                { text: 'Id',  type: 'auto', dataIndex: 'id', width: 250, hidden : true },                                
+                                { text: 'Id existencia',  dataIndex: 'id_existencia', width: 250, hidden : true },
                                 { text: 'Id producto',  dataIndex: 'id_producto', width: 250, hidden : true },
+                                { text: 'Id bodega',  dataIndex: 'id_bodega', width: 250, hidden : true },
                                 { text: 'codigo',  dataIndex: 'codigo', width: 150, hidden : true },
+                                { text: 'Lote',  dataIndex: 'lote', width: 100},
+                                { text: 'Fecha Venc.',  dataIndex: 'fecha_vencimiento', width: 120, renderer:Ext.util.Format.dateRenderer('d/m/Y') },
                                 { text: 'Producto',  dataIndex: 'nom_producto', width: 450 },
-                                { text: 'Valor Compra',  dataIndex: 'valor_compra', align: 'right',width: 150, decimalPrecision:3, hidden: true},
-                                { text: 'Cantidad',  dataIndex: 'cantidad', align: 'right',width: 150, decimalPrecision:3},
-                                { text: 'Valor Produccion',  dataIndex: 'valor_produccion', align: 'right',width: 150, renderer: function(valor){return Ext.util.Format.number((valor),"0,000")}, hidden: true },
-                                { text: 'Porcentaje',  dataIndex: 'porcentaje', align: 'right',width: 150, renderer: function(valor){return Ext.util.Format.number((valor),"0.00")} },
-                                { text: 'Cant. Prod.',  dataIndex: 'cantidad_pro', align: 'right',width: 150, renderer: function(valor){return Ext.util.Format.number((valor),"0.00")}},
-                                { text: 'Porc. Prod.',  dataIndex: 'porcentaje_pro', align: 'right',width: 150, renderer: function(valor){return Ext.util.Format.number((valor),"0.00")} },
+                                { text: 'Precio',  dataIndex: 'valor_compra', align: 'right',width: 150, decimalPrecision:3},
+                                { text: 'Cantidad',  dataIndex: 'cantidad', align: 'right',width: 150, renderer: function(valor){return Ext.util.Format.number((valor),"0.00")} },
+                                { text: 'Cantidad Real',  dataIndex: 'cantidad_real', align: 'right',width: 150, renderer: function(valor){return Ext.util.Format.number((valor),"0.00")} },
+                                
                                 ]
                             },{
                         xtype: 'fieldset',
@@ -490,7 +552,11 @@ Ext.define('Infosys_web.view.Produccion.ProduccionTermino', {
                         align: 'middle',
                         pack: 'center'
                     },
-                    items: ['->',
+                    items: [{
+                            iconCls: 'icon-reset',
+                            text: 'Cancelar',
+                            action: 'cancelar',
+                        },'->',
                         {
                             xtype: 'button',
                             //iconCls: 'icono',
@@ -503,6 +569,8 @@ Ext.define('Infosys_web.view.Produccion.ProduccionTermino', {
                             iconCls: 'icon-save',
                             scale: 'large',
                             action: 'grabarproduccion2',
+                            itemId: 'grabarproduccion2',
+                            disabled : false,  
                             text: 'Grabar / Emitir'
                         },
                         {

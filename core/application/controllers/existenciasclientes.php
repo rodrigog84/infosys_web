@@ -111,6 +111,9 @@ public function save2(){
         $nombres = $this->input->get('nombre');
         $tipo = $this->input->get('opcion');
         $rut = $this->input->get('rut');
+        if(!$tipo){
+        	$tipo=1;
+        }
            
 		if (!$nombres){
 

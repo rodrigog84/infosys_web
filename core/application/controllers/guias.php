@@ -440,6 +440,68 @@ class Guias extends CI_Controller {
 		//unlink("C:\Users\Sergio\Downloads\facturacion.txt");
 	}
 
+      public function edita2(){
+
+            $resp = array();
+            $idfactura = $this->input->get('factura');
+            $tipo = 105;
+
+            if($idfactura){
+                  $data = array();
+
+            $query = $this->db->query('SELECT acc.*, p.codigo as codigo,p.nombre as nombre_producto, c.rut as rut_cliente, f.num_factura as num_factura FROM detalle_factura_glosa acc           
+            left join productos p on (acc.id_producto = p.id)
+            left join factura_clientes f on (acc.id_factura = f.id)
+            left join clientes c on (f.id_cliente = c.id)
+            WHERE acc.id_factura = '.$idfactura.'');
+
+            if($query->num_rows()>0){
+                  foreach ($query->result() as $row){
+                   $data[] = $row; 
+                  };
+            };
+            $resp['success'] = true;
+            $resp['data'] = $data;
+            echo json_encode($resp);
+            }
+            
+            
+
+
+
+      }
+
+      public function edita(){
+
+            $resp = array();
+
+            $idfactura = $this->input->get('guidespacho');
+            $tipo = 105;
+            
+            $data = array();
+
+            $query = $this->db->query('SELECT acc.*, p.nombre as nombre_producto, c.rut as rut_cliente, f.num_factura as num_factura FROM detalle_factura_glosa acc           
+            left join productos p on (acc.id_producto = p.id)
+            left join factura_clientes f on (acc.id_factura = f.id)
+            left join clientes c on (f.id_cliente = c.id)
+            WHERE acc.id_factura = '.$idfactura.'');
+
+            if($query->num_rows()>0){
+                  $row = $query->first_row();
+                  $id = ($row->id);
+                  $data[] = $row; 
+                  $idfactura = ($row->id_factura);
+            }
+
+            $resp['success'] = true;
+            $resp['cliente'] = $data;
+            $resp['idfactura'] = $idfactura;
+            echo json_encode($resp);
+
+
+
+      }
+
 	public function procesomarca(){
 
 		$resp = array();
@@ -474,7 +536,43 @@ class Guias extends CI_Controller {
 
 	}
 
-	public function marcarguias(){
+      public function desmarcarguias(){
+
+            $resp = array();
+            $idfactura = $this->input->post('factura');
+            $tipo = 3;
+
+            $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
+            left join clientes c on (acc.id_cliente = c.id)
+            left join vendedores v on (acc.id_vendedor = v.id)
+            WHERE acc.id = '.$idfactura.''               
+            );
+
+            if($query->num_rows()>0){
+                  $row = $query->first_row();
+                  $id = ($row->id);
+
+                  $data3 = array(
+               'id_factura' => 0,
+                );
+
+                $this->db->where('id', $id);
+              
+                $this->db->update('factura_clientes', $data3);
+
+                $this->Bitacora->logger("M", 'factura_clientes', $id); 
+                  
+                  
+
+           };
+
+           $resp['success'] = true;
+           echo json_encode($resp);
+
+            
+      }
+
+      public function marcarguias(){
 
 		$resp = array();
 		$idfactura = $this->input->post('factura');
@@ -483,7 +581,7 @@ class Guias extends CI_Controller {
 		$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 		left join clientes c on (acc.id_cliente = c.id)
 		left join vendedores v on (acc.id_vendedor = v.id)
-		WHERE acc.tipo_documento in ( '.$tipo.') and acc.id = '.$idfactura.''			
+		WHERE acc.id = '.$idfactura.''			
 		);
 
 		if($query->num_rows()>0){
@@ -555,11 +653,14 @@ class Guias extends CI_Controller {
         $nombres = $this->input->get('nombre');
         $tipo = $this->input->get('documento');
         $bodega = $this->input->get('idbodega');
-        $countAll = $this->db->count_all_results("factura_clientes");
+        //$countAll = $this->db->count_all_results("factura_clientes");
 	  $data = array();
 	  $total = 0;
         if(!$tipo){
               $tipo=0;
+        }
+        if($tipo==3){
+              $tipo=105;
         }
         if(!$bodega){
               $bodega=0;
@@ -569,7 +670,7 @@ class Guias extends CI_Controller {
 			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id_bodega='.$bodega.' and acc.tipo_documento in ( '.$tipo.') and c.rut = '.$nombres.'
+			WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.tipo_documento in ( '.$tipo.') and c.rut = '.$nombres.'
 			order by acc.id desc		
 			limit '.$start.', '.$limit.''		 
 
@@ -598,7 +699,7 @@ class Guias extends CI_Controller {
 			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id_bodega='.$bodega.' and acc.tipo_documento in ( '.$tipo.') ' . $sql_nombre . '
+			WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.tipo_documento in ( '.$tipo.') ' . $sql_nombre . '
 			order by acc.id desc		
 			limit '.$start.', '.$limit.''
 						
@@ -616,44 +717,98 @@ class Guias extends CI_Controller {
 	 
 		}else if($opcion == "Todos"){
 
+                  $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
+                  left join clientes c on (acc.id_cliente = c.id)
+                  left join vendedores v on (acc.id_vendedor = v.id)
+                  WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.tipo_documento in ( '.$tipo.')
+                  order by acc.id desc' 
+
+                  );
+
+             $total = 0;
+
+              foreach ($query->result() as $row)
+                  {
+                        $total = $total +1;
+                  
+                  }
+
+                  $countAll = $total;
+
+
+
 			
 			$data = array();
-			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
-			left join clientes c on (acc.id_cliente = c.id)
-			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id_bodega='.$bodega.' and acc.tipo_documento in ( '.$tipo.')
-			order by acc.id desc'	
-			
-			);
+                  $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
+                  left join clientes c on (acc.id_cliente = c.id)
+                  left join vendedores v on (acc.id_vendedor = v.id)
+                  WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.tipo_documento in ( '.$tipo.')
+                  order by acc.id desc          
+                  limit '.$start.', '.$limit.'' 
+
+                  );
 
 
-			$total = 0;
 
-		  foreach ($query->result() as $row)
-			{
-				$total = $total +1;
-			
-			}
+		}else if($opcion == "Numero"){
 
-			$countAll = $total;
-	
+                  
+                  $data = array();
+                  $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
+                  left join clientes c on (acc.id_cliente = c.id)
+                  left join vendedores v on (acc.id_vendedor = v.id)
+                  WHERE acc.num_factura = '.$nombres.' and acc.estado="" and acc.id_bodega='.$bodega.' and acc.tipo_documento in ( '.$tipo.')
+                  order by acc.id desc'   
+                  
+                  );
 
-		}else{
 
-			
+                  $total = 0;
+
+              foreach ($query->result() as $row)
+                  {
+                        $total = $total +1;
+                  
+                  }
+
+                  $countAll = $total;
+      
+
+            }else{			
 		$data = array();
+
+            $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
+                  left join clientes c on (acc.id_cliente = c.id)
+                  left join vendedores v on (acc.id_vendedor = v.id)
+                  WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.tipo_documento in ( '.$tipo.')
+                  order by acc.id desc' 
+
+                  );
+
+             $total = 0;
+
+              foreach ($query->result() as $row)
+                  {
+                        $total = $total +1;
+                  
+                  }
+
+                  $countAll = $total;
+
+
 		$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id_bodega='.$bodega.' and acc.tipo_documento in ( '.$tipo.')
+			WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.tipo_documento in ( '.$tipo.')
 			order by acc.id desc		
 			limit '.$start.', '.$limit.''	
 
 			);
 
-
-		}		
-		
+               
+		};
+            
+           	
 		foreach ($query->result() as $row)
 		{
 			$rutautoriza = $row->rut_cliente;
@@ -679,18 +834,127 @@ class Guias extends CI_Controller {
 		     
 		    };
 		    $total = $total +1;
-			
+
+                
 		 
 			$data[] = $row;
 		}
 
 		//$countAll = $total;
+
         $resp['success'] = true;
         $resp['total'] = $countAll;
         $resp['data'] = $data;
 
         echo json_encode($resp);
 	}
+
+      public function pendientes2(){
+            
+        $resp = array();
+        $start = $this->input->get('start');
+        $limit = $this->input->get('limit');
+        $opcion = $this->input->get('opcion');
+        $nombres = $this->input->get('nombre');
+        $idcliente = $this->input->get('idcliente');
+        $tipo = 105;
+        $bodega = $this->input->get('idbodega');
+        $countAll = $this->db->count_all_results("factura_clientes");
+        $data = array();
+        $total = 0;
+
+        if(!$opcion){
+            $opcion="Todos";
+              
+        };
+       
+        if(!$bodega){
+              $bodega=1;
+        }
+       
+        if($opcion == "Id"){
+                  
+            $data = array();
+            $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
+            left join clientes c on (acc.id_cliente = c.id)
+            left join vendedores v on (acc.id_vendedor = v.id)
+            WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.tipo_documento in ('.$tipo.') and acc.id_cliente = '.$nombres.' and acc.id_factura = 0 and acc.forma= 3
+            order by acc.id desc'
+            );
+            $total = 0;
+
+            foreach ($query->result() as $row)
+                  {
+                        $total = $total +1;
+                  
+                  }
+
+                  $countAll = $total; 
+
+            };
+
+            if($opcion == "Numero"){
+            $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
+            left join clientes c on (acc.id_cliente = c.id)
+            left join vendedores v on (acc.id_vendedor = v.id)
+            WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.tipo_documento in ('.$tipo.') and acc.num_factura = '.$nombres.' and acc.id_factura = 0 and acc.forma = 3');
+            $total = 0;
+            foreach ($query->result() as $row)
+            {
+                  $total = $total +1;
+            }
+            $countAll = $total;
+            };
+
+            if($opcion == "Todos"){
+            $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
+            left join clientes c on (acc.id_cliente = c.id)
+            left join vendedores v on (acc.id_vendedor = v.id)
+            WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.tipo_documento in ('.$tipo.') and acc.id_factura = 0 and acc.forma = 3');
+            $total = 0;
+            foreach ($query->result() as $row)
+            {
+                  $total = $total +1;
+            }
+            $countAll = $total;
+            };
+            foreach ($query->result() as $row)
+            {
+                  $rutautoriza = $row->rut_cliente;
+                  if (strlen($rutautoriza) == 8){
+                  $ruta1 = substr($rutautoriza, -1);
+                  $ruta2 = substr($rutautoriza, -4, 3);
+                  $ruta3 = substr($rutautoriza, -7, 3);
+                  $ruta4 = substr($rutautoriza, -8, 1);
+                  $row->rut_cliente = ($ruta4.".".$ruta3.".".$ruta2."-".$ruta1);
+                };
+                if (strlen($rutautoriza) == 9){
+                  $ruta1 = substr($rutautoriza, -1);
+                  $ruta2 = substr($rutautoriza, -4, 3);
+                  $ruta3 = substr($rutautoriza, -7, 3);
+                  $ruta4 = substr($rutautoriza, -9, 2);
+                  $row->rut_cliente = ($ruta4.".".$ruta3.".".$ruta2."-".$ruta1);
+               
+                };
+                if (strlen($rutautoriza) == 2){
+                  $ruta1 = substr($rutautoriza, -1);
+                  $ruta2 = substr($rutautoriza, -4, 1);
+                  $row->rut_cliente = ($ruta2."-".$ruta1);
+                 
+                };
+                $total = $total +1;
+                  
+             
+                  $data[] = $row;
+            }
+
+            //$countAll = $total;
+        $resp['success'] = true;
+        $resp['total'] = $countAll;
+        $resp['data'] = $data;
+
+        echo json_encode($resp);
+      }
 
 	public function pendientes(){
 		
@@ -700,8 +964,7 @@ class Guias extends CI_Controller {
         $opcion = $this->input->get('opcion');
         $nombres = $this->input->get('nombre');
         $idcliente = $this->input->get('idcliente');
-        $tipo = $this->input->get('documento');
-        $tipo = 3;
+        $tipo = 105;
         $bodega = $this->input->get('idbodega');
         $countAll = $this->db->count_all_results("factura_clientes");
 	  $data = array();
@@ -710,16 +973,16 @@ class Guias extends CI_Controller {
               $tipo=0;
         }
         if(!$bodega){
-              $bodega=0;
+              $bodega=1;
         }
-	
 
+     
         if($opcion == "Rut"){
 		
 			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id_bodega='.$bodega.' and acc.tipo_documento in ('.$tipo.') and c.rut = '.$nombres.'
+			WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.forma = 0 and cc.tipo_documento in ('.$tipo.') and c.rut = '.$nombres.'
 			and acc.id_factura = 0
 			order by acc.id desc		
 			limit '.$start.', '.$limit.''		 
@@ -741,7 +1004,7 @@ class Guias extends CI_Controller {
 			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id_bodega='.$bodega.' and acc.tipo_documento in ('.$tipo.') and acc.num_factura = '.$nombres.'
+			WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.forma = 0 and acc.tipo_documento in ('.$tipo.') and acc.num_factura = '.$nombres.'
 			and acc.id_factura = 0'		 
 
 		);
@@ -769,7 +1032,7 @@ class Guias extends CI_Controller {
 			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id_bodega='.$bodega.' and acc.tipo_documento in ( '.$tipo.') ' . $sql_nombre . '
+			WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.forma = 0 and acc.tipo_documento in ( '.$tipo.') ' . $sql_nombre . '
 			and acc.id_factura = 0
 			order by acc.id desc		
 			limit '.$start.', '.$limit.''
@@ -792,12 +1055,10 @@ class Guias extends CI_Controller {
 			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id_bodega='.$bodega.' and acc.tipo_documento in ('.$tipo.') and acc.id_cliente = '.$nombres.'
+			WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.forma = 0 and acc.tipo_documento in ('.$tipo.') and acc.id_cliente = '.$nombres.'
 			and acc.id_factura = 0
 			order by acc.id desc'
 			);
-
-
 
 			$total = 0;
 
@@ -817,7 +1078,7 @@ class Guias extends CI_Controller {
 			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id_bodega='.$bodega.' and acc.tipo_documento in ( '.$tipo.') and acc.id_factura = 0
+			WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.forma = 0 and acc.tipo_documento in ( '.$tipo.') and acc.id_factura = 0
 			order by acc.id desc'	
 			
 			);
@@ -841,7 +1102,7 @@ class Guias extends CI_Controller {
 		$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id_bodega='.$bodega.' and acc.tipo_documento in ( '.$tipo.') and acc.id_factura = 0
+			WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.forma = 0 and acc.tipo_documento in ( '.$tipo.') and acc.id_factura = 0
 			order by acc.id desc		
 			limit '.$start.', '.$limit.''	
 
@@ -908,7 +1169,7 @@ class Guias extends CI_Controller {
 		$fafecto = $this->input->post('afectofactura');
 		$ftotal = $this->input->post('totalfacturas');
 		$descuento = $this->input->post('descuentofactuta');
-		$tipodocumento = 1;
+		$tipodocumento = 101;
 
 		$data3 = array(
 	         'correlativo' => $numfactura
@@ -949,7 +1210,32 @@ class Guias extends CI_Controller {
 		        'total' => $v->total
 			);
 
+            $query2 = $this->db->get_where('detalle_factura_cliente', array('id_factura' => $v->id_guia));
 
+            $c=0;
+
+            foreach ($query2->result() as $z){
+                  
+                  $factura_clientes_item2 = array(
+                  'id_factura' => $idfactura,
+                  'id_producto' => $z->id_producto,
+                  'nombre' => strtoupper($z->nombre),
+                  'id_existencia' => $z->id_existencia,
+                  'num_factura' => $numfactura,
+                  'precio' => $z->precio,
+                  'cantidad' => $z->cantidad,
+                  'neto' => ($z->totalproducto - $v->iva),
+                  'descuento' => $z->descuento,
+                  'iva' => $z->iva,
+                  'totalproducto' => $z->totalproducto,
+                  'fecha' => $fechafactura,
+                  'fecha_vencimiento' => $z->fecha_vencimiento,
+                  'lote' => $z->lote,
+                  );
+           
+            $this->db->insert('detalle_factura_cliente', $factura_clientes_item2);
+
+            }
 		
 		$this->db->insert('detalle_factura_glosa', $factura_clientes_item);
 
@@ -980,7 +1266,7 @@ class Guias extends CI_Controller {
 
 
 			// VERIFICAR SI CLIENTE YA TIENE CUENTA CORRIENTE
-		 $query = $this->db->query("SELECT co.idcliente, co.id as idcuentacorriente  FROM cuenta_corriente co
+		 $query = $this->db->query("SELECT co.idcliente, co.id as idcuentacorriente, co.saldo as saldo  FROM cuenta_corriente co
 		 							WHERE co.idcuentacontable = '$idcuentacontable' and co.idcliente = '" . $idcliente . "'");
     	       $row = $query->result();
 	
@@ -994,11 +1280,31 @@ class Guias extends CI_Controller {
 			$this->db->insert('cuenta_corriente', $cuenta_corriente); 
 			$idcuentacorriente = $this->db->insert_id();
 
+                  $sadoctacte = array(
+                  'cred_util' => $ftotal
+                  );
+                  $this->db->where('id', $idcliente);
+
+                  $this->db->update('clientes', $sadoctacte);
+
 
 		}else{
 			$row = $row[0];
+                  $saldoctacte=$row->saldo;
 			$query = $this->db->query("UPDATE cuenta_corriente SET saldo = saldo + " . $ftotal . " where id = " .  $row->idcuentacorriente );
 			$idcuentacorriente =  $row->idcuentacorriente;
+
+
+                  $saldoctacte=$saldoctacte + $ftotal;
+
+                  $sadoctacte = array(
+                  'cred_util' => $saldoctacte
+                  );
+                  $this->db->where('id', $idcliente);
+
+                  $this->db->update('clientes', $sadoctacte);
+
+
 		}
 
 		$detalle_cuenta_corriente = array(
@@ -1029,8 +1335,8 @@ class Guias extends CI_Controller {
 		$this->db->insert('cartola_cuenta_corriente', $cartola_cuenta_corriente); 			
 
 		/*****************************************/
-
-
+           
+            /*
 
             if($tipodocumento == 101 || $tipodocumento == 103){  // SI ES FACTURA ELECTRONICA O FACTURA EXENTA ELECTRONICA
 
@@ -1074,13 +1380,6 @@ class Guias extends CI_Controller {
 
                         //$lista_detalle[$i]['PrcItem'] = round($neto/$detalle->cantidad,2);
                         $lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 || $tipo_caf == 52 ? floor($detalle->neto) : floor($detalle->total);
-
-                        /*if($detalle->descuento != 0){
-                              $porc_descto = round(($detalle->descuento/($detalle->cantidad*$lista_detalle[$i]['PrcItem'])*100),0);
-                              $lista_detalle[$i]['DescuentoPct'] = $porc_descto;          
-                              //$lista_detalle[$i]['PrcItem'] =- $lista_detalle[$i]['PrcItem']*$porc_descto;
-
-                        }*/
 
                         $i++;
                   }
@@ -1191,18 +1490,17 @@ class Guias extends CI_Controller {
 
                   }
 
-            }
+                  /**********************************************
+
+
+            } */
 
 
             $resp['success'] = true;
 		$resp['idfactura'] = $idfactura;
 
 		$this->Bitacora->logger("I", 'factura_clientes', $idfactura);
-
-		
-        
-
-        echo json_encode($resp);
+            echo json_encode($resp);
 	}
 
 	

@@ -8,10 +8,10 @@ Ext.define('Infosys_web.model.formulas.Item', {
         {name: 'codigo'},
         {name: 'nombre_formula'},
         {name: 'nombre_producto'},
-        {name: 'cantidad'},
-        {name: 'porcentaje', decimalPrecision:2},
-        {name: 'valor_compra', decimalPrecision:2},
-        {name: 'valor_produccion', decimalPrecision:2},
+        {name: 'cantidad', decimalPrecision:4},
+        {name: 'porcentaje', decimalPrecision:4},
+        {name: 'valor_compra', decimalPrecision:4},
+        {name: 'valor_produccion', decimalPrecision:4},
        
     ]
 });

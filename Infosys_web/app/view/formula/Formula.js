@@ -299,9 +299,10 @@ Ext.define('Infosys_web.view.formula.Formula', {
                                 width: 160,
                                 labelWidth: 60,
                                 minValue: 0,
-                                //value: 1,
+                                name: 'porcentaje',  
                                 fieldLabel: 'valor %.',
-                                itemId: 'valorporId'
+                                itemId: 'valorporId',
+                                decimalPrecision: 4
                             },{
                                 xtype: 'button',
                                 text: 'Agregar',
@@ -341,10 +342,10 @@ Ext.define('Infosys_web.view.formula.Formula', {
                                 { text: 'codigo',  dataIndex: 'codigo', width: 150, hidden : true },
                                 { text: 'Producto',  dataIndex: 'nombre_producto', width: 450 },
                                 { text: 'Bodega',  dataIndex: 'id_bodega', width: 250, hidden:true},
-                                { text: 'Valor Compra',  dataIndex: 'valor_compra', align: 'right',width: 150, decimalPrecision:3},
-                                { text: 'Cantidad',  dataIndex: 'cantidad', align: 'right',width: 150, decimalPrecision:3},
+                                { text: 'Valor Compra',  dataIndex: 'valor_compra', align: 'right',width: 150, decimalPrecision:4},
+                                { text: 'Cantidad',  dataIndex: 'cantidad', align: 'right',width: 150,renderer: function(valor){return Ext.util.Format.number((valor),"0.0000")} },
                                 { text: 'Valor Produccion',  dataIndex: 'valor_produccion', align: 'right',width: 150, renderer: function(valor){return Ext.util.Format.number((valor),"0,000")} },
-                                { text: 'Porcentaje',  dataIndex: 'porcentaje', align: 'right',width: 150 },
+                                { text: 'Porcentaje',  dataIndex: 'porcentaje', align: 'right',width: 150,renderer: function(valor){return Ext.util.Format.number((valor),"0.0000")}},
                                 
                                 ]
                             },{

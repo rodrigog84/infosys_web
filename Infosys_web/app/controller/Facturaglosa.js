@@ -52,11 +52,9 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
             'facturaglosaingresar #rutId': {
                 specialkey: this.special
             },
-
             'facturaglosaingresar #numfactId': {
                 specialkey: this.special2
             },
-
             'facturasprincipal button[action=mfacturaglosa]': {
                 click: this.mfacturaglosa
             },
@@ -113,11 +111,43 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
             },
             'facturaglosaingresar #tipoDocumentoId': {
                 select: this.selectItemdocuemento
-            }
+            },
+            'facturaglosaingresar button[action=cancelar]': {
+                click: this.cancelar
+            }, 
 
             
         });
     },
+
+    cancelar: function(){
+
+        var viewIngresa = this.getFacturaglosaingresar();
+        var view = this.getFacturasprincipal();
+        var idbodega = view.down('#bodegaId').getValue();
+        var documento = viewIngresa.down('#tipoDocumentoId').getValue();
+        var numero = viewIngresa.down('#numfacturaId').getValue();
+        var folio = viewIngresa.down('#idfolio').getValue();
+       
+        if(documento){
+
+        if (documento != 2){
+             Ext.Ajax.request({
+            url: preurl + 'facturas/folio_documento_electronico2',
+            params: {
+                id_folio: folio
+            },
+             success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+            }
+           
+        });            
+        }
+        };       
+
+        viewIngresa.close();        
+    },
+
 
     validaboleta: function(){
 
@@ -172,7 +202,7 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
         
         var nombre = (record.id);    
         habilita = false;
-        if(nombre == 101 || nombre == 103){ // FACTURA ELECTRONICA
+        if(nombre == 101 || nombre == 103 || nombre == 107 || nombre == 105){ // FACTURA ELECTRONICA
 
             // se valida que exista certificado
             response_certificado = Ext.Ajax.request({
@@ -183,23 +213,30 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
 
             if(obj_certificado.existe == true){
 
-
-                //buscar folio factura electronica
-                // se buscan folios pendientes, o ocupados hace más de 4 horas
-
                 response_folio = Ext.Ajax.request({
                 async: false,
                 url: preurl + 'facturas/folio_documento_electronico/'+nombre});  
                 var obj_folio = Ext.decode(response_folio.responseText);
                 nuevo_folio = obj_folio.folio;
+                fecha_venc = obj_folio.fecha_venc;
+                id_folio = obj_folio.idfolio; 
+                valida = obj_folio.valida;
+                //console.log(valida);
+                if (valida == "SI"){
+
+                    view.close();
+                    Ext.Msg.alert('Atención','Folios Vencidos');
+                    return;
+                    
+                }else{
                 if(nuevo_folio != 0){
                     view.down('#numfacturaId').setValue(nuevo_folio);  
+                    view.down('#idfolio').setValue(id_folio);
                     habilita = true;
                 }else{
                     Ext.Msg.alert('Atención','No existen folios disponibles');
-                    view.down('#numfacturaId').setValue('');  
-
-                    //return
+                    view.down('#numfacturaId').setValue(''); 
+                }
                 }
 
             }else{
@@ -242,7 +279,7 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
 
         
         //var bolDisabled = tipo_documento.getValue() == 2 ? true : false; // campos se habilitan sólo en factura
-        var bolDisabled = tipo_documento.getValue() == 1 || tipo_documento.getValue() == 19 || ((tipo_documento.getValue() == 101 || tipo_documento.getValue() == 103) && habilita) ? false : true; // campos se habilitan sólo en factura o factura electronica
+        var bolDisabled = tipo_documento.getValue() == 1 || tipo_documento.getValue() == 19 || ((tipo_documento.getValue() == 101 || tipo_documento.getValue() == 103 || tipo_documento.getValue() == 107) && habilita) ? false : true; // campos se habilitan sólo en factura o factura electronica
 
         if(bolDisabled == true){  // limpiar campos
            view.down('#rutId').setValue('19');
@@ -629,7 +666,7 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
         var numdocumento = viewIngresa.down('#numfacturaId').getValue();
         var fechafactura = viewIngresa.down('#fechafacturaId').getValue();
         var fechavenc = viewIngresa.down('#fechavencId').getValue();
-        var idbodega = view.down('#bodegaId').getValue();
+        var idbodega = viewIngresa.down('#bodegaId').getValue();
         var stItem = this.getFacturaglosaItemsStore();
         var stFactura = this.getFacturaStore();        
         
@@ -667,17 +704,18 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
                 var resp = Ext.JSON.decode(response.responseText);
                 var idfactura= resp.idfactura;
                  viewIngresa.close();
-                 stFactura.load();
-                 window.open(preurl + 'facturaglosa/exportfacturaglosaPDF/?idfactura='+idfactura);
+                 stFactura.reload();
+                 window.open(preurl + 'facturaglosa/exportPDF/?idfactura='+idfactura);
 
             }
            
         });
         
-        var view = this.getFacturaglosaingresar();
+        var view = this.getFacturasprincipal();
         var st = this.getFacturaStore();
-        st.proxy.extraParams = {documento: idtipo}
-        st.load();       
+        st.proxy.extraParams = {documento: idtipo,
+                                idbodega: idbodega}
+        st.load();        
         
     },
 
@@ -723,7 +761,27 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
                         view.down("#tipoVendedorId").setValue(cliente.id_vendedor)
                         view.down("#giroId").setValue(cliente.giro)
                         view.down("#direccionId").setValue(cliente.direccion)
-                        view.down("#rutId").setValue(rut)                  
+                        view.down('#tipocondpagoId').setValue(cliente.id_pago);
+                        view.down("#rutId").setValue(rut)
+                        var condicion = view.down('#tipocondpagoId');
+                            var fechafactura = view.down('#fechafacturaId').getValue();
+                            var stCombo = condicion.getStore();
+                            var record = stCombo.findRecord('id', condicion.getValue()).data;
+                            dias = record.dias;
+                        
+                            Ext.Ajax.request({
+                                url: preurl + 'facturas/calculofechas',
+                                params: {
+                                    dias: dias,
+                                    fechafactura : fechafactura
+                                },
+                                success: function(response){
+                                   var resp = Ext.JSON.decode(response.responseText);
+                                   var fecha_final= resp.fecha_final;
+                                   view.down("#fechavencId").setValue(fecha_final);
+                                               
+                            }  
+                            });               
                     }else{
                          Ext.Msg.alert('Rut No Exite');
                          view.down("#rutId").setValue(cero); 

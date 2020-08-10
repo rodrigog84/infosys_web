@@ -81,6 +81,22 @@ Ext.define('Infosys_web.view.Pedidos.Principal' ,{
         renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00")}
         
     },{
+        header: "Ver",
+        xtype:'actioncolumn',
+        align: 'center',
+        width:100,
+        items: [{
+            icon: 'images/search_page.png',  // Use a URL in the icon config
+            tooltip: 'Ver Pedido',
+            handler: function(grid, rowIndex, colIndex) {
+                var rec = grid.getStore().getAt(rowIndex);
+                window.open(preurl +'pedidos/exportPDF/?idpedidos=' + rec.raw.id)
+              
+            }
+            
+            }
+        ],
+    },{
         header: "Bodega",
         flex: 1,
         dataIndex: 'nom_bodega',
@@ -129,6 +145,11 @@ Ext.define('Infosys_web.view.Pedidos.Principal' ,{
                 iconCls: 'icon-add',
                 action: 'estadopedidos',
                 text : 'Estado Pedido'
+            },'-',{
+                xtype: 'button',
+                iconCls: 'icon-delete',
+                action: 'eliminar',
+                text : 'Elimina'
             },'->',{
                 xtype: 'combo',
                 width: 130,

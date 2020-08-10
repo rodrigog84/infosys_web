@@ -63,7 +63,7 @@ class Cod_activ extends CI_Controller {
 		$countAll = $this->db->count_all_results("cod_activ_econ");
 
 		if($nombres){
-			$query = $this->db->query('SELECT * FROM cod_activ_econ WHERE nombre like "%'.$nombres.'%" limit '.$start.', '.$limit.'');
+			$query = $this->db->query('SELECT * FROM cod_activ_econ WHERE nombre like "%'.$nombres.'%"');
 		}else{
 			
 			$query = $this->db->query('SELECT * FROM cod_activ_econ');

@@ -1,4 +1,3 @@
-
 Ext.define('Infosys_web.view.clientes.Autoriza', {
     extend: 'Ext.window.Window',
     alias: 'widget.autorizacionclientes',

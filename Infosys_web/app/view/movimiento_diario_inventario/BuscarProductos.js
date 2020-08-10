@@ -26,7 +26,7 @@ Ext.define('Infosys_web.view.movimiento_diario_inventario.BuscarProductos' ,{
                 listeners: {
                     itemdblclick: function(dataview, r, item, index, e) {
                         var win =this.up('buscarproductos')
-                        record.set({producto: parseInt(r.get('id')), stock: r.get('stock')})
+                        record.set({producto: parseInt(r.get('id')), stock: r.get('stock'), lote: r.get('u_lote')})
                         win.close()
                     }
                 }
@@ -51,6 +51,11 @@ Ext.define('Infosys_web.view.movimiento_diario_inventario.BuscarProductos' ,{
                 header: "Stock",
                 flex: 1,
                 dataIndex: 'stock'
+            },{
+                header: "Lote",
+                flex: 1,
+                dataIndex: 'u_lote',
+                hidden: true
             }],
         };
         this.dockedItems = [{
@@ -81,7 +86,7 @@ Ext.define('Infosys_web.view.movimiento_diario_inventario.BuscarProductos' ,{
                 var grid = win.down('grid');
                 if (grid.getSelectionModel().hasSelection()) {
                     var row = grid.getSelectionModel().getSelection()[0];
-                    record.set({producto: parseInt(row.get('id')), stock: row.get('stock')})
+                    record.set({producto: parseInt(row.get('id')), stock: row.get('stock'), lote: row.get('u_lote')})
                     win.close()
                 }else{
                     Ext.Msg.alert('Alerta', 'Selecciona un registro.');

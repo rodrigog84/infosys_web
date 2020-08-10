@@ -98,6 +98,18 @@ Ext.define('Infosys_web.view.guiasdespacho.Facturaguias', {
                                             fieldLabel: '<b>NUMERO DOCUMENTO</b>',
                                             readOnly: true
                                         },{
+                                            xtype: 'textfield',
+                                            fieldCls: 'required',
+                                            maxHeight: 25,
+                                            width: 250,
+                                            labelWidth: 150,
+                                            allowBlank: false,
+                                            name: 'id_folio',
+                                            itemId: 'idfolio',
+                                            fieldLabel: '<b>ID FOLIO</b>',
+                                            hidden: true
+
+                                        },{
                                             xtype: 'displayfield',
                                             width: 45
                                            
@@ -432,7 +444,7 @@ Ext.define('Infosys_web.view.guiasdespacho.Facturaguias', {
                             tbar: [{
                                 iconCls: 'icon-delete',
                                 text: 'Eliminar',
-                                action: 'eliminaritem'
+                                action: 'eliminaritem3'
                             }
                             ],
                             height: 210,
@@ -549,7 +561,11 @@ Ext.define('Infosys_web.view.guiasdespacho.Facturaguias', {
                         align: 'middle',
                         pack: 'center'
                     },
-                    items: ['->',{
+                    items: [{
+                            iconCls: 'icon-reset',
+                            text: 'Cancelar',
+                            action: 'cancelar',
+                        },'->',{
                             xtype: 'button',
                             //iconCls: 'icono',
                             scale: 'large',

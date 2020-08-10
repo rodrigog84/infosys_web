@@ -14,6 +14,13 @@ Ext.define('Infosys_web.view.notadebito.Principal' ,{
 
     },
     columns: [{
+        header: "Tipo Documento",
+        flex: 1,
+        dataIndex: 'tipo_documento',
+        align: 'right',
+        hidden: true
+               
+    },{
         header: "Documento",
         flex: 1,
         dataIndex: 'num_factura',
@@ -90,6 +97,103 @@ Ext.define('Infosys_web.view.notadebito.Principal' ,{
         renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00")}
      
         
+    },{
+        header: "Forma",
+        flex: 1,
+        dataIndex: 'forma',
+        hidden: true
+    },{
+            header: "Estado DTE",
+            xtype:'actioncolumn',
+            width:90,
+            align: 'center',
+            items: [{
+                icon: 'images/search_page.png',  // Use a URL in the icon config
+                tooltip: 'Ver Estado DTE',
+                handler: function(grid, rowIndex, colIndex) {
+                    var rec = grid.getStore().getAt(rowIndex);
+                    //salert("Edit " + rec.get('firstname'));
+                    var vista = this.up('notadebitoprincipal');
+                    vista.fireEvent('verEstadoDte',rec,1)
+                },
+                isDisabled: function(view, rowIndex, colIndex, item, record) {
+                    // Returns true if 'editable' is false (, null, or undefined)
+                    if(record.get('tipo_documento') == 104){
+                        return false;
+                    }else{
+                        return true;
+                    }
+                }                
+            }]
+    },{
+            header: "DTE SII",
+            xtype:'actioncolumn',
+            width:70,
+            align: 'center',
+            items: [{
+                icon: 'images/xml-icon.png',  // Use a URL in the icon config
+                tooltip: 'Descargar DTE',
+                handler: function(grid, rowIndex, colIndex) {
+                    var rec = grid.getStore().getAt(rowIndex);
+                    //salert("Edit " + rec.get('firstname'));
+                    var vista = this.up('notadebitoprincipal');
+                    vista.fireEvent('verEstadoDte',rec,2)
+                },
+                isDisabled: function(view, rowIndex, colIndex, item, record) {
+                    // Returns true if 'editable' is false (, null, or undefined)
+                    if(record.get('tipo_documento') == 104){
+                        return false;
+                    }else{
+                        return true;
+                    }
+                }                
+            }]
+    },{
+             header: "DTE Cliente",
+             xtype:'actioncolumn',
+             width:90,
+             align: 'center',
+             items: [{
+                 icon: 'images/xml-icon.png',  // Use a URL in the icon config
+                 tooltip: 'Descargar DTE',
+                 handler: function(grid, rowIndex, colIndex) {
+                     var rec = grid.getStore().getAt(rowIndex);
+                     //salert("Edit " + rec.get('firstname'));
+                     var vista = this.up('notadebitoprincipal');
+                     vista.fireEvent('verEstadoDte',rec,5)
+                 },
+                 isDisabled: function(view, rowIndex, colIndex, item, record) {
+                     // Returns true if 'editable' is false (, null, or undefined)
+                     if(record.get('tipo_documento') == 104){
+                         return false;
+                     }else{
+                         return true;
+                     }
+                 }                
+             }]
+     },{
+            header: "Env&iacute;o SII",
+            xtype:'actioncolumn',
+            width:70,
+            align: 'center',
+            items: [{
+                iconCls: 'icon-upload',  // Use a URL in the icon config
+                tooltip: 'Ver Estado Env&iacute;o',
+                handler: function(grid, rowIndex, colIndex) {
+                    var rec = grid.getStore().getAt(rowIndex);
+                    //salert("Edit " + rec.get('firstname'));
+                    var vista = this.up('notadebitoprincipal');
+                    vista.fireEvent('verEstadoDte',rec,3)
+                },
+                isDisabled: function(view, rowIndex, colIndex, item, record) {
+                    // Returns true if 'editable' is false (, null, or undefined)
+                    if(record.get('tipo_documento') == 104){
+                        return false;
+                    }else{
+                        return true;
+                    }
+                }                
+            }]        
     }],
     
     initComponent: function() {
@@ -138,6 +242,25 @@ Ext.define('Infosys_web.view.notadebito.Principal' ,{
                 action: 'cerrarfactura',
                 text : 'Cerrar'
             }]      
+        },{
+            xtype: 'toolbar',
+            dock: 'top',
+            items: ['-',{
+                xtype: 'combo',
+                itemId: 'bodegaId',
+                labelWidth: 60,
+                width: 205,
+                fieldCls: 'required',
+                maxHeight: 25,
+                fieldLabel: '<b>BODEGA</b>',
+                forceSelection : true,
+                name : 'id_bodega',
+                valueField : 'id',
+                displayField : 'nombre',
+                emptyText : "Seleccione",
+                value: "1",
+                store : 'Bodegas'
+            }],
         },{
             xtype: 'pagingtoolbar',
             dock:'bottom',

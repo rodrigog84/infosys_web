@@ -19,6 +19,7 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
     ],
 
     autoShow: true,
+    //closable: false,
     height: 640,
     width: 1300,
     layout: 'fit',
@@ -98,6 +99,18 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                                             fieldLabel: '<b>NUMERO DOCUMENTO</b>',
                                             readOnly: true
 
+
+                                        },{
+                                            xtype: 'textfield',
+                                            fieldCls: 'required',
+                                            maxHeight: 25,
+                                            width: 250,
+                                            labelWidth: 150,
+                                            allowBlank: false,
+                                            name: 'id_folio',
+                                            itemId: 'idfolio',
+                                            fieldLabel: '<b>ID FOLIO</b>',
+                                            hidden: true
 
                                         },{
                                             xtype: 'displayfield',
@@ -398,7 +411,7 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                                 xtype: 'textfield',
                                 itemId: 'idpId',
                                 name : 'idp',
-                                fieldLabel: 'Id',
+                                fieldLabel: 'Existencia',
                                 hidden: true
                             },
                             {xtype: 'splitter'},
@@ -541,14 +554,14 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                             ],
                             height: 210,
                             columns: [
-                                { text: 'Id',  dataIndex: 'id', width: 100, hidden : true },
+                                { text: 'Id existencia',  dataIndex: 'id_existencia', width: 100, hidden : true },
                                 { text: 'Id producto',  dataIndex: 'id_producto', width: 100, hidden : true },
                                 { text: 'Id descuento',  dataIndex: 'id_descuento', width: 100, hidden : true },
                                 { text: 'codigo',  dataIndex: 'codigo', width: 100, hidden : true },
                                 { text: 'Producto',  dataIndex: 'nombre', width: 250 },
                                 { text: 'Lote',  dataIndex: 'lote', width: 100},
-                                { text: 'Fecha Venc.',  dataIndex: 'fecha_vencimiento', width: 120 },
-                                { text: 'Precio Unitario',  dataIndex: 'precio', align: 'right',width: 100, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} },
+                                { text: 'Fecha Venc.',  dataIndex: 'fecha_vencimiento', width: 120, renderer:Ext.util.Format.dateRenderer('d/m/Y') },
+                                { text: 'Precio Unitario',  dataIndex: 'precio', align: 'right',width: 100, renderer: function(valor){return Ext.util.Format.number((valor),"0.00")} },
                                 { text: 'Precio Promedio',  dataIndex: 'p_promedio', align: 'right',flex:1,hidden: true },
                                 { text: 'Cantidad',  dataIndex: 'cantidad', align: 'right',width: 100},
                                 { text: 'Descuento',  dataIndex: 'dcto', align: 'right',width: 100, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} },
@@ -660,7 +673,11 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                         align: 'middle',
                         pack: 'center'
                     },
-                    items: ['->',
+                    items: [{
+                            iconCls: 'icon-reset',
+                            text: 'Cancelar',
+                            action: 'cancelar',
+                        },'->',
                         {
                             xtype: 'button',
                             //iconCls: 'icono',
@@ -672,6 +689,8 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                             iconCls: 'icon-save',
                             scale: 'large',
                             action: 'grabarfactura',
+                            itemId: 'grabarfactura',
+                            disabled : false,  
                             text: 'Grabar / Emitir'
                         },
                         {

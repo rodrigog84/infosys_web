@@ -6,7 +6,7 @@ Ext.define('Infosys_web.view.existencia.detalle_existencias' ,{
     title : 'Detalle Existencias ',
     layout: 'fit',
     autoShow: true,
-    width: 880,
+    width: 1200,
     height: 480,
     modal: true,
     iconCls: 'icon-sheet',
@@ -47,32 +47,36 @@ Ext.define('Infosys_web.view.existencia.detalle_existencias' ,{
                 flex: 1,
                 dataIndex: 'nom_bodega'
             },{
+                header: "Lote",
+                flex: 1,
+                dataIndex: 'lote'
+            },{
                 header: "Entrada",
                 flex: 1,
                 dataIndex: 'cantidad_entrada',
                 align: 'right',
-                renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")}
+                renderer: function(valor){return Ext.util.Format.number((valor),"0,000.00")}
 
             },{
                 header: "Salida",
                 flex: 1,
                 dataIndex: 'cantidad_salida',
                 align: 'right',
-                renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")}
+                renderer: function(valor){return Ext.util.Format.number((valor),"0,000.00")}
 
             },{
                 header: "Saldo",
                 flex: 1,
                 dataIndex: 'saldo',
                 align: 'right',
-                renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")}
+                renderer: function(valor){return Ext.util.Format.number((valor),"0,000.00")}
 
             },{
                 header: "Valor",
                 flex: 1,
                 dataIndex: 'valor_producto',
                 align: 'right',
-                renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")}
+                renderer: function(valor){return Ext.util.Format.number((valor),"0,000.00")}
 
             },{
                 header: "Fecha",
@@ -80,7 +84,45 @@ Ext.define('Infosys_web.view.existencia.detalle_existencias' ,{
                 type: 'date',
                 renderer:Ext.util.Format.dateRenderer('d/m/Y'),  
                 dataIndex: 'fecha_movimiento'
-            }],
+            },{
+                header: "O/C",
+                flex: 1,
+                type: 'num_o_compra',
+                hidden: true
+            },{
+                header: "Ver",
+                xtype:'actioncolumn',
+                align: 'center',
+                width:100,
+                items: [{
+                icon: 'images/search_page.png',  // Use a URL in the icon config
+                tooltip: 'Ver Pedido',
+                handler: function(grid, rowIndex, colIndex) {
+                    var rec = grid.getStore().getAt(rowIndex);
+                    console.log(rec.raw.nom_tipo_movimiento);
+                    console.log(rec.raw.num_movimiento);
+                    var tipo = (rec.raw.nom_tipo_movimiento);
+                    var entrada = (rec.raw.cantidad_entrada);
+                    var salida = (rec.raw.cantidad_salida);
+                    var n_orden = (rec.raw.num_o_compra);
+                    if(tipo=="FORMULARIO PRODUCCION"){
+                        window.open(preurl +'produccion/exportPDF5/?idproduccion=' + rec.raw.num_movimiento)
+                    };
+                    if(tipo=="GUIA DESPACHO ELECTRONICA"){
+                        if(entrada>0){
+                        window.open(preurl +'ordencompra/exportPDF5/?idproduccion=' + rec.raw.num_o_compra)
+                        };
+                        /*if(salida>0){
+                        window.open(preurl +'ordencompra/exportPDF5/?idproduccion=' + rec.raw.num_movimiento)
+                        };*/
+                    };
+                    //window.open(preurl +'pedidos/exportPDF/?idpedidos=' + rec.raw.id)
+                  
+                }
+
+                }
+                ],
+                }],
             };
 
         this.dockedItems = [{
@@ -101,14 +143,14 @@ Ext.define('Infosys_web.view.existencia.detalle_existencias' ,{
             },'->',{
                 xtype: 'numberfield',
                 itemId: 'stockId',
-                name : 'stock',
-                renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")},
-
-                width: 160,
+                name : 'stock',                
+                width: 220,
                 fieldLabel: '<b>Stock</b>',
                 labelAlign: 'right',
                 align: 'top',
-                readOnly: true
+                readOnly: true,
+                renderer: function(valor){return Ext.util.Format.number((valor),"0,000.00")}
+
             },
             ]      
         }

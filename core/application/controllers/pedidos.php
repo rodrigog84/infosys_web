@@ -9,16 +9,50 @@ class Pedidos extends CI_Controller {
 		$this->load->database();
 	}
 
+	public function eliminapedido(){
+
+		$resp = array();
+		$idpedido = $this->input->get('idpedidos');
+
+		$pedidosver = $this->db->query('SELECT id, estado FROM pedidos WHERE id="'.$idpedido.'" ');	
+
+		
+
+		if($pedidosver->num_rows()>0){
+
+			$row = $pedidosver->first_row();
+	   		$estado = $row->estado;	
+	   		
+			if($estado=="1" or $estado=="4"){
+
+				$query = $this->db->query('DELETE FROM pedidos WHERE id = "'.$idpedido.'"');
+
+				$query = $this->db->query('DELETE FROM pedidos_detalle WHERE id_pedido = "'.$idpedido.'"');
+
+				$resp['success'] = true;
+	    	
+	        }else{
+	        	$resp['success'] = false;	        	
+	        }
+				
+		}else{
+			$resp['success'] = false;
+			
+		};
+
+        echo json_encode($resp);
+	}
+
 	public function estado(){
 
 		$resp = array();
 		$idpedidos = $this->input->get('idpedidos');
 		
-		$query = $this->db->query('SELECT acc.*, pr.id as id_produccion, pr.num_produccion as num_produccion, pr.fecha_produccion as fecha_inicio,  pr.fecha_termino as fecha_termino, fo.nom_formula as nom_formula, pro.nombre as nom_producto, pe.cantidad as cantidad, pr.cantidad_prod as cantidad_prod, pr.hora_inicio as hora_inicio, pr.hora_termino as hora_termino FROM pedidos acc
-		left join produccion pr on (acc.id = pr.id)
+		$query = $this->db->query('SELECT acc.*, pr.id as id_produccion, pr.num_produccion as num_produccion, pr.fecha_produccion as fecha_inicio,  pr.fecha_termino as fecha_termino, fo.nom_formula as nom_formula, pro.nombre as nom_producto, pe.cantidad as cantidad, pr.cantidad_prod as cantidad_prod, pr.cant_real as cant_real, pr.hora_inicio as hora_inicio, pr.hora_termino as hora_termino FROM pedidos acc
+		left join produccion pr on (acc.id = pr.id_pedido)
 		left join formula_pedido fo on (acc.id = fo.id)
 		left join pedidos_detalle pe on (acc.id = pe.id)
-		left join productos pro on (pe.id_producto = pro.id)
+		left join productos pro on (pr.id_producto = pro.id)
 		WHERE acc.id = "'.$idpedidos.'"
 		');
 
@@ -90,6 +124,7 @@ class Pedidos extends CI_Controller {
 			$producto = $producto->result();
 			$producto = $producto[0];
 			$item->nombre_producto = $producto->nombre;
+			$item->codigo = $producto->codigo;
 			$data[] = $item;
 
 		}	     	
@@ -567,6 +602,7 @@ class Pedidos extends CI_Controller {
 		$vendedor = $row->nom_vendedor;
 		$observacion = $row->observa;
 		$fecha = $row->fecha_doc;
+		$fecha_despacho = $row->fecha_despacho;
 		$totaliva = 0;
 		$neto = ($row->total / 1.19);
 		$iva = ($row->total - $neto);
@@ -609,7 +645,9 @@ class Pedidos extends CI_Controller {
 	          <p>PEDIDO N°: '.$codigo.'</p>
 	          <!--p>&nbsp;</p-->
 	          <p>FECHA EMISION : '.$fecha.'</p>
-	          <!--p>&nbsp;</p-->		         
+	          <!--p>&nbsp;</p-->
+	          <p>FECHA DESPACHO : '.$fecha_despacho.'</p>
+	          <!--p>&nbsp;</p-->			         
 			</td>
 		  </tr>
 		  <tr>
@@ -772,6 +810,221 @@ class Pedidos extends CI_Controller {
 		exit;
 	}
 
+	public function exportPDF2(){
+		$idpedidos = $this->input->get('idpedidos');
+		$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor, cor.nombre as nom_documento, op.observaciones as observa, f.nombre_formula as nombre_formula FROM pedidos acc
+		left join correlativos cor on (acc.tip_documento = cor.id)
+		left join clientes c on (acc.id_cliente = c.id)
+		left join vendedores v on (acc.id_vendedor = v.id)
+		left join formula f on (acc.id_formula = f.id)
+		left join observacion_pedidos op on (acc.num_pedido = op.num_pedidos)
+		WHERE acc.id = "'.$idpedidos.'"
+		');
+		//cotizacion header
+		$row = $query->result();
+		$row = $row[0];
+		//items
+		$items = $this->db->get_where('pedidos_detalle', array('id_pedido' => $idpedidos));
+		
+			
+		$codigo = $row->num_pedido;
+		$nombre_contacto = $row->nombre_cliente;
+		$vendedor = $row->nom_vendedor;
+		$observacion = $row->observa;
+		$fecha = $row->fecha_doc;
+		$totaliva = 0;
+		$neto = ($row->total / 1.19);
+		$iva = ($row->total - $neto);
+		$subtotal = ($row->total);		
+
+		$this->load->model('facturaelectronica');
+      $empresa = $this->facturaelectronica->get_empresa();
+
+      $logo =  PATH_FILES."facturacion_electronica/images/".$empresa->logo; 
+
+
+
+		$html = '
+		<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+		<html xmlns="http://www.w3.org/1999/xhtml">
+		<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<title>Pedidos</title>
+		<style type="text/css">
+		td {
+			font-size: 16px;
+		}
+		p {
+		}
+		</style>
+		</head>
+
+		<body>
+		<table width="892px" height="602" border="0">
+		  <tr>
+		   <td width="197px"><img src="' . $logo . '" width="150" height="136" /></td>
+		    <td width="493px" style="font-size: 14px;text-align:center;vertical-align:text-top"	>
+		     <p>' . $empresa->razon_social .'</p>
+        <p>RUT:' . number_format($empresa->rut,0,".",".").'-' . $empresa->dv . '</p>
+        <p>' . $empresa->dir_origen . ' - ' . $empresa->comuna_origen . ' - Chile</p>
+        <p>Fonos: ' . $empresa->fono . '</p>
+		    <p>http://www.lircay.cl</p>
+		    </td>
+	    <td width="296px" style="font-size: 16px;text-align:left;vertical-align:text-top"	>
+	          <p>PEDIDO N°: '.$codigo.'</p>
+	          <!--p>&nbsp;</p-->
+	          <p>FECHA EMISION : '.$fecha.'</p>
+	          <!--p>&nbsp;</p-->		         
+			</td>
+		  </tr>
+		  <tr>
+			<td style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:center;" colspan="3" width="892px"><h1>PEDIDOS</h1></td>
+		  </tr>
+		  <tr>
+		    <td colspan="3" width="892px" >
+		    	<table width="987px" border="0">
+		    		<tr>
+		    			<td width="197px">Sr.(es):</td>
+		    			<td width="395px">'. $row->nombre_cliente.'</td>
+		    			<td width="197px">Rut:</td>
+		    			<td width="197px">'. number_format(substr($row->rut_cliente, 0, strlen($row->rut_cliente) - 1),0,".",".")."-".substr($row->rut_cliente,-1).'</td>
+		    		</tr>
+		    		<tr>
+		    		
+		    		</tr>
+		    		<tr>
+		    		
+		    		</tr>    	
+		    		
+		    	</table>
+			</td>
+		  </tr>
+		  <tr>
+		    <td colspan="3" >
+		    	<table width="950px" cellspacing="0" cellpadding="0" >
+		      <tr>
+		        <td width="100px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:left;" >Codigo</td>
+		        <td width="448px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:left;" >Descripcion</td>
+		        <td width="168px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Cantidad</td>
+		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Precio</td>
+		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Neto</td>
+		        
+		       </tr>';
+		$descripciones = '';
+		$i = 0;
+
+		foreach($items->result() as $v){			
+			//$i = 0;
+			//while($i < 30){
+			$this->db->where('id', $v->id_producto);
+			$producto = $this->db->get("productos");	
+			$producto = $producto->result();
+			$producto = $producto[0];
+			
+			$html .= '<tr>
+			<td style="text-align:left">'.$producto->codigo.'</td>
+			<td style="text-align:left">'.$producto->nombre.'</td>			
+			<td align="right">'.number_format($v->cantidad, 2, '.', ',').'</td>
+			<td align="right">'.number_format($v->precio, 2, '.', ',').'</td>
+			<td align="right">'.number_format($neto, 0, '.', ',').'</td>
+			
+			</tr>';
+			
+			//}
+			$i++;
+		}
+
+		// RELLENA ESPACIO
+		/*while($i < 30){
+			$html .= '<tr><td colspan="5">&nbsp;</td></tr>';
+			$i++;
+		}*/
+
+
+		$html .= '<tr><td colspan="5">&nbsp;</td></tr></table></td>
+		  </tr>
+		  <tr>
+		  <td colspan="2" rowspan="6" style="font-size: 12px;border-bottom:1pt solid black;border-top:1pt solid black;border-left:1pt solid black;border-right:1pt solid black;text-align:left;">'.$observacion.'</td>
+		  	
+		  </tr>
+		  <tr>
+		  	<td>
+				<table width="296px" border="0">
+					<tr>
+						<td width="150px" style="font-size: 20px;text-align:left;"></td>
+						<td width="146px" style="text-align:right;"></td>
+					</tr>
+				</table>
+		  	</td>		  
+		  </tr>	
+		  <tr>
+		  	<td>
+				<table width="296px" border="0">
+					<tr>
+						<td width="150px" style="font-size: 20px;text-align:left;">Neto</td>
+						<td width="146px" style="text-align:right;">$ '.number_format($neto, 0, '.', ',').'</td>
+					</tr>
+				</table>
+		  	</td>		  
+		  </tr>	
+		  <tr>
+		  	<td>
+				<table width="296px" border="0">
+					<tr>
+						<td width="150px" style="font-size: 20px;text-align:left;">IVA</td>
+						<td width="146px" style="text-align:right;">$ '.number_format($iva, 0, '.', ',').'</td>
+					</tr>
+				</table>
+		  	</td>		  
+		  </tr>
+		  <tr>
+		  	<td>
+				<table width="296px" border="0">
+					<tr>
+						<td width="150px" style="font-size: 20px;text-align:left;">Total</td>
+						<td width="146px" style="text-align:right;">$ '. number_format($row->total, 0, '.', ',') .'</td>
+					</tr>
+				</table>
+		  	</td>		  
+		  </tr>
+		  <tr>
+		  	<td>&nbsp;</td>		  
+		  </tr>
+		  <tr>
+		  	<td>&nbsp;</td>		  
+		  </tr>		  		  		  	  
+		 
+		  
+		</table>
+		</body>
+		</html>
+		';
+		//==============================================================
+		//==============================================================
+		//==============================================================
+
+		include(dirname(__FILE__)."/../libraries/mpdf60/mpdf.php");
+
+		$mpdf= new mPDF(
+			'',    // mode - default ''
+			'',    // format - A4, for example, default ''
+			0,     // font size - default 0
+			'',    // default font family
+			15,    // margin_left
+			15,    // margin right
+			16,    // margin top
+			16,    // margin bottom
+			9,     // margin header
+			9,     // margin footer
+			'L'    // L - landscape, P - portrait
+			);  
+
+		$mpdf->WriteHTML($html);
+		$mpdf->Output("CF_{$codigo}.pdf", "I");
+		
+		exit;
+	}
+
 	public function save(){
 
 		$resp = array();
@@ -779,12 +1032,13 @@ class Pedidos extends CI_Controller {
 		$nomcliente = $this->input->post('nomcliente');
 		$numeropedido = $this->input->post('numeropedido');
 		$idbodega = $this->input->post('idbodega');
-		$idformula = $this->input->post('idformula');
+		//$idformula = $this->input->post('idformula');
 		$fechapedidos = $this->input->post('fechapedido');
 		$fechadoc = $this->input->post('fechadocum');
 		$vendedor = $this->input->post('vendedor');
 		$sucursal = $this->input->post('sucursal');
-		$nomformula = $this->input->post('nomformula');
+		$fechadespachooc = $this->input->post('fechadespacho');
+		//$nomformula = $this->input->post('nomformula');
 		$cantidadform = $this->input->post('cantidadfor');
 		$items = json_decode($this->input->post('items'));
 		$neto = $this->input->post('neto');
@@ -801,9 +1055,9 @@ class Pedidos extends CI_Controller {
 	        'nombre_cliente' => strtoupper($nomcliente),
 	        'id_bodega' => $idbodega,
 	        'id_vendedor' => $vendedor,
-	        'id_formula' => $idformula,
-	        'nom_formula' => $nomformula,
-	        'cantidad' => $cantidadform,
+	        'fecha_despacho' => $fechadespachooc,
+	        //'id_formula' => $idformula,
+	        //'nom_formula' => $nomformula,
 	        'fecha_pedido' => $fechapedidos,
 	        'neto' => $neto,
 	        'iva' => $fiva,
@@ -816,8 +1070,11 @@ class Pedidos extends CI_Controller {
 		$idpedidos = $this->db->insert_id();
 
 		$secuencia = 0;
+		$cantidadform = 0;
 
 		foreach($items as $v){
+
+			$cantidadform = $cantidadform + $v->cantidad;
 
 			$secuencia = $secuencia + 1;
 			$pedidos_detalle = array(
@@ -878,8 +1135,17 @@ class Pedidos extends CI_Controller {
 	    };
     	
 		};
+		
+		$data2 = array(
+	        'cantidad' => $cantidadform,
 
-		$itemsf = $this->db->query('SELECT * FROM formula_detalle 
+	    );
+		$this->db->where('id', $idpedidos);
+		
+		$this->db->update('pedidos', $data2); 
+	        
+
+		/*$itemsf = $this->db->query('SELECT * FROM formula_detalle 
 	   	    WHERE id_formula like "'.$idformula.'"');
 
 		foreach($itemsf->result() as $item){
@@ -896,7 +1162,7 @@ class Pedidos extends CI_Controller {
 		        );
 
 		$this->db->insert('formula_pedido', $formula_detalle2);	
-		}	 
+		}*/	 
 
 		
         $resp['success'] = true;
@@ -917,9 +1183,9 @@ class Pedidos extends CI_Controller {
 		$nomcliente = $this->input->post('nomcliente');
 		$numeropedido = $this->input->post('numeropedido');
 		$idbodega = $this->input->post('idbodega');
-		$idformula = $this->input->post('idformula');
+		//$idformula = $this->input->post('idformula');
 		$fechapedidos = $this->input->post('fechapedido');
-		$cantidadform = $this->input->post('cantidadfor');
+		//$cantidadform = $this->input->post('cantidadfor');
 		$fechadoc = $this->input->post('fechadocum');
 		$vendedor = $this->input->post('vendedor');
 		$items = json_decode($this->input->post('items'));
@@ -960,7 +1226,7 @@ class Pedidos extends CI_Controller {
 	    $this->db->insert('pedidos_detalle', $pedidos_detalle);	    	
 		}
 
-		$itemsf = $this->db->query('SELECT * FROM formula_detalle 
+		/*$itemsf = $this->db->query('SELECT * FROM formula_detalle 
 	   	    WHERE id_formula like "'.$idformula.'"');
 
 		foreach($itemsf->result() as $item){
@@ -976,7 +1242,7 @@ class Pedidos extends CI_Controller {
 		        );
 
 		$this->db->insert('formula_pedido', $formula_detalle2);	
-		}	
+		}	*/
 
 		
 		$pedidos = array(
@@ -985,7 +1251,7 @@ class Pedidos extends CI_Controller {
 	        'id_cliente' => $idcliente,
 	        'nombre_cliente' => strtoupper($nomcliente),
 	        'id_bodega' => $idbodega,
-	        'id_formula' => $idformula,
+	        //'id_formula' => $idformula,
 	        'cantidad' => $cantidadform,
 	        'id_vendedor' => $vendedor,
 	        'fecha_pedido' => $fechapedidos,
@@ -1066,7 +1332,7 @@ class Pedidos extends CI_Controller {
 			if ($estado == 1){
 
 			$data = array();		
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto, pr.codigo as codigo FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -1086,7 +1352,7 @@ class Pedidos extends CI_Controller {
 
 				$countAll = $total;
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_productoFROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto,pr.codigo as codigo FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -1099,7 +1365,7 @@ class Pedidos extends CI_Controller {
 		}else{
 
 			$data = array();		
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto, pr.codigo as codigo FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -1119,7 +1385,7 @@ class Pedidos extends CI_Controller {
 
 				$countAll = $total;
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto, pr.codigo as codigo FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -1143,7 +1409,7 @@ class Pedidos extends CI_Controller {
 	        }
 
 	        $data = array();	        	    	
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto, pr.codigo as codigo FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -1162,7 +1428,7 @@ class Pedidos extends CI_Controller {
 
 			$countAll = $total;
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto, pr.codigo as codigo FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -1185,7 +1451,7 @@ class Pedidos extends CI_Controller {
 	        }
 
 	        $data = array();	        	    	
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto, pr.codigo as codigo FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -1207,7 +1473,7 @@ class Pedidos extends CI_Controller {
 
 			$countAll = $total;
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto, pr.codigo as codigo FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -1223,7 +1489,7 @@ class Pedidos extends CI_Controller {
 
 			if ($estado == 1){			
 			$data = array();
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto, pr.codigo as codigo FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -1243,7 +1509,7 @@ class Pedidos extends CI_Controller {
 
 			$countAll = $total;
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto, pr.codigo as codigo FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -1257,7 +1523,7 @@ class Pedidos extends CI_Controller {
 
 			}else{
 			$data = array();
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto, pr.codigo as codigo FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -1277,7 +1543,7 @@ class Pedidos extends CI_Controller {
 
 			$countAll = $total;
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto, pr.codigo as codigo FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -1297,7 +1563,7 @@ class Pedidos extends CI_Controller {
 			
 			$data = array();
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto, pr.codigo as codigo FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -1317,7 +1583,7 @@ class Pedidos extends CI_Controller {
 
 			$countAll = $total;
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto, pr.codigo as codigo FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -1331,7 +1597,7 @@ class Pedidos extends CI_Controller {
 
 				$data = array();
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto, pr.codigo as codigo FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -1351,7 +1617,7 @@ class Pedidos extends CI_Controller {
 
 			$countAll = $total;
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega, pr.nombre as nom_producto, pr.id as id_producto, pr.codigo as codigo FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -1631,7 +1897,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND acc.estado = "'.$estado.'" 
+			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND acc.estado = "'.$estado.'" OR acc.estado = 1 
 			order by acc.id desc');
 
 			$total = 0;
@@ -1907,7 +2173,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_bodega='.$bodega.' AND acc.estado = "'.$estado.'" 
+			WHERE acc.id_bodega='.$bodega.' AND acc.estado = "'.$estado.'" or acc.estado = 1 
 			order by acc.id desc');
 
 			$total = 0;
@@ -1925,7 +2191,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_bodega='.$bodega.' AND acc.estado = "'.$estado.'" 
+			WHERE acc.id_bodega='.$bodega.' AND acc.estado = "'.$estado.'" or acc.estado = 1 
 			order by acc.id desc
 			limit '.$start.', '.$limit.''	
 			

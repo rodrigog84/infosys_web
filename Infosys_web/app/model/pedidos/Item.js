@@ -11,7 +11,7 @@ Ext.define('Infosys_web.model.pedidos.Item', {
         {name: 'nom_producto'},
         {name: 'fecha', type:'date',dateFormat:"Y-m-d"},
         {name: 'precio', decimalPrecision:3},
-        {name: 'cantidad', decimalPrecision:3},
+        {name: 'cantidad', decimalPrecision:4},
         {name: 'dcto'},
         {name: 'descuento'},
         {name: 'dcto'},

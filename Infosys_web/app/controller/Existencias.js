@@ -7,7 +7,9 @@ Ext.define('Infosys_web.controller.Existencias', {
              'Existencias2',
              'Existencias3',
              'InventarioSlectivo',
-             'Bodegas'],
+             'Bodegas',
+             'productos.Clasificacion',
+             'existenciabusca'],
 
     models: ['existencias',
              'existencias2',
@@ -159,6 +161,12 @@ Ext.define('Infosys_web.controller.Existencias', {
 
     exportarexcelexistencia: function(){
 
+        var view = this.getExistenciaprincipal()
+        var clasifica = view.down('#clasificacionId').getValue();
+        var tipo = view.down('#tipoSeleccionId').getValue(); 
+        var nombre = view.down('#nombreId').getValue();
+        var bodega = view.down('#bodegaId').getValue();       
+
         var jsonCol = new Array()
         var i = 0;
         var grid =this.getExistenciaprincipal()
@@ -170,7 +178,7 @@ Ext.define('Infosys_web.controller.Existencias', {
           i++;
         })     
                          
-        window.open(preurl + 'adminServicesExcel/exportarExcelExistencia?cols='+Ext.JSON.encode(jsonCol));
+        window.open(preurl + 'adminServicesExcel/exportarExcelExistencia?cols='+Ext.JSON.encode(jsonCol)+'&nombre='+nombre+'&tipo='+tipo+'&clasificacio='+clasifica+'&bodega='+bodega);
 
    },
 
@@ -219,11 +227,15 @@ Ext.define('Infosys_web.controller.Existencias', {
     buscarexistencia: function(){
 
         var view = this.getExistenciaprincipal()
+        var clasifica = view.down('#clasificacionId').getValue();
+        var tipo = view.down('#tipoSeleccionId').getValue(); 
         var st = this.getExistenciasStore()
         var nombre = view.down('#nombreId').getValue()
         var bodega = view.down('#bodegaId').getValue()
         st.proxy.extraParams = {nombre : nombre,
-                                bodega : bodega}
+                                bodega : bodega,
+                                tipo: tipo,
+                                clasifica: clasifica}
         st.load();
 
    },

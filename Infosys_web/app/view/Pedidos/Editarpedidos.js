@@ -19,7 +19,7 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
     ],
 
     autoShow: true,
-    height: 640,
+    height: 520,
     width: 1300,
     layout: 'fit',
     title: 'Pedido',
@@ -37,7 +37,7 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                 },
                 items: [{
                     xtype: 'container',
-                    height: 170,
+                    height: 140,
                     layout: {
                         type: 'vbox',
                         align: 'stretch'
@@ -167,9 +167,17 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                                 displayField : 'nombre',
                                 emptyText : "Seleccione",
                                 store : 'Vendedores'
-                            }
+                            },{
+                                    xtype: 'textfield',
+                                    itemId: 'bodegaId',
+                                    name : 'id_bodega',
+                                    fieldLabel: 'Id Bodega',
+                                    hidden: true
+                                }
+                                
                             ]
-                        },{
+                        }
+                        /*,{
                             xtype: 'fieldcontainer',
                             height: 30,
                             width: 462,
@@ -180,12 +188,6 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                             },
                             items: [
                                  {
-                                    xtype: 'textfield',
-                                    itemId: 'bodegaId',
-                                    name : 'id_bodega',
-                                    fieldLabel: 'Id Bodega',
-                                    hidden: true
-                                },{
                                     xtype: 'textfield',
                                     fieldCls: 'required',
                                     msgTarget: 'side',
@@ -229,7 +231,8 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                                     hidden: true
                                 }
                             ]
-                        },{
+                        }*/
+                        ,{
                     xtype: 'fieldset',
                     title: 'Items Documento',
                     fieldDefaults: {
@@ -252,6 +255,12 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                             layout: 'hbox',
                             align: 'center',     
                             items: [{
+                                    xtype: 'textfield',
+                                    itemId: 'obsId',
+                                    name : 'id_observa',
+                                    fieldLabel: 'Id Formula',
+                                    hidden: true
+                            },{
                                 xtype: 'textfield',
                                 width: 140,
                                 labelWidth: 40,
@@ -442,6 +451,8 @@ Ext.define('Infosys_web.view.Pedidos.Editarpedidos', {
                             iconCls: 'icon-save',
                             scale: 'large',
                             action: 'grabarpedidos2',
+                            itemId: 'grabarpedidos2',
+                            disabled : false,
                             text: 'Grabar / Emitir'
                         },
                         {

@@ -30,6 +30,11 @@ Ext.define('Infosys_web.view.notacredito.BuscarProductos' ,{
                 dataIndex: 'id',
                 hidden: true
             },{
+                header: "Id Existencia",
+                flex: 1,
+                dataIndex: 'id_existencia',
+                hidden: true
+            },{
                 header: "Id Factura",
                 flex: 1,
                 dataIndex: 'id_factura',

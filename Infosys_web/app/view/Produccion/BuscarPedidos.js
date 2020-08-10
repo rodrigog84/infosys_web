@@ -65,6 +65,11 @@ Ext.define('Infosys_web.view.Produccion.BuscarPedidos' ,{
         flex: 1,
         dataIndex: 'nom_vendedor'
     },{
+        header: "Codigo",
+        flex: 1,
+        dataIndex: 'codigo',
+        hidden: true
+    },{
         header: "Producto",
         flex: 1,
         dataIndex: 'nom_producto'

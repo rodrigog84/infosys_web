@@ -7,6 +7,7 @@ Ext.define('Infosys_web.model.Tipo_movimientos.Item', {
         {name: 'id_correlativo'},
         {name: 'id_cuenta'},
         {name: 'nombre'},
+        {name: 'lote'},
         {name: 'cuenta'},
         {name: 'id_correccion'},
         {name: 'id_orden_compra'},

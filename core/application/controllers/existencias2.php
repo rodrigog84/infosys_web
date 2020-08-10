@@ -232,15 +232,16 @@ class Existencias2 extends CI_Controller {
 			order by acc.id desc
 		    limit '.$start.', '.$limit.'');
 			}
-		}        
-		
-		$data = array();
+			$data = array();
 		
 		foreach ($query->result() as $row)
 		{
 			$row->valor_producto_neto = ($row->valor_producto/1.19);
 			$data[] = $row;
 		}
+		}        
+		
+		
         $resp['success'] = true;
         //$resp['stock'] = $stock;
         $resp['data'] = $data;

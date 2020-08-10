@@ -6,7 +6,7 @@ Ext.define('Infosys_web.view.movimiento_diario_inventario.Ingresar', {
 
     title : 'Movimiento Diario Inventario',
     autoShow: true,
-    width: 880,
+    width: 1000,
     modal: true,
     iconCls: 'icon-sheet',
     bodyPadding: 7,
@@ -204,9 +204,9 @@ Ext.define('Infosys_web.view.movimiento_diario_inventario.Ingresar', {
                         title: 'Inventario',
                         store: Ext.create('Ext.data.Store', {
                         autoDestroy: true,
-                        fields: ['producto', 'stock', 'valor', 'cantidad'],
+                        fields: ['producto', 'stock', 'lote','precio', 'cantidad','fecha_vencimiento'],
                         data: [
-                        {producto:"", stock: 0, valor: 0,cantidad: 0}
+                        {producto:"", stock: 0, precio: 0,cantidad: 0, lote:0, fecha_vencimiento:""}
                         ]
                         }),
                         height: 300,
@@ -246,7 +246,6 @@ Ext.define('Infosys_web.view.movimiento_diario_inventario.Ingresar', {
                                 tooltip: 'Buscar',
                                 handler: function (grid, rowIndex, colIndex) {
                                     var rec = grid.getStore().getAt(rowIndex);
-                                    //alert("Edit " + rec.get('stock'));
                                     Ext.create('Infosys_web.view.movimiento_diario_inventario.BuscarProductos', {record: rec});
                                 }
                             }]
@@ -256,8 +255,16 @@ Ext.define('Infosys_web.view.movimiento_diario_inventario.Ingresar', {
                         ,
                      
                         { text: 'Stock',  dataIndex: 'stock', width: 100 },
-                        { text: 'Valor', dataIndex: 'valor', width: 100, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")}, editor: {xtype: 'numberfield', allowBlank: false,minValue: 0,maxValue: 10000000000}},
+                        { text: 'Lote', dataIndex: 'lote', width: 100, editor: {xtype: 'textfield', allowBlank: false,minValue: 0,maxValue: 10000000000}},
+                        { text: 'Valor', dataIndex: 'precio', width: 100, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")}, editor: {xtype: 'numberfield', allowBlank: false,minValue: 0,maxValue: 10000000000}},
                         { text: 'Cantidad', dataIndex: 'cantidad', width: 100, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")}, editor: {xtype: 'numberfield', allowBlank: false,minValue: 0,maxValue: 10000000000}},
+                        { text: 'Fecha Venc.', 
+                          dataIndex: 'fecha_vencimiento',
+                          width: 100,
+                          editor: {xtype: 'datefield', 
+                                   value: new Date()
+                                   }
+                        },
                         {
                             xtype: 'actioncolumn',
                             width: 80,

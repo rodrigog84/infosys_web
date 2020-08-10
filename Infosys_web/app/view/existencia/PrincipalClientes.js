@@ -28,9 +28,16 @@ Ext.define('Infosys_web.view.existencia.PrincipalClientes' ,{
         dataIndex: 'nom_producto'
         
     },{
-        header: "Cantidad",
+        header: "Cantidad Salida",
         width: 100,
         dataIndex: 'cantidad_salida',
+        align: 'right',
+        renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")}
+
+    },{
+        header: "Cantidad Entrada",
+        width: 100,
+        dataIndex: 'cantidad_entrada',
         align: 'right',
         renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")}
 
@@ -67,8 +74,7 @@ Ext.define('Infosys_web.view.existencia.PrincipalClientes' ,{
                 xtype: 'button',
                 iconCls : 'icon-exel',
                 text: 'Exportar EXCEL',
-                action:'exportarexcelexistencia',
-                hidden: true
+                action:'exportarexcelexistenciacliente'
             },{
                 xtype: 'button',
                 iconCls : 'icon-exel',

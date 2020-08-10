@@ -37,6 +37,12 @@ Ext.define('Infosys_web.view.ventas.Observaciones', {
                         hidden:true
                     },{
                         xtype: 'textfield',
+                        name : 'id',
+                        itemId: 'idfactura',
+                        fieldLabel: 'id_factura',
+                        hidden:true
+                    },{
+                        xtype: 'textfield',
                         name : 'valida',
                         value: "NO",
                         itemId: 'validaId',

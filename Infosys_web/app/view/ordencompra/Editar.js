@@ -184,9 +184,13 @@ Ext.define('Infosys_web.view.ordencompra.Editar', {
                                     name : 'e_mail_contacto',
                                     itemId: 'mail_contactoId',
                                     fieldLabel: 'Mail Contacto'
+                                },{
+                                    xtype: 'textfield',
+                                    itemId: 'obsId',
+                                    name : 'id_observa',
+                                    fieldLabel: 'Observacion',
+                                    hidden: true
                                 }
-
-
                                 ]
                             }
                             ]
@@ -438,7 +442,13 @@ Ext.define('Infosys_web.view.ordencompra.Editar', {
             dock: 'bottom',
             id:'buttons',
             ui: 'footer',
-            items: ['->', {
+            items: ['->',{
+                xtype: 'button',
+                //iconCls: 'icono',
+                scale: 'large',
+                action: 'observaciones2',
+                text: 'OBSERVACIONES'
+            },{
                 iconCls: 'icon-save',
                 text: 'Grabar',
                 action: 'grabareditar'

@@ -26,7 +26,8 @@ Ext.define('Infosys_web.model.Clientes.Item', {
         {name: 'estado'},
         {name: 'cupo_disponible'},
         {name: 'imp_adicional'},
-        {name: 'tipo'}
+        {name: 'tipo'},
+        {name: 'tipo_cliente'},
         
         ]
 });

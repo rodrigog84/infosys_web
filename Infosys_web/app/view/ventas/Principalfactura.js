@@ -128,7 +128,8 @@ Ext.define('Infosys_web.view.ventas.Principalfactura' ,{
         header: "Orden Compra",
         flex: 1,
         dataIndex: 'orden_compra',
-        align: 'right'        
+        align: 'right',
+        hidden: true       
     },{
             header: "Estado DTE",
             xtype:'actioncolumn',
@@ -204,7 +205,7 @@ Ext.define('Infosys_web.view.ventas.Principalfactura' ,{
             width:70,
             align: 'center',
             items: [{
-                icon: 'images/xml-icon.png',  // Use a URL in the icon config
+                iconCls: 'icon-upload',  // Use a URL in the icon config
                 tooltip: 'Ver Estado Env&iacute;o',
                 handler: function(grid, rowIndex, colIndex) {
                     var rec = grid.getStore().getAt(rowIndex);
@@ -243,12 +244,13 @@ Ext.define('Infosys_web.view.ventas.Principalfactura' ,{
                 xtype: 'button',
                 iconCls: 'icon-add',
                 action: 'mfacturaganado',
-                text : 'Ganado'
+                text : 'Factura Ganado'
             },{
                 xtype: 'button',
                 iconCls : 'icon-add',
                 text: 'Factura Compra',
-                action:'mfacturacompra'
+                action:'mfacturacompra',
+                hidden: true
             },{
                 xtype: 'button',
                 iconCls : 'icon-pdf',

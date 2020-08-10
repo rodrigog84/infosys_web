@@ -7,14 +7,13 @@ class Facturaglosa extends CI_Controller {
 	public function __construct()
 	{
 		parent::__construct();
-		
+		$this->load->helper('format');
 		$this->load->database();
 	}
 
 	public function save(){
 		
 		$resp = array();
-
 		$idcliente = $this->input->post('idcliente');
 		$numdocuemnto = $this->input->post('numdocumento');
 		$fechafactura = $this->input->post('fechafactura');
@@ -22,6 +21,10 @@ class Facturaglosa extends CI_Controller {
 		$vendedor = $this->input->post('idvendedor');
 		$datacliente = json_decode($this->input->post('datacliente'));
 		$ordencompra = $this->input->post('ordencompra');
+		$idobserva = $this->input->post('idobserva');
+		$idcondventa = $this->input->post('idcondventa');
+
+		
 		$items = json_decode($this->input->post('items'));
 		$neto = $this->input->post('netofactura');
 		$fiva = $this->input->post('ivafactura');
@@ -29,12 +32,28 @@ class Facturaglosa extends CI_Controller {
         $idbodega = $this->input->post('idbodega');
 		$ftotal = $this->input->post('totalfacturas');
 		$tipodocumento = $this->input->post('tipodocumento');
+		$observacion = $this->input->post('observacion');
 
 		if ($tipodocumento == 19){
 			
 			$fiva = 0;
 			$ftotal = $neto;
+		};
+
+		if ($tipodocumento == 2){
+			
+			$neto1 = ($neto / 1.19);
+			$ftotal = ($neto1 * 1.19);
+			$fiva = ($ftotal - $neto1);
+			$neto = ($neto1);
+			$fafecto = ($neto1);
+		};
+
+		if(!$vendedor){
+			$vendedor = 1;
 		}
+
+
 
 		$data3 = array(
 	         'correlativo' => $numdocuemnto
@@ -49,18 +68,28 @@ class Facturaglosa extends CI_Controller {
 	        'id_cliente' => $idcliente,
 	        'num_factura' => $numdocuemnto,
 	        'id_vendedor' => $vendedor,
-	        'sub_total' => $neto,
+	        'sub_total' => $fafecto,
+	        'id_cond_venta' => $idcondventa,
 	        'neto' => $neto,
 	        'iva' => $fiva,
 	        'totalfactura' => $ftotal,
 	        'fecha_factura' => $fechafactura,
 	        'fecha_venc' => $fechavenc,
 	        'forma' => 1,
-	        'orden_compra' => $ordencompra    	          
+	        'orden_compra' => $ordencompra,
+	        'id_observa' => $idobserva,
+	        'observacion' => $observacion   	          
 		);
 
 		$this->db->insert('factura_clientes', $factura_cliente); 
 		$idfactura = $this->db->insert_id();
+
+		$data8 = array(
+	         'id_documento' => $idfactura
+	    );
+	    $this->db->where('id', $idobserva);
+	  
+	    $this->db->update('observacion_facturas', $data8);
 
 		foreach($items as $v){
 
@@ -69,12 +98,21 @@ class Facturaglosa extends CI_Controller {
 				$v->total = $v->neto;
 			};
 
+			if ($tipodocumento == 2){
+			
+			$neto = ($v->neto / 1.19);
+			$ftotal = ($v->neto);
+			$iva = ($ftotal - $neto);
+
+			};
+
+			
 			$factura_clientes_item = array(
 		        'id_factura' => $idfactura,
 		        'glosa' => $v->glosa,
-		        'neto' => $v->neto,
-		        'iva' => $v->iva,
-		        'total' => $v->total
+		        'neto' => $neto,
+		        'iva' => $fiva,
+		        'total' => $ftotal
 			);
 
 		$this->db->insert('detalle_factura_glosa', $factura_clientes_item);
@@ -84,6 +122,8 @@ class Facturaglosa extends CI_Controller {
 		
 		/******* CUENTAS CORRIENTES ****/
 
+		if ($tipodocumento != 105){
+
 		 $query = $this->db->query("SELECT cc.id as idcuentacontable FROM cuenta_contable cc WHERE cc.nombre = 'FACTURAS POR COBRAR'");
 		 $row = $query->result();
 		 $row = $row[0];
@@ -91,8 +131,10 @@ class Facturaglosa extends CI_Controller {
 
 
 			// VERIFICAR SI CLIENTE YA TIENE CUENTA CORRIENTE
-		 $query = $this->db->query("SELECT co.idcliente, co.id as idcuentacorriente  FROM cuenta_corriente co
-		 							WHERE co.idcuentacontable = '$idcuentacontable' and co.idcliente = '" . $idcliente . "'");
+		 $query = $this->db->query("SELECT co.idcliente, co.id as idcuentacorriente,
+		  co.saldo as saldo 
+		  FROM cuenta_corriente co 
+		  WHERE co.idcuentacontable = '$idcuentacontable' and co.idcliente = '" . $idcliente . "'");
     	 $row = $query->result();
 	
 		if ($query->num_rows()==0){	
@@ -105,11 +147,30 @@ class Facturaglosa extends CI_Controller {
 			$this->db->insert('cuenta_corriente', $cuenta_corriente); 
 			$idcuentacorriente = $this->db->insert_id();
 
+			$sadoctacte = array(
+             'cred_util' => $ftotal
+            );
+            $this->db->where('id', $idcliente);
+
+            $this->db->update('clientes', $sadoctacte);
+
 
 		}else{
 			$row = $row[0];
+			$saldoctacte=$row->saldo;
 			$query = $this->db->query("UPDATE cuenta_corriente SET saldo = saldo + " . $ftotal . " where id = " .  $row->idcuentacorriente );
 			$idcuentacorriente =  $row->idcuentacorriente;
+
+			$saldoctacte=$saldoctacte + $ftotal;
+
+            $sadoctacte = array(
+             'cred_util' => $saldoctacte
+            );
+            $this->db->where('id', $idcliente);
+
+            $this->db->update('clientes', $sadoctacte);
+
+
 		}
 
 		$detalle_cuenta_corriente = array(
@@ -137,13 +198,23 @@ class Facturaglosa extends CI_Controller {
 	        'fecha' => $fechafactura
 		);
 
-		$this->db->insert('cartola_cuenta_corriente', $cartola_cuenta_corriente); 			
+		$this->db->insert('cartola_cuenta_corriente', $cartola_cuenta_corriente); 
+		
+		};			
 
 		/*****************************************/
 
-		if($tipodocumento == 101 || $tipodocumento == 103){  // SI ES FACTURA ELECTRONICA O FACTURA EXENTA ELECTRONICA
+		if($tipodocumento == 101 || $tipodocumento == 103 || $tipodocumento == 107|| $tipodocumento == 105){  // SI ES FACTURA ELECTRONICA O FACTURA EXENTA ELECTRONICA
 
-			$tipo_caf = $tipodocumento == 101 ? 33 : 34;
+			 if($tipodocumento == 101){
+                $tipo_caf = 33;
+            }else if($tipodocumento == 103){
+                $tipo_caf = 34;
+            }else if($tipodocumento == 105){
+                $tipo_caf = 52;
+            }else if($tipodocumento == 107){
+                $tipo_caf = 46;
+            }
 
 			header('Content-type: text/plain; charset=ISO-8859-1');
 			$this->load->model('facturaelectronica');
@@ -176,25 +247,19 @@ class Facturaglosa extends CI_Controller {
 			foreach ($detalle_factura as $detalle) {
 				$lista_detalle[$i]['NmbItem'] = $detalle->glosa;
 				$lista_detalle[$i]['QtyItem'] = 1;
-				//$lista_detalle[$i]['PrcItem'] = $detalle->precio;
-				//$lista_detalle[$i]['PrcItem'] = round((($detalle->precio*$detalle->cantidad)/1.19)/$detalle->cantidad,0);
-				//$total = $detalle->precio*$detalle->cantidad;
-				//$neto = round($total/1.19,2);
-
-				//$lista_detalle[$i]['PrcItem'] = round($neto/$detalle->cantidad,2);
-				$lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 ? $detalle->neto : $detalle->total;
-
-				/*if($detalle->descuento != 0){
-					$porc_descto = round(($detalle->descuento/($detalle->cantidad*$lista_detalle[$i]['PrcItem'])*100),0);
-					$lista_detalle[$i]['DescuentoPct'] = $porc_descto;		
-					//$lista_detalle[$i]['PrcItem'] =- $lista_detalle[$i]['PrcItem']*$porc_descto;
-
-				}*/
-
+				
+				$lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 || $tipo_caf == 46 ? $detalle->neto : $detalle->total;				
 				$i++;
 			}
 
+			//print_r($datos_empresa_factura);
+			//exit;
+
 			$dir_cliente = is_null($datos_empresa_factura->dir_sucursal) ? permite_alfanumerico($datos_empresa_factura->direccion) : permite_alfanumerico($datos_empresa_factura->dir_sucursal);
+
+			$nombre_comuna = is_null($datos_empresa_factura->com_sucursal) ? permite_alfanumerico($datos_empresa_factura->nombre_comuna) : permite_alfanumerico($datos_empresa_factura->com_sucursal);
+
+
 
 			// datos
 			$factura = [
@@ -217,7 +282,7 @@ class Facturaglosa extends CI_Controller {
 			            'RznSocRecep' => substr(permite_alfanumerico($datos_empresa_factura->nombre_cliente),0,100), //LARGO DE RAZON SOCIAL NO PUEDE SER SUPERIOR A 100 CARACTERES
 			            'GiroRecep' => substr(permite_alfanumerico($datos_empresa_factura->giro),0,40),  //LARGO DEL GIRO NO PUEDE SER SUPERIOR A 40 CARACTERES
 			            'DirRecep' => substr($dir_cliente,0,70), //LARGO DE DIRECCION NO PUEDE SER SUPERIOR A 70 CARACTERES
-			            'CmnaRecep' => substr($datos_empresa_factura->nombre_comuna,0,20), //LARGO DE COMUNA NO PUEDE SER SUPERIOR A 20 CARACTERES
+			            'CmnaRecep' => substr($nombre_comuna,0,20), //LARGO DE COMUNA NO PUEDE SER SUPERIOR A 20 CARACTERES
 			        ],
 		            'Totales' => [
 		                // estos valores serán calculados automáticamente
@@ -463,6 +528,37 @@ class Facturaglosa extends CI_Controller {
         
         echo json_encode($resp);
 	}
+
+	public function exportPDF(){
+
+		$idfactura = $this->input->get('idfactura');
+		$numero = $this->input->get('numfactura');
+
+		$this->load->model('facturaelectronica');
+		$datos_factura = $this->facturaelectronica->get_factura($idfactura);
+
+		//$cabecera = $this->db->get_where('factura_clientes', array('id' => $idfactura));	
+		$tipodocumento = isset($datos_factura->tipo_documento) ? $datos_factura->tipo_documento : 1;
+		/*foreach($cabecera->result() as $v){  
+				$tipodocumento = $v->tipo_documento; 
+		}*/
+
+		if($tipodocumento == 1){
+				$this->exportfacturaglosaPDF($idfactura,$numero);
+
+		}else if($tipodocumento ==  101 || $tipodocumento == 103 || $tipodocumento == 105 || $tipodocumento == 107 ){ // FACTURA ELECTRONICA O FACTURA EXENTA ELECTRONCA O GUIA DE DESPACHO
+				//$es_cedible = is_null($cedible) ? false : true;
+				$this->load->model('facturaelectronica');
+				$this->facturaelectronica->exportFePDF($idfactura,'id');
+
+		}else{
+
+				$this->exportBoletaPDF($idfactura,$numero);
+
+		}
+
+	}
+
 
 	
 	public function exportfacturaglosaPDF(){

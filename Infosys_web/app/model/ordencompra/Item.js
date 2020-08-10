@@ -12,6 +12,8 @@ Ext.define('Infosys_web.model.ordencompra.Item', {
         {name: 'iva'},
         {name: 'neto'},
         {name: 'totaliva'},
+        {name: 'u_lote'},
+        {name: 'lote'},
         {name: 'dcto'},
     	{name: 'descripcion'},
     	{name: 'requisitos'},
@@ -24,7 +26,8 @@ Ext.define('Infosys_web.model.ordencompra.Item', {
         {name: 'cantidadrec'},
         {name: 'existe'},
         {name: 'valor'},
-        {name: 'stock'}
+        {name: 'stock'},
+        {name: 'val_real'}       
         
     ]
 });

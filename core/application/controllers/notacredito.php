@@ -532,32 +532,28 @@ class Notacredito extends CI_Controller {
          $idcuentacorriente =  $row->idcuentacorriente; 
 
 
-        if($query->num_rows() > 0){ //sólo se realiza la rebaja de cuenta corriente, en caso que exista la cuenta corriente
-
-			// se rebaja detalle
-			$query = $this->db->query("UPDATE detalle_cuenta_corriente SET saldo = saldo - " . $ftotal . " where idctacte = " .  $row->idcuentacorriente . " and numdocumento = " . $numfactura_asoc);
-			//$idcuentacorriente =  $row->idcuentacorriente;
-			 $query_factura = $this->db->query("SELECT tipo_documento  FROM factura_clientes 
-			 							WHERE num_factura = " . $numfactura_asoc . " and id_cliente = " . $idcliente . " limit 1");
-			 $tipodocumento_asoc = $query_factura->row()->tipo_documento;
-
-
+        if($query->num_rows() > 0){ 
+            $query = $this->db->query("UPDATE detalle_cuenta_corriente SET saldo = saldo - " . $ftotal . " where idctacte = " .  $row->idcuentacorriente . " and numdocumento = " . $numfactura_asoc);
+            //$idcuentacorriente =  $row->idcuentacorriente;
+            $query_factura = $this->db->query("SELECT tipo_documento FROM factura_clientes 
+            WHERE num_factura = " . $numfactura_asoc . " and id_cliente = " . $idcliente . " limit 1");
+            $tipodocumento_asoc = $query_factura->row()->tipo_documento;
 
             $query = $this->db->query("UPDATE cuenta_corriente SET saldo = saldo - " . $ftotal . " where id = " .  $row->idcuentacorriente );
             $idcuentacorriente =  $row->idcuentacorriente;
-        
-            /*$detalle_cuenta_corriente = array(
-                'idctacte' => $idcuentacorriente,
-                'tipodocumento' => $tipodocumento,
-                'numdocumento' => $numdocuemnto,
-                'saldoinicial' => $ftotal,
-                'saldo' => $ftotal,
-                'fechavencimiento' => $fechavenc,
-                'fecha' => date('Y-m-d H:i:s')
+
+            $saldoctacte=$row->saldo;
+
+            $saldoctacte=$saldoctacte - $ftotal;
+
+            $sadoctacte = array(
+            'cred_util' => $ftotal
             );
+            $this->db->where('id', $idcliente);
 
-            $this->db->insert('detalle_cuenta_corriente', $detalle_cuenta_corriente);   */
-
+            $this->db->update('clientes', $sadoctacte);
+        
+           
             $cartola_cuenta_corriente = array(
                 'idctacte' => $idcuentacorriente,
                 'idcuenta' => $idcuentacontable,
@@ -776,6 +772,7 @@ class Notacredito extends CI_Controller {
 
 		$idcliente = $this->input->post('idcliente');
             $idbodega = $this->input->post('idbodega');
+            //$idbodega = 1;
 		$numfactura = $this->input->post('numfactura_asoc');
 		$numdocuemnto = $this->input->post('numdocumento');
 		$idfactura = $this->input->post('idfactura');
@@ -791,6 +788,20 @@ class Notacredito extends CI_Controller {
 		$fafecto = $this->input->post('afectofactura');
 		$ftotal = $this->input->post('totalfacturas');
 		$tipodocumento = $this->input->post('tipodocumento');
+            $tipo = 101;
+
+            $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
+            left join clientes c on (acc.id_cliente = c.id)
+            left join vendedores v on (acc.id_vendedor = v.id)
+            WHERE acc.num_factura = '.$numfactura.' AND acc.tipo_documento = '.$tipo.' ');
+
+            if($query->num_rows()>0){
+
+            $row = $query->first_row();
+
+            $forma = ($row->forma);
+
+            };
 
 
 
@@ -865,134 +876,126 @@ class Notacredito extends CI_Controller {
 
 		 };
 
-		 $query = $this->db->query('SELECT * FROM existencia WHERE id_producto="'.$producto.'"');
-    	 $row = $query->result();
-		 $row = $row[0];
+                  $query = $this->db->query('SELECT * FROM existencia WHERE id_producto="'.$producto.'" and id_bodega='.$idbodega.'');
+                  $row = $query->result();
+                  $row = $row[0];
 	 
-			if ($query->num_rows()>0){
-			
-	            if ($producto==($row->id_producto)){
-				    $datos3 = array(
-					'stock' => $saldo,
-			        'fecha_ultimo_movimiento' => date('Y-m-d H:i:s')
-					);
+                  if ($query->num_rows()>0){
 
-					$this->db->where('id_producto', $producto);
+                  if ($producto==($row->id_producto)){
+                      $datos3 = array(
+                  	'stock' => $saldo,
+                    'fecha_ultimo_movimiento' => date('Y-m-d H:i:s')
+                  	);
 
-		    	    $this->db->update('existencia', $datos3);
-	    	    }else{
+                  	$this->db->where('id_producto', $producto);
 
-	    	    	$datos3 = array(
-					'id_producto' => $producto,
-			        'stock' =>  $saldo,
-			        'fecha_ultimo_movimiento' =>date('Y-m-d H:i:s'),
-			        'id_bodega' => 1
-				
-					);
-					$this->db->insert('existencia', $datos3);
-		    	 	}
-				}else{
-					if ($producto==($row->id_producto)){
-					    $datos3 = array(
-						'stock' => $saldo,
-				        'fecha_ultimo_movimiento' => date('Y-m-d H:i:s')
-						);
+                      $this->db->update('existencia', $datos3);
+                  }else{
 
-						$this->db->where('id_producto', $producto);
+                  	$datos3 = array(
+                  	'id_producto' => $producto,
+                    'stock' =>  $saldo,
+                    'fecha_ultimo_movimiento' =>date('Y-m-d H:i:s'),
+                    'id_bodega' => 1
 
-			    	    $this->db->update('existencia', $datos3);
-		    	    }else{
+                  	);
+                  	$this->db->insert('existencia', $datos3);
+                   	}
+                  }else{
+                        if ($producto==($row->id_producto)){
+                            $datos3 = array(
+                        	'stock' => $saldo,
+                          'fecha_ultimo_movimiento' => date('Y-m-d H:i:s')
+                        	);
 
-		    	    	$datos3 = array(
-						'id_producto' => $producto,
-				        'stock' =>  $saldo,
-				        'fecha_ultimo_movimiento' =>date('Y-m-d H:i:s'),
-				        'id_bodega' => 1
-					
-						);
-						$this->db->insert('existencia', $datos3);
-			    	}
-			
+                        	$this->db->where('id_producto', $producto);
 
-		
-		}
-		$datos2 = array(
+                            $this->db->update('existencia', $datos3);
+                        }else{
 
-				'num_movimiento' => $numdocuemnto,
-		        'id_producto' => $v->id,
-		        'id_tipo_movimiento' => $tipodocumento,
-		        'valor_producto' =>  $v->precio,
-		        'cantidad_entrada' => $v->cantidad,
-		        'fecha_movimiento' => $fechafactura
-			);
+                              $datos3 = array(
+                              'id_producto' => $producto,
+                              'stock' =>  $saldo,
+                              'fecha_ultimo_movimiento' =>date('Y-m-d H:i:s'),
+                              'id_bodega' => 1
 
-			$this->db->insert('existencia_detalle', $datos2);
+                              );
+                              $this->db->insert('existencia', $datos3);
+                        }
+                  }
+            $datos2 = array(
 
-		$datos = array(
-         'stock' => $saldo,
-    	);
+            'num_movimiento' => $numdocuemnto,
+            'id_producto' => $v->id_producto,
+            'id_bodega' => $idbodega,
+            'id_tipo_movimiento' => $tipodocumento,
+            'valor_producto' =>  $v->precio,
+            'cantidad_entrada' => $v->cantidad,
+            'fecha_movimiento' => $fechafactura
+            );
 
-    	$this->db->where('id', $producto);
+            $this->db->insert('existencia_detalle', $datos2);
 
-    	$this->db->update('productos', $datos);
+            $datos = array(
+            'stock' => $saldo,
+            );
+
+          	$this->db->where('id', $producto);
+
+          	$this->db->update('productos', $datos);
+
+            if ($forma==3){
+                  
+            }else{
+                  $queryt = $this->db->query('SELECT * FROM existencia_detalle WHERE id='.$v->id_existencia.' and id_bodega='.$idbodega.'');
+                  $row = $queryt->result();
+                  if ($queryt->num_rows()>0){
+                  $row = $row[0];
+                  $saldoext=($row->saldo + $v->cantidad);                 
+                  $datos5 = array(
+                  'saldo' => $saldoext
+                  );   
+                  $this->db->where('id', $v->id_existencia);
+                  $this->db->update('existencia_detalle', $datos5);   
+                  };                  
+            }           
     	
 		}
 
 
 		/******* CUENTAS CORRIENTES ****/
 
-		 $query = $this->db->query("SELECT cc.id as idcuentacontable FROM cuenta_contable cc WHERE cc.nombre = 'FACTURAS POR COBRAR'");
-		 $row = $query->result();
-		 $row = $row[0];
-		 $idcuentacontable = $row->idcuentacontable;	
+            $query = $this->db->query("SELECT cc.id as idcuentacontable FROM cuenta_contable cc WHERE cc.nombre = 'FACTURAS POR COBRAR'");
+            $row = $query->result();
+            $row = $row[0];
+            $idcuentacontable = $row->idcuentacontable;
+			
+            $query = $this->db->query("SELECT co.idcliente, co.id as idcuentacorriente  FROM cuenta_corriente co
+            WHERE co.idcuentacontable = '$idcuentacontable' and co.idcliente = '" . $idcliente . "' limit 1");
+            $row = $query->row();
+            $idcuentacorriente =  $row->idcuentacorriente;
 
-
-			// VERIFICAR SI CLIENTE YA TIENE CUENTA CORRIENTE
-		 $query = $this->db->query("SELECT co.idcliente, co.id as idcuentacorriente  FROM cuenta_corriente co
-		 							WHERE co.idcuentacontable = '$idcuentacontable' and co.idcliente = '" . $idcliente . "' limit 1");
-    	 $row = $query->row();
-		 $idcuentacorriente =  $row->idcuentacorriente;	
-		/*if ($query->num_rows()==0){	
-			$cuenta_corriente = array(
-		        'idcliente' => $idcliente,
-		        'idcuentacontable' => $idcuentacontable,
-		        'saldo' => $ftotal,
-		        'fechaactualiza' => date('Y-m-d H:i:s')
-			);
-			$this->db->insert('cuenta_corriente', $cuenta_corriente); 
-			$idcuentacorriente = $this->db->insert_id();
-
-
-		}else{
-			//$row = $row[0];
-			$query = $this->db->query("UPDATE cuenta_corriente SET saldo = saldo - " . $ftotal . " where id = " .  $row->idcuentacorriente );
-			$idcuentacorriente =  $row->idcuentacorriente;
-		}*/
-
-
+           
 		if($query->num_rows() > 0){ //
 			//se rebaja cuenta corriente 
 			$query = $this->db->query("UPDATE cuenta_corriente SET saldo = saldo - " . $ftotal . " where id = " .  $row->idcuentacorriente );
-			//$idcuentacorriente =  $row->idcuentacorriente;
-		
-			// se rebaja detalle
+			
+                  $saldoctacte=$row->saldo;
+                  $saldoctacte=$saldoctacte - $ftotal;
+
+                  $sadoctacte = array(
+                  'cred_util' => $saldoctacte
+                  );
+                  $this->db->where('id', $idcliente);
+
+                  $this->db->update('clientes', $sadoctacte);
+
 			$query = $this->db->query("UPDATE detalle_cuenta_corriente SET saldo = saldo - " . $ftotal . " where idctacte = " .  $row->idcuentacorriente . " and numdocumento = " . $numfactura_asoc);
 			//$idcuentacorriente =  $row->idcuentacorriente;
 			 $query_factura = $this->db->query("SELECT tipo_documento  FROM factura_clientes 
 			 							WHERE num_factura = " . $numfactura_asoc . " and id_cliente = " . $idcliente . " limit 1");
 			 $tipodocumento_asoc = $query_factura->row()->tipo_documento;
-
-			/*$detalle_cuenta_corriente = array(
-		        'idctacte' => $idcuentacorriente,
-		        'tipodocumento' => $tipodocumento,
-		        'numdocumento' => $numdocuemnto,
-		        'saldoinicial' => $ftotal,
-		        'saldo' => $ftotal,
-		        'fechavencimiento' => $fechavenc,
-		        'fecha' => date('Y-m-d H:i:s')
-			);
-
-			$this->db->insert('detalle_cuenta_corriente', $detalle_cuenta_corriente); 	*/
 
 			$cartola_cuenta_corriente = array(
 		        'idctacte' => $idcuentacorriente,
@@ -1098,7 +1101,7 @@ class Notacredito extends CI_Controller {
 			    'NroResol' => $empresa->nro_resolucion
 			];
 
-			$Firma = new sasco\LibreDTE\FirmaElectronica($config['firma']); //lectura de certificado digital		
+			/*$Firma = new sasco\LibreDTE\FirmaElectronica($config['firma']); //lectura de certificado digital		
 			$caf = $this->facturaelectronica->get_content_caf_folio($numdocuemnto,61);
 			$Folios = new sasco\LibreDTE\Sii\Folios($caf->caf_content);
 
@@ -1151,7 +1154,7 @@ class Notacredito extends CI_Controller {
 						$this->facturaelectronica->envio_mail_dte($idfactura);
 				}
 
-			}					
+			}*/				
 			
 		}
 
@@ -1293,12 +1296,19 @@ class Notacredito extends CI_Controller {
 
 		$query = $this->db->query('SELECT * FROM detalle_factura_cliente 
 		WHERE id_producto like '.$idproducto.' AND id_factura like '.$idfactura.'');
-    	$row = $query->first_row();
+    	       $row = $query->first_row();
 		
 		if($query->num_rows()>0){
 			$resp['success'] = true;		 	
 		 }else {
-		 	$resp['success'] = false;
+                  $query = $this->db->query('SELECT * FROM detalle_factura_glosa 
+                  WHERE id_producto like '.$idproducto.' AND id_factura like '.$idfactura.'');
+                  $row = $query->first_row();            
+                  if($query->num_rows()>0){
+                    $resp['success'] = true;
+                  }else{
+                    $resp['success'] = false;                        
+                  }
 		};
 
 		$resp['cliente'] = $row;

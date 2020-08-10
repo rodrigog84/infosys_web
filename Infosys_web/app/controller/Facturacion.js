@@ -28,6 +28,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
              'clientes.BuscarClientes','productos.BuscarProductos',
              'ventas.Principalfactura',
              'ventas.BuscarSucursales',
+             'ventas.Adicional',
              'ventas.ResumenVentas',
              'ventas.EstadisticasVentas',
              'ventas.InformeStock',
@@ -102,9 +103,10 @@ Ext.define('Infosys_web.controller.Facturacion', {
     },{
         ref: 'verEstadoDte',
         selector: 'verEstadoDte'
+    },{
+        ref: 'nobreadicional',
+        selector: 'nobreadicional'
     }
-
-
     
     ],
     //init es lo primero que se ejecuta en el controller
@@ -244,6 +246,9 @@ Ext.define('Infosys_web.controller.Facturacion', {
             'observacionesfacturasdirectas button[action=ingresaobs]': {
                 click: this.ingresaobs
             },
+            'observacionesfacturasdirectas button[action=validar]': {
+                click: this.validarut2
+            },
              'observacionesfacturasdirectas #rutId': {
                 specialkey: this.special6
             },
@@ -295,15 +300,74 @@ Ext.define('Infosys_web.controller.Facturacion', {
             },  
             'detallestock button[action=seleccionarproductosstock]': {
                 click: this.seleccionarproductosstock
-            },         
+            },
+            'nobreadicional button[action=grabaradicional]': {
+                click: this.selectvistaadicional
+            }, 
+            'nobreadicional button[action=cancelaadicional]': {
+                click: this.cancelaadicional
+            },
+            'facturasingresar button[action=cancelar]': {
+                click: this.cancelar
+            },      
               
 
         });
     },
 
+    cancelar: function(){
+
+        var viewIngresa = this.getFacturasingresar();
+        var view = this.getFacturasprincipal();
+        var idbodega = view.down('#bodegaId').getValue();
+        var documento = viewIngresa.down('#tipoDocumentoId').getValue();
+        var numero = viewIngresa.down('#numfacturaId').getValue();
+        var folio = viewIngresa.down('#idfolio').getValue();
+        var stItem = this.getProductosItemsStore();
+
+        if(stItem){
+
+         var dataItems = new Array();
+        stItem.each(function(r){
+            dataItems.push(r.data)
+        });
+
+        Ext.Ajax.request({
+            url: preurl + 'facturas/stock3',
+            params: {               
+                items: Ext.JSON.encode(dataItems),
+                idbodega: idbodega                
+            },
+             success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+               
+            }
+           
+        });
+
+        };
+
+        if(documento){
+
+        if (documento != 2){
+             Ext.Ajax.request({
+            url: preurl + 'facturas/folio_documento_electronico2',
+            params: {
+                id_folio: folio
+            },
+             success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+            }
+           
+        });            
+        }
+        };       
+
+        viewIngresa.close();        
+    },
+
     verEstadoDte: function(r,t){
         if(t == 1){
-
             Ext.create('Infosys_web.view.facturaelectronica.verEstadoDte', {idfactura: r.data.id});              
         }else if(t == 2){
             url = preurl + 'facturas/ver_dte/'+r.data.id+'/sii',
@@ -387,9 +451,6 @@ Ext.define('Infosys_web.controller.Facturacion', {
                                 idbodega: idbodega }
         st.load();       
     },
-
-
-
     
     grabarfacturaeditar: function() {
 
@@ -782,33 +843,35 @@ Ext.define('Infosys_web.controller.Facturacion', {
 
         };
 
+        console.log(opcion);
+
         if (opcion == "LIBRO VENTAS"){
 
              
-             if (tipo == 1){
+             if (tipo == 101){
 
-             window.open(preurl + 'adminServicesExcel/exportarExcellibroFacturas?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2);
+             window.open(preurl + 'adminServicesExcel/exportarExcellibroFacturas?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2+'&tipo='+tipo);
              view.close();
 
              };
 
-             if (tipo == 2){
+             if (tipo == 102){
 
-             window.open(preurl + 'adminServicesExcel/exportarExcellibroBoletas?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2);
+             window.open(preurl + 'adminServicesExcel/exportarExcellibroBoletas?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+'&tipo='+tipo);
              view.close();
 
              }; 
              
-             if (tipo == 3){
+             if (tipo == 103){
 
-             window.open(preurl + 'adminServicesExcel/exportarExcelGuias?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2);
+             window.open(preurl + 'adminServicesExcel/exportarExcelGuias?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2+'&tipo='+tipo);
              view.close();
 
              };
              
              if (tipo == 19){
 
-             window.open(preurl + 'adminServicesExcel/exportarExcellibroFacturas?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2);
+             window.open(preurl + 'adminServicesExcel/exportarExcellibroFacturas?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2+'&tipo='+tipo);
              view.close();
 
              };         
@@ -816,30 +879,30 @@ Ext.define('Infosys_web.controller.Facturacion', {
 
         }else{
 
-             if (tipo == 1){
+             if (tipo == 101){
 
-             window.open(preurl + 'adminServicesExcel/exportarExcelFacturas?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2+'&opcion='+opcion+'&nombre='+nombre);
+             window.open(preurl + 'adminServicesExcel/exportarExcelFacturas?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2+'&opcion='+opcion+'&nombre='+nombre+'&tipo='+tipo);
              view.close();
 
              };
 
-             if (tipo == 2){
+             if (tipo == 102){
 
-             window.open(preurl + 'adminServicesExcel/exportarExcelBoletas?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2+'&opcion='+opcion+'&nombre='+nombre);
+             window.open(preurl + 'adminServicesExcel/exportarExcelBoletas?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2+'&opcion='+opcion+'&nombre='+nombre+'&tipo='+tipo);
              view.close();
 
              };
 
-             if (tipo == 3){
+             if (tipo == 103){
 
-             window.open(preurl + 'adminServicesExcel/exportarExcelGuias?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2+'&opcion='+opcion+'&nombre='+nombre);
+             window.open(preurl + 'adminServicesExcel/exportarExcelGuias?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2+'&opcion='+opcion+'&nombre='+nombre+'&tipo='+tipo);
              view.close();
 
              };
 
              if (tipo == 19){
 
-             window.open(preurl + 'adminServicesExcel/exportarExcelFacturas?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2+'&opcion='+opcion+'&nombre='+nombre);
+             window.open(preurl + 'adminServicesExcel/exportarExcelFacturas?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2+'&opcion='+opcion+'&nombre='+nombre+'&tipo='+tipo);
              view.close();
 
              };          
@@ -1129,7 +1192,11 @@ Ext.define('Infosys_web.controller.Facturacion', {
             console.log("Llegamos")
             console.log(row.data.forma)
             console.log(row.data.id_tip_docu)
-            if (row.data.forma==0 && row.data.id_tip_docu ==101 || row.data.id_tip_docu ==107){
+            if (row.data.forma==0 && (row.data.id_tip_docu ==105 || row.data.id_tip_docu ==107)){
+                //window.open(preurl +'facturas/exportTXT/?idfactura=' + row.data.id)
+                window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id)
+            };
+            if (row.data.forma==0 && (row.data.id_tip_docu ==101 || row.data.id_tip_docu ==107)){
                 //window.open(preurl +'facturas/exportTXT/?idfactura=' + row.data.id)
                 window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id)
             };
@@ -1141,15 +1208,15 @@ Ext.define('Infosys_web.controller.Facturacion', {
             //window.open(preurl +'facturas/exportTXTGDGLO/?idfactura=' + row.data.id)
                window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id)
             };
-            if (row.data.forma==1 && row.data.id_tip_docu ==101 || row.data.id_tip_docu ==107){
+            if (row.data.forma==1 && (row.data.id_tip_docu ==101 || row.data.id_tip_docu ==107)){
             //window.open(preurl +'facturas/exportTXTGLO/?idfactura=' + row.data.id)
-            window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id)
+            window.open(preurl +'facturaglosa/exportPDF/?idfactura=' + row.data.id)
             };
-            if (row.data.forma==2 && row.data.id_tip_docu ==101 || row.data.id_tip_docu ==107){
+            if (row.data.forma==2 && (row.data.id_tip_docu ==101 || row.data.id_tip_docu ==107)){
             //window.open(preurl +'facturas/exportTXTlote/?idfactura=' + row.data.id)
             window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id)
             };
-            if (row.data.forma==3 && row.data.id_tip_docu ==101 || row.data.id_tip_docu ==107){
+            if (row.data.forma==3 && (row.data.id_tip_docu ==101 || row.data.id_tip_docu ==107)){
             //window.open(preurl +'facturas/exportTXTGanado/?idfactura=' + row.data.id)
             window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id)
             };
@@ -1186,13 +1253,18 @@ Ext.define('Infosys_web.controller.Facturacion', {
         var fechavenc = viewIngresa.down('#fechavencId').getValue();
         var stItem = this.getProductosItemsStore();
         var stFactura = this.getFacturaStore();
+        viewIngresa.down("#grabarfactura").setDisabled(true);
+                    
 
         if(vendedor==0  && tipo_documento.getValue() == 1){
+            viewIngresa.down("#grabarfactura").setDisabled(false);
+        
             Ext.Msg.alert('Ingrese Datos del Vendedor');
             return;   
         }
         if(numfactura==0){
             Ext.Msg.alert('Ingrese Datos a La Factura');
+            viewIngresa.down("#grabarfactura").setDisabled(false);
             return;   
         }
 
@@ -1231,7 +1303,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
                 var resp = Ext.JSON.decode(response.responseText);
                 var idfactura= resp.idfactura;
                  viewIngresa.close();
-                 stFactura.load();
+                 st.reload();
                  //window.open(preurl + 'facturas/exportTXT/?idfactura='+idfactura);
                  window.open(preurl + 'facturas/exportPDF/?idfactura='+idfactura);              
 
@@ -1241,7 +1313,8 @@ Ext.define('Infosys_web.controller.Facturacion', {
 
         var view = this.getFacturasprincipal();
         var st = this.getFacturaStore();
-        st.proxy.extraParams = {documento: idtipo}
+        st.proxy.extraParams = {documento: idtipo,
+                                idbodega: idbodega}
         st.load(); 
       
         
@@ -1283,6 +1356,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
                 //console.log(obj_folio); 
                 nuevo_folio = obj_folio.folio;
                 fecha_venc = obj_folio.fecha_venc;
+                id_folio = obj_folio.idfolio; 
                 valida = obj_folio.valida;
                 console.log(valida);
                 if (valida == "SI"){
@@ -1295,6 +1369,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
                      
                 if(nuevo_folio != 0){
                     view.down('#numfacturaId').setValue(nuevo_folio);  
+                    view.down('#idfolio').setValue(id_folio);  
                     habilita = true;
                 }else{
                     Ext.Msg.alert('Atención','No existen folios disponibles');
@@ -1501,6 +1576,8 @@ Ext.define('Infosys_web.controller.Facturacion', {
 
         if(codigo){
 
+            var st = this.getExistencias4Store();                 
+
             Ext.Ajax.request({
             url: preurl + 'productos/buscacodigo?codigo='+codigo,
             params: {
@@ -1509,6 +1586,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
             success: function(response){
                 var resp = Ext.JSON.decode(response.responseText);
                 var cero = "";
+                var bodega = 1;
                 if (resp.success == true){                    
                     if(resp.cliente){
                         var cliente = resp.cliente;                        
@@ -1517,8 +1595,20 @@ Ext.define('Infosys_web.controller.Facturacion', {
                         viewIngresa.down('#precioId').setValue(cliente.p_venta);
                         viewIngresa.down('#cantidadOriginalId').setValue(cliente.stock);
                         viewIngresa.down('#nombreproductoId').setValue(cliente.nombre); 
-                                        
                     }
+                        st.proxy.extraParams = {id : id,
+                                                bodega : bodega}
+                        st.load();
+                        if(id){
+                        viewIngresa = Ext.create('Infosys_web.view.ventas.detalle_stock').show();
+                        viewIngresa.down('#stockId').setValue(cliente.stock);
+                        if (tipo==2){
+                        viewIngresa.down('#pventaId').setValue(cliente.p_venta);
+                        }else{
+                        viewIngresa.down('#pventaId').setValue(cliente.p_venta);
+                        };  
+                        };
+                    
                 }else{
 
                       var view = Ext.create('Infosys_web.view.productos.Ingresar').show();
@@ -1532,18 +1622,12 @@ Ext.define('Infosys_web.controller.Facturacion', {
         });           
 
         }
-        if(id){
-
-            if(codigo){
-
-            this.seleccionarproductos2();    
-            
-            }; 
-
-        };
+        //this.seleccionarproductos2();
+        
 
         
     },
+
 
     seleccionarproductos2 : function(){
 
@@ -1565,12 +1649,89 @@ Ext.define('Infosys_web.controller.Facturacion', {
         viewIngresa = Ext.create('Infosys_web.view.ventas.detalle_stock').show();
         viewIngresa.down('#stockId').setValue(stock);
         if (tipo==2){
-                viewIngresa.down('#pventaId').setValue(p_neto);
+                viewIngresa.down('#pventaId').setValue(p_venta);
             }else{
                 viewIngresa.down('#pventaId').setValue(p_venta);
             };  
         };            
         
+    },
+
+    selectvistaadicional: function(){
+
+            var view = this.getNobreadicional();
+            var nom_producto = view.down('#nombreadicionalId').getValue();
+
+            if (!nom_producto){
+                Ext.Msg.alert('Alerta', 'Debe Ingresar Nombre Producto');
+                return;                
+            }else{
+            var viewnew = this.getDetallestock();
+            var viewIngresa = this.getFacturasingresar();
+            var idproducto = view.down('#productoId').getValue();
+            var idpid = view.down('#idpId').getValue();
+            var nom_producto = view.down('#nombreadicionalId').getValue();
+            var codigo = view.down('#codigoId').getValue();
+            var valor_producto = view.down('#precioId').getValue();
+            var p_promedio = view.down('#preciopromId').getValue();
+            var saldo = view.down('#cantidadOriginalId').getValue();
+            var lote = view.down('#loteId').getValue();
+            var fecha_vencimiento = view.down('#fechavencimientoId').getValue();
+            var stock_critico = view.down('#stock_critico').getValue();
+
+            viewIngresa.down('#productoId').setValue(idproducto);
+            viewIngresa.down('#idpId').setValue(idpid);
+            viewIngresa.down('#nombreproductoId').setValue(nom_producto);
+            viewIngresa.down('#codigoId').setValue(codigo);
+            viewIngresa.down('#precioId').setValue(valor_producto);
+            viewIngresa.down('#preciopromId').setValue(p_promedio);
+            viewIngresa.down('#cantidadOriginalId').setValue(saldo);
+            viewIngresa.down('#stock').setValue(saldo);
+            viewIngresa.down('#loteId').setValue(lote);
+            viewIngresa.down('#fechavencimientoId').setValue(fecha_vencimiento);
+            viewIngresa.down('#stock_critico').setValue(stock_critico);
+            view.close();
+            viewnew.close();
+                
+            }
+           
+
+        
+
+    },
+
+    cancelaadicional: function(){
+
+            var view = this.getNobreadicional();
+            var viewnew = this.getDetallestock();
+            var viewIngresa = this.getFacturasingresar();
+            var idproducto = view.down('#productoId').getValue();
+            var idpid = view.down('#idpId').getValue();
+            var nom_producto = view.down('#nombreproductoId').getValue();
+            var codigo = view.down('#codigoId').getValue();
+            var valor_producto = view.down('#precioId').getValue();
+            var p_promedio = view.down('#preciopromId').getValue();
+            var saldo = view.down('#cantidadOriginalId').getValue();
+            var lote = view.down('#loteId').getValue();
+            var fecha_vencimiento = view.down('#fechavencimientoId').getValue();
+            var stock_critico = view.down('#stock_critico').getValue();
+
+            viewIngresa.down('#productoId').setValue(idproducto);
+            viewIngresa.down('#idpId').setValue(idpid);
+            viewIngresa.down('#nombreproductoId').setValue(nom_producto);
+            viewIngresa.down('#codigoId').setValue(codigo);
+            viewIngresa.down('#precioId').setValue(valor_producto);
+            viewIngresa.down('#preciopromId').setValue(p_promedio);
+            viewIngresa.down('#cantidadOriginalId').setValue(saldo);
+            viewIngresa.down('#stock').setValue(saldo);
+            viewIngresa.down('#loteId').setValue(lote);
+            viewIngresa.down('#fechavencimientoId').setValue(fecha_vencimiento);
+            viewIngresa.down('#stock_critico').setValue(stock_critico);
+            view.close();
+            viewnew.close();
+
+        
+
     },
 
     seleccionarproductosstock: function(){
@@ -1579,18 +1740,39 @@ Ext.define('Infosys_web.controller.Facturacion', {
         var viewIngresa = this.getFacturasingresar();
         var tipo = viewIngresa.down('#tipoDocumentoId').getValue();
         var grid  = view.down('grid');
-        //console.log(grid);
-        console.log(tipo);
-
+        
         if (grid.getSelectionModel().hasSelection()) {
+
+            if (tipo==105){
+
+                var row = grid.getSelectionModel().getSelection()[0];              
+
+                vista = Ext.create('Infosys_web.view.ventas.Adicional').show();
+
+                vista.down('#productoId').setValue(row.data.id_producto);
+                vista.down('#idpId').setValue(row.data.id);
+                vista.down('#nombreproductoId').setValue(row.data.nom_producto);
+                vista.down('#codigoId').setValue(row.data.codigo);
+                if (tipo==2){
+                    vista.down('#precioId').setValue(row.data.valor_producto);
+                }else{
+                    vista.down('#precioId').setValue(row.data.valor_producto);
+                };
+                vista.down('#preciopromId').setValue(row.data.p_promedio);
+                vista.down('#cantidadOriginalId').setValue(row.data.saldo);
+                vista.down('#stock').setValue(row.data.saldo);
+                vista.down('#loteId').setValue(row.data.lote);
+                vista.down('#fechavencimientoId').setValue(row.data.fecha_vencimiento);
+                vista.down('#stock_critico').setValue(row.data.stock_critico);
+                               
+            }else{
             var row = grid.getSelectionModel().getSelection()[0];
             viewIngresa.down('#productoId').setValue(row.data.id_producto);
             viewIngresa.down('#idpId').setValue(row.data.id);
             viewIngresa.down('#nombreproductoId').setValue(row.data.nom_producto);
-            console.log(row);
             viewIngresa.down('#codigoId').setValue(row.data.codigo);
             if (tipo==2){
-                viewIngresa.down('#precioId').setValue(row.data.valor_producto_neto);
+                viewIngresa.down('#precioId').setValue(row.data.valor_producto);
             }else{
                 viewIngresa.down('#precioId').setValue(row.data.valor_producto);
             };
@@ -1601,6 +1783,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
             viewIngresa.down('#fechavencimientoId').setValue(row.data.fecha_vencimiento);
             viewIngresa.down('#stock_critico').setValue(row.data.stock_critico);
             view.close();
+            }
         }else{
             Ext.Msg.alert('Alerta', 'Selecciona un registro.');
             return;

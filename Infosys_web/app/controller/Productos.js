@@ -125,39 +125,46 @@ Ext.define('Infosys_web.controller.Productos', {
 
         var view = this.getFacturasingresar();
         var grid  = view.down('#itemsgridId');
+        var idbodega = view.down('#bodegaId').getValue();
+        var fechafactura = view.down('#fechafacturaId').getValue();
         var cero = "";
+
         if (grid.getSelectionModel().hasSelection()) {
             var row = grid.getSelectionModel().getSelection()[0];
             var id_producto = row.data.id_producto;
+            var precio = row.data.id_producto;
 
-            
             Ext.Ajax.request({
-            url: preurl + 'productos/buscarp?nombre='+id_producto,
+            url: preurl + 'facturas/stock2',
             params: {
-                id: 1
-            },
-            success: function(response){
+                idbodega: idbodega,
+                id: row.data.id_existencia,
+                cantidad: row.data.cantidad,
+                producto: row.data.id_producto,
+                fechafactura: fechafactura
+               },
+             success: function(response){
                 var resp = Ext.JSON.decode(response.responseText);
-                if (resp.success == true) { 
-                    if(resp.cliente){
-                        var cliente = resp.cliente;
-                        view.down('#precioId').setValue(cliente.p_venta);
-                        view.down('#productoId').setValue(row.data.id_producto);
-                        view.down('#nombreproductoId').setValue(row.data.nombre);
-                        view.down('#codigoId').setValue(cliente.codigo);
-                        view.down('#cantidadOriginalId').setValue(cliente.stock);
-                        view.down('#cantidadId').setValue(row.data.cantidad);
-                        view.down('#totdescuentoId').setValue(row.data.dcto);
-                        if ((row.data.id_descuento)==0){
-                            view.down('#DescuentoproId').setValue(cero);
-                        }else{
-                            view.down('#DescuentoproId').setValue(row.data.id_descuento);
-                        }       
-                    }
-                }
-            }
-
-        });
+                 if(resp.cliente){
+                    var cliente = resp.cliente;
+                    var stock = resp.saldo;
+                    view.down('#productoId').setValue(row.data.id_producto);
+                    view.down('#idpId').setValue(row.data.id_existencia);
+                    view.down('#nombreproductoId').setValue(row.data.nombre);
+                    view.down('#codigoId').setValue(row.data.codigo);
+                    view.down('#precioId').setValue(row.data.precio);
+                    view.down('#preciopromId').setValue(row.data.p_promedio);
+                    view.down('#cantidadOriginalId').setValue(resp.saldo);
+                    view.down('#cantidadId').setValue(row.data.cantidad);
+                    view.down('#stock').setValue(resp.saldo);
+                    view.down('#loteId').setValue(row.data.lote);
+                    view.down('#fechavencimientoId').setValue(cliente.fecha_vencimiento);
+                    view.down('#stock_critico').setValue(cliente.stock_critico);
+                }                                        
+            }           
+            });
+            
+           
         grid.getStore().remove(row);
         this.recalcularFinal();
         }else{
@@ -341,8 +348,29 @@ Ext.define('Infosys_web.controller.Productos', {
     eliminaritem: function() {
         var view = this.getFacturasingresar();
         var grid  = view.down('#itemsgridId');
+        var idbodega = view.down('#bodegaId').getValue();
+        var fechafactura = view.down('#fechafacturaId').getValue();
+        var cero = "";
         if (grid.getSelectionModel().hasSelection()) {
             var row = grid.getSelectionModel().getSelection()[0];
+
+            var id_producto = row.data.id_producto;
+            var precio = row.data.id_producto;
+
+            Ext.Ajax.request({
+            url: preurl + 'facturas/stock2',
+            params: {
+                idbodega: idbodega,
+                id: row.data.id_existencia,
+                cantidad: row.data.cantidad,
+                producto: row.data.id_producto,
+                fechafactura: fechafactura
+               },
+             success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                                                        
+            }           
+            });
             grid.getStore().remove(row);
         }else{
             Ext.Msg.alert('Alerta', 'Selecciona un registro.');
@@ -359,6 +387,7 @@ Ext.define('Infosys_web.controller.Productos', {
         var stItem = this.getProductosItemsStore();
         var producto = view.down('#productoId').getValue();
         var nombre = view.down('#nombreproductoId').getValue();
+        var codigo = view.down('#codigoId').getValue();
         var cantidad = view.down('#cantidadId').getValue();
         var cantidadori = view.down('#cantidadOriginalId').getValue();
         var precio = ((view.down('#precioId').getValue()));
@@ -369,16 +398,92 @@ Ext.define('Infosys_web.controller.Productos', {
         var stock = view.down('#stock').getValue();
         var stockcritico = view.down('#stock_critico').getValue();
         var fechavenc = view.down('#fechavencimientoId').getValue();
+        var fechafactura = view.down('#fechafacturaId').getValue();
         var lote = view.down('#loteId').getValue();
         var id = view.down('#idpId').getValue();
+        var idbodega = view.down('#bodegaId').getValue();
+
         var bolEnable = true;
 
-        var stock = cantidad - stock;
+        var stock = stock - cantidad;
 
-        if(stockcritico > stock ){            
-            Ext.Msg.alert('Alerta', 'Producto Con Stock Critico Informar ');
+        if(fechavenc){
+           Ext.Ajax.request({
+             url: preurl + 'productos/enviarMail',
+                  params: {
+                      id:1,
+                      nombre: nombre,
+                      producto: producto,
+                      fecha: fechavenc 
+                  },
+             success: function(response, opts) {             
+               
+             }
+          });              
             //return false;
-        };        
+        };
+
+        if(stockcritico > 0){
+
+        if(stockcritico > stock ){
+            Ext.Msg.alert('Alerta', 'Producto Con Stock Critico Informar ');        
+            Ext.Ajax.request({
+             url: preurl + 'produccion/enviarMail',
+                  params: {
+                      id:1,
+                      nombre: nombre,
+                      producto: producto
+                  },
+             success: function(response, opts) {             
+               
+             }
+          });              
+            //return false;
+        };            
+        };
+       
+                 
+        if(!producto){            
+            Ext.Msg.alert('Alerta', 'Debe Seleccionar un Producto');
+            return false;
+        };
+
+        if(precio==0){
+            Ext.Msg.alert('Alerta', 'Debe Ingresar Precio Producto');
+            return false;
+        };
+
+        if(cantidad>cantidadori){
+            Ext.Msg.alert('Alerta', 'Cantidad Ingresada de Productos Supera El Stock');
+            return false;
+        };
+
+        if(cantidad==0){
+            Ext.Msg.alert('Alerta', 'Debe Ingresar Cantidad.');
+            return false;
+        };
+        
+        if(rut.length==0 ){  // se validan los datos sólo si es factura
+            Ext.Msg.alert('Alerta', 'Debe Ingresar Datos a la Factura.');
+            return false;           
+        };
+
+        Ext.Ajax.request({
+            url: preurl + 'facturas/stock',
+            params: {
+                idbodega: idbodega,
+                id: id,
+                cantidad: cantidad,
+                producto: producto,
+                fechafactura: fechafactura
+               },
+             success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                        
+            }
+           
+        });
+               
         if (descuento == 1){            
             var descuento = 0;
             var iddescuento = 0;
@@ -391,7 +496,7 @@ Ext.define('Infosys_web.controller.Productos', {
 
              var neto = (Math.round(cantidad * precio) - descuento);
              var iva = 0;
-             var total = neto;
+             var total = (Math.round(neto * 1.19));
 
         }else{
         
@@ -400,67 +505,15 @@ Ext.define('Infosys_web.controller.Productos', {
         var exists = 0;
         var iva = (tot - neto);
         var neto = (tot - iva);
-        var total = ((neto + iva ));        
+        var total = ((neto + iva ));     
 
-        };
-                
-        if(!producto){
-            
-            Ext.Msg.alert('Alerta', 'Debe Seleccionar un Producto');
-            return false;
-
-        }
-
-        if(precio==0){
-
-            Ext.Msg.alert('Alerta', 'Debe Ingresar Precio Producto');
-            return false;
-            
-
-        }
-
-        if(cantidad>cantidadori){
-
-            Ext.Msg.alert('Alerta', 'Cantidad Ingresada de Productos Supera El Stock');
-            return false;
-            
-
-        }
-
-        if(cantidad==0){
-            Ext.Msg.alert('Alerta', 'Debe Ingresar Cantidad.');
-            return false;
-        }
-
-        
-        if(rut.length==0 ){  // se validan los datos sólo si es factura
-            Ext.Msg.alert('Alerta', 'Debe Ingresar Datos a la Factura.');
-            return false;
-           
-        }
-
-        stItem.each(function(r){
-            if(r.data.id == producto){
-                Ext.Msg.alert('Alerta', 'El registro ya existe.');
-                exists = 1;
-                cero="";
-                view.down('#codigoId').setValue(cero);
-                view.down('#productoId').setValue(cero);
-                view.down('#nombreproductoId').setValue(cero);
-                view.down('#cantidadId').setValue(cero);
-                view.down('#descuentoId').setValue(cero);
-                view.down('#precioId').setValue(cero);
-
-                return; 
-            }
-        });
-        if(exists == 1)
-            return;
+        };      
                 
         stItem.add(new Infosys_web.model.Productos.Item({
-            id: id,
+            id_existencia: id,
             id_producto: producto,
             id_descuento: iddescuento,
+            codigo: codigo,
             fecha_vencimiento: fechavenc,
             nombre: nombre,
             precio: precio,
@@ -534,7 +587,7 @@ Ext.define('Infosys_web.controller.Productos', {
         var st = this.getProductosStore();
         var cero ="";
         var nombre = view.down('#nombreId').getValue();
-        
+         
         var familia = view.down('#tipofamiliaId').getValue();
         
         var agrupacion = view.down('#tipoagrupacionId').getValue();
@@ -548,14 +601,14 @@ Ext.define('Infosys_web.controller.Productos', {
                                 agrupacion : agrupacion,
                                 subfamilia : subfamilia,
                                 opcion : opcion}
-        var tipo = "Nombre";
+        //var tipo = "Nombre";
         view.down('#nombreId').setValue(cero);
         view.down('#tipofamiliaId').setValue(cero);
         view.down('#tipoagrupacionId').setValue(cero);
         view.down('#tiposubfamiliaId').setValue(cero);
-        view.down('#tipoSeleccionId').setValue(tipo);
+        //view.down('#tipoSeleccionId').setValue(tipo);
         view.down("#nombreId").focus();
-        var tipo = "Nombre";
+        //var tipo = "Nombre";
 
         st.load();
 

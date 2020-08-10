@@ -3,6 +3,7 @@ Ext.define('Infosys_web.model.Notacredito.Item', {
     fields: [
       	{name: 'id'},
         {name: 'id_producto'},
+        {name: 'id_existencia'},
         {name: 'nombre'},
         {name: 'codigo'},
         {name: 'id_ubi_prod'},

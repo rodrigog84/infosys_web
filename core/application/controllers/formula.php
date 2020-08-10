@@ -814,6 +814,7 @@ class Formula extends CI_Controller {
 		    <td colspan="3" >
 		    	<table width="987px" cellspacing="0" cellpadding="0" >
 		      <tr>
+		      <td width="395px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:center;" >Codigo</td>
 		        <td width="395px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:center;" >Descripcion</td>
 		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" ></td>
 		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" ></td>
@@ -832,12 +833,13 @@ class Formula extends CI_Controller {
 			$producto = $producto[0];
 			
 			$html .= '<tr>
+			<td style="text-align:left">'.$producto->codigo.'</td>
 			<td style="text-align:left">'.$producto->nombre.'</td>
 			<td style="text-align:left"></td>
 			<td style="text-align:left"></td>
 			<td style="text-align:right">'.number_format($v->valor_compra, 2, '.', ',').'</td>	
-			<td align="right"> '.number_format($v->cantidad, 2, '.', ',').'</td>
-			<td align="right">% '.number_format($v->porcentaje, 2, '.', ',').'</td>
+			<td align="right"> '.number_format($v->cantidad, 4, '.', ',').'</td>
+			<td align="right">% '.number_format($v->porcentaje, 4, '.', ',').'</td>
 			</tr>';
 			
 			//}
@@ -1358,8 +1360,36 @@ class Formula extends CI_Controller {
         $start = $this->input->post('start');
         $limit = $this->input->post('limit');
         $idcliente = $this->input->get('idcliente');
+        $nombre = $this->input->get('nombre');
 
-        if($idcliente){
+        if($nombre){
+                	
+        	$sql_nombre = "";
+	        $arrayNombre =  explode(" ",$nombre);
+
+	        foreach ($arrayNombre as $nombre) {
+	        	$sql_nombre .= "acc.nombre_formula like '%".$nombre."%' and ";
+	        }
+
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
+			left join correlativos cor on (acc.tipo_documento = cor.id)
+			left join clientes c on (acc.id_cliente = c.id)
+			left join vendedores v on (acc.id_vendedor = v.id) 
+			WHERE ' . $sql_nombre . ' 1 = 1');
+
+			$total = 0;
+
+			foreach ($query->result() as $row)
+			{
+				$total = $total +1;
+
+			}
+
+			$countAll = $total;
+
+        	
+        }else{
+        	if($idcliente){
 
         	$data = array();
 			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
@@ -1411,11 +1441,11 @@ class Formula extends CI_Controller {
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			order by acc.id desc
-			');
+			');			
+		};       
+        }
 
-			
-		};
-        	
+         	
     	
 		foreach ($query->result() as $row){
 
@@ -1484,15 +1514,43 @@ class Formula extends CI_Controller {
         $start = $this->input->post('start');
         $limit = $this->input->post('limit');
         $idcliente = $this->input->get('idcliente');
+        $nombre = $this->input->get('nombre');
 
-        if($idcliente){
+        if($nombre){
+                	
+        	$sql_nombre = "";
+	        $arrayNombre =  explode(" ",$nombre);
+
+	        foreach ($arrayNombre as $nombre) {
+	        	$sql_nombre .= "acc.nombre_formula like '%".$nombre."%' and ";
+	        }
+
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
+			left join correlativos cor on (acc.tipo_documento = cor.id)
+			left join clientes c on (acc.id_cliente = c.id)
+			left join vendedores v on (acc.id_vendedor = v.id) 
+			WHERE ' . $sql_nombre . ' 1 = 1');
+
+			$total = 0;
+
+			foreach ($query->result() as $row)
+			{
+				$total = $total +1;
+
+			}
+
+			$countAll = $total;
+
+        	
+        }else{
+
+        	if($idcliente){
 
         	$data = array();
 			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
 			left join correlativos cor on (acc.tipo_documento = cor.id)
 			left join clientes c on (acc.id_cliente = c.id)
-			left join vendedores v on (acc.id_vendedor = v.id) 
-			WHERE acc.id_cliente = "'.$idcliente.'"');
+			left join vendedores v on (acc.id_vendedor = v.id)');
 
 			$total = 0;
 
@@ -1507,8 +1565,7 @@ class Formula extends CI_Controller {
 			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor FROM formula acc
 			left join correlativos cor on (acc.tipo_documento = cor.id)
 			left join clientes c on (acc.id_cliente = c.id)
-			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id_cliente = "'.$idcliente.'" 
+			left join vendedores v on (acc.id_vendedor = v.id) 
 			order by acc.id desc
 			');
         	
@@ -1537,10 +1594,9 @@ class Formula extends CI_Controller {
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			order by acc.id desc
-			');
-
-			
-		};
+			');			
+		};       
+        };
         	
     	
 		foreach ($query->result() as $row){

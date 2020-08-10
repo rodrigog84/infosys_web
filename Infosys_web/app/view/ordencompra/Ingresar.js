@@ -8,7 +8,7 @@ Ext.define('Infosys_web.view.ordencompra.Ingresar', {
     title : 'Crear Orden de Compra',
     layout: 'fit',
     autoShow: true,
-    height: 660,
+    height: 640,
     width: 1220,
     modal: true,
     iconCls: 'icon-sheet',
@@ -239,12 +239,7 @@ Ext.define('Infosys_web.view.ordencompra.Ingresar', {
                                 width: 140,
                                 allowBlank: true,
                                 action: 'buscarproductosl',
-                                //icon: gbl_site + 'Infosys_web/resources/images/search.png',
-                                //tooltip: 'Buscar',
-                                //handler: function (grid, rowIndex, colIndex, id) {
-                                //    var view = Ext.create('Infosys_web.view.ordencompra.BuscarProductos');
-                                //    view.down("#nombreId").focus();
-                                //}
+                               
                             },
                             {xtype: 'splitter'},
                             {
@@ -257,7 +252,7 @@ Ext.define('Infosys_web.view.ordencompra.Ingresar', {
                             },{xtype: 'splitter'},
                             {
                                 xtype: 'textfield',
-                                width: 80,
+                                width: 120,
                                 labelWidth: 40,
                                 minValue: 0,
                                 fieldLabel: 'Stock',
@@ -265,11 +260,31 @@ Ext.define('Infosys_web.view.ordencompra.Ingresar', {
                                 itemId: 'cantidadOriginalId',
                                 style: 'font-weight: bold;'
 
+                            },{
+                                xtype: 'textfield',
+                                width: 120,
+                                labelWidth: 40,
+                                minValue: 0,
+                                fieldLabel: 'U.lote',
+                                hidden: true,
+                                itemId: 'uloteId',
+                                style: 'font-weight: bold;'
+
+                            },{
+                                xtype: 'textfield',
+                                width: 120,
+                                labelWidth: 40,
+                                minValue: 0,
+                                fieldLabel: 'U.lote',
+                                hidden: true,
+                                itemId: 'ultimoloteId',
+                                style: 'font-weight: bold;'
+
                             },
                             {xtype: 'splitter'},
                             {
                                 xtype: 'numberfield',
-                                width: 120,
+                                width: 160,
                                 labelWidth: 60,
                                 minValue: 0,
                                 value: 1,
@@ -277,7 +292,7 @@ Ext.define('Infosys_web.view.ordencompra.Ingresar', {
                                 itemId: 'cantidadId'
                             },{
                                 xtype: 'numberfield',
-                                width: 120,
+                                width: 140,
                                 labelWidth: 60,
                                 minValue: 0,
                                 value: 1,
@@ -288,7 +303,8 @@ Ext.define('Infosys_web.view.ordencompra.Ingresar', {
                             {xtype: 'splitter'},
                             {
                                 xtype: 'combo',
-                                width: 220,
+                                labelWidth: 60,
+                                width: 120,
                                 queryMode: 'local',
                                 itemId: 'DescuentoproId',
                                 fieldLabel: 'Descto %',
@@ -332,9 +348,10 @@ Ext.define('Infosys_web.view.ordencompra.Ingresar', {
                     columns: [
                             {text: 'Id producto',  dataIndex: 'id_producto', width: 250, hidden : true },
                             { text: 'Id descuento',  dataIndex: 'id_descuento', width: 250, hidden : true },
+                            { text: 'ulote',  dataIndex: 'u_lote', width: 250, hidden : true },
                             { text: 'codigo',  dataIndex: 'codigo', width: 250, hidden : true },
                             { text: 'Producto',  dataIndex: 'nombre', width: 250 },
-                            { text: 'Precio Unitario',  dataIndex: 'precio', align: 'right',flex:1, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} },
+                            { text: 'Precio Unitario',  dataIndex: 'precio', align: 'right',flex:1, renderer: function(valor){return Ext.util.Format.number((valor),"0.00")} },
                             { text: 'Cantidad',  dataIndex: 'cantidad', align: 'right',width: 100},
                             { text: 'Descuento',  dataIndex: 'dcto', align: 'right',flex:1, renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} },
                             { text: 'Neto',  dataIndex: 'neto', align: 'right',flex:1,renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,000")} },
@@ -427,8 +444,14 @@ Ext.define('Infosys_web.view.ordencompra.Ingresar', {
                             xtype: 'numberfield',
                             itemId: 'finaltotalpostId',
                             hidden: true
-                        }]
-                    }
+                        },{
+                            xtype: 'textfield',
+                            itemId: 'obsId',
+                            name : 'id_observa',
+                            fieldLabel: 'Observacion',
+                            hidden: true
+                    }]
+                        }
                     ]
 
                 }
@@ -440,10 +463,17 @@ Ext.define('Infosys_web.view.ordencompra.Ingresar', {
             dock: 'bottom',
             id:'buttons',
             ui: 'footer',
-            items: ['->', {
+        items: ['->',{
+                xtype: 'button',
+                //iconCls: 'icono',
+                scale: 'large',
+                action: 'observaciones',
+                text: 'OBSERVACIONES'
+            },{
                 iconCls: 'icon-save',
                 text: 'Grabar',
-                action: 'grabar'
+                action: 'grabar',
+                itemId: 'grabaorden',
             },'-',{
                 iconCls: 'icon-reset',
                 text: 'Cancelar',

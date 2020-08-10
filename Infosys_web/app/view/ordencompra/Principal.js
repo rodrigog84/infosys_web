@@ -121,6 +121,12 @@ Ext.define('Infosys_web.view.ordencompra.Principal' ,{
             },{
                 xtype: 'button',
                 iconCls: 'icon-add',
+                text: 'Actualizar',
+                action: 'actualizarOrden',
+                hidden: true
+            },{
+                xtype: 'button',
+                iconCls: 'icon-add',
                 action: 'editarorden',
                 text : 'Editar/Agregar'
             },{

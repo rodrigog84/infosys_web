@@ -89,7 +89,7 @@ class Comisiones extends CI_Controller {
             $fecha2 = $this->input->get('fecha2');
             list($dia, $mes, $anio) = explode("/",$fecha2);
             $fecha4 = $anio ."-". $mes ."-". $dia;
-            $tipo=1;
+            $tipo=101;
             $tipo2=2;
 
           if($id){
@@ -140,16 +140,15 @@ class Comisiones extends CI_Controller {
             echo "<td>COMISION</td>";
               
             foreach($users as $v){
-
               echo "<tr>";
               echo "<td>".$v['num_factura']."</td>";
               echo "<td>".$v['fecha_factura']."</td>";
               echo "<td>".$v['fecha_venc']."</td>";
               echo "<td>".$v['rut_cliente']."</td>";
               echo "<td>".$v['nombre_cliente']."</td>";
-              echo "<td>".$v['sub_total']."</td>";
+              echo "<td>".number_format($v['sub_total'],2,",",".")."</td>";
               $comisiona = (round(($v['sub_total'] * $comision)/100));
-              echo "<td>".$comisiona."</td>";
+              echo "<td>".number_format($comisiona,2,",",".")."</td>";
             }
         
               echo '</table>';
@@ -168,7 +167,7 @@ class Comisiones extends CI_Controller {
             $fecha2 = $this->input->get('fecha2');
             list($dia, $mes, $anio) = explode("/",$fecha2);
             $fecha4 = $anio ."-". $mes ."-". $dia;
-            $tipo=1;
+            $tipo=101;
             $tipo2=2;
            
             $this->load->database();

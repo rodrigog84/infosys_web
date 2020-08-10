@@ -310,6 +310,13 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                         itemId: 'adq_tg_proveedores',
                         disabled: true,
                         action: 'mproveedores'
+                },{
+                text: 'Transportistas',
+                iconCls: 'icon-transporte',
+                itemId: 'pg_tg_transportistas',
+                disabled: true,
+                action: 'tingreso'
+
                 }]
 
             },
@@ -409,12 +416,24 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                         disabled: true,
                         action: 'mPedidos'
                         },{
+                        text: 'Pedidos Formula',
+                        iconCls: '',
+                        itemId: 'pro_md_pedidosformula',
+                        disabled: true,
+                        action: 'mPedidos2'
+                        },{
                         text: 'Genera Formula',
                         iconCls: '',
                         itemId: 'pro_md_formula',
                         disabled: true,
                         action: 'mformulas'
-                        },]
+                        },{
+                        text: 'Genera Consumo',
+                        iconCls: '',
+                        itemId: 'pro_md_consumo',
+                        disabled: true,
+                        action: 'mconsumo'
+                        }]
             },{
                 text: 'Calsificacion del Producto',
                 iconCls: '', 
@@ -856,8 +875,7 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                         itemId: 'cc_proc_centdiaria',
                         disabled: true,
                         action: ''
-                }]
-             
+                }]            
 
             }],
            
@@ -872,6 +890,11 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                     itemId: 'vv_acc_preventa',
                     disabled: true,
                     action: 'mejemplo'                
+                },{
+                    text: 'Guia Despacho',
+                    itemId: 'vv_acc_despacho',
+                    iconCls: '',
+                    action: 'iguias'
                 },{
                     text: 'Cotizaciones',
                     iconCls: '',
@@ -923,7 +946,7 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                     Ext.Ajax.request({
                         url: preurl + 'login/salir',
                         success: function(response){
-                            window.location = "/Infosys_web/Infosys_web/";
+                            window.location = "/";
                         },
                         failure: function(){
                             target.setLoading(false);

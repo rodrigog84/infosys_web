@@ -8,7 +8,7 @@ Ext.define('Infosys_web.store.Bitacora', {
         type: 'ajax',
        
         api: {
-            read: preurl + 'bitacora_aviso/getAll',
+            read: preurl + 'Detallebitacora/getAll',
         },
         reader: {
             type: 'json',

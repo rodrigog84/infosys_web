@@ -68,14 +68,26 @@ Ext.define('Infosys_web.view.notadebito.Notadebito', {
                                             itemId: 'facturaId',
                                             hidden: true
                                           
+                                        },{                                    
+                                            xtype: 'combo',
+                                            align: 'center',
+                                            width: 450,
+                                            maxHeight: 25,
+                                            matchFieldWidth: false,
+                                            listConfig: {
+                                                width: 350
+                                            },
+                                            itemId: 'tipodocumentoId',
+                                            fieldLabel: '<b>DOCUMENTO</b>',
+                                            fieldCls: 'required',
+                                            store: 'Tipo_documento.Selectornd',
+                                            valueField: 'id',
+                                            displayField: 'nombre'
                                         },{
                                             xtype: 'textfield',
-                                            width: 450,
-                                            fieldLabel: '<b>DOCUMENTO</b>',
-                                            name: 'nom_documento',
-                                            itemId: 'nomdocumentoId',
-                                            value: 12,
-                                            readOnly: true
+                                            name: 'Id Bodega',
+                                            itemId: 'bodegaId',
+                                            hidden: true
                                           
                                         },{
                                             xtype: 'displayfield',

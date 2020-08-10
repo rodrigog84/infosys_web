@@ -94,6 +94,18 @@ Ext.define('Infosys_web.view.facturaglosa.Facturaglosa', {
 
 
                                         },{
+                                            xtype: 'textfield',
+                                            fieldCls: 'required',
+                                            maxHeight: 25,
+                                            width: 250,
+                                            labelWidth: 150,
+                                            allowBlank: false,
+                                            name: 'id_folio',
+                                            itemId: 'idfolio',
+                                            fieldLabel: '<b>ID FOLIO</b>',
+                                            hidden: true
+
+                                        },{
                                             xtype: 'displayfield',
                                             width: 45
                                            
@@ -478,7 +490,11 @@ Ext.define('Infosys_web.view.facturaglosa.Facturaglosa', {
                         align: 'middle',
                         pack: 'center'
                     },
-                    items: ['->',
+                    items: [{
+                            iconCls: 'icon-reset',
+                            text: 'Cancelar',
+                            action: 'cancelar',
+                        },'->',
                         {
                             xtype: 'button',
                             iconCls: 'icon-save',

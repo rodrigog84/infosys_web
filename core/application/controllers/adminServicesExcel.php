@@ -10,6 +10,314 @@ public function __construct()
     $this->load->database();
   }
 
+   public function exportarExcelproducciondiario(){
+
+          header("Content-type: application/vnd.ms-excel");
+          header("Content-disposition: attachment; filename=PeoduccionDiario.xls"); 
+          $fecha = $this->input->get('fecha');
+          list($dia, $mes, $anio) = explode("/",$fecha);
+          $fecha3 = $anio ."-". $mes ."-". $dia;
+          $fecha2 = $this->input->get('fecha2');
+          list($dia, $mes, $anio) = explode("/",$fecha2);
+          $fecha4 = $anio ."-". $mes ."-". $dia;
+          $tipo = $this->input->get('opcion');
+          $tipomov = $this->input->get('tipomov');
+          $nommov = $this->input->get('nombremov');
+
+          if($nommov=="PRODUCCION"){
+          
+            $query = $this->db->query('SELECT acc.*,  p.codigo as codigo, p.nombre as nom_producto FROM produccion acc
+            left join productos p on (acc.id_producto = p.id)           
+            WHERE acc.estado=2 and acc.fecha_termino between "'.$fecha3.'" AND "'.$fecha4.'"      
+            order by acc.fecha_termino, acc.id_producto ');            
+
+            $users = $query->result_array();
+                                    
+            echo '<table>';
+            echo "<td></td>";
+            echo "<td>INFORME PRODUCCION DIARIA POR FECHA</td>";
+            echo "<tr>";
+            echo "<td>DESDE : ".$fecha."</td>";
+            echo "</tr>";
+            echo "<tr>";
+            echo "<td>HASTA : ".$fecha2."</td>";
+            echo "<td></td>";
+            echo "<td>".$nommov."</td>";
+            echo "</tr>";                  
+            echo "<tr>";
+            echo "<td>CODIGO</td>";
+            echo "<td>NOMBRE PRODUCTO</td>";
+            echo "<td>CANTIDAD ENTRADA</td>";
+            echo "<td>LOTE</td>";
+            echo "<td>FECHA PRODUCCION</td>";
+            echo "<td>NUM PRODUCCION</td>";
+            echo "<td>TOTAL CONSUMO</td>";
+            echo "</tr>";                  
+            $total=0;
+            $total2=0;
+            $total3=0;
+            $total4=0;
+
+            if($query->num_rows()>0){
+            $row = $query->first_row();
+            $fecha = ($row->fecha_termino);
+            };                                     
+            foreach($users as $v){
+            if($fecha==$v['fecha_termino']){
+
+            $query2 = $this->db->query('SELECT acc.*,  p.codigo as codigo, p.nombre as nom_producto FROM produccion_detalle acc
+            left join productos p on (acc.id_producto = p.id)           
+            WHERE acc.id_produccion ="'.$v['id'].'"');
+
+            $users2 = $query2->result_array();
+            $totalconsumo=0;
+            foreach($users2 as $z){
+              $totalconsumo = $totalconsumo + $z['cantidad_pro'];
+            }
+              $total += ($v['cant_real']);
+              $total2 += ($totalconsumo);
+              $total3 += ($v['cant_real']);
+              $total4 += ($totalconsumo);      
+              echo "<tr>";
+              echo "<td>".$v['codigo']."</td>";
+              echo "<td>".$v['nom_producto']."</td>";   
+              echo "<td>".number_format($v['cant_real'], 2, ',', '.')."</td>";                      
+              echo "<td>".$v['lote']."</td>";
+              echo "<td>".$v['fecha_termino']."</td>";
+              echo "<td>".$v['num_produccion']."</td>"; 
+              echo "<td><left>".number_format($totalconsumo, 2, ',', '.')."</left></td>";               
+            }else{
+              echo "<tr>";  
+              echo "<td></td>";
+              echo "<td>TOTAL DIA</td>";   
+              echo "<td>".number_format($total, 2, ',', '.')."</td>";   
+              echo "<td></td>";
+              echo "<td></td>";
+              echo "<td></td>";
+              echo "<td>".number_format($total2, 2, ',', '.')."</td>";
+              echo "<tr>";     
+              echo "<td>".$v['codigo']."</td>";
+              echo "<td>".$v['nom_producto']."</td>";   
+              echo "<td>".number_format($v['cant_real'], 2, ',', '.')."</td>";                      
+              echo "<td>".$v['lote']."</td>";
+              echo "<td>".$v['fecha_termino']."</td>";  
+              echo "<td>".$v['num_produccion']."</td>"; 
+              echo "<td><left>".number_format($totalconsumo, 2, ',', '.')."</left></td>";            
+              $total=0;
+              $total2=0;
+              $fecha = $v['fecha_termino'];  
+              $total += ($v['cant_real']);
+              $total2 += ($totalconsumo); 
+              $total3 += ($v['cant_real']);
+              $total4 += ($totalconsumo);               
+            } 
+                                      
+            };
+              echo "<tr>";
+              echo "<td></td>";
+              echo "<td>TOTAL DIA</td>";
+              echo "<td>".number_format($total, 2, ',', '.')."</td>";
+              echo "<td></td>";
+              echo "<td></td>";
+              echo "<td></td>";
+              echo "<td>".number_format($total2, 2, ',', '.')."</td>";
+              echo '</table>';
+              
+              echo '<table>';
+              echo "<tr>";
+              echo "<td></td>";
+              echo "<td>TOTAL PERIODO</td>";
+              echo "<td>".number_format($total3, 2, ',', '.')."</td>";
+              echo "<td></td>";
+              echo "<td></td>";
+              echo "<td></td>";
+              echo "<td>".number_format($total4, 2, ',', '.')."</td>";
+              echo '</table>';
+
+            }else{
+
+            $query = $this->db->query('SELECT acc.*,  p.codigo as codigo, p.nombre as nom_producto FROM produccion acc
+            left join productos p on (acc.id_producto = p.id)           
+            WHERE acc.estado=2 and acc.fecha_termino between "'.$fecha3.'" AND "'.$fecha4.'"      
+            order by acc.fecha_termino, acc.id_producto ');           
+
+            $users = $query->result_array();
+                                    
+            echo '<table>';
+            echo "<td></td>";
+            echo "<td>INFORME CONSUMO DIARIA POR FECHA</td>";
+            echo "<tr>";
+            echo "<td>DESDE : ".$fecha."</td>";
+            echo "</tr>";
+            echo "<tr>";
+            echo "<td>HASTA : ".$fecha2."</td>";
+            echo "<td></td>";
+            echo "<td>".$nommov."</td>";
+            echo "</tr>";                  
+            echo "<tr>";
+            echo "<td>CODIGO</td>";
+            echo "<td>NOMBRE PRODUCTO</td>";
+            echo "<td>CANTIDAD SALIDA</td>";
+            echo "<td>LOTE</td>";
+            echo "<td>FECHA CONSUMO</td>";
+            echo "<td>NUM. PRODUCCION</td>";
+            echo "</tr>";                  
+            $total=0;
+
+            if($query->num_rows()>0){
+            $row = $query->first_row();
+            $fecha = ($row->fecha_termino);
+            };                                     
+            foreach($users as $z){
+
+
+            $idproduccion = $z['id'];
+
+            $query2 = $this->db->query('SELECT acc.*,  p.codigo as codigo, p.nombre as nom_producto FROM produccion_detalle acc
+            left join productos p on (acc.id_producto = p.id)           
+            WHERE acc.id_produccion ="'.$idproduccion.'"');
+
+            $users2 = $query2->result_array();
+            
+            
+            foreach($users2 as $v){
+
+            if($fecha==$z['fecha_termino']){              
+              $total += ($v['cantidad']);
+              echo "<tr>";
+              echo "<td>".$v['codigo']."</td>";
+              echo "<td>".$v['nom_producto']."</td>";   
+              echo "<td>".number_format($v['cantidad'], 2, ',', '.')."</td>";
+              echo "<td>".$v['lote']."</td>";
+              echo "<td>".$z['fecha_termino']."</td>"; 
+              echo "<td>".$z['num_produccion']."</td>";              
+            }else{
+              echo "<tr>";  
+              echo "<td></td>";
+              echo "<td>TOTAL</td>";   
+              echo "<td>".number_format($total, 2, ',', '.')."</td>";   
+              echo "<tr>";     
+              echo "<td>".$v['codigo']."</td>";
+              echo "<td>".$v['nom_producto']."</td>";   
+              echo "<td>".number_format($v['cantidad'], 2, ',', '.')."</td>";
+              echo "<td>".$v['lote']."</td>";
+              echo "<td>".$z['fecha_termino']."</td>";
+              echo "<td>".$z['num_produccion']."</td>";              
+              $total=0;
+              $fecha = $z['fecha_termino'];  
+              $total += ($v['cantidad']);               
+            }  
+
+            }
+                                     
+            };
+              echo "<tr>";
+              echo "<td></td>";
+              echo "<td>TOTAL</td>";
+              echo "<td>".number_format($total, 2, ',', '.')."</td>";   
+                 
+              
+              echo '</table>';
+                
+              }
+             
+         }
+
+   public function exportarExcelExistenciaCliente()
+         {
+            header("Content-type: application/vnd.ms-excel"); 
+            header("Content-disposition: attachment; filename=detalleexistenciacliente.xls"); 
+            
+            $rut = json_decode($this->input->get('rut'));
+            
+            $this->load->database();
+            $query1 = $this->db->query('SELECT acc.*, ciu.nombre as nombre_ciudad, com.nombre as nombre_comuna, g.nombre as nom_giro, 
+            ven.nombre as nombre_vendedor, g.nombre as giro FROM clientes acc
+            left join ciudad c on (acc.id_ciudad = c.id)
+            left join cod_activ_econ g on (acc.id_giro = g.id)
+            left join comuna com on (acc.id_comuna = com.id)
+            left join comuna ciu on (acc.id_ciudad = ciu.id)
+            left join vendedores ven on (acc.id_vendedor = ven.id)
+            WHERE acc.rut="'.$rut.'"');
+
+            $v = $query1->first_row();
+            $id = $v->id;
+            $razons = $v->nombres;                          
+            $query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, cor.nombre as nom_tipo_movimiento, c.codigo as codigo, bod.nombre as nom_bodega, acc.num_o_compra as num_o_compra FROM existencia_detalle acc
+            left join productos c on (acc.id_producto = c.id)
+            left join correlativos cor on (acc.id_tipo_movimiento = cor.id)
+            left join bodegas bod on (acc.id_bodega = bod.id) 
+            WHERE acc.id_cliente="'.$id.'"');          
+           
+            $users = $query->result_array();
+            $row = $query->result();
+            $row = $row[0];
+            $nomproducto = $row->nom_producto;
+            
+            echo '<table>';
+            echo "<td></td>";
+            echo "<td>DETALLE DE EXSTENCIA CLIENTE PRODUCTOS</td>";
+            echo "<tr>";              
+            echo "<td>NOMBRE PRODUCTO :</td>";
+            echo "<td>".$nomproducto."</td>";
+            echo "<tr>";
+            echo "<td>Rut :</td>";
+            echo "<td><center>".$rut."</center></td>";
+            echo "<td>Cliente :</td>";
+            echo "<td>".$razons."</td>"; 
+            echo "<tr>";
+            echo "<td>NOMBRE</td>";
+            echo "<td>TIPO</td>";                              
+            echo "<td>NUMERO</td>";
+            echo "<td>ENTRADA</td>";
+            echo "<td>SALIDA</td>";
+            echo "<td>FECHA</td>";
+            echo "<td>TRANSPORTISTA</td>";
+            echo "<td>SALDO</td>";
+            echo "<td>PRECIO</td>";
+            echo "<td>TOTAL</td>";
+            echo "<td>PRECIO PROM</td>";
+            echo "<td>NUM O.COMPRA</td>";
+            //echo "<tr>";              
+              foreach($users as $v){
+
+                $ocompra = $v['num_o_compra'];
+                $idproducto = $v['id_producto'];
+
+                $query3 = $this->db->query('SELECT ctz.*, pro.nombres as empresa, pro.rut as rut, pro.direccion as direccion, ciu.nombre as ciudad, com.nombre as comuna, gir.nombre as nombre_giro, pro.id_giro as id_giro
+                FROM orden_compra ctz
+                INNER JOIN clientes pro ON (ctz.id_proveedor = pro.id)
+                INNER JOIN ciudad ciu ON (pro.id_ciudad = ciu.id)
+                INNER JOIN comuna com ON (pro.id_comuna = com.id)
+                INNER JOIN cod_activ_econ gir ON (pro.id_giro = gir.id)
+                where ctz.num_orden = '.$ocompra.' ');
+
+                
+
+
+
+                 echo "<tr>";
+                      echo "<td>".$v['nom_producto']."</td>";
+                      echo "<td>".$v['nom_tipo_movimiento']."</td>";
+                      echo "<td>".$v['num_movimiento']."</td>";
+                      echo "<td>".number_format($v['cantidad_entrada'],2,",",".")."</td>";
+                      echo "<td>".number_format($v['cantidad_salida'],2,",",".")."</td>";
+                      echo "<td>".$v['fecha_movimiento']."</td>";
+                      echo "<td>".$v['transportista']."</td>";
+                      echo "<td>".number_format($v['saldo'],2,",",".")."</td>";
+                      if($v['cantidad_entrada']>0){
+                      echo "<td>".number_format($v['valor_producto'],2,",",".")."</td>";
+                      $total = $v['cantidad_entrada']*$v['valor_producto'];
+                      $p_promedio = $total / $v['cantidad_entrada'];
+                      };
+                      echo "<td>".number_format($total,2,",",".")."</td>";
+                      echo "<td>".number_format($p_promedio,2,",",".")."</td>";
+                      echo "<td>".$v['num_o_compra']."</td>";
+                     
+            }
+            echo '</table>';
+        }
+
 public function exportarExcelPedidos(){
 
           header("Content-type: application/vnd.ms-excel");
@@ -762,8 +1070,6 @@ public function reporte_estadisticas_ventas($mes,$anno)
             echo '</table>';
           }
        }
-
-
       
         public function exportarExcelProductos()
          {
@@ -1358,8 +1664,10 @@ public function reporte_estadisticas_ventas($mes,$anno)
             $fecha2 = $this->input->get('fecha2');
             list($dia, $mes, $anio) = explode("/",$fecha2);
             $fecha4 = $anio ."-". $mes ."-". $dia;
-            $tipo = 1;
-            $tipo2 = 11;
+            $tipo = $this->input->get('tipo');
+            $opcion = $this->input->get('opcion');
+            //$tipo = 1;
+            $tipo2 = 102;
             $totalnc = 0;
             $totalafnc = 0;
             $totalnetonc = 0;
@@ -1376,8 +1684,7 @@ public function reporte_estadisticas_ventas($mes,$anno)
                                    
             $this->load->database();
             
-            if($fecha){
-            
+            if($fecha){           
                           
                 $data = array();
                 $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor  FROM factura_clientes acc
@@ -1397,7 +1704,7 @@ public function reporte_estadisticas_ventas($mes,$anno)
             echo '<table>';
             echo "<td></td>";
             echo "<td>LIBRO DE VENTAS</td>";
-            echo "<td>FACTURAS</td>";
+            echo "<td>FACTURAS / NOTAS DE CREDITO</td>";
             echo "<tr>";
                 echo "<td>NUMERO</td>";
                 echo "<td>FECHA</td>";
@@ -1417,7 +1724,7 @@ public function reporte_estadisticas_ventas($mes,$anno)
                  $afecto = $v['sub_total'];
                  $neto = $v['neto'];
                  $iva = $v['iva'];
-                 if ($v['tipo_documento']==11){
+                 if ($v['tipo_documento']==102){
 
                   $total = ($v['totalfactura']/-1);
                   $afecto = ($v['sub_total']/-1);
@@ -1790,8 +2097,7 @@ public function reporte_estadisticas_ventas($mes,$anno)
         public function exportarExcelNotacredito()
          {
             header("Content-type: application/vnd.ms-excel"); 
-            header("Content-disposition: attachment; filename=productos.xls");
-            
+            header("Content-disposition: attachment; filename=productos.xls");            
             $columnas = json_decode($this->input->get('cols'));
             $fecha = $this->input->get('fecha');
             $nombres = $this->input->get('nombre');
@@ -1802,8 +2108,7 @@ public function reporte_estadisticas_ventas($mes,$anno)
             list($dia, $mes, $anio) = explode("/",$fecha2);
             $fecha4 = $anio ."-". $mes ."-". $dia;
             $tipo = 11;
-            $tipo2 = 2;
-                        
+            $tipo2 = 2;                       
 
             $data = array();
                                    
@@ -1819,7 +2124,7 @@ public function reporte_estadisticas_ventas($mes,$anno)
                 WHERE acc.tipo_documento = '.$tipo.' and c.rut = '.$nombres.' and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
                 order by acc.id desc'    
 
-              );
+            );
 
                 }else if($opcion == "Nombre"){
 
@@ -1965,11 +2270,26 @@ public function reporte_estadisticas_ventas($mes,$anno)
             header("Content-disposition: attachment; filename=existencia.xls"); 
             
             $columnas = json_decode($this->input->get('cols'));
+            $nombres = json_decode($this->input->get('nombre'));
+            $tipo = json_decode($this->input->get('tipo'));
+            $bodega = json_decode($this->input->get('bodega'));
+            $clasifica = json_decode($this->input->get('clasificacio'));
             
             $this->load->database();
 
-            $query = $this->db->query('SELECT acc.*, c.nombre as nom_producto FROM existencia acc
-            left join productos c on (acc.id_producto = c.id) order by acc.id desc ');
+            if ($clasifica==1){
+
+            $query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, c.codigo as codigo FROM existencia acc
+            left join productos c on (acc.id_producto = c.id) 
+            where c.clasificacion = "'.$clasifica.'" or c.clasificacion = "3" order by acc.id desc ');
+              
+            }else{
+              
+            $query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, c.codigo as codigo FROM existencia acc
+            left join productos c on (acc.id_producto = c.id) 
+            where c.clasificacion = "'.$clasifica.'" order by acc.id desc ');
+            }
+
 
             $users = $query->result_array();
             
@@ -1977,43 +2297,21 @@ public function reporte_estadisticas_ventas($mes,$anno)
             echo "<td></td>";
             echo "<td>LISTADO DE EXSTENCIA PRODUCTOS</td>";
             echo "<tr>";
-                if (in_array("id", $columnas)):
-                     echo "<td>ID</td>";
-                endif;
-                if (in_array("id_producto", $columnas)):
-                    echo "<td>ID PRODUCTO</td>";
-                endif;
-                if (in_array("nom_producto", $columnas)):
-                     echo "<td>NOMBRE</td>";
-                endif;
-                if (in_array("stock", $columnas)) :
-                    echo "<td>STOCK</td>";
-                endif;
-                 if (in_array("fecha_ultimo_movimiento", $columnas)) :
-                    echo "<td>FECHA</td>";
-                endif;
-                
+                echo "<td>ID PRODUCTO</td>";
+                echo "<td>CODIGO</td>";
+                echo "<td>NOMBRE</td>";
+                echo "<td>STOCK</td>";
+                echo "<td>FECHA ULT.MOV</td>";
                 echo "<tr>";
               
               foreach($users as $v){
                  echo "<tr>";
-                   if (in_array("id", $columnas)) :
-                      echo "<td>".$v['id']."</td>";
-                   endif;
-                    
-                   if (in_array("id_producto", $columnas)) :
-                      echo "<td>".$v['id_producto']."</td>";
-                   endif;
-                   if (in_array("nom_producto", $columnas)) :
-                      echo "<td>".$v['nom_producto']."</td>";
-                   endif;
-                  
-                  if (in_array("stock", $columnas)) :
-                      echo "<td>".$v['stock']."</td>";
-                  endif;
-                  if (in_array("fecha_ultimo_movimiento", $columnas)) :
-                      echo "<td>".$v['fecha_ultimo_movimiento']."</td>";
-                  endif;
+                   echo "<td>".$v['id_producto']."</td>";
+                   echo "<td>".$v['codigo']."</td>";
+                   echo "<td>".$v['nom_producto']."</td>";
+                   echo "<td>".number_format($v['stock'],2,",",".")."</td>";
+                   echo "<td>".$v['fecha_ultimo_movimiento']."</td>";
+                
             }
             echo '</table>';
         }
@@ -2061,6 +2359,12 @@ public function reporte_estadisticas_ventas($mes,$anno)
                     echo "<td>ENTRADA</td>";
                     echo "<td>SALIDA</td>";
                     echo "<td>FECHA</td>";
+                    echo "<td>TRANSPORTISTA</td>";
+                    echo "<td>SALDO</td>";
+                    echo "<td>PRECIO</td>";
+                    echo "<td>TOTAL</td>";
+                    echo "<td>PRECIO PROM</td>";
+                    echo "<td>NUM O.COMPRA</td>";
             //echo "<tr>";              
               foreach($users as $v){
                  echo "<tr>";
@@ -2070,12 +2374,23 @@ public function reporte_estadisticas_ventas($mes,$anno)
                       if (in_array("nom_tipo_movimiento", $columnas)) :
                            echo "<td>".$v['nom_tipo_movimiento']."</td>";
                       endif;
-
                       echo "<td>".$v['nom_tipo_movimiento']."</td>";
                       echo "<td>".$v['num_movimiento']."</td>";
-                      echo "<td>".$v['cantidad_entrada']."</td>";
-                      echo "<td>".$v['cantidad_salida']."</td>";
+                      echo "<td>".number_format($v['cantidad_entrada'],2,",",".")."</td>";
+                      echo "<td>".number_format($v['cantidad_salida'],2,",",".")."</td>";
                       echo "<td>".$v['fecha_movimiento']."</td>";
+                      echo "<td>".$v['transportista']."</td>";
+                      echo "<td>".number_format($v['saldo'],2,",",".")."</td>";
+                      //if($v['saldo']>0){
+                      if($v['cantidad_entrada']>0){
+                      echo "<td>".number_format($v['valor_producto'],2,",",".")."</td>";
+                      $total = $v['cantidad_entrada']*$v['valor_producto'];
+                      
+                      echo "<td>".number_format($total,2,".",",")."</td>";
+                      echo "<td>".number_format($v['p_promedio'],2,",",".")."</td>";
+                      };
+                      echo "<td>".$v['num_o_compra']."</td>";
+                      //};
             }
             echo '</table>';
         }
@@ -2885,8 +3200,430 @@ public function reporte_estadisticas_ventas($mes,$anno)
             echo '</table>';
         }
 
+         public function exportarExcelConsumoDetalle()
+         {
+            header("Content-type: application/vnd.ms-excel"); 
+            header("Content-disposition: attachment; filename=detalleconsumo.xls"); 
+            
+            $nombre = $this->input->get('idmov');
+            
+            $this->load->database();
+            $query = $this->db->query('SELECT acc.*,  p.codigo as codigo, t.nombre as nom_tipom, s.nombre as nom_tipom, p.nombre as nom_producto FROM movimientodiario_detalle acc
+            left join tipo_movimiento t on (acc.id_tipom = t.id)
+            left join tipo_movimiento s on (acc.id_tipomd = s.id)
+            left join productos p on (acc.id_producto = p.id)           
+            WHERE acc.id_movimiento like "'.$nombre.'"');
 
+            $items = $query->result_array();            
+             
+            echo '<table>';
+            echo "<td></td>";
+            echo "<td>DETALLE DE MOVIMIENTO CONSUMO DIARIO</td>";
+            echo "<tr>";              
+            echo "<td>CODIGO</td>";
+            echo "<td>NOMBRE</td>";
+            echo "<td>CANTIDAD</td>";
+            echo "<td>LOTE</td>";
+            echo "<td>FECHA</td>";
+                   
+            //echo "<tr>";              
+            foreach($items as $v){
+                   
+                      echo "<tr>";
+                      echo "<td>".$v['codigo']."</td>";
+                      echo "<td>".$v['nom_producto']."</td>";   
+                      echo "<td>".number_format($v['cantidad'], 2, ',', '.')."</td>";                      
+                      echo "<td>".$v['lote']."</td>";
+                      echo "<td>".$v['fecha']."</td>";                     
+                     
+            }
+            echo '</table>';
+        }
 
+        public function exportarExcelMovimientoDetalle()
+         {
+            header("Content-type: application/vnd.ms-excel"); 
+            header("Content-disposition: attachment; filename=detallemovimientos.xls"); 
+            
+            $nombre = $this->input->get('idmov');
+            
+            $this->load->database();
+            $query = $this->db->query('SELECT acc.*,  p.codigo as codigo, t.nombre as nom_tipom, s.nombre as nom_tipom, p.nombre as nom_producto FROM movimientodiario_detalle acc
+            left join tipo_movimiento t on (acc.id_tipom = t.id)
+            left join tipo_movimiento s on (acc.id_tipomd = s.id)
+            left join productos p on (acc.id_producto = p.id)           
+            WHERE acc.id_movimiento like "'.$nombre.'"');
+
+            $items = $query->result_array();            
+             
+            echo '<table>';
+            echo "<td></td>";
+            echo "<td>DETALLE DE MOVIMIENTO PRODUCCION</td>";
+            echo "<tr>";              
+            echo "<td>CODIGO</td>";
+            echo "<td>NOMBRE</td>";
+            echo "<td>CANTIDAD</td>";
+            echo "<td>LOTE</td>";
+            echo "<td>FECHA</td>";
+                   
+            //echo "<tr>";              
+            foreach($items as $v){
+                   
+                      echo "<tr>";
+                      echo "<td>".$v['codigo']."</td>";
+                      echo "<td>".$v['nom_producto']."</td>";   
+                      echo "<td>".number_format($v['cantidad'], 2, ',', '.')."</td>";                      
+                      echo "<td>".$v['lote']."</td>";
+                      echo "<td>".$v['fecha']."</td>";                     
+                     
+            }
+            echo '</table>';
+        }
+
+        public function exportarExcelseguros(){
+
+          header("Content-type: application/vnd.ms-excel");
+          header("Content-disposition: attachment; filename=MovimientoDiario.xls");       
+          
+          //$columnas = json_decode($this->input->get('cols'));
+          
+          $fecha = $this->input->get('fecha');
+          list($dia, $mes, $anio) = explode("/",$fecha);
+          $fecha3 = $anio ."-". $mes ."-". $dia;
+          $fecha2 = $this->input->get('fecha2');
+          list($dia, $mes, $anio) = explode("/",$fecha2);
+          $fecha4 = $anio ."-". $mes ."-". $dia;
+          $tipo = 101;
+          
+
+            $query = $this->db->query('SELECT acc.*, c.nombre as nombre_ciudad, com.nombre as nombre_comuna, acc.estado as estadoc, ven.nombre as nombre_vendedor, g.nombre as giro, con.nombre as nom_id_pago FROM clientes acc
+            left join ciudad c on (acc.id_ciudad = c.id)
+            left join cod_activ_econ g on (acc.id_giro = g.id)
+            left join comuna com on (acc.id_comuna = com.id)
+            left join vendedores ven on (acc.id_vendedor = ven.id)
+            left join cond_pago con on (acc.id_pago = con.id)
+            WHERE acc.id_credito = 1 or acc.id_credito = 2');      
+
+            $users = $query->result_array();
+                                    
+            echo '<table>';
+            echo "<td></td>";
+            echo "<td>VENTAS CLIENTES CON SEGUROS</td>";
+            echo "<tr>";
+            echo "<td>DESDE : ".$fecha."</td>";
+            echo "</tr>";
+            echo "<tr>";
+            echo "<td>HASTA : ".$fecha2."</td>";
+            echo "<td></td>";
+            echo "</tr>";                  
+            echo "<tr>";
+            echo "<td><center>NOMBRE</center></td>";
+            echo "<td><center>UF</center></td>";
+            echo "<td><center>RUT</center></td>";
+            echo "<td><center>TIPO CLIENTE</center></td>";
+            echo "<td><center>NUM FACTURA</center></td>";
+            echo "<td><center>EMISION</center></td>";
+            echo "<td><center>VENCIMIENTO</center></td>";
+            echo "<td><center>MONTO</center></td>";
+            echo "</tr>";                  
+            $total=0;
+
+            if($query->num_rows()>0){
+            $row = $query->first_row();
+            $nombre = ($row->nombres);           
+            };  
+
+                                         
+            foreach($users as $v){
+            if($v['id_credito']==2){
+                $tipocliente="NOMINADO";
+            }else{
+                $tipocliente="INNOMINADO";                
+            }
+
+            $id = ($v['id']);          
+            
+            $query2 = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, td.descripcion as tipo_doc,  acc.tipo_documento as id_tip_docu FROM factura_clientes acc
+            left join clientes c on (acc.id_cliente = c.id)
+            left join vendedores v on (acc.id_vendedor = v.id)
+            left join tipo_documento td on (acc.tipo_documento = td.id)
+            WHERE acc.id_cliente='.$id.' and acc.fecha_factura between "'.$fecha3.'" AND "'.$fecha4.'"
+            order by acc.fecha_factura');
+
+            $dato = $query2->result_array();
+
+            foreach($dato as $t){              
+            
+              $rutautoriza = $t['rut_cliente'];
+            if (strlen($rutautoriza) == 8){
+              $ruta1 = substr($rutautoriza, -1);
+              $ruta2 = substr($rutautoriza, -4, 3);
+              $ruta3 = substr($rutautoriza, -7, 3);
+              $ruta4 = substr($rutautoriza, -8, 1);
+              $rut = ($ruta4.".".$ruta3.".".$ruta2."-".$ruta1);
+            };
+            if (strlen($rutautoriza) == 9){
+              $ruta1 = substr($rutautoriza, -1);
+              $ruta2 = substr($rutautoriza, -4, 3);
+              $ruta3 = substr($rutautoriza, -7, 3);
+              $ruta4 = substr($rutautoriza, -9, 2);
+              $rut = ($ruta4.".".$ruta3.".".$ruta2."-".$ruta1);
+           
+            };
+             if (strlen($rutautoriza) == 2){
+              $ruta1 = substr($rutautoriza, -1);
+              $ruta2 = substr($rutautoriza, -4, 1);
+              $rut = ($ruta2."-".$ruta1);
+             
+            };
+
+           if (strlen($rutautoriza) == 7){
+              $ruta1 = substr($rutautoriza, -1);
+              $ruta2 = substr($rutautoriza, -4, 3);
+              $ruta3 = substr($rutautoriza, -7, 3);
+              $rut = ($ruta3.".".$ruta2."-".$ruta1);
+             
+            };
+            if (strlen($rutautoriza) == 4){
+              $ruta1 = substr($rutautoriza, -1);
+              $ruta2 = substr($rutautoriza, -4, 3);
+              $rut = ($ruta2."-".$ruta1);
+             
+            };
+             if (strlen($rutautoriza) == 6){
+              $ruta1 = substr($rutautoriza, -1);
+              $ruta2 = substr($rutautoriza, -4, 3);
+              $ruta3 = substr($rutautoriza, -6, 2);
+              $rut = ($ruta3.".".$ruta2."-".$ruta1);
+             
+            };  
+            
+            if($nombre==$t['nombre_cliente']){  
+
+              if($t['tipo_documento']==102){
+                $t['totalfactura']=($t['totalfactura']/-1);                  
+              }              
+                       
+              $total += ($t['totalfactura']);
+              echo "<tr>";
+              echo "<td>".$t['nombre_cliente']."</td>";
+              echo "<td><center>".number_format($v['uf_cred'], 0, ',', '.')."</center></td>";   
+              echo "<td>".$rut."</td>";
+              echo "<td>".$tipocliente."</td>";
+              echo "<td>".$t['num_factura']."</td>";                                
+              echo "<td>".$t['fecha_factura']."</td>";
+              echo "<td>".$t['fecha_venc']."</td>";
+              echo "<td>".number_format($t['totalfactura'], 0, ',', '.')."</td>";
+              }else{
+                if($t['tipo_documento']==102){
+                $t['totalfactura']=($t['totalfactura']/-1);                  
+              }  
+              echo "<tr>";  
+              echo "<td></td>";
+              echo "<td></td>";  
+              echo "<td></td>";  
+              echo "<td></td>";
+              echo "<td></td>"; 
+              echo "<td></td>"; 
+              echo "<td></td>";   
+              echo "<td>".number_format($total, 0, ',', '.')."</td>";   
+              echo "<tr>";     
+              echo "<td>".$t['nombre_cliente']."</td>";
+              echo "<td><center>".number_format($v['uf_cred'], 0, ',', '.')."</center></td>";   
+              echo "<td>".$rut."</td>";
+              echo "<td>".$tipocliente."</td>";  
+              echo "<td>".$t['num_factura']."</td>";                     
+              echo "<td>".$t['fecha_factura']."</td>";
+              echo "<td>".$t['fecha_venc']."</td>";
+              echo "<td>".number_format($t['totalfactura'], 0, ',', '.')."</td>";             
+              $total=0;
+              $nombre = $t['nombre_cliente'];  
+              $total += ($t['totalfactura']);               
+            }                      
+          
+            }                          
+            };
+                              
+              
+              echo '</table>';
+             
+         }        
+
+         public function exportarExcelmovimientodiario(){
+
+          header("Content-type: application/vnd.ms-excel");
+          header("Content-disposition: attachment; filename=MovimientoDiario.xls");       
+          
+          //$columnas = json_decode($this->input->get('cols'));
+          
+          $fecha = $this->input->get('fecha');
+          list($dia, $mes, $anio) = explode("/",$fecha);
+          $fecha3 = $anio ."-". $mes ."-". $dia;
+          $fecha2 = $this->input->get('fecha2');
+          list($dia, $mes, $anio) = explode("/",$fecha2);
+          $fecha4 = $anio ."-". $mes ."-". $dia;
+          $tipo = $this->input->get('opcion');
+          $tipomov = $this->input->get('tipomov');
+          $nommov = $this->input->get('nombremov');
+
+          
+            $query = $this->db->query('SELECT acc.*,  p.codigo as codigo, t.nombre as nom_tipom, s.nombre as nom_tipom, p.nombre as nom_producto FROM movimientodiario_detalle acc
+            left join tipo_movimiento t on (acc.id_tipom = t.id)
+            left join tipo_movimiento s on (acc.id_tipomd = s.id)
+            left join productos p on (acc.id_producto = p.id)           
+            WHERE acc.id_tipomd = "'.$tipomov.'" and acc.fecha between "'.$fecha3.'" AND "'.$fecha4.'"             
+            order by acc.fecha, acc.id_producto ');            
+
+            $users = $query->result_array();
+                                    
+            echo '<table>';
+            echo "<td></td>";
+            echo "<td>INFORME MOVIMIENTO DIARIO POR FECHA</td>";
+            echo "<tr>";
+            echo "<td>DESDE : ".$fecha."</td>";
+            echo "</tr>";
+            echo "<tr>";
+            echo "<td>HASTA : ".$fecha2."</td>";
+            echo "<td></td>";
+            echo "<td>".$nommov."</td>";
+            echo "</tr>";                  
+            echo "<tr>";
+            echo "<td>CODIGO</td>";
+            echo "<td>NOMBRE PRODUCTO</td>";
+            echo "<td>CANTIDAD ENTRADA</td>";
+            echo "<td>LOTE</td>";
+            echo "<td>FECHA PRODUCCION</td>";
+            echo "</tr>";                  
+            $total=0;
+
+            if($query->num_rows()>0){
+            $row = $query->first_row();
+            $fecha = ($row->fecha);
+            };                                     
+            foreach($users as $v){
+            if($fecha==$v['fecha']){              
+              $total += ($v['cantidad']);
+              echo "<tr>";
+              echo "<td>".$v['codigo']."</td>";
+              echo "<td>".$v['nom_producto']."</td>";   
+              echo "<td>".number_format($v['cantidad'], 2, ',', '.')."</td>";                      
+              echo "<td>".$v['lote']."</td>";
+              echo "<td>".$v['fecha']."</td>";              
+            }else{
+              echo "<tr>";  
+              echo "<td></td>";
+              echo "<td>TOTAL</td>";   
+              echo "<td>".number_format($total, 2, ',', '.')."</td>";   
+              echo "<tr>";     
+              echo "<td>".$v['codigo']."</td>";
+              echo "<td>".$v['nom_producto']."</td>";   
+              echo "<td>".number_format($v['cantidad'], 2, ',', '.')."</td>";                      
+              echo "<td>".$v['lote']."</td>";
+              echo "<td>".$v['fecha']."</td>";              
+              $total=0;
+              $fecha = $v['fecha'];  
+              $total += ($v['cantidad']);               
+            }                           
+            };
+              echo "<tr>";
+              echo "<td></td>";
+              echo "<td>TOTAL</td>";
+              echo "<td>".number_format($total, 2, ',', '.')."</td>";   
+                 
+              
+              echo '</table>';
+             
+         }
+         
+         public function exportarExcelconsumosdiario(){
+
+          header("Content-type: application/vnd.ms-excel");
+          header("Content-disposition: attachment; filename=MovimientoDiario.xls");       
+          
+          //$columnas = json_decode($this->input->get('cols'));
+          
+          $fecha = $this->input->get('fecha');
+          list($dia, $mes, $anio) = explode("/",$fecha);
+          $fecha3 = $anio ."-". $mes ."-". $dia;
+          $fecha2 = $this->input->get('fecha2');
+          list($dia, $mes, $anio) = explode("/",$fecha2);
+          $fecha4 = $anio ."-". $mes ."-". $dia;
+          $tipo = $this->input->get('opcion');
+          $tipomov = 4;
+          $nommov = "CONSUMO DIARIO";
+
+          
+            $query = $this->db->query('SELECT acc.*,  p.codigo as codigo, t.nombre as nom_tipom, s.nombre as nom_tipom, p.nombre as nom_producto FROM movimientodiario_detalle acc
+            left join tipo_movimiento t on (acc.id_tipom = t.id)
+            left join tipo_movimiento s on (acc.id_tipomd = s.id)
+            left join productos p on (acc.id_producto = p.id)           
+            WHERE acc.id_tipomd = "'.$tipomov.'" and acc.fecha between "'.$fecha3.'" AND "'.$fecha4.'"             
+            order by acc.fecha, acc.id_producto ');            
+
+            $users = $query->result_array();
+                                    
+            echo '<table>';
+            echo "<td></td>";
+            echo "<td>INFORME MOVIMIENTO CONSUMO DIARIO POR FECHA</td>";
+            echo "<tr>";
+            echo "<td>DESDE : ".$fecha."</td>";
+            echo "</tr>";
+            echo "<tr>";
+            echo "<td>HASTA : ".$fecha2."</td>";
+            echo "<td></td>";
+            echo "<td>".$nommov."</td>";
+            echo "</tr>";                  
+            echo "<tr>";
+            echo "<td>CODIGO</td>";
+            echo "<td>NOMBRE PRODUCTO</td>";
+            echo "<td>CANTIDAD ENTRADA</td>";
+            echo "<td>LOTE</td>";
+            echo "<td>FECHA PRODUCCION</td>";
+            echo "</tr>";                  
+            $total=0;
+
+            if($query->num_rows()>0){
+            $row = $query->first_row();
+            $fecha = ($row->fecha);
+            };                                     
+            foreach($users as $v){
+              $fecha5 = $v['fecha']; 
+              list($anio, $mes, $dia) = explode("-",$fecha5);
+              $fecha4 = $dia ."/". $mes ."/". $anio;
+
+            if($fecha==$v['fecha']){              
+              $total += ($v['cantidad']);
+              echo "<tr>";
+              echo "<td>".$v['codigo']."</td>";
+              echo "<td>".$v['nom_producto']."</td>";   
+              echo "<td>".number_format($v['cantidad'], 2, ',', '.')."</td>";                      
+              echo "<td>".$v['lote']."</td>";
+              echo "<td>".$fecha4."</td>";              
+            }else{
+              echo "<tr>";  
+              echo "<td></td>";
+              echo "<td>TOTAL</td>";   
+              echo "<td>".number_format($total, 2, ',', '.')."</td>";   
+              echo "<tr>";     
+              echo "<td>".$v['codigo']."</td>";
+              echo "<td>".$v['nom_producto']."</td>";   
+              echo "<td>".number_format($v['cantidad'], 2, ',', '.')."</td>";                      
+              echo "<td>".$v['lote']."</td>";
+              echo "<td>".$fecha4."</td>";              
+              $total=0;
+              $fecha = $v['fecha'];  
+              $total += ($v['cantidad']);               
+            }                           
+            };
+              echo "<tr>";
+              echo "<td></td>";
+              echo "<td>TOTAL</td>";
+              echo "<td>".number_format($total, 2, ',', '.')."</td>";   
+                 
+              
+              echo '</table>';
+             
+         }     
        
       }
  

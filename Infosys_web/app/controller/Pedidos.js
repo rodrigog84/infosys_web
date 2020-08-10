@@ -37,7 +37,8 @@ Ext.define('Infosys_web.controller.Pedidos', {
             'Pedidos.Exportar',
             'Pedidos.Exportar2',
             'Pedidos.Facturas',
-            'Pedidos.EstadoPedido'
+            'Pedidos.EstadoPedido',
+            'Pedidos.Elimina'
             ],
 
     //referencias, es un alias interno para el controller
@@ -91,6 +92,9 @@ Ext.define('Infosys_web.controller.Pedidos', {
     },{
         ref: 'estadopedidos',
         selector: 'estadopedidos'
+    },{
+        ref: 'eliminaPedidos',
+        selector: 'eliminaPedidos'
     }
   
     ],
@@ -241,8 +245,89 @@ Ext.define('Infosys_web.controller.Pedidos', {
             'buscarformulas button[action=seleccionarformula]': {
                 click: this.seleccionarformula
             },
+            'pedidosingresar #rutId': {
+                specialkey: this.special
+            },
+            'eliminaPedidos button[action=eliminapedidos]': {
+                click: this.eliminapedidos
+            },
+            'eliminaPedidos button[action=salirelimina]': {
+                click: this.salirelimina
+            },
+            'pedidosprincipal button[action=eliminar]': {
+                click: this.eliminar
+            },
            
         });
+    },
+
+    eliminar: function(){
+
+        var view = this.getPedidosprincipal();
+        var idbodega = view.down('#bodegaId').getValue();
+        if(!idbodega){
+            Ext.Msg.alert('Alerta', 'Debe Elegir Bodega');
+            return;            
+        }else{
+            if (view.getSelectionModel().hasSelection()) {
+            var row = view.getSelectionModel().getSelection()[0];
+            var pedidoId=(row.data.id);
+            var edit = Ext.create('Infosys_web.view.Pedidos.Elimina');
+            edit.down('#pedidoId').setValue(pedidoId);
+                
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        };            
+        };
+    },
+
+    salirelimina: function(){
+        var view = this.getEliminaPedidos();
+        view.close();
+    },
+
+    eliminapedidos: function(){
+
+        var edit = this.getPedidosprincipal();
+        var st = this.getPedidosStore();
+        var idbodega = edit.down('#bodegaId').getValue();
+        var nombre = edit.down('#nombreId').getValue();
+        var estado = edit.down('#Seleccion2Id').getValue();
+        st.proxy.extraParams = {nombre : nombre,
+                                estado : estado,
+                                idbodega : idbodega}        
+        var view = this.getEliminaPedidos(); 
+        var idpedido = view.down('#pedidoId').getValue();                  
+        Ext.Ajax.request({
+        url: preurl +'pedidos/eliminapedido/?idpedidos=' + idpedido,
+        params: {
+            id: 1
+        },
+        success: function(response){
+            var resp = Ext.JSON.decode(response.responseText);
+            if (resp.success == true) {
+                st.load();    
+                view.close();                  
+                Ext.Msg.alert('Pedido Eliminado Correctamente');
+                return;
+            }else{
+                st.load();  
+                view.close();
+                Ext.Msg.alert('Pedido No disponoble para Eliminar');
+                return;                
+            }
+        }            
+        }); 
+        var st = this.getPedidosStore();
+        st.proxy.extraParams = {idbodega: idbodega }
+        st.load();        
+    },
+
+    special: function(f,e){
+        if (e.getKey() == e.ENTER) {
+            this.validarut()
+        }
     },
 
     verproduccion: function(){
@@ -291,6 +376,7 @@ Ext.define('Infosys_web.controller.Pedidos', {
                     view.down('#nomProductoId').setValue(cliente.nom_producto);
                     view.down('#cantpedidoId').setValue(cliente.cantidad);
                     view.down('#cantproducidoId').setValue(cliente.cantidad_prod);
+                    view.down('#cantprodrealId').setValue(cliente.cant_real);
                     view.down('#fechainicioId').setValue(cliente.fecha_inicio);
                     view.down('#fechaterminoId').setValue(cliente.fecha_termino); 
                     view.down('#horainicioId').setValue(cliente.hora_inicio);
@@ -303,7 +389,10 @@ Ext.define('Infosys_web.controller.Pedidos', {
 
             }
             
-        });      
+        });  
+                
+            
+                
 
         }else{
             Ext.Msg.alert('Alerta', 'Selecciona un registro.');
@@ -958,15 +1047,16 @@ Ext.define('Infosys_web.controller.Pedidos', {
         var viewIngresa = this.getEditarpedidos();
         var numeropedido = viewIngresa.down('#ticketId').getValue();
         var idpedido = viewIngresa.down('#idId').getValue();        
-        var idFormula = viewIngresa.down('#formulaId').getValue();
-        var nomformula = viewIngresa.down('#nombreformulaId').getValue();
+        //var idFormula = viewIngresa.down('#formulaId').getValue();
+        //var nomformula = viewIngresa.down('#nombreformulaId').getValue();
         var idcliente = viewIngresa.down('#id_cliente').getValue();
         var idobserva = viewIngresa.down('#obsId').getValue();
         var nomcliente = viewIngresa.down('#nombre_id').getValue();
         var idcliente = viewIngresa.down('#id_cliente').getValue();
         var vendedor = viewIngresa.down('#tipoVendedorId');
-        var idbodega = viewIngresa.down('#bodegaId').getValue();
-        var cantidadfor = viewIngresa.down('#cantidadformId').getValue();        
+        var idbodega = 1;
+        //viewIngresa.down('#bodegaId').getValue();
+        //var cantidadfor = viewIngresa.down('#cantidadformId').getValue();        
         var stCombo = vendedor.getStore();
         var record = stCombo.findRecord('id', vendedor.getValue()).data;
         var finalafectoId = viewIngresa.down('#finaltotalnetoId').getValue();
@@ -976,10 +1066,10 @@ Ext.define('Infosys_web.controller.Pedidos', {
         var stItem = this.getPedidosEditarStore();
         var stpedidos = this.getPedidosStore();
 
-        if(!idFormula){
+        /*if(!idFormula){
              Ext.Msg.alert('Debe Asignar Formula');
             return;            
-        }
+        }*/
 
      
         if(vendedor==0  && tipo_documento.getValue() == 1){
@@ -1004,9 +1094,9 @@ Ext.define('Infosys_web.controller.Pedidos', {
                 idcliente: idcliente,
                 idpedido: idpedido, 
                 nomcliente: nomcliente,
-                idformula: idFormula,
-                cantidadfor: cantidadfor,
-                nomformula: nomformula,
+                //idformula: idFormula,
+                //cantidadfor: cantidadfor,
+                //nomformula: nomformula,
                 items: Ext.JSON.encode(dataItems),
                 vendedor : vendedor,
                 idbodega: idbodega,
@@ -1024,7 +1114,7 @@ Ext.define('Infosys_web.controller.Pedidos', {
                  var idpedidos= resp.idpedidos;
                  viewIngresa.close();
                  stpedidos.load();
-                 window.open(preurl + 'pedidos/exportPDF/?idpedidos='+idpedidos);
+                 window.open(preurl + 'pedidos/exportPDF2/?idpedidos='+idpedidos);
                
             }
            
@@ -1144,7 +1234,7 @@ Ext.define('Infosys_web.controller.Pedidos', {
             var id_bodega = row.data.id_bodega;
             var estado = row.data.estado;
 
-            if(estado=="2"){
+            if(estado!="4"){
                 Ext.Msg.alert('Alerta', 'Pedido en produccion');
             return;               
 
@@ -1781,14 +1871,20 @@ Ext.define('Infosys_web.controller.Pedidos', {
     buscarpedidos: function(){
         
         var view = this.getPedidosprincipal();
+        var idbodega = view.down('#bodegaId').getValue();
+        if(!idbodega){
+             Ext.Msg.alert('Debe Seleccionar Bodega Para Buscar');
+            return;             
+        }else{
         var st = this.getPedidosStore();
         var idbodega = view.down('#bodegaId').getValue();
         var nombre = view.down('#nombreId').getValue();
-        var estado = view.down('#tipoSeleccion2Id').getValue();
+        var estado = view.down('#Seleccion2Id').getValue();
         st.proxy.extraParams = {nombre : nombre,
                                 estado : estado,
                                 idbodega : idbodega}
         st.load();
+        };
 
 
     },
@@ -1796,28 +1892,37 @@ Ext.define('Infosys_web.controller.Pedidos', {
     buscarpedidos2: function(){
         
         var view = this.getPedidosprincipal();
-        var st = this.getPedidosStore();
-        var cero="";
-        var nombre = view.down('#nombreId').getValue();
         var idbodega = view.down('#bodegaId').getValue();
-        if (nombre){
+        if(!idbodega){
+             Ext.Msg.alert('Debe Seleccionar Bodega Para Buscar');
+            return;             
+        }else{
+            var st = this.getPedidosStore();
+            var cero="";
+            var nombre = view.down('#nombreId').getValue();
+            var idbodega = view.down('#bodegaId').getValue();
+            if (nombre){
             view.down("#nombreId").setValue(cero);            
+            };
+            var estado = view.down('#Seleccion2Id').getValue();
+            var opcion = view.down('#tipoSeleccionId').getValue();
+            st.proxy.extraParams = {nombre : nombre,
+                            estado : estado,
+                            opcion : opcion,
+                            idbodega : idbodega}
+            var idvendedor = view.down('#vendedorId').setValue(cero);
+            st.load();            
         };
-        var estado = view.down('#Seleccion2Id').getValue();
-        var opcion = view.down('#tipoSeleccionId').getValue();
-        st.proxy.extraParams = {nombre : nombre,
-                                estado : estado,
-                                opcion : opcion,
-                                idbodega : idbodega}
-        var idvendedor = view.down('#vendedorId').setValue(cero);
-        st.load();
-
-
     },
 
     buscarpedidos3: function(){
         
         var view = this.getPedidosprincipal();
+        var idbodega = view.down('#bodegaId').getValue();
+        if(!idbodega){
+             Ext.Msg.alert('Debe Seleccionar Bodega Para Buscar');
+            return;             
+        }else{
         var st = this.getPedidosStore();
         var cero="";
         var nombre = view.down('#nombreId').getValue();
@@ -1834,6 +1939,7 @@ Ext.define('Infosys_web.controller.Pedidos', {
                                 idbodega : idbodega,
                                 idvendedor: idvendedor }
         st.load();
+        };
 
 
     },
@@ -1844,41 +1950,59 @@ Ext.define('Infosys_web.controller.Pedidos', {
         var numeropedido = viewIngresa.down('#ticketId').getValue();
         var idcliente = viewIngresa.down('#id_cliente').getValue();
         var nomcliente = viewIngresa.down('#nombre_id').getValue();
-        var idFormula = viewIngresa.down('#formulaId').getValue();
-        var nomformula = viewIngresa.down('#nombreformulaId').getValue();
+        //var idFormula = viewIngresa.down('#formulaId').getValue();
+        //var nomformula = viewIngresa.down('#nombreformulaId').getValue();
         var id_observa = viewIngresa.down('#obsId').getValue();
         var vendedor = viewIngresa.down('#tipoVendedorId');
         var fechapedidos = viewIngresa.down('#fechapedidoId').getValue();
         var fechadocum = viewIngresa.down('#fechadocumId').getValue();
+        var fechadespacho = viewIngresa.down('#fechadespachoId').getValue();
         var idbodega = viewIngresa.down('#bodegaId').getValue();
-        var cantidadfor = viewIngresa.down('#cantidadformId').getValue();
+        //var cantidadfor = viewIngresa.down('#cantidadformId').getValue();
         var stCombo = vendedor.getStore();
         var record = stCombo.findRecord('id', vendedor.getValue()).data;
         var finalafectoId = viewIngresa.down('#finaltotalnetoId').getValue();
         var vendedor = record.id;
         var stItem = this.getPedidosItemsStore();
         var stpedidos = this.getPedidosStore();
+        viewIngresa.down("#grabarpedidos").setDisabled(true);
 
-        if(!idFormula){
+        var totalfact = viewIngresa.down('#finaltotalId').getValue();
+
+        if(!fechadespacho){
+            viewIngresa.down("#grabarpedidos").setDisabled(false);
+            Ext.Msg.alert('Debe Asignar Fecha de Despacho a Solicitada');
+            return;            
+        }
+
+        if(!totalfact){
+            viewIngresa.down("#grabarpedidos").setDisabled(false);
+            Ext.Msg.alert('Ingrese Detalle al Pedido');
+            return;              
+        }  
+
+        /*if(!idFormula){
              Ext.Msg.alert('Debe Asignar Formula');
             return; 
             
-        }
+        }*/
 
         if(vendedor==0){
+            viewIngresa.down("#grabarproduccion2").setDisabled(false);
             Ext.Msg.alert('Ingrese Datos del Vendedor');
             return;   
         }
 
         if(finalafectoId==0){
+            viewIngresa.down("#grabarproduccion2").setDisabled(false);
             Ext.Msg.alert('Ingrese Productos al Pedido');
             return;   
         }
-
         
         var dataItems = new Array();
         stItem.each(function(r){
             dataItems.push(r.data)
+
         });
 
         Ext.Ajax.request({
@@ -1888,9 +2012,10 @@ Ext.define('Infosys_web.controller.Pedidos', {
                 nomcliente: nomcliente,
                 items: Ext.JSON.encode(dataItems),
                 vendedor : vendedor,
-                cantidadfor: cantidadfor,
-                idformula: idFormula,
-                nomformula: nomformula,
+                //cantidadfor: cantidadfor,
+                //idformula: idFormula,
+                //nomformula: nomformula,
+                fechadespacho: Ext.Date.format(fechadespacho,'Y-m-d'),
                 id_observa: id_observa,
                 idbodega: idbodega,
                 numeropedido : numeropedido,
@@ -1906,7 +2031,7 @@ Ext.define('Infosys_web.controller.Pedidos', {
                  var idpedidos= resp.idpedidos;
                  viewIngresa.close();
                  stpedidos.load();
-                 window.open(preurl + 'pedidos/exportPDF/?idpedidos='+idpedidos);
+                 window.open(preurl + 'pedidos/exportPDF2/?idpedidos='+idpedidos);
                
             }
            

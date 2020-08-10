@@ -12,10 +12,10 @@ Ext.define('Infosys_web.model.Formulas', {
         {name: 'num_formula'},
         {name: 'codigo'},
         {name: 'fecha_formula', type:'date',dateFormat:"Y-m-d"},
-        {name: 'cantidad'},
+        {name: 'cantidad', decimalPrecision:4},
         {name: 'valor', decimalPrecision:2},
         {name: 'valor_compra', decimalPrecision:2},
         {name: 'valor_produccion', decimalPrecision:2},
-        {name: 'porcentaje', decimalPrecision:2}        
+        {name: 'porcentaje', decimalPrecision:4}        
     ]
 });

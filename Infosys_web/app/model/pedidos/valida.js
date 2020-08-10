@@ -10,8 +10,8 @@ Ext.define('Infosys_web.model.pedidos.valida', {
         {name: 'id_descuento'},
         {name: 'nom_producto'},
         {name: 'fecha', type:'date',dateFormat:"Y-m-d"},
-        {name: 'pedido', decimalPrecision:3},
-        {name: 'stock', decimalPrecision:3},
+        {name: 'pedido', decimalPrecision:4},
+        {name: 'stock', decimalPrecision:4},
         {name: 'dcto'},
         {name: 'descuento'},
        

@@ -17,7 +17,9 @@ Ext.define('Infosys_web.controller.Tipo_movimientos_inventario', {
              'Detalle_movimiento'],
 
     views: ['movimiento_diario_inventario.Principal',
-            'movimiento_diario_inventario.Ingresar'],
+            'movimiento_diario_inventario.Ingresar',
+            'movimiento_diario_inventario.Desplegar',
+            'movimiento_diario_inventario.Exportar'],
 
     //referencias, es un alias interno para el controller
     //podemos dejar el alias de la vista en el ref y en el selector
@@ -34,21 +36,25 @@ Ext.define('Infosys_web.controller.Tipo_movimientos_inventario', {
         },{
             ref: 'movimientodiarioinventario',
             selector: 'movimientodiarioinventario'
+        },{
+            ref: 'movimientodiariodesplegar',
+            selector: 'movimientodiariodesplegar'
+        },{
+            ref: 'formularioexportarmovimiento',
+            selector: 'formularioexportarmovimiento'
         }
+
     ],
-    //init es lo primero que se ejecuta en el controller
-    //especia de constructor
+    
     init: function() {
-    	//el <<control>> es el puente entre la vista y funciones internas
-    	//del controller
+    	
         this.control({
 
             'topmenus menuitem[action=mtipomovimientoinventario]': {
                 click: this.mtipomovimientoinventario
             },
             'movimientodiarioinventario #tipoMovimientoId': {
-                select: this.selectItemtipodocumento
-                
+                select: this.selectItemtipodocumento                
             },
             'tipomovimientoinventarioprincipal button[action=mmovimientoinventario]': {
                 click: this.mmovimientoinventario
@@ -59,7 +65,6 @@ Ext.define('Infosys_web.controller.Tipo_movimientos_inventario', {
             'movimientodiarioinventario #tipoCodigoId': {
                 select: this.selectItemtipomovimiento
             },
-
             'movimientodiarioinventario button[action=grabarmovimiento]': {
                 click: this.grabarmovimiento
             },
@@ -68,12 +73,44 @@ Ext.define('Infosys_web.controller.Tipo_movimientos_inventario', {
             },
              'tipomovimientoinventarioprincipal button[action=exportarexcelmovimientodiario]': {
                 click: this.exportarexcelmovimientodiario
-            }
-        });
+            },
+            'movimientodiariodesplegar button[action=imprimirdetalle]': {
+                click: this.imprimirdetalle
+            },
+            'movimientodiariodesplegar button[action=envioexcel]': {
+                click: this.envioexcel
+            },
+            'formularioexportarmovimiento button[action=exportarformulariomovimientoexcel]': {
+                click: this.exportarformulariomovimientoexcel
+            },
+            });
     },
 
+    envioexcel: function(){
+
+        var view = this.getMovimientodiariodesplegar();
+        var id_mov = view.down('#idId').getValue();
+        window.open(preurl +'adminServicesExcel/exportarExcelMovimientoDetalle/?idmov=' + id_mov);       
+    },
+
+    imprimirdetalle: function(){
+
+        var view = this.getMovimientodiariodesplegar();
+        var id_mov = view.down('#idId').getValue();
+        console.log(id_mov);       
+        window.open(preurl +'tipo_movimientodiario/exportPDF/?idmov=' + id_mov);       
+
+    },
+       
      exportarexcelmovimientodiario: function(){
+
+        var viewnew =this.getTipomovimientoinventarioprincipal()       
+        Ext.create('Infosys_web.view.movimiento_diario_inventario.Exportar').show();
+    
+     },          
         
+    exportarformulariomovimientoexcel: function(){
+
         var jsonCol = new Array()
         var i = 0;
         var grid =this.getTipomovimientoinventarioprincipal()
@@ -83,9 +120,36 @@ Ext.define('Infosys_web.controller.Tipo_movimientos_inventario', {
           }
           
           i++;
-        })     
-                         
-        window.open(preurl + 'adminServicesExcel/exportarExcelmovimientodiario?cols='+Ext.JSON.encode(jsonCol));
+        })
+
+        var view =this.getFormularioexportarmovimiento()
+        var viewnew =this.getTipomovimientoinventarioprincipal()
+        var fecha = view.down('#fechaId').getSubmitValue();        
+        var fecha2 = view.down('#fecha2Id').getSubmitValue();
+        var id_tipom = view.down('#tipoCodigoId').getValue();
+        var tipo_documento = view.down('#tipoCodigoId');
+        var stCombo = tipo_documento.getStore();
+        var record = stCombo.findRecord('id', tipo_documento.getValue()).data;
+        var nombremov = (record.nombre);
+
+        if(!id_tipom){
+             Ext.Msg.alert('Alerta', 'Debe Seleccionar Tipo de Movimiento');
+            return;    
+            
+        }
+
+        console.log(id_tipom);
+                
+        if (fecha > fecha2) {
+        
+               Ext.Msg.alert('Alerta', 'Fechas Incorrectas');
+            return;          
+
+        };   
+        
+        window.open(preurl + 'adminServicesExcel/exportarExcelmovimientodiario?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2+'&tipomov='+id_tipom+'&nombremov='+nombremov);
+        view.close();    
+  
  
     },
 
