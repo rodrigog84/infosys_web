@@ -282,3 +282,10 @@ ENGINE=InnoDB
 
  INSERT INTO `tipo_caf` (`id`, `nombre`) VALUES (52, 'Guia de Despacho Electrónica');
 INSERT INTO `tipo_documento` (`id`, `descripcion`) VALUES (105, 'GUIA DE DESPACHO ELECTRONICA');
+
+
+/*****************************************************************************************************/
+
+INSERT INTO `tipo_documento` (`id`, `descripcion`, `correlativo`) VALUES ('106', 'BOLETA ELECTRONICA', '0');
+INSERT INTO `infosys_web`.`tipo_caf` (`id`, `nombre`) VALUES ('39', 'Boleta Electrónica');
+

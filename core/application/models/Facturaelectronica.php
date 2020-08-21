@@ -419,7 +419,7 @@ class Facturaelectronica extends CI_Model
 			    $pdf->setVendedor($factura->vendedor);
 
 			    $pdf->setGiroEmisor($empresa->giro);
-			    $pdf->setTransportista("Prueba");
+			    //$pdf->setTransportista("Prueba");
 			    
 			    
 

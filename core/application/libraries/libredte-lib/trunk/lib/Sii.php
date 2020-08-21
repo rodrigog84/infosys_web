@@ -437,7 +437,7 @@ class Sii
         // cerrar sesión curl
         curl_close($curl);
         // entregar datos del archivo CSV
-        ini_set('memory_limit', '1024M');
+        ini_set('memory_limit', '2048M');
         $lines = explode("\n", $response);
         $n_lines = count($lines);
         $data = [];

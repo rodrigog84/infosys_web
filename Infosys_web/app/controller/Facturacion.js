@@ -1335,7 +1335,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
         
         var nombre = (record.id);    
         habilita = false;
-        if(nombre == 101 || nombre == 103 || nombre == 105 || nombre == 107 ){ // FACTURA ELECTRONICA o FACTURA EXENTA
+        if(nombre == 101 || nombre == 103 || nombre == 105 || nombre == 107  || nombre == 120 ){ // FACTURA ELECTRONICA o FACTURA EXENTA
 
             // se valida que exista certificado
             response_certificado = Ext.Ajax.request({

@@ -20,7 +20,8 @@ Ext.define('Infosys_web.view.facturaelectronica.CargaManualCaf' ,{
                 {"value":34, "nombre":"(34) Factura No Afecta Electronica"},
                 {"value":52, "nombre":"(52) Guía de Despacho Electronica"},
                 {"value":56, "nombre":"(56) Nota de Débito Electronica"},
-                {"value":61, "nombre":"(61) Nota de Crédito Electronica"}
+                {"value":61, "nombre":"(61) Nota de Crédito Electronica"},
+                {"value":39, "nombre":"(39) Boleta Electronica"}
             ]
         });
 
@@ -86,6 +87,12 @@ Ext.define('Infosys_web.view.facturaelectronica.CargaManualCaf' ,{
         var message_61 = obj_61.cantidad > 0 ? obj_61.cantidad + message_si : message_no;
 
 
+        response_39 = Ext.Ajax.request({
+        async: false,
+        url: preurl + 'facturas/estado_tipo_documento/39'});
+        var obj_39 = Ext.decode(response_39.responseText);
+        var message_39 = obj_39.cantidad > 0 ? obj_39.cantidad + message_si : message_no;
+
         this.items = [
             {
                 xtype: 'form',
@@ -150,6 +157,14 @@ Ext.define('Infosys_web.view.facturaelectronica.CargaManualCaf' ,{
                         labelStyle: ' font-weight:bold',
                         //fieldStyle: 'font-weight:bold',
                         value : message_61,
+                        labelWidth: 200,
+                    },{
+                        xtype: 'displayfield',
+                        itemId : 'estado_39',
+                        fieldLabel : 'Boleta Electronica',
+                        labelStyle: ' font-weight:bold',
+                        //fieldStyle: 'font-weight:bold',
+                        value : message_39,
                         labelWidth: 200,
                     },{
                             xtype: 'combobox',
@@ -241,11 +256,19 @@ Ext.define('Infosys_web.view.facturaelectronica.CargaManualCaf' ,{
                                             var obj_61 = Ext.decode(response_61.responseText);
                                             var message_61 = obj_61.cantidad > 0 ? obj_61.cantidad + message_si : message_no;
 
+
+                                            response_39 = Ext.Ajax.request({
+                                            async: false,
+                                            url: preurl + 'facturas/estado_tipo_documento/39'});
+                                            var obj_39 = Ext.decode(response_39.responseText);
+                                            var message_39 = obj_39.cantidad > 0 ? obj_39.cantidad + message_si : message_no;
+
                                             me.down('#estado_33').setValue(message_33);
                                             me.down('#estado_34').setValue(message_34);
                                             me.down('#estado_52').setValue(message_52);
                                             me.down('#estado_56').setValue(message_56);
                                             me.down('#estado_61').setValue(message_61);
+                                            me.down('#estado_39').setValue(message_39);
 
                                         }
                                     });
