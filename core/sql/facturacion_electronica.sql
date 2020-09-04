@@ -286,6 +286,21 @@ INSERT INTO `tipo_documento` (`id`, `descripcion`) VALUES (105, 'GUIA DE DESPACH
 
 /*****************************************************************************************************/
 
-INSERT INTO `tipo_documento` (`id`, `descripcion`, `correlativo`) VALUES ('106', 'BOLETA ELECTRONICA', '0');
+INSERT INTO `tipo_documento` (`id`, `descripcion`, `correlativo`) VALUES ('120', 'BOLETA ELECTRONICA', '0');
 INSERT INTO `infosys_web`.`tipo_caf` (`id`, `nombre`) VALUES ('39', 'Boleta Electrónica');
 
+
+
+/*****************************************************************************************/
+
+ALTER TABLE `empresa`
+	CHANGE COLUMN `giro` `giro` TEXT NULL DEFAULT '' AFTER `razon_social`;
+
+ALTER TABLE `empresa`
+	ADD COLUMN `texto_fono` VARCHAR(100) NULL DEFAULT '' AFTER `comuna_origen`;
+
+UPDATE `empresa` SET `dir_origen`='CASA MATRIZ :AVENIDA LAS RASTRAS N.1218' WHERE  `id`=1;
+UPDATE `empresa` SET `texto_fono`='Fono: 712245932 - 712245933 - Fono Fax: 712247717 Casilla 466' WHERE  `id`=1;
+ALTER TABLE `empresa`
+	ADD COLUMN `texto_sucursales` TEXT NULL DEFAULT '' AFTER `texto_fono`;
+UPDATE `empresa` SET `dir_origen`='Casa Matriz:  Avenida Las Rastras N° 1218' WHERE  `id`=1;

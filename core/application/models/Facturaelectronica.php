@@ -129,7 +129,7 @@ class Facturaelectronica extends CI_Model
 	 }
 
 	public function get_empresa(){
-		$this->db->select('rut, dv, razon_social, giro, cod_actividad, dir_origen, comuna_origen, fec_resolucion, nro_resolucion, logo ')
+		$this->db->select('rut, dv, razon_social, giro, cod_actividad, dir_origen, comuna_origen, fec_resolucion, nro_resolucion, logo, texto_fono, texto_sucursales ')
 		  ->from('empresa')
 		  ->limit(1);
 		$query = $this->db->get();
@@ -376,9 +376,9 @@ class Facturaelectronica extends CI_Model
 	 			$crea_archivo = false;
 	 		}
 	 	}
-
+	 	//$crea_archivo = true;
 	 	$empresa = $this->get_empresa();
-
+	 		//print_r($empresa); exit;
 	 	if($crea_archivo){
 			// sin límite de tiempo para generar documentos
 			set_time_limit(0);
@@ -417,8 +417,12 @@ class Facturaelectronica extends CI_Model
 
 			    $pdf->setCondPago($factura->cond_pago); 
 			    $pdf->setVendedor($factura->vendedor);
-
+			    //	echo $empresa->giro; exit;
 			    $pdf->setGiroEmisor($empresa->giro);
+			    $pdf->setDireccion($empresa->dir_origen);
+			    $pdf->setComuna($empresa->comuna_origen);
+			    $pdf->setFono($empresa->texto_fono);
+			    $pdf->setSucursales($empresa->texto_sucursales);
 			    //$pdf->setTransportista("Prueba");
 			    
 			    

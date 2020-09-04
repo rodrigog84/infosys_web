@@ -36,6 +36,11 @@ class Dte extends \sasco\LibreDTE\PDF
 
     private $giroCliente; //Giro de cliente completo
     private $giroEmisor; //Giro de emisor completo
+    private $direccionEmisor; //Direccion de emisor completo
+    private $comunaEmisor; //Comuna de emisor completo
+    private $fonoEmisor; //Fono de emisor completo
+    private $sucursalesEmisor; //Fono de emisor completo
+    
     private $condpago;
     private $vendedor;
 
@@ -127,6 +132,27 @@ class Dte extends \sasco\LibreDTE\PDF
         $this->giroEmisor = $giro;
     }    
 
+   public function setDireccion($direccion)
+    {
+        $this->direccionEmisor = $direccion;
+    }    
+
+
+ public function setComuna($comuna)
+    {
+        $this->comunaEmisor = $comuna;
+    }    
+
+
+ public function setFono($fono)
+    {
+        $this->fonoEmisor = $fono;
+    }
+
+    public function setSucursales($sucursales)
+    {
+        $this->sucursalesEmisor = $sucursales;
+    }   
 
     public function setCondPago($condpago)
     {
@@ -336,7 +362,7 @@ class Dte extends \sasco\LibreDTE\PDF
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
      * @version 2016-03-10
      */
-    private function agregarEmisor(array $emisor, $x = 10, $y = 15, $w = 75, $w_img = 30, $font_size = null)
+    private function agregarEmisor(array $emisor, $x = 10, $y = 15, $w = 85, $w_img = 30, $font_size = null)
     {
         // logo máximo 1/5 del tamaño del documento
         if (isset($this->logo)) {
@@ -346,15 +372,28 @@ class Dte extends \sasco\LibreDTE\PDF
             $this->y = $y-2;
             $w += 40;
         }
+
+       // print_r($emisor); exit;
         // agregar datos del emisor
-        $this->setFont('', 'B', $font_size ? $font_size : 10);
+        $this->setFont('', 'B', $font_size ? $font_size : 7);
         //$this->SetTextColorArray([32, 92, 144]);
         $this->SetTextColorArray([0, 0, 0]);
         $this->MultiTexto(isset($emisor['RznSoc']) ? $emisor['RznSoc'] : $emisor['RznSocEmisor'], $x, $this->y+2, 'L', $w);
-        $this->setFont('', 'B', $font_size ? $font_size : 9);
+        $this->setFont('', 'B', $font_size ? $font_size : 6);
         $this->SetTextColorArray([0,0,0]);
-        $this->MultiTexto(isset($emisor['GiroEmis']) ? "Giro: " . $emisor['GiroEmis'] : $emisor['GiroEmisor'], $x, $this->y, 'L', $w);
-        $this->MultiTexto('Dirección : ' .$emisor['DirOrigen'].', '.$emisor['CmnaOrigen'], $x, $this->y, 'L', $w);
+        
+        $this->MultiTexto("Giro: " . $this->giroEmisor, $x, $this->y, 'L', $w);
+        //$this->MultiTexto(isset($emisor['GiroEmis']) ? "Giro: " . $emisor['GiroEmis'] : $emisor['GiroEmisor'], $x, $this->y, 'L', $w);
+        $this->setFont('', 'B', $font_size ? $font_size : 6);
+        //$this->MultiTexto($emisor['DirOrigen'].', '.$emisor['CmnaOrigen'], $x, $this->y, 'L', $w);
+        $this->MultiTexto($this->direccionEmisor.','.$this->comunaEmisor, $x, $this->y, 'L', $w);
+        $this->setFont('', 'B', $font_size ? $font_size : 6);
+        $this->MultiTexto($this->fonoEmisor.','.$this->comunaEmisor, $x, $this->y, 'L', $w);
+        $this->MultiTexto($this->sucursalesEmisor, $x, $this->y, 'L', $w);
+
+        
+
+        
         $contacto = [];
         if (!empty($emisor['Telefono'])) {
             if (!is_array($emisor['Telefono']))
