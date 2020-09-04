@@ -304,3 +304,6 @@ UPDATE `empresa` SET `texto_fono`='Fono: 712245932 - 712245933 - Fono Fax: 71224
 ALTER TABLE `empresa`
 	ADD COLUMN `texto_sucursales` TEXT NULL DEFAULT '' AFTER `texto_fono`;
 UPDATE `empresa` SET `dir_origen`='Casa Matriz:  Avenida Las Rastras N° 1218' WHERE  `id`=1;
+
+
+UPDATE `infosys_web`.`empresa` SET `texto_sucursales`='Sucursales: Avenida Las Rastras No 948 - Talca\r\nKM. 4 Ruta T-804 Ralicura - Rio Bueno' WHERE  `id`=1;
