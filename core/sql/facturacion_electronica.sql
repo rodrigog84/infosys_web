@@ -306,4 +306,4 @@ ALTER TABLE `empresa`
 UPDATE `empresa` SET `dir_origen`='Casa Matriz:  Avenida Las Rastras N° 1218' WHERE  `id`=1;
 
 
-UPDATE `infosys_web`.`empresa` SET `texto_sucursales`='Sucursales: Avenida Las Rastras No 948 - Talca\r\nKM. 4 Ruta T-804 Ralicura - Rio Bueno' WHERE  `id`=1;
+UPDATE `empresa` SET `texto_sucursales`='Sucursales: Avenida Las Rastras No 948 - Talca\r\nKM. 4 Ruta T-804 Ralicura - Rio Bueno' WHERE  `id`=1;

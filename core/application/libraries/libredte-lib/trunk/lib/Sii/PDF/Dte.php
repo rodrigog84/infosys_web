@@ -74,10 +74,10 @@ class Dte extends \sasco\LibreDTE\PDF
     ]; ///< Glosas de las formas de pago
 
     private $detalle_cols = [
-        'QtyItem' => ['title'=>'CANT.', 'align'=>'right', 'width'=>15],    
+       'UnmdItem' => ['title'=>'LOTE', 'align'=>'left', 'width'=>22],
         'CdgItem' => ['title'=>'CODIGO', 'align'=>'left', 'width'=>20],
         'NmbItem' => ['title'=>'DESCRIPCION', 'align'=>'left', 'width'=>0],
-        'UnmdItem' => ['title'=>'UNIDAD', 'align'=>'left', 'width'=>22],
+        'QtyItem' => ['title'=>'CANT.', 'align'=>'right', 'width'=>15],
         'PrcItem' => ['title'=>'VALOR', 'align'=>'right', 'width'=>22],
         'DescuentoMonto' => ['title'=>'Descuento', 'align'=>'right', 'width'=>22],
         'RecargoMonto' => ['title'=>'Recargo', 'align'=>'right', 'width'=>22],
