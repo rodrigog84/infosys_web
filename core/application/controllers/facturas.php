@@ -3004,8 +3004,7 @@ class Facturas extends CI_Controller {
       }
 
       /*****************************************/
-           
-           
+        
 
         if($tipodocumento == 101 || $tipodocumento == 103 || $tipodocumento == 105 || $tipodocumento == 120){  // SI ES FACTURA ELECTRONICA O FACTURA EXENTA ELECTRONICA O BOLETA ELECTRONICA
 
@@ -3185,8 +3184,15 @@ class Facturas extends CI_Controller {
                   $EnvioDTE->setCaratula($caratula);
                   $xml_dte = $EnvioDTE->generar();
                   //echo $xml_dte;
+       /*           var_dump($EnvioDTE->schemaValidate()); 
 
+  foreach (sasco\LibreDTE\Log::readAll() as $error)
+          echo $error,"\n";                  
                   
+
+                  exit;
+*/
+
                  if ($EnvioDTE->schemaValidate()) { // REVISAR PORQUÉ SE CAE CON ESTA VALIDACION
                         
                         $track_id = 0;
@@ -3231,6 +3237,7 @@ class Facturas extends CI_Controller {
                                                                   'archivo_dte_cliente' => $dte_cliente['nombre_dte'],
                                                                   'trackid' => $track_id
                                                                   )); 
+
 
                         if($track_id != 0 && $datos_empresa_factura->e_mail != ''){ //existe track id, se envía correo
                             //  $this->facturaelectronica->envio_mail_dte($idfactura);

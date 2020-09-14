@@ -568,6 +568,8 @@ class Dte
                     'TpoImpresion' => false,
                     'IndServicio' => $this->esBoleta() ? 3 : false,
                     'MntBruto' => false,
+                    'TpoTranCompra' => false,
+                    'TpoTranVenta' => false,                    
                     'FmaPago' => false,
                     'FmaPagExp' => false,
                     'MntCancel' => false,
@@ -672,6 +674,10 @@ class Dte
                 ], $r);
             }
         }
+        // verificar que exista TpoTranVenta
+        if (!in_array($datos['Encabezado']['IdDoc']['TipoDTE'], [39, 41, 110, 111, 112]) and empty($datos['Encabezado']['IdDoc']['TpoTranVenta'])) {
+            $datos['Encabezado']['IdDoc']['TpoTranVenta'] = 1; // ventas del giro
+        }        
     }
 
     /**

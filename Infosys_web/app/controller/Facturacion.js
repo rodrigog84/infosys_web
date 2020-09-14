@@ -44,6 +44,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
              'facturaelectronica.CargaDteProveedor',
              'facturaelectronica.LibroCompraVenta',
              'facturaelectronica.ContribuyentesAutorizados',
+             'facturaelectronica.ConsumoFolios',
              'facturaelectronica.CargaListaContribuyentes',
              'facturaelectronica.HistLibroCompraVenta',
              'facturaelectronica.Emails',                        
@@ -294,7 +295,9 @@ Ext.define('Infosys_web.controller.Facturacion', {
             'topmenus menuitem[action=mcargacontribuyentes]': {
                 click: this.mcargacontribuyentes
             },
-
+            'topmenus menuitem[action=mconsumofolios]': {
+                click: this.mconsumofolios
+            },
             'topmenus menuitem[action=memail]': {
                 click: this.memail
             },  
@@ -398,6 +401,14 @@ Ext.define('Infosys_web.controller.Facturacion', {
         viewport.removeAll();
         viewport.add({xtype: 'contribuyentesautorizados'});
     },
+
+
+    mconsumofolios: function(){
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'consumofolios'});
+    },
+
 
      mlibrocompraventa: function(){
 //
