@@ -307,3 +307,29 @@ UPDATE `empresa` SET `dir_origen`='Casa Matriz:  Avenida Las Rastras N° 1218' W
 
 
 UPDATE `empresa` SET `texto_sucursales`='Sucursales: Avenida Las Rastras No 948 - Talca\r\nKM. 4 Ruta T-804 Ralicura - Rio Bueno' WHERE  `id`=1;
+
+
+/*****************************************************************/
+
+CREATE TABLE `consumo_folios` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`fecha` DATE NULL DEFAULT NULL,
+	`cant_folios` INT(11) NULL DEFAULT NULL,
+	`folio_desde` INT(11) NULL DEFAULT NULL,
+	`folio_hasta` INT(11) NULL DEFAULT NULL,
+	`xml` INT(11) NULL DEFAULT NULL,
+	`Columna 7` INT(11) NULL DEFAULT NULL,
+	`trackid` VARCHAR(30) NULL DEFAULT NULL,
+	`created_at` DATETIME NULL DEFAULT NULL,
+	`updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+	PRIMARY KEY (`id`)
+)
+ENGINE=InnoDB
+;
+
+ALTER TABLE `empresa`
+	ADD COLUMN `fec_inicio_boleta` DATE NULL DEFAULT NULL AFTER `logo`;
+
+UPDATE `empresa` SET `fec_inicio_boleta`='2020-09-01' WHERE  `id`=1;
+ALTER TABLE `folios_caf`
+	ADD COLUMN `id_consumo_folios` INT(11) NOT NULL AFTER `idfactura`;

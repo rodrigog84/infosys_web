@@ -138,6 +138,13 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                         itemId: 'vyf_carga_contribuyentes',
                         disabled: '',   
                         action: 'mcargacontribuyentes'
+
+                },{
+                        text: 'Consumo de Folios Diario',
+                        iconCls: '',
+                        itemId: 'vyf_consumo_folios',
+                        disabled: '',   
+                        action: 'mconsumofolios'
                 },{
                         text: 'Registro Emails',
                         iconCls: '',

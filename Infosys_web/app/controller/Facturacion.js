@@ -16,6 +16,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
              'facturas.Selector2',
              'Cargadteproveedores',
              'Contribuyentesautorizados',
+             'Consumofolios',
              'Loglibros'
              ],
 
@@ -127,6 +128,10 @@ Ext.define('Infosys_web.controller.Facturacion', {
                 verEstadoDte: this.verEstadoDte
             },
             'notadebitoprincipal': {
+                verEstadoDte: this.verEstadoDte
+            },
+
+             'consumofolios': {
                 verEstadoDte: this.verEstadoDte
             },
 
@@ -385,6 +390,11 @@ Ext.define('Infosys_web.controller.Facturacion', {
              window.open(url,'_blank');   
          }else if(t == 6){
             Ext.create('Infosys_web.view.facturaelectronica.verEstadoEnvioLibro', {idlibro: r.data.id});                          
+        }else if(t == 7){
+            url = preurl + 'facturas/ver_consumo_folios/'+r.data.id,
+            window.open(url,'_blank');           
+        }else if(t == 8){
+            Ext.create('Infosys_web.view.facturaelectronica.verEstadoDteConsumo', {idconsumo: r.data.id});     
         }         
     },
 

@@ -113,6 +113,27 @@ class Facturaelectronica extends CI_Model
 
 	 }
 
+
+
+	  public function consumo_folios($start = null,$limit = null){
+
+	  	$countAll = $this->db->count_all_results('consumo_folios');
+	 	$data = $this->db->select('id, fecha, cant_folios, folio_desde, folio_hasta, path_consumo_folios, archivo_consumo_folios, xml, trackid',false)
+		  ->from('consumo_folios')
+		  ->order_by('fecha','desc');
+
+
+		$data = is_null($start) || is_null($limit) ? $data : $data->limit($limit,$start);
+		$query = $this->db->get();
+
+//			print_r($query->result());
+		$result =  $query->result();
+		//$countAll = count($result);
+		return array('total' => $countAll, 'data' => $result);
+
+	 }
+
+
 	 public function log_libros($start = null,$limit = null,$estado = null){
 
 	 	$countAll = $this->db->count_all_results('log_libros');
@@ -129,7 +150,7 @@ class Facturaelectronica extends CI_Model
 	 }
 
 	public function get_empresa(){
-		$this->db->select('rut, dv, razon_social, giro, cod_actividad, dir_origen, comuna_origen, fec_resolucion, nro_resolucion, logo, texto_fono, texto_sucursales ')
+		$this->db->select('rut, dv, razon_social, giro, cod_actividad, dir_origen, comuna_origen, fec_resolucion, nro_resolucion, logo, texto_fono, texto_sucursales, fec_inicio_boleta ')
 		  ->from('empresa')
 		  ->limit(1);
 		$query = $this->db->get();
@@ -210,6 +231,30 @@ class Facturaelectronica extends CI_Model
 
 
 
+
+	public function get_consumo_folios($fecha){
+
+
+		$this->db->select('id, fecha, cant_folios, folio_desde, folio_hasta, xml, trackid',false)
+		  ->from('consumo_folios')
+		  ->where('fecha',$fecha)
+		  ->limit(1);
+		$query = $this->db->get();
+		return $query->row();
+	 }	 
+
+
+public function get_consumo_folios_by_id($id){
+
+
+		$this->db->select('id, fecha, cant_folios, folio_desde, folio_hasta, path_consumo_folios, archivo_consumo_folios, xml, trackid',false)
+		  ->from('consumo_folios')
+		  ->where('id',$id)
+		  ->limit(1);
+		$query = $this->db->get();
+		return $query->row();
+	 }	
+
 	public function get_empresa_factura($id_factura){
 
 		$tabla_contribuyentes = $this->busca_parametro_fe('tabla_contribuyentes');
@@ -248,6 +293,15 @@ class Facturaelectronica extends CI_Model
 	 }	 
 
 
+public function consumo_folios_no_enviada(){
+		$this->db->select('c.id, c.fecha, c.cant_folios, c.folio_desde, c.folio_hasta, c.path_consumo_folios, c.archivo_consumo_folios')
+		  ->from('consumo_folios c ')
+		  ->where('c.trackid','0');
+		$query = $this->db->get();
+		return $query->result();
+	 }	
+
+
 	public function get_factura_no_enviada(){
 		$this->db->select('c.idfactura')
 		  ->from('folios_caf c ')
@@ -258,6 +312,21 @@ class Facturaelectronica extends CI_Model
 		$query = $this->db->get();
 		return $query->result();
 	 }	
+
+
+	public function get_boletas_dia($fecha){
+		$this->db->select('c.idfactura')
+		  ->from('folios_caf c ')
+		  ->join('factura_clientes fc','c.idfactura = fc.id')
+		  ->join('caf f','c.idcaf = f.id')
+		  ->where('c.idfactura <> 0')
+		  ->where('f.tipo_caf',39)
+		  ->where('c.estado','O')
+		  ->where('fc.fecha_factura',$fecha);
+		$query = $this->db->get();
+		//echo $this->db->last_query(); exit;
+		return $query->result();
+	 }		 
 
 
 	public function get_content_caf_folio($folio,$tipo_documento){
@@ -367,7 +436,7 @@ class Facturaelectronica extends CI_Model
 
 	 	//file_exists 
 
-	 	$crea_archivo = true;
+	 //	$crea_archivo = true;
 	 	if($nombre_pdf != ''){
 			$base_path = __DIR__;
 			$base_path = str_replace("\\", "/", $base_path);
@@ -376,7 +445,7 @@ class Facturaelectronica extends CI_Model
 	 			$crea_archivo = false;
 	 		}
 	 	}
-	 	//$crea_archivo = true;
+	 	$crea_archivo = true;
 	 	$empresa = $this->get_empresa();
 	 		//print_r($empresa); exit;
 	 	if($crea_archivo){
