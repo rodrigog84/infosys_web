@@ -39,8 +39,13 @@ class Dte extends \sasco\LibreDTE\PDF
     private $direccionEmisor; //Direccion de emisor completo
     private $comunaEmisor; //Comuna de emisor completo
     private $fonoEmisor; //Fono de emisor completo
-    private $sucursalesEmisor; //Fono de emisor completo
+    private $sucursalesEmisor; //Sucursal de emisor completo
     
+
+    private $netoBoleta; //Fono de emisor completo
+    private $ivaBoleta; //Fono de emisor completo
+
+
     private $condpago;
     private $vendedor;
 
@@ -152,7 +157,19 @@ class Dte extends \sasco\LibreDTE\PDF
     public function setSucursales($sucursales)
     {
         $this->sucursalesEmisor = $sucursales;
-    }   
+    }  
+
+
+    public function setNeto($neto)
+    {
+        $this->netoBoleta = $neto;
+    }  
+
+
+    public function setIva($iva)
+    {
+        $this->ivaBoleta = $iva;
+    }       
 
     public function setCondPago($condpago)
     {
@@ -801,6 +818,15 @@ class Dte extends \sasco\LibreDTE\PDF
             'IVA' => false,
             'MntTotal' => false,
         ], $totales);
+
+        if(!$totales['IVA']){
+            $totales['IVA'] = $this->ivaBoleta;
+        }
+
+        if(!$totales['MntNeto']){
+            $totales['MntNeto'] = $this->netoBoleta;
+        }
+
         // glosas
         $glosas = [
             'MntNeto' => 'Neto $',

@@ -357,7 +357,7 @@ public function consumo_folios_no_enviada(){
 	public function datos_dte($idfactura){
 
 
-		$this->db->select('f.id, f.folio, f.path_dte, f.archivo_dte, f.archivo_dte_cliente, f.dte, f.dte_cliente, f.pdf, f.pdf_cedible, f.trackid, c.tipo_caf, tc.nombre as tipo_doc, cae.nombre as giro, cp.nombre as cond_pago, v.nombre as vendedor')
+		$this->db->select('f.id, f.folio, f.path_dte, f.archivo_dte, f.archivo_dte_cliente, f.dte, f.dte_cliente, f.pdf, f.pdf_cedible, f.trackid, c.tipo_caf, tc.nombre as tipo_doc, cae.nombre as giro, cp.nombre as cond_pago, v.nombre as vendedor, fc.neto, fc.iva, fc.totalfactura')
 		  ->from('folios_caf f')
 		  ->join('caf c','f.idcaf = c.id')
 		  ->join('tipo_caf tc','c.tipo_caf = tc.id')
@@ -436,7 +436,7 @@ public function consumo_folios_no_enviada(){
 
 	 	//file_exists 
 
-	 //	$crea_archivo = true;
+	 	$crea_archivo = true;
 	 	if($nombre_pdf != ''){
 			$base_path = __DIR__;
 			$base_path = str_replace("\\", "/", $base_path);
@@ -445,7 +445,7 @@ public function consumo_folios_no_enviada(){
 	 			$crea_archivo = false;
 	 		}
 	 	}
-	 	$crea_archivo = true;
+	 	//$crea_archivo = true;
 	 	$empresa = $this->get_empresa();
 	 		//print_r($empresa); exit;
 	 	if($crea_archivo){
@@ -492,6 +492,9 @@ public function consumo_folios_no_enviada(){
 			    $pdf->setComuna($empresa->comuna_origen);
 			    $pdf->setFono($empresa->texto_fono);
 			    $pdf->setSucursales($empresa->texto_sucursales);
+
+				$pdf->setNeto($factura->neto);
+				$pdf->setIva($factura->iva);			    
 			    //$pdf->setTransportista("Prueba");
 			    
 			    
