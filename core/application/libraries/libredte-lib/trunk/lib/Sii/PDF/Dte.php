@@ -83,7 +83,7 @@ class Dte extends \sasco\LibreDTE\PDF
         'CdgItem' => ['title'=>'CODIGO', 'align'=>'left', 'width'=>20],
         'NmbItem' => ['title'=>'DESCRIPCION', 'align'=>'left', 'width'=>0],
         'QtyItem' => ['title'=>'CANT.', 'align'=>'right', 'width'=>15],
-        'PrcItem' => ['title'=>'VALOR', 'align'=>'right', 'width'=>22],
+        'PrcItem' => ['title'=>'PRECIO', 'align'=>'right', 'width'=>22],
         'DescuentoMonto' => ['title'=>'Descuento', 'align'=>'right', 'width'=>22],
         'RecargoMonto' => ['title'=>'Recargo', 'align'=>'right', 'width'=>22],
         'MontoItem' => ['title'=>'TOTAL', 'align'=>'right', 'width'=>22],

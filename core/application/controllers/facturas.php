@@ -3141,7 +3141,7 @@ class Facturas extends CI_Controller {
                   $i = 0;
                   foreach ($detalle_factura as $detalle) {
                         $lista_detalle[$i]['NmbItem'] = $tipo_caf == 39 ? $detalle->nombre : $detalle->nombre."  ".substr($detalle->fecha_vencimiento,8,2)."/".substr($detalle->fecha_vencimiento,5,2)."/".substr($detalle->fecha_vencimiento,0,4);
-                        $lista_detalle[$i]['QtyItem'] = 1;//$detalle->cantidad;
+                        $lista_detalle[$i]['QtyItem'] = $detalle->cantidad;
                         $lista_detalle[$i]['CdgItem'] = $detalle->codigo;
                         $lista_detalle[$i]['UnmdItem'] = $detalle->lote;
                         //$lista_detalle[$i]['PrcItem'] = $detalle->precio;
@@ -3149,8 +3149,8 @@ class Facturas extends CI_Controller {
                         //$total = $detalle->precio*$detalle->cantidad;
                         //$neto = round($total/1.19,2);
 
-                        //$lista_detalle[$i]['PrcItem'] = round($neto/$detalle->cantidad,2);
-                        $lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 || $tipo_caf == 52 ? floor($detalle->neto) : floor($detalle->totalproducto);
+                        $lista_detalle[$i]['PrcItem'] = $detalle->precio;
+                       // $lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 || $tipo_caf == 52 ? floor($detalle->neto) : floor($detalle->totalproducto);
 
                         $i++;
                   }
@@ -3276,15 +3276,15 @@ class Facturas extends CI_Controller {
                   $EnvioDTE->setFirma($Firma);
                   $EnvioDTE->setCaratula($caratula);
                   $xml_dte = $EnvioDTE->generar();
-                  //echo $xml_dte;
-       /*           var_dump($EnvioDTE->schemaValidate()); 
+               /*   echo $xml_dte;
+                 var_dump($EnvioDTE->schemaValidate()); 
 
   foreach (sasco\LibreDTE\Log::readAll() as $error)
           echo $error,"\n";                  
                   
 
-                  exit;
-*/
+                  exit;*/
+
 
                  if ($EnvioDTE->schemaValidate()) { // REVISAR PORQUÉ SE CAE CON ESTA VALIDACION
                         
