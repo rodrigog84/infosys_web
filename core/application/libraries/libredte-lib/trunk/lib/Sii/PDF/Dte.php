@@ -46,6 +46,9 @@ class Dte extends \sasco\LibreDTE\PDF
     private $ivaBoleta; //Fono de emisor completo
 
 
+    private $textoGuia; //Fono de emisor completo
+
+
     private $condpago;
     private $vendedor;
 
@@ -181,6 +184,11 @@ class Dte extends \sasco\LibreDTE\PDF
         $this->vendedor = $vendedor;
     } 
 
+
+    public function setTextoGuia($textoGuia)
+    {
+        $this->textoGuia = $textoGuia;
+    } 
     /**
      * Método que asigna los datos de la resolución del SII que autoriza al
      * emisor a emitir DTEs
@@ -730,6 +738,18 @@ class Dte extends \sasco\LibreDTE\PDF
                     $item[$col] = $this->num($item[$col]);
             }
         }
+
+        // solo si es factura de guia
+        if($this->textoGuia != ''){
+            $array_guia = $detalle[0];
+           // print_r($array_guia); 
+            foreach ($array_guia as $key_guia => $elem_guia) {
+                $array_guia[$key_guia] = $key_guia == 'NmbItem' ? $this->textoGuia : '';
+            }
+            //print_r($array_guia); exit;
+            array_push($detalle,$array_guia);
+           // print_r($detalle); exit;
+        }
         // opciones
         $options = ['align'=>[]];
         $i = 0;
@@ -739,6 +759,8 @@ class Dte extends \sasco\LibreDTE\PDF
             $options['align'][$i] = $info['align'];
             $i++;
         }
+
+
         // agregar tabla de detalle
         $this->Ln();
         $this->SetX($x);

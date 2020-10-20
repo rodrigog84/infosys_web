@@ -495,6 +495,28 @@ public function consumo_folios_no_enviada(){
 
 				$pdf->setNeto($factura->neto);
 				$pdf->setIva($factura->iva);			    
+
+						/*** agregar detalle para facturas de guias **/
+				//echo $factura->tipo_caf ; exit;
+				$texto_guias = "";
+				if($factura->tipo_caf == 33){
+						$this->db->select('num_guia ',false)
+								  ->from('detalle_factura_glosa d')
+								  ->where('d.id_factura',$idfactura)
+								  ->where('d.id_guia != 0');
+						$query = $this->db->get();
+						$datos = $query->result();		
+						if(count($datos) > 0){
+							$texto_guias .= "SEGUN GUIAS NROS: ";
+							foreach ($datos as $guia) {
+								$texto_guias .= $guia->num_guia." ";
+							}
+
+						}
+				}
+
+				$pdf->setTextoGuia($texto_guias);	
+
 			    //$pdf->setTransportista("Prueba");
 			    
 			    
