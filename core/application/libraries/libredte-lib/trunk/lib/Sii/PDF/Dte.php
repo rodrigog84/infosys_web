@@ -48,6 +48,7 @@ class Dte extends \sasco\LibreDTE\PDF
 
     private $textoGuia; //Fono de emisor completo
 
+    private $transporte;
 
     private $condpago;
     private $vendedor;
@@ -189,6 +190,14 @@ class Dte extends \sasco\LibreDTE\PDF
     {
         $this->textoGuia = $textoGuia;
     } 
+
+
+    public function setTransporte($transporte)
+    {
+        $this->transporte = $transporte;
+    } 
+
+
     /**
      * Método que asigna los datos de la resolución del SII que autoriza al
      * emisor a emitir DTEs
@@ -271,9 +280,15 @@ class Dte extends \sasco\LibreDTE\PDF
         $this->agregarCondicionVenta($dte['Encabezado']['IdDoc']);
         $this->agregarReceptor($dte['Encabezado']['Receptor']);
 
+         /*    $Transporte['RUTTrans'] ="111-1";
+            $Transporte['Patente']="GXJS-89";
+           // $Transporte['Chofer']="Rodrigo";
+            $Transporte['Chofer']['NombreChofer']="Rodrigo";*/
+
         $this->agregarTraslado(
             !empty($dte['Encabezado']['IdDoc']['IndTraslado']) ? $dte['Encabezado']['IdDoc']['IndTraslado'] : null,
-            !empty($dte['Encabezado']['Transporte']) ? $dte['Encabezado']['Transporte'] : null
+            //!empty($dte['Encabezado']['Transporte']) ? $dte['Encabezado']['Transporte'] : null
+            $this->transporte
         );
         $this->agregarCondPago();
         $this->agregarVendedor();
@@ -281,10 +296,11 @@ class Dte extends \sasco\LibreDTE\PDF
         //if (!empty($dte['Referencia']))
             $this->agregarReferencia($dte['Referencia']);
 
+        $h = $this->transporte['RUTTrans'] == null ? 29 : 33;
         //AGREGAR RECUADRO PARA DATOS DEL DESTINATARIO
         $y = 50;
         $y = $dte['Encabezado']['IdDoc']['TipoDTE'] == 34 || $dte['Encabezado']['IdDoc']['TipoDTE'] == 61  || $dte['Encabezado']['IdDoc']['TipoDTE'] == 52 ? $y + 5 : $y;
-        $this->Rect(10, $y, 190, 29, 'D', ['all' => ['width' => 0.1, 'color' => [0, 0, 0]]]);
+        $this->Rect(10, $y, 190, $h, 'D', ['all' => ['width' => 0.1, 'color' => [0, 0, 0]]]);
 
 
         $this->agregarDetalle($dte['Detalle']);
@@ -637,6 +653,8 @@ class Dte extends \sasco\LibreDTE\PDF
      */
     private function agregarTraslado($IndTraslado, array $Transporte = null, $x = 10, $offset = 22)
     {
+
+
         // agregar tipo de traslado
         if ($IndTraslado) {
             $this->setFont('', 'B', 8);

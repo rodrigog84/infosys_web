@@ -411,6 +411,15 @@ public function consumo_folios_no_enviada(){
 	}
 
 
+	public function datos_dte_transporte($idfactura){
+		$this->db->select('d.rut, d.nombre, d.pat_camion, d.observacion ',false)
+		  ->from('observacion_facturas d')
+		  ->where('d.id_documento',$idfactura);
+		$query = $this->db->get();
+		return $query->row();
+	}
+
+
 	 public function exportFePDF($idfactura,$tipo_consulta,$cedible = null){
 
 	 	/*print_r($idfactura);
@@ -445,7 +454,7 @@ public function consumo_folios_no_enviada(){
 	 			$crea_archivo = false;
 	 		}
 	 	}
-	 	//$crea_archivo = true;
+	 	$crea_archivo = true;
 	 	$empresa = $this->get_empresa();
 	 		//print_r($empresa); exit;
 	 	if($crea_archivo){
@@ -494,7 +503,31 @@ public function consumo_folios_no_enviada(){
 			    $pdf->setSucursales($empresa->texto_sucursales);
 
 				$pdf->setNeto($factura->neto);
-				$pdf->setIva($factura->iva);			    
+				$pdf->setIva($factura->iva);		
+
+
+
+				$datos_transporte = $this->datos_dte_transporte($idfactura);
+				
+				if(count($datos_transporte) > 0){
+					$transporte['RUTTrans'] = $datos_transporte->rut;
+					$transporte['Chofer']['NombreChofer'] = $datos_transporte->nombre;
+					$transporte['Patente'] = $datos_transporte->pat_camion;
+
+				}else{
+					$transporte['RUTTrans'] = null;
+					$transporte['Chofer']['NombreChofer'] = null;
+					$transporte['Patente'] = null;
+
+				}
+
+				
+				$pdf->setTransporte($transporte);
+
+
+
+
+				//stdClass Object ( [rut] => 02675738K [nombre] => MAJUL SAN MARTIN MICHEL [pat_camion] => FY9540 [observacion] => Prueba )
 
 						/*** agregar detalle para facturas de guias **/
 				//echo $factura->tipo_caf ; exit;
