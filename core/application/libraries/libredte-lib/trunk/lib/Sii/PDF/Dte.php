@@ -679,6 +679,8 @@ class Dte extends \sasco\LibreDTE\PDF
                 if (!empty($Transporte['Chofer']['RUTChofer']))
                     $transporte .= ' ('.$Transporte['Chofer']['RUTChofer'].')';
             }
+            if (!empty($Transporte['Destino']))
+                $transporte .= ' con Destino '.$Transporte['Destino'];
             if ($transporte) {
                 $this->setFont('', 'B', 8);
                 $this->Texto('Transporte', $x);

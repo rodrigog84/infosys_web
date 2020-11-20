@@ -9,7 +9,7 @@ Ext.define('Infosys_web.view.guiasdespacho.Observacionesguias', {
     layout: 'fit',
     autoShow: true,
     width: 380,
-    height: 390,
+    height: 450,
     modal: true,
     iconCls: 'icon-sheet',
 
@@ -88,6 +88,15 @@ Ext.define('Infosys_web.view.guiasdespacho.Observacionesguias', {
                         fieldLabel: 'Nombre',
                         itemId: 'nombreId',
                         name: 'nombre'                            
+                    },{
+                        xtype: 'textfield',
+                        fieldCls: 'required',
+                        labelWidth: 60,
+                        width: 350,
+                        height: 30,
+                        fieldLabel: 'Destino',
+                        itemId: 'destinoId',
+                        name: 'destino'                            
                     },{
                         xtype: 'textfield',
                         fieldCls: 'required',

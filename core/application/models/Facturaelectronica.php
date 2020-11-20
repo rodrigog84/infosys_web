@@ -413,7 +413,7 @@ public function consumo_folios_no_enviada(){
 
 
 	public function datos_dte_transporte($idfactura){
-		$this->db->select('d.rut, d.nombre, d.pat_camion, d.observacion ',false)
+		$this->db->select('d.rut, d.nombre, d.pat_camion, d.observacion, d.destino ',false)
 		  ->from('observacion_facturas d')
 		  ->where('d.id_documento',$idfactura);
 		$query = $this->db->get();
@@ -514,11 +514,13 @@ public function consumo_folios_no_enviada(){
 					$transporte['RUTTrans'] = $datos_transporte->rut;
 					$transporte['Chofer']['NombreChofer'] = $datos_transporte->nombre;
 					$transporte['Patente'] = $datos_transporte->pat_camion;
+					$transporte['Destino'] = $datos_transporte->destino;
 
 				}else{
 					$transporte['RUTTrans'] = null;
 					$transporte['Chofer']['NombreChofer'] = null;
 					$transporte['Patente'] = null;
+					$transporte['Destino'] = null;
 
 				}
 

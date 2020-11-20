@@ -56,7 +56,7 @@ class Facturasvizualiza extends CI_Controller {
 	}
 
 	public function saveobserva(){
-
+		//print_r($_POST); exit;
 		$resp = array();
 		$rut = $this->input->post('rut');
 		$nombre = $this->input->post('nombre');
@@ -66,6 +66,7 @@ class Facturasvizualiza extends CI_Controller {
 		$idtransp = $this->input->post('idtransportista');
 		$numero = $this->input->post('numero');
 		$observacion = $this->input->post('observa');
+		$destino = $this->input->post('destino');
 
 		if(!$observacion){
 			$observacion="";
@@ -79,7 +80,8 @@ class Facturasvizualiza extends CI_Controller {
 	        'fono' => $fono,
 	        'pat_camion' => $camion,
 	        'pat_carro' => $carro,
-	        'observacion' => $observacion	          
+	        'observacion' => $observacion,	          
+	        'destino' => $destino	          
 		);
 
 		$this->db->insert('observacion_facturas', $observa);

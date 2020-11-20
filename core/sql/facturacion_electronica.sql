@@ -310,22 +310,23 @@ UPDATE `empresa` SET `texto_sucursales`='Sucursales: Avenida Las Rastras No 948 
 
 
 /*****************************************************************/
-
 CREATE TABLE `consumo_folios` (
 	`id` INT(11) NOT NULL AUTO_INCREMENT,
 	`fecha` DATE NULL DEFAULT NULL,
 	`cant_folios` INT(11) NULL DEFAULT NULL,
 	`folio_desde` INT(11) NULL DEFAULT NULL,
 	`folio_hasta` INT(11) NULL DEFAULT NULL,
-	`xml` INT(11) NULL DEFAULT NULL,
-	`Columna 7` INT(11) NULL DEFAULT NULL,
+	`path_consumo_folios` VARCHAR(50) NULL DEFAULT NULL,
+	`archivo_consumo_folios` VARCHAR(50) NULL DEFAULT NULL,
+	`xml` TEXT NULL,
 	`trackid` VARCHAR(30) NULL DEFAULT NULL,
 	`created_at` DATETIME NULL DEFAULT NULL,
 	`updated_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	PRIMARY KEY (`id`)
 )
-ENGINE=InnoDB
-;
+COLLATE='latin1_swedish_ci'
+ENGINE=InnoDB;
+
 
 ALTER TABLE `empresa`
 	ADD COLUMN `fec_inicio_boleta` DATE NULL DEFAULT NULL AFTER `logo`;
@@ -333,3 +334,9 @@ ALTER TABLE `empresa`
 UPDATE `empresa` SET `fec_inicio_boleta`='2020-09-01' WHERE  `id`=1;
 ALTER TABLE `folios_caf`
 	ADD COLUMN `id_consumo_folios` INT(11) NOT NULL AFTER `idfactura`;
+
+
+/***********************************************/
+
+ALTER TABLE `observacion_facturas`
+	ADD COLUMN `destino` VARCHAR(30) NOT NULL AFTER `fono`;
