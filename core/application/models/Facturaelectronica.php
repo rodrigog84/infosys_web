@@ -309,7 +309,7 @@ public function consumo_folios_no_enviada(){
 		  ->where('c.trackid','0')
 		  ->where('c.idfactura <> 0')
 		  ->where('c.estado','O')
-		   ->where("left(c.updated_at,10) >= '2020-11-18'");
+		   ->where("left(c.updated_at,10) >= '2020-11-23'");
 		$query = $this->db->get();
 		return $query->result();
 	 }	
