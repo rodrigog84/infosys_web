@@ -339,4 +339,10 @@ ALTER TABLE `folios_caf`
 /***********************************************/
 
 ALTER TABLE `observacion_facturas`
-	ADD COLUMN `destino` VARCHAR(30) NOT NULL AFTER `fono`;
+	ADD COLUMN `destino` VARCHAR(50) NOT NULL AFTER `fono`;
+
+
+/**************************************************/
+
+ALTER TABLE `factura_clientes`
+	ADD COLUMN `num_pedido` VARCHAR(50) NOT NULL AFTER `orden_compra`;

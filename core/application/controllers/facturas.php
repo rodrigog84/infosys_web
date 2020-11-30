@@ -2921,6 +2921,7 @@ class Facturas extends CI_Controller {
 		$fechavenc = $this->input->post('fechavenc');
 		$vendedor = $this->input->post('vendedor');
 		$ordencompra = $this->input->post('ordencompra');
+    $pedido = $this->input->post('pedido');
     $idtransportista = $this->input->post('idtransportista');
 		$sucursal = $this->input->post('sucursal');
 		$datacliente = json_decode($this->input->post('datacliente'));
@@ -2973,6 +2974,7 @@ class Facturas extends CI_Controller {
       'fecha_factura' => $fechafactura,
       'fecha_venc' => $fechavenc,
       'orden_compra' => $ordencompra,
+      'num_pedido' => $pedido,
       'id_observa' => $idobserva,
       'observacion' => $observacion	          
 		);
@@ -3132,6 +3134,15 @@ class Facturas extends CI_Controller {
                         //$referencia['TpoDocRef'] = $datos_empresa_factura->tipodocref;
                         $referencia[($NroLinRef-1)]['TpoDocRef'] = 801;
                         $referencia[($NroLinRef-1)]['FolioRef'] = $ordencompra;
+                        $referencia[($NroLinRef-1)]['FchRef'] = substr($fechafactura,0,10);
+                        $NroLinRef++;
+                  }
+
+                  if($pedido != ""){
+                        $referencia[($NroLinRef-1)]['NroLinRef'] = $NroLinRef;
+                        //$referencia['TpoDocRef'] = $datos_empresa_factura->tipodocref;
+                        $referencia[($NroLinRef-1)]['TpoDocRef'] = 802;
+                        $referencia[($NroLinRef-1)]['FolioRef'] = $pedido;
                         $referencia[($NroLinRef-1)]['FchRef'] = substr($fechafactura,0,10);
                         $NroLinRef++;
                   }

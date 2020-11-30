@@ -1409,6 +1409,7 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
         var idcondventa= viewIngresa.down('#tipocondpagoId').getValue();
         var idtransportista= viewIngresa.down('#idtransportista').getValue();        
         var ordencompra= viewIngresa.down('#ordencompraId').getValue();
+        var pedido= viewIngresa.down('#pedidoId').getValue();
         var idfactura = viewIngresa.down('#idfactura').getValue();
         var vendedor = viewIngresa.down('#tipoVendedorId').getValue();
         var observa = viewIngresa.down('#observaId').getValue();
@@ -1421,6 +1422,8 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
         var stItem = this.getProductosItemsStore();
         var stFactura = this.getGuiasdespachoStore();
         var totalfact = viewIngresa.down('#finaltotalId').getValue();
+
+        
 
         if(!totalfact){
             Ext.Msg.alert('Ingrese Detalle a la Factura');
@@ -1458,6 +1461,7 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
                 idtransportista: idtransportista,
                 idobserva: idobserva,
                 ordencompra: ordencompra,
+                pedido: pedido,
                 vendedor : vendedor,
                 sucursal : sucursal,
                 numfactura : numfactura,

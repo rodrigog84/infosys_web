@@ -337,7 +337,7 @@ Ext.define('Infosys_web.view.guiasdespacho.GuiasDespacho', {
                                         },{
                                             xtype: 'combo',
                                             itemId: 'tipoVendedorId',
-                                            width: 300,
+                                            width: 250,
                                             fieldCls: 'required',
                                             maxHeight: 25,
                                             labelWidth: 80,
@@ -355,7 +355,7 @@ Ext.define('Infosys_web.view.guiasdespacho.GuiasDespacho', {
                                         },{
                                             xtype: 'combo',
                                             itemId: 'tipocondpagoId',
-                                            width: 300,
+                                            width: 250,
                                             fieldCls: 'required',
                                             maxHeight: 25,
                                             fieldLabel: '<b>COND.PAGO</b>',
@@ -368,12 +368,21 @@ Ext.define('Infosys_web.view.guiasdespacho.GuiasDespacho', {
                                             //disabled : true, 
                                         },{xtype: 'splitter'},{
                                             xtype: 'textfield',
-                                            width: 200,
+                                            width: 150,
                                             labelWidth: 85,
                                             maxHeight: 25,
                                             fieldLabel: '<b>O. COMPRA</b>',
                                             name: 'orden_compra',
                                             itemId: 'ordencompraId',
+                                            style: 'font-weight: bold;'
+                                        },{xtype: 'splitter'},{
+                                            xtype: 'textfield',
+                                            width: 150,
+                                            labelWidth: 85,
+                                            maxHeight: 25,
+                                            fieldLabel: '<b>PEDIDO</b>',
+                                            name: 'num_pedido',
+                                            itemId: 'pedidoId',
                                             style: 'font-weight: bold;'
                                         }
                                     ]

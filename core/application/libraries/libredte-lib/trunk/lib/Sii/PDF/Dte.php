@@ -294,6 +294,7 @@ class Dte extends \sasco\LibreDTE\PDF
         $this->agregarVendedor();
         
         //if (!empty($dte['Referencia']))
+       // print_r($dte['Referencia']); exit;
             $this->agregarReferencia($dte['Referencia']);
 
         $h = $this->transporte['RUTTrans'] == null ? 29 : 33;
@@ -700,20 +701,21 @@ class Dte extends \sasco\LibreDTE\PDF
      */
     private function agregarReferencia($referencias, $x = 10, $offset = 22)
     {
-
+        $texto = '';
         $vacio = empty($referencias);
         if (!isset($referencias[0]))
             $referencias = [$referencias];
         foreach($referencias as $r) {
-            $texto = $vacio ? "" : $r['NroLinRef'].' - '.$this->getTipo($r['TpoDocRef']).' N° '.$r['FolioRef'].' del '.$r['FchRef'];
+            $texto = $vacio ? "" : $texto.$r['NroLinRef'].' - '.$this->getTipo($r['TpoDocRef']).' N° '.$r['FolioRef'].' del '.$r['FchRef']."  ";
             if (isset($r['RazonRef']) and $r['RazonRef']!==false)
                 $texto = $texto.': '.$r['RazonRef'];
-            $this->setFont('', 'B', 8);
-            $this->Texto('Referenc.', $x);
-            $this->Texto(':', $x+$offset);
-            $this->setFont('', 'C', 8);
-            $this->MultiTexto($texto, $x+$offset+2);
+            
         }
+        $this->setFont('', 'B', 8);
+        $this->Texto('Referenc.', $x);
+        $this->Texto(':', $x+$offset);
+        $this->setFont('', 'C', 8);
+        $this->MultiTexto($texto, $x+$offset+2);
     }
 
     /**
