@@ -1213,7 +1213,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
             console.log("Llegamos")
             console.log(row.data.forma)
             console.log(row.data.id_tip_docu)
-            if (row.data.forma==0 && (row.data.id_tip_docu ==105 || row.data.id_tip_docu ==107)){
+            if (row.data.forma==0 && (row.data.id_tip_docu ==105 || row.data.id_tip_docu ==107 || row.data.id_tip_docu ==120)){
                 //window.open(preurl +'facturas/exportTXT/?idfactura=' + row.data.id)
                 window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id)
             };
@@ -1231,7 +1231,8 @@ Ext.define('Infosys_web.controller.Facturacion', {
             };
             if (row.data.forma==1 && (row.data.id_tip_docu ==101 || row.data.id_tip_docu ==107)){
             //window.open(preurl +'facturas/exportTXTGLO/?idfactura=' + row.data.id)
-            window.open(preurl +'facturaglosa/exportPDF/?idfactura=' + row.data.id)
+            //window.open(preurl +'facturaglosa/exportPDF/?idfactura=' + row.data.id)
+            window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id)
             };
             if (row.data.forma==2 && (row.data.id_tip_docu ==101 || row.data.id_tip_docu ==107)){
             //window.open(preurl +'facturas/exportTXTlote/?idfactura=' + row.data.id)
