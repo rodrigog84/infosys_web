@@ -315,6 +315,9 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
             'guiasdespachobuscarclientes3 button[action=seleccionarclienteguias3]': {
                 click: this.seleccionarclienteguias3
             },
+             'guiasdespachobuscarclientes4 button[action=seleccionarclienteguias4]': {
+                click: this.seleccionarclienteguias4
+            },
             'guiasdespachobuscarclientes3 button[action=buscarclientes3]': {
                 click: this.buscarclientes3
             },
@@ -970,7 +973,7 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
 
        
         if(numero==0){
-            var edit = Ext.create('Infosys_web.view.guiadespacho.BuscarClientes4');            
+            var edit = Ext.create('Infosys_web.view.guiasdespacho.BuscarClientes4');            
                   
         }else{
        
@@ -2089,6 +2092,16 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
         st.load();
     },
 
+    buscarclientes4 : function(){
+
+        var view = this.getGuiasdespachobuscarclientes4()
+        var st = this.getClientesStore()
+        var nombre = view.down('#nombreId').getValue()
+        st.proxy.extraParams = {nombre : nombre,
+                                opcion : "Nombre"}
+        st.load();
+    },
+
     seleccionarclienteguias3: function(){
 
         var view = this.getGuiasdespachobuscarclientes3();
@@ -2171,6 +2184,91 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
         }
        
     },    
+
+
+seleccionarclienteguias4: function(){
+
+        var view = this.getGuiasdespachobuscarclientes4();
+        var viewIngresa = this.getGuiasglosaingresar();
+        var grid  = view.down('grid');
+        if (grid.getSelectionModel().hasSelection()) {
+            var row = grid.getSelectionModel().getSelection()[0];
+            var estado = (row.data.estado);
+            if (estado == 3) {
+                Ext.Msg.alert('Cliente Bloqueado');
+                view.close();
+                return;                  
+            }else if (estado == 4){
+                 Ext.Msg.alert('Cliente protestos Vigentes');
+                 view.close();
+            return;
+            }else {
+            viewIngresa.down('#id_cliente').setValue(row.data.id);
+            viewIngresa.down('#nombre_id').setValue(row.data.nombres);
+            viewIngresa.down('#tipoCiudadId').setValue(row.data.nombre_ciudad);
+            viewIngresa.down('#tipoComunaId').setValue(row.data.nombre_comuna);
+            viewIngresa.down('#tipoVendedorId').setValue(row.data.id_vendedor);
+            viewIngresa.down('#giroId').setValue(row.data.giro);
+            viewIngresa.down('#direccionId').setValue(row.data.direccion);
+            viewIngresa.down('#rutId').setValue(row.data.rut);
+            viewIngresa.down('#tipoVendedorId').setValue(row.data.id_vendedor);
+            viewIngresa.down('#tipocondpagoId').setValue(row.data.id_pago);
+            view.close();
+            var condicion = viewIngresa.down('#tipocondpagoId');
+            var fechafactura = viewIngresa.down('#fechafacturaId').getValue();
+            var stCombo = condicion.getStore();
+            var record = stCombo.findRecord('id', condicion.getValue()).data;
+            dias = record.dias;
+            var bolEnable = false;
+            if (row.data.id_pago == 1){
+
+                viewIngresa.down('#DescuentoproId').setDisabled(bolEnable);
+                viewIngresa.down('#tipoDescuentoId').setDisabled(bolEnable);
+                viewIngresa.down('#descuentovalorId').setDisabled(bolEnable);
+                
+            };
+            if (row.data.id_pago == 6){
+
+                 viewIngresa.down('#DescuentoproId').setDisabled(bolEnable);
+                 viewIngresa.down('#tipoDescuentoId').setDisabled(bolEnable);
+                 viewIngresa.down('#descuentovalorId').setDisabled(bolEnable);
+                
+            };
+            if (row.data.id_pago == 7){
+
+                 view.down('#DescuentoproId').setDisabled(bolEnable);
+                 view.down('#tipoDescuentoId').setDisabled(bolEnable);
+                 view.down('#descuentovalorId').setDisabled(bolEnable);
+                
+            };          
+            
+
+            if (dias > 0){
+        
+            Ext.Ajax.request({
+                url: preurl + 'facturas/calculofechas',
+                params: {
+                    dias: dias,
+                    fechafactura : fechafactura
+                },
+                success: function(response){
+                   var resp = Ext.JSON.decode(response.responseText);
+                   var fecha_final= resp.fecha_final;
+                   viewIngresa.down("#fechavencId").setValue(fecha_final);                               
+            }
+           
+        });
+        };
+
+        };
+            
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }
+       
+    },    
+
 
      validarutD: function(){
 

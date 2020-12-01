@@ -111,7 +111,7 @@ Ext.define('Infosys_web.view.guiasdespacho.BuscarClientes4' ,{
             {
                 xtype: 'button',
                 iconCls: 'icon-search',
-                action: 'buscarclientes3',
+                action: 'buscar4',
                 text : 'Buscar'
             }
             ]      
