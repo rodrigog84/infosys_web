@@ -1497,7 +1497,7 @@ class Guias extends CI_Controller {
                                     'IdDoc' => [
                                         'TipoDTE' => $tipo_caf,
                                         'Folio' => $numfactura,
-                                        'FchEmis' => substr($fechafactura,0,10),
+                                        'FchEmis' => substr($fechafactura,0,10)
                                        //  'TpoTranVenta' => 4
                                     ],
                                     'Emisor' => [
