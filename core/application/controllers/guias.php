@@ -1172,6 +1172,7 @@ class Guias extends CI_Controller {
 		$ftotal = $this->input->post('totalfacturas');
 		$descuento = $this->input->post('descuentofactuta');
             $ordencompra = $this->input->post('ordencompra');
+            $pedido = $this->input->post('pedido');
 		$tipodocumento = 101;
 
 		$data3 = array(
@@ -1202,62 +1203,92 @@ class Guias extends CI_Controller {
 
 		$this->db->insert('factura_clientes', $factura_cliente); 
 		$idfactura = $this->db->insert_id();
-
+            $inserta_pedido = false;
 		foreach($items as $v){
-			$factura_clientes_item = array(
-		        'id_guia' => $v->id_guia,
-		        'id_factura' => $idfactura,
-		        'num_guia' => $v->num_guia,
-                    'glosa' => "SEGUN GUIA NRO ". $v->num_guia,
-		        'neto' => $v->neto,
-		        'iva' => $v->iva,
-		        'total' => $v->total
-			);
+      			$factura_clientes_item = array(
+      		        'id_guia' => $v->id_guia,
+      		        'id_factura' => $idfactura,
+      		        'num_guia' => $v->num_guia,
+                          'glosa' => "SEGUN GUIA NRO ". $v->num_guia,
+      		        'neto' => $v->neto,
+      		        'iva' => $v->iva,
+      		        'total' => $v->total
+      			);
 
-            $query2 = $this->db->get_where('detalle_factura_cliente', array('id_factura' => $v->id_guia));
+                  $query2 = $this->db->get_where('detalle_factura_cliente', array('id_factura' => $v->id_guia));
 
-            $c=0;
 
-            foreach ($query2->result() as $z){
+                  $c=0;
+
+                  foreach ($query2->result() as $z){
+                        
+                        $factura_clientes_item2 = array(
+                        'id_factura' => $idfactura,
+                        'id_producto' => $z->id_producto,
+                        'nombre' => strtoupper($z->nombre),
+                        'id_existencia' => $z->id_existencia,
+                        'num_factura' => $numfactura,
+                        'precio' => $z->precio,
+                        'cantidad' => $z->cantidad,
+                        'neto' => ($z->totalproducto - $v->iva),
+                        'descuento' => $z->descuento,
+                        'iva' => $z->iva,
+                        'totalproducto' => $z->totalproducto,
+                        'fecha' => $fechafactura,
+                        'fecha_vencimiento' => $z->fecha_vencimiento,
+                        'lote' => $z->lote,
+                        );
+                 
+                  $this->db->insert('detalle_factura_cliente', $factura_clientes_item2);
+
+                  }
+      		
+
                   
-                  $factura_clientes_item2 = array(
-                  'id_factura' => $idfactura,
-                  'id_producto' => $z->id_producto,
-                  'nombre' => strtoupper($z->nombre),
-                  'id_existencia' => $z->id_existencia,
-                  'num_factura' => $numfactura,
-                  'precio' => $z->precio,
-                  'cantidad' => $z->cantidad,
-                  'neto' => ($z->totalproducto - $v->iva),
-                  'descuento' => $z->descuento,
-                  'iva' => $z->iva,
-                  'totalproducto' => $z->totalproducto,
-                  'fecha' => $fechafactura,
-                  'fecha_vencimiento' => $z->fecha_vencimiento,
-                  'lote' => $z->lote,
-                  );
-           
-            $this->db->insert('detalle_factura_cliente', $factura_clientes_item2);
+                  
 
-            }
-		
-		$this->db->insert('detalle_factura_glosa', $factura_clientes_item);
 
-		    $data3 = array(
-	           'id_factura' => $idfactura,
-		    );
+      		$this->db->insert('detalle_factura_glosa', $factura_clientes_item);
 
-		    $data4 = array(
-	           'id_despacho' => $idfactura,
-		    );
+      		    $data3 = array(
+      	           'id_factura' => $idfactura,
+      		    );
 
-		    $this->db->where('id', $v->id_guia);
-		  
-		    $this->db->update('factura_clientes', $data3);
 
-		    $this->db->where('num_factura', $v->num_guia);
-		  
-		    $this->db->update('detalle_factura_cliente', $data4);
+                  if(!$inserta_pedido){
+                        $this->db->select('f.id, f.orden_compra, f.num_pedido')
+                                    ->from('factura_clientes f')
+                                     ->where('id',$v->id_guia);
+                        $query = $this->db->get();
+                        $datos_guia = $query->row();
+
+                        $data_factura = array(
+                            'orden_compra' => $datos_guia->orden_compra,
+                            'num_pedido' => $datos_guia->num_pedido,
+                          );                        
+
+                        $this->db->where('id', $idfactura);
+                        $this->db->update('factura_clientes', $data_factura);
+
+                        $ordencompra = $datos_guia->orden_compra;
+                        $pedido = $datos_guia->num_pedido;
+
+                        $inserta_pedido = true;
+
+                  }
+
+
+      		    $data4 = array(
+      	           'id_despacho' => $idfactura,
+      		    );
+
+      		    $this->db->where('id', $v->id_guia);
+      		  
+      		    $this->db->update('factura_clientes', $data3);
+
+      		    $this->db->where('num_factura', $v->num_guia);
+      		  
+      		    $this->db->update('detalle_factura_cliente', $data4);
 
 		}
 
@@ -1379,6 +1410,14 @@ class Guias extends CI_Controller {
                         $NroLinRef++;
                   }
                   
+                  if($pedido != ""){
+                        $referencia[($NroLinRef-1)]['NroLinRef'] = $NroLinRef;
+                        //$referencia['TpoDocRef'] = $datos_empresa_factura->tipodocref;
+                        $referencia[($NroLinRef-1)]['TpoDocRef'] = 802;
+                        $referencia[($NroLinRef-1)]['FolioRef'] = $pedido;
+                        $referencia[($NroLinRef-1)]['FchRef'] = substr($fechafactura,0,10);
+                        $NroLinRef++;
+                  }
 
                   $lista_detalle = array();
                   $i = 0;
