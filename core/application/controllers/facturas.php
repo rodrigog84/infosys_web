@@ -3210,7 +3210,7 @@ class Facturas extends CI_Controller {
                                         'TipoDTE' => $tipo_caf,
                                         'Folio' => $numfactura,
                                         'FchEmis' => substr($fechafactura,0,10),
-                                         'TpoTranVenta' => 4
+                                        // 'TpoTranVenta' => 4
                                     ],
                                     'Emisor' => [
                                         'RUTEmisor' => $empresa->rut.'-'.$empresa->dv,
