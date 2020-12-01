@@ -505,6 +505,7 @@ public function consumo_folios_no_enviada(){
 
 				$pdf->setNeto($factura->neto);
 				$pdf->setIva($factura->iva);		
+				$pdf->setTotal($factura->totalfactura);
 
 
 

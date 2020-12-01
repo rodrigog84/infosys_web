@@ -44,6 +44,7 @@ class Dte extends \sasco\LibreDTE\PDF
 
     private $netoBoleta; //Fono de emisor completo
     private $ivaBoleta; //Fono de emisor completo
+    private $totalBoleta; //Fono de emisor completo
 
 
     private $textoGuia; //Fono de emisor completo
@@ -174,6 +175,13 @@ class Dte extends \sasco\LibreDTE\PDF
     {
         $this->ivaBoleta = $iva;
     }       
+
+
+    public function setTotal($totalfactura)
+    {
+        $this->totalBoleta = $totalfactura;
+    }  
+
 
     public function setCondPago($condpago)
     {
@@ -869,6 +877,7 @@ class Dte extends \sasco\LibreDTE\PDF
 
         if(!$totales['MntNeto']){
             $totales['MntNeto'] = $this->netoBoleta;
+            $totales['MntTotal'] = $this->netoBoleta + $this->ivaBoleta;
         }
 
         // glosas
