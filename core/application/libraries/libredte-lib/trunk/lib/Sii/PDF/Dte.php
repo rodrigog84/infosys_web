@@ -679,7 +679,7 @@ class Dte extends \sasco\LibreDTE\PDF
                 $transporte .= 'a '.$Transporte['DirDest'].', '.$Transporte['CmnaDest'].' ';
             }
             if (!empty($Transporte['RUTTrans']))
-                $transporte .= ' por '.$Transporte['RUTTrans'];
+                $transporte .= ' Rut: '.$Transporte['RUTTrans'];
             if (!empty($Transporte['Patente']))
                 $transporte .= ' en vehículo '.$Transporte['Patente'];
             if (is_array($Transporte['Chofer'])) {
