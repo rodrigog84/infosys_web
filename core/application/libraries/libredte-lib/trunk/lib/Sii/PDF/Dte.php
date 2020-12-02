@@ -682,6 +682,8 @@ class Dte extends \sasco\LibreDTE\PDF
                 $transporte .= ' Rut: '.$Transporte['RUTTrans'];
             if (!empty($Transporte['Patente']))
                 $transporte .= ' en vehículo '.$Transporte['Patente'];
+            if (!empty($Transporte['Patente_Carro']))
+                $transporte .= ' con Carro '.$Transporte['Patente_Carro'];            
             if (is_array($Transporte['Chofer'])) {
                 if (!empty($Transporte['Chofer']['NombreChofer']))
                     $transporte .= ' con chofer '.$Transporte['Chofer']['NombreChofer'];

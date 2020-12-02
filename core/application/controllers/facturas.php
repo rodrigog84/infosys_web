@@ -3151,7 +3151,7 @@ class Facturas extends CI_Controller {
                   $lista_detalle = array();
                   $i = 0;
                   foreach ($detalle_factura as $detalle) {
-                        $lista_detalle[$i]['NmbItem'] = $tipo_caf == 39 ? $detalle->nombre : $detalle->nombre."  ".substr($detalle->fecha_vencimiento,8,2)."/".substr($detalle->fecha_vencimiento,5,2)."/".substr($detalle->fecha_vencimiento,0,4);
+                        $lista_detalle[$i]['NmbItem'] = $tipo_caf == 39 ? $detalle->nombre : $detalle->nombre." VENC ".substr($detalle->fecha_vencimiento,8,2)."/".substr($detalle->fecha_vencimiento,5,2)."/".substr($detalle->fecha_vencimiento,0,4);
                         $lista_detalle[$i]['QtyItem'] = $detalle->cantidad;
                         $lista_detalle[$i]['CdgItem'] = $detalle->codigo;
                         $lista_detalle[$i]['UnmdItem'] = $detalle->lote;

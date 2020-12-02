@@ -1197,6 +1197,7 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
         var fono = view.down('#fonoId').getValue();
         var carro = view.down('#carroId').getValue();
         var observa = view.down('#observaId').getValue();
+        var destino = view.down('#destinoId').getValue();
         var valida = view.down('#validaId').getValue();
         var numero = view.down('#FactId').getValue();      
         
@@ -1226,6 +1227,7 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
                 carro : carro,
                 fono : fono,
                 observa : observa,
+                destino: destino, 
                 numero: numero
             },
             success: function(response){

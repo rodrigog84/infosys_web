@@ -85,6 +85,15 @@ Ext.define('Infosys_web.view.guiasdespacho.Observacionesguiasglosa', {
                     },{
                         xtype: 'textfield',
                         fieldCls: 'required',
+                        labelWidth: 60,
+                        width: 350,
+                        height: 30,
+                        fieldLabel: 'Destino',
+                        itemId: 'destinoId',
+                        name: 'destino'                            
+                    },{
+                        xtype: 'textfield',
+                        fieldCls: 'required',
                         width: 180,
                         height: 25,
                         fieldLabel: 'Patente Camion',
