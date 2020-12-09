@@ -319,7 +319,7 @@ class Dte extends \sasco\LibreDTE\PDF
 
         //AGREGAR RECUADRO PARA DATOS DEL DESTINATARIO
 
-        $y = 194;
+        $y = 200;
         //$y = $dte['Encabezado']['IdDoc']['TipoDTE'] == 34 ? $y + 5 : $y;
         $this->Rect(155, $y, 45, 13, 'D', ['all' => ['width' => 0.1, 'color' => [0, 0, 0]]]);
 
