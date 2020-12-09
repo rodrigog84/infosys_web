@@ -319,7 +319,7 @@ class Dte extends \sasco\LibreDTE\PDF
 
         //AGREGAR RECUADRO PARA DATOS DEL DESTINATARIO
 
-        $y = 200;
+        $y = 194;
         //$y = $dte['Encabezado']['IdDoc']['TipoDTE'] == 34 ? $y + 5 : $y;
         $this->Rect(155, $y, 45, 13, 'D', ['all' => ['width' => 0.1, 'color' => [0, 0, 0]]]);
 
@@ -748,8 +748,15 @@ class Dte extends \sasco\LibreDTE\PDF
         }
         // normalizar cada detalle
         foreach ($detalle as &$item) {
+           // print_r($item);
             // quitar columnas
             foreach ($item as $col => $valor) {
+
+               // print_r($col); echo "<br>";
+                if($col == 'UnmdItem'){
+                    $item['UnmdItem'] = '<center>-</center>';
+                }
+
                 if ($col=='DscItem' and !empty($item['DscItem'])) {
                     $item['NmbItem'] .= '<br/><span style="font-size:0.7em">'.$item['DscItem'].'</span>';
                 }
@@ -770,7 +777,7 @@ class Dte extends \sasco\LibreDTE\PDF
                     $item[$col] = $this->num($item[$col]);
             }
         }
-
+       // exit;
         // solo si es factura de guia
         if($this->textoGuia != ''){
             $array_guia = $detalle[0];

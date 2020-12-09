@@ -799,7 +799,9 @@ public function consumo_folios_no_enviada(){
 			$tipo_caf = 34;
 		}else if($tipodocumento == 105){
 			$tipo_caf = 52;
-		}		
+		}else if($tipodocumento == 120){
+			$tipo_caf = 39;
+		}			
 
 		header('Content-type: text/plain; charset=ISO-8859-1');
 		$this->load->model('facturaelectronica');
@@ -818,11 +820,11 @@ public function consumo_folios_no_enviada(){
 		$i = 0;
 		foreach ($detalle_factura as $detalle) {
 			//$lista_detalle[$i]['NmbItem'] = $detalle->nombre;
-			$lista_detalle[$i]['NmbItem'] = $detalle->nombre."  ".substr($detalle->fecha_vencimiento,8,2)."/".substr($detalle->fecha_vencimiento,5,2)."/".substr($detalle->fecha_vencimiento,0,4);
+			$lista_detalle[$i]['NmbItem'] = $tipo_caf == 39 ? $detalle->nombre : $detalle->nombre." VENC ".substr($detalle->fecha_vencimiento,8,2)."/".substr($detalle->fecha_vencimiento,5,2)."/".substr($detalle->fecha_vencimiento,0,4);
 			$lista_detalle[$i]['QtyItem'] = $detalle->cantidad;
 			$lista_detalle[$i]['CdgItem'] = $detalle->codigo;
             $lista_detalle[$i]['UnmdItem'] = substr($detalle->lote,0,4);
-			//$lista_detalle[$i]['PrcItem'] = $detalle->precio;
+			$lista_detalle[$i]['PrcItem'] = $detalle->precio;
 			//$lista_detalle[$i]['PrcItem'] = round((($detalle->precio*$detalle->cantidad)/1.19)/$detalle->cantidad,0);
 			//$total = $detalle->precio*$detalle->cantidad;
 			//$neto = round($total/1.19,2);
@@ -830,7 +832,7 @@ public function consumo_folios_no_enviada(){
 			//$lista_detalle[$i]['PrcItem'] = round($neto/$detalle->cantidad,2);
 			//$lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 ? floor($detalle->precio/1.19) : floor($detalle->precio);
 
-			$lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 ? floor(($detalle->totalproducto - $detalle->iva)/$detalle->cantidad) : floor($detalle->precio);
+			/*$lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 ? floor(($detalle->totalproducto - $detalle->iva)/$detalle->cantidad) : floor($detalle->precio);
 			if($tipo_caf == 33){
 				$lista_detalle[$i]['MontoItem'] = ($detalle->totalproducto - $detalle->iva);
 			}				
@@ -840,7 +842,7 @@ public function consumo_folios_no_enviada(){
 				$lista_detalle[$i]['DescuentoPct'] = $porc_descto;		
 				//$lista_detalle[$i]['PrcItem'] =- $lista_detalle[$i]['PrcItem']*$porc_descto;
 
-			}
+			}*/
 
 			$i++;
 		}
