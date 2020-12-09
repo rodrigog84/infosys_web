@@ -32,7 +32,7 @@ Ext.define('Infosys_web.view.facturaelectronica.ConsumoFolios' ,{
     },{         
         header: "Folio Hasta",
         flex: 1,
-        dataIndex: 'folio_desde',
+        dataIndex: 'folio_hasta',
         align: 'right'
     },{
             header: "XML",

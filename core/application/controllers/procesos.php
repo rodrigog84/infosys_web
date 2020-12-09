@@ -252,6 +252,7 @@ class Procesos extends CI_Controller {
 			
 		}
 
+
 	}	
 
 
@@ -364,7 +365,7 @@ dte.cl@einvoicing.signature-cloud.com
 			$empresa = $this->facturaelectronica->get_empresa();
 			$fec_inicio = $empresa->fec_inicio_boleta;
 			$fecha_hoy = date('Y-m-d');
-			$dias_evalua = 5;
+			$dias_evalua = 10;
 
 			while($dias_evalua >= 0){
 				$fecha_consumo= strtotime("- $dias_evalua days", strtotime ($fecha_hoy));
@@ -400,19 +401,20 @@ dte.cl@einvoicing.signature-cloud.com
 		$Firma = new sasco\LibreDTE\FirmaElectronica($config['firma']); //lectura de certificado digital            
 		$ConsumoFolio = new sasco\LibreDTE\Sii\ConsumoFolio();
 		$ConsumoFolio->setFirma($Firma);
-		//print_r($facturas); 
+		//print_r($facturas);  exit;
 		$lista_folios = array();
 		if(count($facturas) > 0){
 			foreach ($facturas as $factura) {
 				$idfactura = $factura->idfactura;
 				$factura = $this->facturaelectronica->datos_dte($idfactura);
 				$archivo = "./facturacion_electronica/dte/".$factura->path_dte.$factura->archivo_dte;
+				//echo $archivo; exit;
 			 	if(file_exists($archivo)){
 			 		$xml = file_get_contents($archivo);
 			 	}else{
 			 		$xml = $factura->dte;
 			 	}
-
+				//echo $xml;
 
 
 				$rut = $Firma->getId(); 
@@ -423,8 +425,8 @@ dte.cl@einvoicing.signature-cloud.com
 				
 
 
-				$EnvioBoleta = new \sasco\LibreDTE\Sii\EnvioDte();
-				$EnvioBoleta->loadXML($xml);
+				$EnvioBOLETA = new \sasco\LibreDTE\Sii\EnvioDte();
+				$EnvioBOLETA->loadXML($xml);
 				// agregar detalle de boletas
 				foreach ($EnvioBOLETA->getDocumentos() as $Dte) {
 				    $ConsumoFolio->agregar($Dte->getResumen());
