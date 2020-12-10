@@ -61,6 +61,8 @@ class Dte extends \sasco\LibreDTE\PDF
     private $sinAcuseRecibo = [39, 41, 56, 61, 111, 112]; ///< Boletas, notas de crédito y notas de débito no tienen acuse de recibo
     private $web_verificacion = 'www.sii.cl'; ///< Página web para verificar el documento
     private $ecl = 8; ///< error correction level para PHP >= 7.0.0
+    private $iva = 19; 
+
 
     private $tipos = [
         33 => 'FACTURA ELECTRÓNICA',
@@ -312,7 +314,7 @@ class Dte extends \sasco\LibreDTE\PDF
         $this->Rect(10, $y, 190, $h, 'D', ['all' => ['width' => 0.1, 'color' => [0, 0, 0]]]);
 
 
-        $this->agregarDetalle($dte['Detalle']);
+        $this->agregarDetalle($dte['Detalle'],$dte['Encabezado']['IdDoc']['TipoDTE']);
         if (!empty($dte['DscRcgGlobal']))
             $this->agregarDescuentosRecargos($dte['DscRcgGlobal']);
         $this->agregarTotales($dte['Encabezado']['Totales']);
@@ -736,7 +738,7 @@ class Dte extends \sasco\LibreDTE\PDF
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
      * @version 2015-12-25
      */
-    private function agregarDetalle($detalle, $x = 10)
+    private function agregarDetalle($detalle, $tipoDte , $x = 10)
     {
         if (!isset($detalle[0]))
             $detalle = [$detalle];
@@ -760,6 +762,17 @@ class Dte extends \sasco\LibreDTE\PDF
                 if ($col=='DscItem' and !empty($item['DscItem'])) {
                     $item['NmbItem'] .= '<br/><span style="font-size:0.7em">'.$item['DscItem'].'</span>';
                 }
+
+                if($col == 'PrcItem' && $tipoDte == 39 ){
+                    $item['PrcItem'] = floor($item['PrcItem']/(1+($this->iva/100)));
+                }
+
+                if($col == 'MontoItem' && $tipoDte == 39 ){
+                    $item['MontoItem'] = floor($item['MontoItem']/(1+($this->iva/100)));
+                }
+
+
+
                 if (!in_array($col, $titulos_keys))
                     unset($item[$col]);
             }
@@ -772,6 +785,8 @@ class Dte extends \sasco\LibreDTE\PDF
             if ($item['CdgItem'])
                 $item['CdgItem'] = $item['CdgItem']['VlrCodigo'];
             // dar formato a números
+
+
             foreach (['QtyItem', 'PrcItem', 'DescuentoMonto', 'RecargoMonto', 'MontoItem'] as $col) {
                 if ($item[$col])
                     $item[$col] = $this->num($item[$col]);

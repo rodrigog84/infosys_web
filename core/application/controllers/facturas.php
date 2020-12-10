@@ -3159,8 +3159,8 @@ class Facturas extends CI_Controller {
                         //$lista_detalle[$i]['PrcItem'] = round((($detalle->precio*$detalle->cantidad)/1.19)/$detalle->cantidad,0);
                         //$total = $detalle->precio*$detalle->cantidad;
                         //$neto = round($total/1.19,2);
-
-                        $lista_detalle[$i]['PrcItem'] = $detalle->precio;
+                       $lista_detalle[$i]['PrcItem'] = $tipo_caf == 39 ? floor($detalle->totalproducto/$detalle->cantidad) : floor($detalle->precio);
+                       // $lista_detalle[$i]['PrcItem'] = $detalle->precio;
                        // $lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 || $tipo_caf == 52 ? floor($detalle->neto) : floor($detalle->totalproducto);
 
                         $i++;
