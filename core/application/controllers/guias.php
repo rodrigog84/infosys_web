@@ -1256,7 +1256,7 @@ class Guias extends CI_Controller {
 
 
                   if(!$inserta_pedido){
-                        $this->db->select('f.id, f.orden_compra, f.num_pedido')
+                        $this->db->select('f.id, f.orden_compra, f.num_pedido, f.id_cond_venta, f.id_vendedor')
                                     ->from('factura_clientes f')
                                      ->where('id',$v->id_guia);
                         $query = $this->db->get();
@@ -1265,6 +1265,8 @@ class Guias extends CI_Controller {
                         $data_factura = array(
                             'orden_compra' => $datos_guia->orden_compra,
                             'num_pedido' => $datos_guia->num_pedido,
+                            'id_cond_venta' => $datos_guia->id_cond_venta,
+                            'id_vendedor' => $datos_guia->id_vendedor,
                           );                        
 
                         $this->db->where('id', $idfactura);
