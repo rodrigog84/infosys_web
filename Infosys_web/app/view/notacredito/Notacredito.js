@@ -416,7 +416,7 @@ Ext.define('Infosys_web.view.notacredito.Notacredito', {
                                                             me.down('#eliminaritem').setDisabled(true);
 
                                                             var nombre = me.down('#facturaId').getValue()
-                                                            console.log(preurl + 'facturas/getAllnotap?nombre='+nombre);
+                                                           // console.log(preurl + 'facturas/getAllnotap?nombre='+nombre);
                                                             response = Ext.Ajax.request({
                                                             async: false,
                                                             url: preurl + 'facturas/getAllnotap?nombre='+nombre}); 
