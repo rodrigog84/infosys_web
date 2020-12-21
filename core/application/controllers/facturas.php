@@ -2342,6 +2342,7 @@ class Facturas extends CI_Controller {
                 WHERE acc.id_factura = "'.$nombre.'" and acc.id_notacredito = 0');
 		 	    }else{
 
+
                 $query = $this->db->query('SELECT acc.*, p.nombre as nombre, p.codigo 
                 as codigo, acc.precios as p_venta, acc.cantidad as stock 
                 FROM detalle_factura_glosa acc    
@@ -2349,19 +2350,47 @@ class Facturas extends CI_Controller {
                 WHERE acc.id_factura = "'.$nombre.'" '
                 );
 
+
+                  // validacion de si es factura de guia
+                $array_guia = array();
+                foreach ($query->result() as $fila) {
+                  if($fila->id_guia != 0){
+                    array_push($array_guia,$fila->id_guia);
+                  }
+                  
+                }
+                
+
+                // si es factura de guia, va a buscar los productos de las guias
+                if(count($array_guia) > 0){
+                  $lista_guias = implode(',',$array_guia);
+                 // var_dump($lista_guias);
+                  /*foreach ($array_guia as $guia) {
+                    # code...
+                  }*/
+
+
+                  $query = $this->db->query("SELECT acc.*, p.nombre as nombre, p.codigo 
+                                            as codigo, acc.precio as p_venta, acc.cantidad as stock 
+                                            FROM detalle_factura_cliente acc    
+                                            left join productos p on (acc.id_producto = p.id)
+                                            WHERE acc.id_factura in (" . $lista_guias .") and acc.id_notacredito = 0");
+                }
+
 		 	        
 		 	    }
 		 	
 
 		    };
 		    
-		    $total = 0;
+		    $total = count($query->result());
 
-		  foreach ($query->result() as $row)
+
+		  /*foreach ($query->result() as $row)
 			{
 				$total = $total +1;
 			
-			}
+			}*/
 
 			$countAll = $total;
 
@@ -2373,6 +2402,9 @@ class Facturas extends CI_Controller {
 			
 			$data[] = $row;
 		}
+
+/**  hasta aqui ***/
+
 
 	    }else{
 
@@ -3159,7 +3191,7 @@ class Facturas extends CI_Controller {
                         //$lista_detalle[$i]['PrcItem'] = round((($detalle->precio*$detalle->cantidad)/1.19)/$detalle->cantidad,0);
                         //$total = $detalle->precio*$detalle->cantidad;
                         //$neto = round($total/1.19,2);
-                       $lista_detalle[$i]['PrcItem'] = $tipo_caf == 39 ? floor($detalle->totalproducto/$detalle->cantidad) : floor($detalle->precio);
+                       $lista_detalle[$i]['PrcItem'] = $tipo_caf == 39 ? floor($detalle->totalproducto/$detalle->cantidad) : floor($detalle->precio); 
                        // $lista_detalle[$i]['PrcItem'] = $detalle->precio;
                        // $lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 || $tipo_caf == 52 ? floor($detalle->neto) : floor($detalle->totalproducto);
 

@@ -447,6 +447,8 @@ Ext.define('Infosys_web.view.notacredito.Notacredito', {
 
                                                             }
 
+                                                            
+
                                                             //var neto = parseInt(total/1.19);
                                                             var iva = total - neto;
                                                             me.down('#finaltotalId').setValue(total);
