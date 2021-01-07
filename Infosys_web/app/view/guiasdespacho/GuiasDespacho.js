@@ -265,7 +265,7 @@ Ext.define('Infosys_web.view.guiasdespacho.GuiasDespacho', {
                                             maxHeight: 25,
                                             width: 70,
                                             allowBlank: true,
-                                            action: 'buscarsucursalfactura'
+                                            action: 'buscarsucursalguiadespacho'
                                             //disabled : true  
                                         },{
                                             xtype: 'displayfield',

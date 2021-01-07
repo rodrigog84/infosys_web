@@ -51,6 +51,7 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
             'guiasdespacho.Guiaglosa',
             'guiasdespacho.BuscarClientes4',
             'guiasdespacho.BuscarSucursales4',
+            'guiasdespacho.BuscarSucursales3',
             'guiasdespacho.Anular',
             'guiasdespacho.BuscarTransportista'],
            
@@ -76,6 +77,9 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
     },{
         ref: 'guiasdespachobuscarclientes2',
         selector: 'guiasdespachobuscarclientes2'
+    },{
+        ref: 'guiasdespachobuscarclientes3',
+        selector: 'guiasdespachobuscarclientes3'
     },{
         ref: 'buscarguias',
         selector: 'buscarguias'
@@ -437,10 +441,55 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
             },
             'buscatransguia button[action=seleccionartrans]': {
                 click: this.seleccionartrans
-            },       
+            },
+            'guiasdespachoingresar button[action=buscarsucursalguiadespacho]': {
+                click: this.buscarsucursalguiadespacho
+            },
+            'buscarsucursalesclientesguias3 button[action=seleccionarsucursalcliente3]': {
+                click: this.seleccionarsucursalcliente3
+            },     
 
         });
     },
+
+     seleccionarsucursalcliente3: function(){
+
+        var view = this.getBuscarsucursalesclientesguias3();
+        var viewIngresa = this.getGuiasdespachoingresar();
+        var grid  = view.down('grid');
+        if (grid.getSelectionModel().hasSelection()) {
+            var row = grid.getSelectionModel().getSelection()[0];
+            viewIngresa.down('#id_sucursalID').setValue(row.data.id);
+            viewIngresa.down('#direccionId').setValue(row.data.direccion);
+            viewIngresa.down('#tipoCiudadId').setValue(row.data.nombre_ciudad);
+            viewIngresa.down('#tipoComunaId').setValue(row.data.nombre_comuna);
+            view.close();
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }
+       
+    },
+
+
+    buscarsucursalguiadespacho : function(){
+
+       var busca = this.getGuiasdespachoingresar()
+       var nombre = busca.down('#id_cliente').getValue();
+       
+       if (nombre){
+         var edit = Ext.create('Infosys_web.view.guiasdespacho.BuscarSucursales3').show();
+          var st = this.getSucursales_clientesStore();
+          st.proxy.extraParams = {nombre : nombre};
+          st.load();
+       }else {
+          Ext.Msg.alert('Alerta', 'Debe seleccionar Cliente.');
+            return;
+       }
+      
+        
+    },
+
 
     buscartran : function(){
 
