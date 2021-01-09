@@ -1374,7 +1374,7 @@ public function reporte_estadisticas_ventas($mes,$anno)
             echo '</table>';
         }
 
-        public function exportarExcelGuias()
+       public function exportarExcelGuias()
          {
             header("Content-type: application/vnd.ms-excel"); 
             header("Content-disposition: attachment; filename=guias.xls");
@@ -1388,10 +1388,8 @@ public function reporte_estadisticas_ventas($mes,$anno)
             $fecha2 = $this->input->get('fecha2');
             list($dia, $mes, $anio) = explode("/",$fecha2);
             $fecha4 = $anio ."-". $mes ."-". $dia;
-            $tipo = 3;
-            $tipo2 = 2;
-
-                        
+            $tipo = 105;
+                                  
 
             $data = array();
                                    
@@ -1422,7 +1420,7 @@ public function reporte_estadisticas_ventas($mes,$anno)
                 $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor  FROM factura_clientes acc
                 left join clientes c on (acc.id_cliente = c.id)
                 left join vendedores v on (acc.id_vendedor = v.id)
-                WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.') ' . $sql_nombre . ' and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'" 
+                WHERE acc.tipo_documento in ( '.$tipo.') ' . $sql_nombre . ' and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'" 
                 order by acc.id desc' 
                 
                 );
@@ -1434,7 +1432,20 @@ public function reporte_estadisticas_ventas($mes,$anno)
                 $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor  FROM factura_clientes acc
                 left join clientes c on (acc.id_cliente = c.id)
                 left join vendedores v on (acc.id_vendedor = v.id)
-                WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.') and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
+                WHERE acc.tipo_documento in ( '.$tipo.') and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
+                order by acc.id desc' 
+                
+                );
+            
+
+              }else if($opcion == "PENDIENTES"){
+
+                
+                $data = array();
+                $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor  FROM factura_clientes acc
+                left join clientes c on (acc.id_cliente = c.id)
+                left join vendedores v on (acc.id_vendedor = v.id)
+                WHERE acc.id_factura = 0 and acc.tipo_documento in ( '.$tipo.') and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
                 order by acc.id desc' 
                 
                 );

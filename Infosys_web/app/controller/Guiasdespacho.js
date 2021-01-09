@@ -39,6 +39,7 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
             'guiasdespacho.BuscarSucursales',
             'guiasdespacho.BuscarProductos',
             'guiasdespacho.Exportar',
+            'guiasdespacho.Exportar2',
             'guiasdespacho.BuscarSucursales2',
             'guiasdespacho.GuiasDespacho',
             'guiasdespacho.PrincipalguiasDespacho',
@@ -102,6 +103,9 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
         ref: 'formularioexportarguias',
         selector: 'formularioexportarguias'
     },{
+        ref: 'formularioexportarguias2',
+        selector: 'formularioexportarguias2'
+    },{
         ref: 'buscarsucursalesclientesfacturas2',
         selector: 'buscarsucursalesclientesfacturas2'
     },{
@@ -132,8 +136,8 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
         ref: 'guiasdespachobuscarclientes4',
         selector: 'guiasdespachobuscarclientes4'
     },{
-        ref: 'buscarsucursalesclientesguias4',
-        selector: 'buscarsucursalesclientesguias4'
+        ref: 'buscarsucursalesclientesguias3',
+        selector: 'buscarsucursalesclientesguias3'
     },{
         ref: 'buscarproductosguiasdirecta',
         selector: 'buscarproductosguiasdirecta'
@@ -280,8 +284,14 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
             'guiasprincipal button[action=exportarexcelguias]': {
                 click: this.exportarexcelguias
             },
+            'guiasprincipaldespacho button[action=exportarexcelguias2]': {
+                click: this.exportarexcelguias2
+            },
             'formularioexportarguias button[action=exportarExcelFormulario]': {
                 click: this.exportarExcelFormulario
+            },
+            'formularioexportarguias2 button[action=exportarExcelFormulario2]': {
+                click: this.exportarExcelFormulario2
             },
             'despachofactura button[action=eliminaritem]': {
                 click: this.eliminaritem
@@ -2677,6 +2687,11 @@ seleccionarclienteguias4: function(){
            Ext.create('Infosys_web.view.guiasdespacho.Exportar').show();
     },
 
+     exportarexcelguias2: function(){
+              
+           Ext.create('Infosys_web.view.guiasdespacho.Exportar2').show();
+    },
+
     generarguiaspdf: function(){
         var view = this.getGuiasprincipal();
         if (view.getSelectionModel().hasSelection()) {
@@ -2714,6 +2729,56 @@ seleccionarclienteguias4: function(){
 
         var view =this.getFormularioexportarguias()
         var viewnew =this.getGuiasprincipal()
+        var fecha = view.down('#fechaId').getSubmitValue();
+        var opcion = viewnew.down('#tipoSeleccionId').getValue()
+        var nombre = viewnew.down('#nombreId').getSubmitValue();
+        var fecha2 = view.down('#fecha2Id').getSubmitValue();
+        var opcion = view.down('#tipoId').getSubmitValue();
+
+        console.log(opcion)
+
+        if (fecha > fecha2) {
+        
+               Ext.Msg.alert('Alerta', 'Fechas Incorrectas');
+            return;          
+
+        };
+
+        if (opcion == "LIBRO GUIAS"){
+
+            window.open(preurl + 'adminServicesExcel/exportarExcellibroGuias?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2);
+            view.close();
+            
+            
+
+        }else{
+
+            window.open(preurl + 'adminServicesExcel/exportarExcelGuias?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2+'&opcion='+opcion+'&nombre='+nombre);
+            view.close();
+
+          
+
+        }
+
+       
+ 
+    },
+
+    exportarExcelFormulario2: function(){
+        
+        var jsonCol = new Array()
+        var i = 0;
+        var grid =this.getGuiasprincipaldespacho()
+        Ext.each(grid.columns, function(col, index){
+          if(!col.hidden){
+              jsonCol[i] = col.dataIndex;
+          }
+          
+          i++;
+        })
+
+        var view =this.getFormularioexportarguias2()
+        var viewnew =this.getGuiasprincipaldespacho()
         var fecha = view.down('#fechaId').getSubmitValue();
         var opcion = viewnew.down('#tipoSeleccionId').getValue()
         var nombre = viewnew.down('#nombreId').getSubmitValue();

@@ -123,7 +123,7 @@ Ext.define('Infosys_web.view.guiasdespacho.PrincipalguiasDespacho' ,{
                 xtype: 'button',
                 iconCls : 'icon-exel',
                 text: 'Exportar EXCEL',
-                action:'exportarexcelguias'
+                action:'exportarexcelguias2'
             },'-',{
                 xtype: 'button',
                 iconCls: 'icon-delete',
