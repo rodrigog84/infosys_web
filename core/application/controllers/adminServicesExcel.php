@@ -1573,7 +1573,6 @@ public function reporte_estadisticas_ventas($mes,$anno)
             $fecha2 = $this->input->get('fecha2');
             list($dia, $mes, $anio) = explode("/",$fecha2);
             $fecha4 = $anio ."-". $mes ."-". $dia;
-            $tipo = 2;
             $otros = 0;
             $nulas = 0;
             $vigentes = 0;
@@ -1605,7 +1604,7 @@ public function reporte_estadisticas_ventas($mes,$anno)
             
             echo '<table>';
             echo "<td></td>";
-            echo "<td>LIBRO DE VENTAS</td>";
+            echo "<td>LIBRO DE BOLETAS</td>";
             echo "<td>BOLETAS</td>";
             echo "<tr>";
                 echo "<td>NUMERO</td>";

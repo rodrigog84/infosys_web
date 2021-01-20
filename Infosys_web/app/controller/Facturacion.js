@@ -865,6 +865,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
         };
 
         console.log(opcion);
+        console.log(tipo);
 
         if (opcion == "LIBRO VENTAS"){
 
