@@ -1563,8 +1563,8 @@ public function reporte_estadisticas_ventas($mes,$anno)
 
         public function exportarExcellibroBoletas()
          {
-            //header("Content-type: application/vnd.ms-excel"); 
-            //header("Content-disposition: attachment; filename=LibroBoletas.xls");
+            header("Content-type: application/vnd.ms-excel"); 
+            header("Content-disposition: attachment; filename=LibroBoletas.xls");
             
             $columnas = json_decode($this->input->get('cols'));
             $fecha = $this->input->get('fecha');
