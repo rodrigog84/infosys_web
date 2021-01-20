@@ -879,7 +879,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
 
              if (tipo == 120){
 
-             window.open(preurl + 'adminServicesExcel/exportarExcellibroBoletas?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+'&tipo='+tipo);
+             window.open(preurl + 'adminServicesExcel/exportarExcellibroBoletas?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2+'&tipo='+tipo);
              view.close();
 
              }; 
@@ -908,7 +908,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
 
              };
 
-             if (tipo == 102){
+             if (tipo == 120){
 
              window.open(preurl + 'adminServicesExcel/exportarExcelBoletas?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2+'&opcion='+opcion+'&nombre='+nombre+'&tipo='+tipo);
              view.close();
