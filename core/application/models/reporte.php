@@ -271,6 +271,9 @@ class Reporte extends CI_Model
 
 	public function reporte_estadisticas_ventas($start,$limit,$mes = '',$anno = ''){
 
+		$tipo=101;
+		$tipo2=120;
+
 
 		$data_detalle = $this->db->select("count(distinct p.id) as cantidad",false)
 		  ->from('detalle_factura_cliente d')
@@ -280,6 +283,8 @@ class Reporte extends CI_Model
 
 		$data_detalle = $mes != '' ? $data_detalle->where('month(f.fecha_factura)',$mes) : $data_detalle;
 		$data_detalle = $anno != '' ? $data_detalle->where('year(f.fecha_factura)',$anno) : $data_detalle;
+		$data_detalle = $tipo != '' ? $data_detalle->where('f.tipo_documento',$tipo,$tipo2) : $data_detalle;
+		
 		$query = $this->db->get();                            
         $result_cantidad = $query->row()->cantidad; 
 	
@@ -287,15 +292,18 @@ class Reporte extends CI_Model
 		/*$data_stock = $this->db->select("m.id as num, '' as tipodocto, '' as numdocto, fecha, '' as precio, '' as cant_entradas, '' as cant_salidas, '' as stock, '' as detalle",false)
 		  ->from('movimientodiario_detalle m');*/
 
-		$data_detalle = $this->db->select("p.id, p.codigo, p.nombre, sum(d.cantidad) as unidades, sum(d.neto) as ventaneta, round(p.p_costo*sum(d.cantidad)) as costo, round((sum(d.neto) - p.p_costo*sum(d.cantidad))) as margen, concat(round((sum(d.neto)/round(p.p_costo*sum(d.cantidad)) - 1)*100,2),' %') as porcmargen",false)
+		$data_detalle = $this->db->select("p.id, p.codigo, p.nombre, sum(d.cantidad) as unidades, sum(d.neto) as ventaneta, round(p.p_costo*sum(d.cantidad)) as costo, round((sum(d.neto) - p.p_costo*sum(d.cantidad))) as margen, concat(round((sum(d.neto)/round(p.p_costo*sum(d.cantidad)) - 1)*100,2),' %') as porcmargen, tf.nombre as familia",false)
 		  ->from('detalle_factura_cliente d')
 		  ->join('factura_clientes f','d.id_factura = f.id')
 		  ->join('productos p','d.id_producto = p.id')
+		  ->join('familias tf','p.id_familia = tf.id')
 		  ->group_by('p.id');
 
 		$data_detalle = is_null($limit) ? $data_detalle : $data_detalle->limit($limit,$start);
 		$data_detalle = $mes != '' ? $data_detalle->where('month(f.fecha_factura)',$mes) : $data_detalle;
 		$data_detalle = $anno != '' ? $data_detalle->where('year(f.fecha_factura)',$anno) : $data_detalle;
+		$data_detalle = $tipo != '' ? $data_detalle->where('f.tipo_documento',$tipo,$tipo2) : $data_detalle;
+		
 
 		$query = $this->db->get();
 		$result = $query->result();

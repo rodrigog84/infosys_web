@@ -573,6 +573,7 @@ public function reporte_estadisticas_ventas($mes,$anno)
             echo "<tr>";
             echo "<td><b>#</b></td>";
             echo "<td><b>Cod. Productos</b></td>";
+            echo "<td><b>Familia</b></td>";
             echo "<td><b>Desc. Producto</b></td>";
             echo "<td><b>Unidades</b></td>";
             echo "<td><b>Venta Neta</b></td>";
@@ -585,6 +586,7 @@ public function reporte_estadisticas_ventas($mes,$anno)
                  echo "<tr>";
                  echo "<td>".$i."</td>";
                  echo "<td>".$detalle_estadistica->codigo."</td>";
+                 echo "<td>".$detalle_estadistica->familia."</td>";
                  echo "<td>".$detalle_estadistica->nombre."</td>";
                  echo "<td>".$detalle_estadistica->unidades."</td>";
                  echo "<td>".number_format($detalle_estadistica->ventaneta,0,".",".")."</td>";
