@@ -1440,7 +1440,7 @@ public function reporte_estadisticas_ventas($mes,$anno)
                 );
             
 
-              }else if($opcion == "PENDIENTES"){
+              }else if($opcion == "GENERAL"){
 
                 
                 $data = array();
