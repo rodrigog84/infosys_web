@@ -3762,14 +3762,16 @@ seleccionarclienteguias4: function(){
        var busca = this.getFacturaguias()
        var nombre = busca.down('#id_cliente').getValue();
        var bodega = busca.down('#bodegaId').getValue();
+       var idsucursal = busca.down('#id_sucursalID').getValue();
+       console.log(idsucursal);
        var opcion = "Id";
-       console.log("llegamos a buscar guias");
        if (nombre){
           var st = this.getGuiasdespachopendientesStore();          
           var edit =  Ext.create('Infosys_web.view.guiasdespacho.BuscarGuias').show();
           edit.down('#clienteId').setValue(nombre);
           st.proxy.extraParams = {nombre : nombre,
                                   opcion : opcion,
+                                  idsucursal : idsucursal,
                                   idbodega : bodega};
           st.load();
        }else {
