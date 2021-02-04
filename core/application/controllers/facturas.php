@@ -38,7 +38,8 @@ class Facturas extends CI_Controller {
         WHERE acc.id_factura = "'.$idfactura.'"');
         
         $anula = array(
-            'estado' => 1            
+            'estado' => 1
+            'id_factura' => 1            
         );
 
         $this->db->where('id', $idfactura);   
