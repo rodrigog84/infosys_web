@@ -139,6 +139,9 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
         ref: 'buscarsucursalesclientesguias3',
         selector: 'buscarsucursalesclientesguias3'
     },{
+        ref: 'buscarsucursalesclientesguias4',
+        selector: 'buscarsucursalesclientesguias4'
+    },{
         ref: 'buscarproductosguiasdirecta',
         selector: 'buscarproductosguiasdirecta'
     },{
@@ -1067,35 +1070,12 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
                         view.down("#tipocondpagoId").setValue(cliente.id_pago)
                         view.down("#direccionId").setValue(cliente.direccion)
                         view.down("#rutId").setValue(rut)  
-                        var condicion = viewIngresa.down('#tipocondpagoId');
-            var fechafactura = viewIngresa.down('#fechafacturaId').getValue();
+                        var condicion = view.down('#tipocondpagoId');
+            var fechafactura = view.down('#fechafacturaId').getValue();
             var stCombo = condicion.getStore();
             var record = stCombo.findRecord('id', condicion.getValue()).data;
             dias = record.dias;
             var bolEnable = false;
-            if (row.data.id_pago == 1){
-
-                viewIngresa.down('#DescuentoproId').setDisabled(bolEnable);
-                viewIngresa.down('#tipoDescuentoId').setDisabled(bolEnable);
-                viewIngresa.down('#descuentovalorId').setDisabled(bolEnable);
-                
-            };
-            if (row.data.id_pago == 6){
-
-                 viewIngresa.down('#DescuentoproId').setDisabled(bolEnable);
-                 viewIngresa.down('#tipoDescuentoId').setDisabled(bolEnable);
-                 viewIngresa.down('#descuentovalorId').setDisabled(bolEnable);
-                
-            };
-            if (row.data.id_pago == 7){
-
-                 view.down('#DescuentoproId').setDisabled(bolEnable);
-                 view.down('#tipoDescuentoId').setDisabled(bolEnable);
-                 view.down('#descuentovalorId').setDisabled(bolEnable);
-                
-            };          
-            
-
             if (dias > 0){
         
             Ext.Ajax.request({
@@ -1107,7 +1087,7 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
                 success: function(response){
                    var resp = Ext.JSON.decode(response.responseText);
                    var fecha_final= resp.fecha_final;
-                   viewIngresa.down("#fechavencId").setValue(fecha_final);                               
+                   view.down("#fechavencId").setValue(fecha_final);                               
             }
            
         });
