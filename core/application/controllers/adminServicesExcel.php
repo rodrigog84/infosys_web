@@ -3404,7 +3404,7 @@ public function reporte_estadisticas_ventas($mes,$anno)
             left join clientes c on (acc.id_cliente = c.id)
             left join vendedores v on (acc.id_vendedor = v.id)
             left join tipo_documento td on (acc.tipo_documento = td.id)
-            WHERE acc.id_cliente='.$id.' and acc.fecha_factura between "'.$fecha3.'" AND "'.$fecha4.'"
+            WHERE acc.tipo_documento=101 and acc.id_cliente='.$id.' and acc.fecha_factura between "'.$fecha3.'" AND "'.$fecha4.'"
             order by acc.fecha_factura');
 
             $dato = $query2->result_array();
