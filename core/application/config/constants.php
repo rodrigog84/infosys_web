@@ -41,6 +41,11 @@ define('PATH_FILES',  'http://localhost/Infosys_web/core/');
 define('NOMBRE_EMPRESA',		'INFOSYS');
 
 
+define('TURBOSMTP_USER',		'rgonzalez@tugastocomun.cl');
+define('TURBOSMTP_PASS',		'S5mbPgpL');
+define('ENVIO_MAIL',		TRUE);
+
+
 
 /* End of file constants.php */
 /* Location: ./application/config/constants.php */

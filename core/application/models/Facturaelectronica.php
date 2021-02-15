@@ -695,51 +695,26 @@ public function consumo_folios_no_enviada(){
 
 	        //$messageBody .= '<a href="'. base_url() .'facturas/exportFePDF_mail/'.$track_id.'" >Ver Factura</a><br><br>';
 
-	        $messageBody .= 'Este correo adjunta Documentos Tributarios Electrónicos (DTE) para el receptor electrónico indicado. Por favor responda con un acuse de recibo (RespuestaDTE) conforme al modelo de intercambio de Factura Electrónica del SII.<br><br>';
-	        $messageBody .= 'Facturación Electrónica Infosys SPA.';
+	        $messageBody .= 'Este correo adjunta Documentos Tributarios Electrónicos (DTE) para el receptor electrónico indicado.<br><br>';
+	        $messageBody .= 'Facturación Electrónica Arnou SPA.';
 
 
 	        $email_data = $this->facturaelectronica->get_email();
-		    if(count($email_data) > 0 && !is_null($datos_empresa_factura->e_mail)){ //MAIL SE ENVÍA SÓLO EN CASO QUE TENGAMOS REGISTRADOS EMAIL DE ORIGEN Y DESTINO
-		    	$this->load->library('email');
-				$config['protocol']    = $email_data->tserver_intercambio;
-				$config['smtp_host']    = $email_data->host_intercambio;
-				$config['smtp_port']    = $email_data->port_intercambio;
-				$config['smtp_timeout'] = '7';
-				$config['smtp_user']    = $email_data->email_intercambio;
-				$config['smtp_pass']    = $email_data->pass_intercambio;
-				$config['charset']    = 'utf-8';
-				$config['newline']    = "\r\n";
-				$config['mailtype'] = 'html'; // or html
-				$config['validation'] = TRUE; // bool whether to validate email or not      			
+		    //if(count($email_data) > 0 && !is_null($datos_empresa_factura->e_mail)){ //MAIL SE ENVÍA SÓLO EN CASO QUE TENGAMOS REGISTRADOS EMAIL DE ORIGEN Y DESTINO
+	        if(!is_null($datos_empresa_factura->e_mail)){ //MAIL SE ENVÍA SÓLO EN CASO QUE TENGAMOS REGISTRADOS EMAIL DE ORIGEN Y DESTINO
+				$array_email = array($datos_empresa_factura->e_mail);
+				$subject = 'Envio de DTE ' .$track_id . '_'.$empresa->rut.'-'.$empresa->dv."_".substr($datos_empresa_factura->rut_cliente,0,strlen($datos_empresa_factura->rut_cliente) - 1)."-".substr($datos_empresa_factura->rut_cliente,-1);
+
+				$ruta =  $factura->archivo_dte_cliente != '' ? 'dte_cliente' : 'dte';
+				$attachments = './facturacion_electronica/' . $ruta .'/'.$path.$nombre_dte;
+
+				$this->facturaelectronica->envia_mail('enviodte@arnou.cl',$array_email,$subject,$messageBody,'html','Arnou Envio DTE',$attachments);
 
 
-		        $this->email->initialize($config);		  		
-				
-			    $this->email->from($email_data->email_intercambio, 'Factura Electrónica '. NOMBRE_EMPRESA);
-			    $this->email->to($datos_empresa_factura->e_mail);
-
-			    #$this->email->bcc(array('rodrigo.gonzalez@info-sys.cl','cesar.moraga@info-sys.cl','sergio.arriagada@info-sys.cl','rene.gonzalez@info-sys.cl')); 
-			    $this->email->subject('Envio de DTE ' .$track_id . '_'.$empresa->rut.'-'.$empresa->dv."_".substr($datos_empresa_factura->rut_cliente,0,strlen($datos_empresa_factura->rut_cliente) - 1)."-".substr($datos_empresa_factura->rut_cliente,-1));
-			    $this->email->message($messageBody);
 
 			    //$this->email->attach('./facturacion_electronica/dte/'.$path.$nombre_dte);
-				$ruta =  $factura->archivo_dte_cliente != '' ? 'dte_cliente' : 'dte';
- 			    $this->email->attach('./facturacion_electronica/' . $ruta .'/'.$path.$nombre_dte);	
-
-
-			    try {
-			      $this->email->send();
-			      //var_dump($this->email->print_debugger());
-			      	        //exit;
-			    } catch (Exception $e) {
-			      echo $e->getMessage() . '<br />';
-			      echo $e->getCode() . '<br />';
-			      echo $e->getFile() . '<br />';
-			      echo $e->getTraceAsString() . '<br />';
-			      echo "no";
-
-			    }
+				
+ 			   // $this->email->attach('./facturacion_electronica/' . $ruta .'/'.$path.$nombre_dte);	
 			    return true;
 
 			}else{
@@ -952,7 +927,7 @@ public function consumo_folios_no_enviada(){
 
 			if($track_id != 0 && $datos_empresa_factura->e_mail != ''){ //existe track id, se envía correo
 				$this->envio_mail_dte($idfactura);
-			}
+			}			
 
 		}
 
@@ -1017,5 +992,98 @@ public function consumo_folios_no_enviada(){
 		$this->db->trans_complete(); 		
 
 	}	
+
+
+	public function ruta_turbosmtp(){
+		$base_path = __DIR__;
+		$base_path = str_replace("\\", "/", $base_path);
+		$path = $base_path . "/../libraries/TurboApiClient.php";		
+		return $path;
+	}
+
+
+
+	public function envia_mail($from,$toList,$subject,$content,$type,$alias = "Arnou Envio DTE",$attachments = null){
+    	if(ENVIO_MAIL){
+    		include_once $this->ruta_turbosmtp();
+    		$toList = array('rodrigog.84@gmail.com');
+    		if(is_array($toList)){
+    			//array_push($toList,'rodrigog.84@gmail.com');
+    			$toList = array_unique($toList);
+		        foreach ($toList as $destiny) {
+
+			        $email = new Email();
+			        $email->setFrom($alias. " <" . $from . ">");
+			        $email->setToList($destiny);
+			        //$email->setCcList("dd@domain.com,ee@domain.com");
+			        //$email->setBccList("ffi@domain.com,rr@domain.com");   
+			        $email->setSubject($subject);
+			        //$email->setContent("content");
+
+			        if($type == 'html'){
+			        	$email->setHtmlContent($content);	
+			        }else{
+			        	$email->setContent($content);	
+			        }
+			        
+			        $email->addCustomHeader('X-FirstHeader', "value");
+			        $email->addCustomHeader('X-SecondHeader', "value");
+			        $email->addCustomHeader('X-Header-da-rimuovere', 'value');
+			        $email->removeCustomHeader('X-Header-da-rimuovere');
+
+			        if(!isnull($attachments)){
+			        		$email->addAttachment($attachments);
+			        }
+			        
+
+			        $turboApiClient = new TurboApiClient(TURBOSMTP_USER,TURBOSMTP_PASS);
+			        //var_dump($turboApiClient);
+			       // $response = $turboApiClient->sendEmail($email);
+			        //var_dump($response);
+					try {
+					    $response = $turboApiClient->sendEmail($email);
+					} catch (Exception $e) {
+					    echo "";
+					}		        
+				}    			
+    		}else{
+
+
+		        $email = new Email();
+		        $email->setFrom("Tu Gasto Común <" . $from . ">");
+		        $email->setToList($toList);
+		        //$email->setCcList("dd@domain.com,ee@domain.com");
+		        //$email->setBccList("ffi@domain.com,rr@domain.com");   
+		        $email->setSubject($subject);
+		        //$email->setContent("content");
+
+		        if($type == 'html'){
+		        	$email->setHtmlContent($content);	
+		        }else{
+		        	$email->setContent($content);	
+		        }
+		        
+		        $email->addCustomHeader('X-FirstHeader', "value");
+		        $email->addCustomHeader('X-SecondHeader', "value");
+		        $email->addCustomHeader('X-Header-da-rimuovere', 'value');
+		        $email->removeCustomHeader('X-Header-da-rimuovere');
+
+		        $turboApiClient = new TurboApiClient(TURBOSMTP_USER,TURBOSMTP_PASS);
+		        //var_dump($turboApiClient);
+		        $response = $turboApiClient->sendEmail($email);
+		        //var_dump($response);
+				try {
+				    $response = $turboApiClient->sendEmail($email);
+				} catch (Exception $e) {
+				    echo "";
+				}
+
+    		}
+
+	        
+
+	        
+	    }
+    }	
 
 }
