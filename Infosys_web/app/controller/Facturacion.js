@@ -1218,6 +1218,10 @@ Ext.define('Infosys_web.controller.Facturacion', {
                 //window.open(preurl +'facturas/exportTXT/?idfactura=' + row.data.id)
                 window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id)
             };
+            if (row.data.forma==1 && row.data.id_tip_docu ==105){
+            //window.open(preurl +'facturas/exportTXTGDGLO/?idfactura=' + row.data.id)
+               window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id)
+            };
             if (row.data.forma==0 && (row.data.id_tip_docu ==101 || row.data.id_tip_docu ==107)){
                 //window.open(preurl +'facturas/exportTXT/?idfactura=' + row.data.id)
                 window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id)
@@ -1226,7 +1230,17 @@ Ext.define('Infosys_web.controller.Facturacion', {
             //window.open(preurl +'facturas/exportTXTGD/?idfactura=' + row.data.id)
                window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id) 
             };
+            
             if (row.data.forma==1 && row.data.id_tip_docu ==103){
+            //window.open(preurl +'facturas/exportTXTGDGLO/?idfactura=' + row.data.id)
+               window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id)
+            };
+            if (row.data.forma==0 && row.data.id_tip_docu ==120){
+            //window.open(preurl +'facturas/exportTXTGD/?idfactura=' + row.data.id)
+               window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id) 
+            };
+            
+            if (row.data.forma==1 && row.data.id_tip_docu ==120){
             //window.open(preurl +'facturas/exportTXTGDGLO/?idfactura=' + row.data.id)
                window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id)
             };

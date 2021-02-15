@@ -963,6 +963,7 @@ class Guias extends CI_Controller {
         $limit = $this->input->get('limit');
         $opcion = $this->input->get('opcion');
         $nombres = $this->input->get('nombre');
+        $idsucursal = $this->input->get('idsucursal');
         $idcliente = $this->input->get('idcliente');
         $tipo = 105;
         $bodega = $this->input->get('idbodega');
@@ -976,140 +977,280 @@ class Guias extends CI_Controller {
               $bodega=1;
         }
 
+        if (!$idsucursal){
+
+            if($opcion == "Rut"){
+            
+                  $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
+                  left join clientes c on (acc.id_cliente = c.id)
+                  left join vendedores v on (acc.id_vendedor = v.id)
+                  WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.forma = 0 and cc.tipo_documento in ('.$tipo.') and c.rut = '.$nombres.'
+                  and acc.id_factura = 0
+                  order by acc.id desc          
+                  limit '.$start.', '.$limit.''        
+
+            );
+
+            $total = 0;
+
+              foreach ($query->result() as $row)
+                  {
+                        $total = $total +1;
+                  
+                  }
+
+                  $countAll = $total;
+
+          }if($opcion == "Numero"){
+            
+                  $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
+                  left join clientes c on (acc.id_cliente = c.id)
+                  left join vendedores v on (acc.id_vendedor = v.id)
+                  WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.forma = 0 and acc.tipo_documento in ('.$tipo.') and acc.num_factura = '.$nombres.'
+                  and acc.id_factura = 0'        
+
+            );
+
+            $total = 0;
+
+              foreach ($query->result() as $row)
+                  {
+                        $total = $total +1;
+                  
+                  }
+
+                  $countAll = $total;
+
+          }else if($opcion == "Nombre"){
+
+            
+                  $sql_nombre = "";
+              $arrayNombre =  explode(" ",$nombres);
+
+              foreach ($arrayNombre as $nombre) {
+                  $sql_nombre .= "and c.nombres like '%".$nombre."%' ";
+              }
+                        
+                  $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
+                  left join clientes c on (acc.id_cliente = c.id)
+                  left join vendedores v on (acc.id_vendedor = v.id)
+                  WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.forma = 0 and acc.tipo_documento in ( '.$tipo.') ' . $sql_nombre . '
+                  and acc.id_factura = 0
+                  order by acc.id desc          
+                  limit '.$start.', '.$limit.''
+                                    
+                  );
+
+                  $total = 0;
+
+              foreach ($query->result() as $row)
+                  {
+                        $total = $total +1;
+                  
+                  }
+
+                  $countAll = $total;
+       
+            }else if($opcion == "Id"){
+                  
+                  $data = array();
+                  $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
+                  left join clientes c on (acc.id_cliente = c.id)
+                  left join vendedores v on (acc.id_vendedor = v.id)
+                  WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.forma = 0 and acc.tipo_documento in ('.$tipo.') and acc.id_cliente = '.$nombres.' and acc.id_sucursal = 0 and acc.id_factura = 0
+                  order by acc.id desc'
+                  );
+
+                  $total = 0;
+
+              foreach ($query->result() as $row)
+                  {
+                        $total = $total +1;
+                  
+                  }
+
+                  $countAll = $total;
+      
+
+            }else if($opcion == "Todos"){
+
+                  
+                  $data = array();
+                  $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
+                  left join clientes c on (acc.id_cliente = c.id)
+                  left join vendedores v on (acc.id_vendedor = v.id)
+                  WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.forma = 0 and acc.tipo_documento in ( '.$tipo.') and acc.id_factura = 0
+                  order by acc.id desc'   
+                  
+                  );
+
+
+                  $total = 0;
+
+              foreach ($query->result() as $row)
+                  {
+                        $total = $total +1;
+                  
+                  }
+
+                  $countAll = $total;
+      
+
+            }else{
+
+                  
+            $data = array();
+            $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
+                  left join clientes c on (acc.id_cliente = c.id)
+                  left join vendedores v on (acc.id_vendedor = v.id)
+                  WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.forma = 0 and acc.tipo_documento in ( '.$tipo.') and acc.id_factura = 0
+                  order by acc.id desc          
+                  limit '.$start.', '.$limit.'' 
+
+                  );
+
+
+            }
+              
+        }else{
+
+            if($opcion == "Rut"){
+            
+                  $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
+                  left join clientes c on (acc.id_cliente = c.id)
+                  left join vendedores v on (acc.id_vendedor = v.id)
+                  WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.forma = 0 and cc.tipo_documento in ('.$tipo.') and c.rut = '.$nombres.'
+                  and acc.id_factura = 0
+                  order by acc.id desc          
+                  limit '.$start.', '.$limit.''        
+
+            );
+
+            $total = 0;
+
+              foreach ($query->result() as $row)
+                  {
+                        $total = $total +1;
+                  
+                  }
+
+                  $countAll = $total;
+
+          }if($opcion == "Numero"){
+            
+                  $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
+                  left join clientes c on (acc.id_cliente = c.id)
+                  left join vendedores v on (acc.id_vendedor = v.id)
+                  WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.forma = 0 and acc.tipo_documento in ('.$tipo.') and acc.num_factura = '.$nombres.'
+                  and acc.id_factura = 0'        
+
+            );
+
+            $total = 0;
+
+              foreach ($query->result() as $row)
+                  {
+                        $total = $total +1;
+                  
+                  }
+
+                  $countAll = $total;
+
+          }else if($opcion == "Nombre"){
+
+            
+                  $sql_nombre = "";
+              $arrayNombre =  explode(" ",$nombres);
+
+              foreach ($arrayNombre as $nombre) {
+                  $sql_nombre .= "and c.nombres like '%".$nombre."%' ";
+              }
+                        
+                  $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
+                  left join clientes c on (acc.id_cliente = c.id)
+                  left join vendedores v on (acc.id_vendedor = v.id)
+                  WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.forma = 0 and acc.tipo_documento in ( '.$tipo.') ' . $sql_nombre . '
+                  and acc.id_factura = 0
+                  order by acc.id desc          
+                  limit '.$start.', '.$limit.''
+                                    
+                  );
+
+                  $total = 0;
+
+              foreach ($query->result() as $row)
+                  {
+                        $total = $total +1;
+                  
+                  }
+
+                  $countAll = $total;
+       
+            }else if($opcion == "Id"){
+                  
+                  $data = array();
+                  $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
+                  left join clientes c on (acc.id_cliente = c.id)
+                  left join vendedores v on (acc.id_vendedor = v.id)
+                  WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.forma = 0 and acc.tipo_documento in ('.$tipo.') and acc.id_cliente = '.$nombres.' and acc.id_sucursal = '.$idsucursal.' and acc.id_factura = 0
+                  order by acc.id desc'
+                  );
+
+                  $total = 0;
+
+              foreach ($query->result() as $row)
+                  {
+                        $total = $total +1;
+                  
+                  }
+
+                  $countAll = $total;
+      
+
+            }else if($opcion == "Todos"){
+
+                  
+                  $data = array();
+                  $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
+                  left join clientes c on (acc.id_cliente = c.id)
+                  left join vendedores v on (acc.id_vendedor = v.id)
+                  WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.forma = 0 and acc.tipo_documento in ( '.$tipo.') and acc.id_factura = 0
+                  order by acc.id desc'   
+                  
+                  );
+
+
+                  $total = 0;
+
+              foreach ($query->result() as $row)
+                  {
+                        $total = $total +1;
+                  
+                  }
+
+                  $countAll = $total;
+      
+
+            }else{
+
+                  
+            $data = array();
+            $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
+                  left join clientes c on (acc.id_cliente = c.id)
+                  left join vendedores v on (acc.id_vendedor = v.id)
+                  WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.forma = 0 and acc.tipo_documento in ( '.$tipo.') and acc.id_factura = 0
+                  order by acc.id desc          
+                  limit '.$start.', '.$limit.'' 
+
+                  );
+
+
+            }
+              
+        };
+
      
-        if($opcion == "Rut"){
-		
-			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
-			left join clientes c on (acc.id_cliente = c.id)
-			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.forma = 0 and cc.tipo_documento in ('.$tipo.') and c.rut = '.$nombres.'
-			and acc.id_factura = 0
-			order by acc.id desc		
-			limit '.$start.', '.$limit.''		 
-
-		);
-
-		$total = 0;
-
-		  foreach ($query->result() as $row)
-			{
-				$total = $total +1;
-			
-			}
-
-			$countAll = $total;
-
-	    }if($opcion == "Numero"){
-		
-			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
-			left join clientes c on (acc.id_cliente = c.id)
-			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.forma = 0 and acc.tipo_documento in ('.$tipo.') and acc.num_factura = '.$nombres.'
-			and acc.id_factura = 0'		 
-
-		);
-
-		$total = 0;
-
-		  foreach ($query->result() as $row)
-			{
-				$total = $total +1;
-			
-			}
-
-			$countAll = $total;
-
-	    }else if($opcion == "Nombre"){
-
-	    	
-			$sql_nombre = "";
-	        $arrayNombre =  explode(" ",$nombres);
-
-	        foreach ($arrayNombre as $nombre) {
-	        	$sql_nombre .= "and c.nombres like '%".$nombre."%' ";
-	        }
-	        	    	
-			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
-			left join clientes c on (acc.id_cliente = c.id)
-			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.forma = 0 and acc.tipo_documento in ( '.$tipo.') ' . $sql_nombre . '
-			and acc.id_factura = 0
-			order by acc.id desc		
-			limit '.$start.', '.$limit.''
-						
-			);
-
-			$total = 0;
-
-		  foreach ($query->result() as $row)
-			{
-				$total = $total +1;
-			
-			}
-
-			$countAll = $total;
-	 
-		}else if($opcion == "Id"){
-			
-			$data = array();
-			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
-			left join clientes c on (acc.id_cliente = c.id)
-			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.forma = 0 and acc.tipo_documento in ('.$tipo.') and acc.id_cliente = '.$nombres.'
-			and acc.id_factura = 0
-			order by acc.id desc'
-			);
-
-			$total = 0;
-
-		  foreach ($query->result() as $row)
-			{
-				$total = $total +1;
-			
-			}
-
-			$countAll = $total;
-	
-
-		}else if($opcion == "Todos"){
-
-			
-			$data = array();
-			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
-			left join clientes c on (acc.id_cliente = c.id)
-			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.forma = 0 and acc.tipo_documento in ( '.$tipo.') and acc.id_factura = 0
-			order by acc.id desc'	
-			
-			);
-
-
-			$total = 0;
-
-		  foreach ($query->result() as $row)
-			{
-				$total = $total +1;
-			
-			}
-
-			$countAll = $total;
-	
-
-		}else{
-
-			
-		$data = array();
-		$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
-			left join clientes c on (acc.id_cliente = c.id)
-			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.forma = 0 and acc.tipo_documento in ( '.$tipo.') and acc.id_factura = 0
-			order by acc.id desc		
-			limit '.$start.', '.$limit.''	
-
-			);
-
-
-		}
+       
 		
 		
 		foreach ($query->result() as $row)

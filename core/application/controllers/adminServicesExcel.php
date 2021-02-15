@@ -1440,14 +1440,14 @@ public function reporte_estadisticas_ventas($mes,$anno)
                 );
             
 
-              }else if($opcion == "PENDIENTES"){
+              }else if($opcion == "GENERAL"){
 
                 
                 $data = array();
                 $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor  FROM factura_clientes acc
                 left join clientes c on (acc.id_cliente = c.id)
                 left join vendedores v on (acc.id_vendedor = v.id)
-                WHERE acc.id_factura = 0 and acc.tipo_documento in ( '.$tipo.') and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
+                WHERE acc.estado=0 and acc.id_factura = 0 and acc.tipo_documento in ( '.$tipo.') and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
                 order by acc.id desc' 
                 
                 );
@@ -1850,7 +1850,13 @@ public function reporte_estadisticas_ventas($mes,$anno)
             $fecha2 = $this->input->get('fecha2');
             list($dia, $mes, $anio) = explode("/",$fecha2);
             $fecha4 = $anio ."-". $mes ."-". $dia;
-            $tipo = 3;
+            $tipo = 105;
+            $otros = 0;
+            $nulas = 0;
+            $vigentes = 0;
+            $totalafecto = 0;
+            $totaliva = 0;
+            $totalboleta = 0;
             $data = array();
                                    
             $this->load->database();
@@ -1891,19 +1897,57 @@ public function reporte_estadisticas_ventas($mes,$anno)
                 echo "<tr>";
               
               foreach($users as $v){
-                echo "<tr>";
+                $total = $v['totalfactura'];
+                $sub_total=$v['sub_total'];
+                $descuento=$v['descuento'];
+                $neto = round(($total / 1.19), 0);
+                $iva = ($total - $neto);
+                $totalafecto = $totalafecto + $neto;
+                $totaliva = $totaliva + $iva;
+                $totalboleta = $totalboleta + $total;
+                $vigentes = $vigentes + 1;
+                if ($v['estado']== 1){
+                  $totalafecto = $totalafecto - $neto;
+                  $neto = "DOCUMENTO NULO";
+                  $sub_total="";
+                  $descuento="";
+                  $totaliva = $totaliva - $iva;
+                  $totalboleta = $totalboleta - $total;
+                  $iva = "";
+                  $total= "";
+                  $nulas = $nulas + 1;
+                  $vigentes = $vigentes - 1;
+                };
+                   echo "<tr>";
                    echo "<td>".$v['num_factura']."</td>";
                    echo "<td>".$v['fecha_factura']."</td>";
                    echo "<td>".$v['fecha_venc']."</td>";
                    echo "<td>".$v['rut_cliente']."</td>";
-                   echo "<td>".$v['nombre_cliente']."</td>";
-                   echo "<td>".$v['sub_total']."</td>";
-                   echo "<td>".$v['descuento']."</td>";
-                   echo "<td>".$v['neto']."</td>";
-                   echo "<td>".$v['iva']."</td>";
-                   echo "<td>".$v['totalfactura']."</td>";
+                   echo "<td>".$v['nombre_cliente']."</td>";                  
+                   echo "<td>".$sub_total."</td>";
+                   echo "<td>".$descuento."</td>";
+                   echo "<td>".$neto."</td>";
+                   echo "<td>".$iva."</td>";
+                   echo "<td>".$total."</td>";                     
+                   
                 echo "</tr>";
             }
+               echo "<tr>";
+                echo "<td>VIGENTES</td>";
+                echo "<td>NULAS</td>";
+                echo "<td>TOTAL AFECTO</td>";
+                echo "<td>IMPUESTO IVA</td>";
+                echo "<td>OTROS IMP.</td>";
+                echo "<td>TOTAL GUIAS</td>";
+                echo "<tr>";
+                echo "<tr>";
+                   echo "<td>".$vigentes."</td>";
+                   echo "<td>".$nulas."</td>";
+                   echo "<td>".$totalafecto."</td>";
+                   echo "<td>".$totaliva."</td>";
+                   echo "<td>".$otros."</td>";
+                   echo "<td>".$totalboleta."</td>";
+                echo "</tr>";
             echo '</table>';
         }
 
@@ -3360,7 +3404,7 @@ public function reporte_estadisticas_ventas($mes,$anno)
             left join clientes c on (acc.id_cliente = c.id)
             left join vendedores v on (acc.id_vendedor = v.id)
             left join tipo_documento td on (acc.tipo_documento = td.id)
-            WHERE acc.id_cliente='.$id.' and acc.fecha_factura between "'.$fecha3.'" AND "'.$fecha4.'"
+            WHERE acc.tipo_documento=101 and acc.id_cliente='.$id.' and acc.fecha_factura between "'.$fecha3.'" AND "'.$fecha4.'"
             order by acc.fecha_factura');
 
             $dato = $query2->result_array();

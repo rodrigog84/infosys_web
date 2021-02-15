@@ -23,8 +23,7 @@ class Facturaglosa extends CI_Controller {
 		$ordencompra = $this->input->post('ordencompra');
 		$idobserva = $this->input->post('idobserva');
 		$idcondventa = $this->input->post('idcondventa');
-
-		
+		$idsucursal = $this->input->post('idsucursal');		
 		$items = json_decode($this->input->post('items'));
 		$neto = $this->input->post('netofactura');
 		$fiva = $this->input->post('ivafactura');
@@ -70,6 +69,7 @@ class Facturaglosa extends CI_Controller {
 	        'id_vendedor' => $vendedor,
 	        'sub_total' => $fafecto,
 	        'id_cond_venta' => $idcondventa,
+	        'id_sucursal' => $idsucursal,
 	        'neto' => $neto,
 	        'iva' => $fiva,
 	        'totalfactura' => $ftotal,
