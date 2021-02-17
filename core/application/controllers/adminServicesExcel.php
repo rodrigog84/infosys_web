@@ -1401,9 +1401,10 @@ public function reporte_estadisticas_ventas($mes,$anno)
             
             if($opcion == "Rut"){
     
-                $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor  FROM factura_clientes acc
+                $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, s.direccion as direccion_sucursal, c.direccion as direccion FROM factura_clientes acc
                 left join clientes c on (acc.id_cliente = c.id)
                 left join vendedores v on (acc.id_vendedor = v.id)
+                left join clientes_sucursales s on (acc.id_sucursal = s.id)
                 WHERE acc.tipo_documento in ( '.$tipo.') and c.rut = '.$nombres.' and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
                 order by acc.id desc'    
 
@@ -1419,9 +1420,10 @@ public function reporte_estadisticas_ventas($mes,$anno)
                       $sql_nombre .= "and c.nombres like '%".$nombre."%' ";
                     }
                             
-                $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor  FROM factura_clientes acc
+                $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, s.direccion as direccion_sucursal, c.direccion as direccion FROM factura_clientes acc
                 left join clientes c on (acc.id_cliente = c.id)
                 left join vendedores v on (acc.id_vendedor = v.id)
+                left join clientes_sucursales s on (acc.id_sucursal = s.id)
                 WHERE acc.tipo_documento in ( '.$tipo.') ' . $sql_nombre . ' and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'" 
                 order by acc.id desc' 
                 
@@ -1431,9 +1433,10 @@ public function reporte_estadisticas_ventas($mes,$anno)
 
                 
                 $data = array();
-                $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor  FROM factura_clientes acc
+                $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, s.direccion as direccion_sucursal, c.direccion as direccion FROM factura_clientes acc
                 left join clientes c on (acc.id_cliente = c.id)
                 left join vendedores v on (acc.id_vendedor = v.id)
+                left join clientes_sucursales s on (acc.id_sucursal = s.id)
                 WHERE acc.tipo_documento in ( '.$tipo.') and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
                 order by acc.id desc' 
                 
@@ -1444,9 +1447,10 @@ public function reporte_estadisticas_ventas($mes,$anno)
 
                 
                 $data = array();
-                $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor  FROM factura_clientes acc
+                $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, s.direccion as direccion_sucursal, c.direccion as direccion FROM factura_clientes acc
                 left join clientes c on (acc.id_cliente = c.id)
                 left join vendedores v on (acc.id_vendedor = v.id)
+                left join clientes_sucursales s on (acc.id_sucursal = s.id)
                 WHERE acc.estado=0 and acc.id_factura = 0 and acc.tipo_documento in ( '.$tipo.') and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
                 order by acc.id desc' 
                 
@@ -1457,9 +1461,10 @@ public function reporte_estadisticas_ventas($mes,$anno)
 
                 
               $data = array();
-              $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor  FROM factura_clientes acc
+              $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, s.direccion as direccion_sucursal, c.direccion as direccion FROM factura_clientes acc
                 left join clientes c on (acc.id_cliente = c.id)
                 left join vendedores v on (acc.id_vendedor = v.id)
+                left join clientes_sucursales s on (acc.id_sucursal = s.id)
                 WHERE acc.tipo_documento = '.$tipo.' and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
                 order by acc.id desc' 
 
@@ -1471,73 +1476,65 @@ public function reporte_estadisticas_ventas($mes,$anno)
             };            
              
             $users = $query->result_array();
-            
+
+          
             echo '<table>';
             echo "<td></td>";
             echo "<td>LIBRO DE GUIAS</td>";
             echo "<td>DESPACHO</td>";
             echo "<tr>";
-                if (in_array("id", $columnas)):
-                     echo "<td>ID</td>";
-                endif;
-                if (in_array("num_factura", $columnas)):
-                    echo "<td>NUMERO</td>";
-                endif;
-                if (in_array("fecha_factura", $columnas)):
-                     echo "<td>FECHA</td>";
-                endif;
-                if (in_array("fecha_venc", $columnas)):
-                     echo "<td>VENCIMIENTO</td>";
-                endif;
-                if (in_array("rut_cliente", $columnas)) :
-                    echo "<td>RUT</td>";
-                endif;
-                if (in_array("nombre_cliente", $columnas)) :
-                    echo "<td>NOMBRE</td>";
-                endif;
-                if (in_array("nom_vendedor", $columnas)) :
-                    echo "<td>VENDEDOR</td>";
-                endif;
-                if (in_array("sub_total", $columnas)) :
-                    echo "<td>AFECTO</td>";
-                endif;
-                if (in_array("descuento", $columnas)) :
-                    echo "<td>DESCUENTO</td>";
-                endif;
-                if (in_array("neto", $columnas)) :
-                    echo "<td>NETO</td>";
-                endif;
-                 if (in_array("iva", $columnas)) :
-                    echo "<td>IVA</td>";
-                endif;
-                if (in_array("totalfactura", $columnas)) :
-                    echo "<td>TOTAL</td>";
-                endif;
-
-                echo "<tr>";
+               echo "<td>NUMERO</td>";
+               echo "<td>FECHA</td>";
+               echo "<td>VENCIMIENTO</td>";
+               echo "<td>RUT</td>";
+               echo "<td>NOMBRE</td>";
+               echo "<td>DIRECCION</td>";
+               if (in_array("nom_vendedor", $columnas)) :
+                      echo "<td>VENDEDOR</td>";
+               endif;
+               if (in_array("sub_total", $columnas)) :
+                      echo "<td>AFECTO</td>";
+                  endif;
+              if (in_array("descuento", $columnas)) :
+                  echo "<td>DESCUENTO</td>";
+              endif;
+              if (in_array("neto", $columnas)) :
+                      echo "<td>NETO</td>";
+                  endif;
+                  if (in_array("iva", $columnas)) :
+                      echo "<td>IVA</td>";
+                  endif;
+                  if (in_array("totalfactura", $columnas)) :
+                      echo "<td>TOTAL</td>";
+                  endif;
+              
+              echo "<tr>";
               
               foreach($users as $v){
+
+                   if ($v['id_sucursal']==0){
+                      $direccion=$v['direccion'];
+                  }else{
+                      $direccion=$v['direccion_sucursal'];                    
+                  }
+
+                   if ($v['forma']==1){
+                      $tipo="GLOSA";
+                  }else{
+                       $tipo="PRODUCTO";                    
+                  }
+            
 
                  echo "<tr>";
                    if (in_array("id", $columnas)) :
                       echo "<td>".$v['id']."</td>";
-                   endif;
-                    
-                   if (in_array("num_factura", $columnas)) :
-                      echo "<td>".$v['num_factura']."</td>";
-                   endif;
-                   if (in_array("fecha_factura", $columnas)) :
-                      echo "<td>".$v['fecha_factura']."</td>";
-                   endif;
-                   if (in_array("fecha_venc", $columnas)) :
-                      echo "<td>".$v['fecha_venc']."</td>";
-                   endif;
-                   if (in_array("rut_cliente", $columnas)) :
-                      echo "<td>".$v['rut_cliente']."</td>";
-                   endif;
-                  if (in_array("nombre_cliente", $columnas)) :
-                      echo "<td>".$v['nombre_cliente']."</td>";
-                  endif;
+                   endif;                    
+                   echo "<td>".$v['num_factura']."</td>";
+                   echo "<td>".$v['fecha_factura']."</td>";
+                   echo "<td>".$v['fecha_venc']."</td>";
+                   echo "<td>".$v['rut_cliente']."</td>";
+                   echo "<td>".$v['nombre_cliente']."</td>";
+                   echo "<td>".$direccion."</td>";
                   if (in_array("nom_vendedor", $columnas)) :
                       echo "<td>".$v['nom_vendedor']."</td>";
                   endif;
@@ -1556,6 +1553,8 @@ public function reporte_estadisticas_ventas($mes,$anno)
                   if (in_array("totalfactura", $columnas)) :
                       echo "<td>".$v['totalfactura']."</td>";
                   endif;
+                  echo "<td>".$tipo."</td>";
+                
                   //echo "<tr>";
             }
             echo '</table>';
