@@ -679,6 +679,7 @@ public function consumo_folios_no_enviada(){
 			$path = $factura->path_dte;
 
 			$nombre_dte = $factura->archivo_dte_cliente != '' ? $factura->archivo_dte_cliente : $factura->archivo_dte;
+			$nombre_pdf = $factura->pdf;
 			//$nombre_dte = $factura->archivo_dte;
 
 			$empresa = $this->get_empresa();
@@ -700,14 +701,14 @@ public function consumo_folios_no_enviada(){
 
 
 	        $email_data = $this->facturaelectronica->get_email();
-		    //if(count($email_data) > 0 && !is_null($datos_empresa_factura->e_mail)){ //MAIL SE ENVÍA SÓLO EN CASO QUE TENGAMOS REGISTRADOS EMAIL DE ORIGEN Y DESTINO
+		    //if(count($email_data) > 0 && !is_null($datos_empresa_factura->e_mail)){ //MAIL SE ENVÍA SÓLO EN CASO QUE TENGAMOS REGISTRADOS EMAIL DE ORIGEN Y DESTINOi
+		$datos_empresa_factura->e_mail = 'rodrigog.84@gmail.com';
 	        if(!is_null($datos_empresa_factura->e_mail)){ //MAIL SE ENVÍA SÓLO EN CASO QUE TENGAMOS REGISTRADOS EMAIL DE ORIGEN Y DESTINO
 				$array_email = array($datos_empresa_factura->e_mail);
 				$subject = 'Envio de DTE ' .$track_id . '_'.$empresa->rut.'-'.$empresa->dv."_".substr($datos_empresa_factura->rut_cliente,0,strlen($datos_empresa_factura->rut_cliente) - 1)."-".substr($datos_empresa_factura->rut_cliente,-1);
 
 				$ruta =  $factura->archivo_dte_cliente != '' ? 'dte_cliente' : 'dte';
-				$attachments = './facturacion_electronica/' . $ruta .'/'.$path.$nombre_dte;
-
+				$attachments = array('./facturacion_electronica/' . $ruta .'/'.$path.$nombre_dte,'./facturacion_electronica/pdf/'.$path.$nombre_pdf);
 				$this->facturaelectronica->envia_mail('enviodte@arnou.cl',$array_email,$subject,$messageBody,'html','Arnou Envio DTE',$attachments);
 
 
@@ -1006,12 +1007,11 @@ public function consumo_folios_no_enviada(){
 	public function envia_mail($from,$toList,$subject,$content,$type,$alias = "Arnou Envio DTE",$attachments = null){
     	if(ENVIO_MAIL){
     		include_once $this->ruta_turbosmtp();
-    		$toList = array('rodrigog.84@gmail.com');
+    		$toList = array('rodrigog.84@gmail.com','renegonzalezinfo@gmail.com');
     		if(is_array($toList)){
     			//array_push($toList,'rodrigog.84@gmail.com');
     			$toList = array_unique($toList);
 		        foreach ($toList as $destiny) {
-
 			        $email = new Email();
 			        $email->setFrom($alias. " <" . $from . ">");
 			        $email->setToList($destiny);
@@ -1031,15 +1031,18 @@ public function consumo_folios_no_enviada(){
 			        $email->addCustomHeader('X-Header-da-rimuovere', 'value');
 			        $email->removeCustomHeader('X-Header-da-rimuovere');
 
-			        if(!isnull($attachments)){
-			        		$email->addAttachment($attachments);
+			        if(!is_null($attachments)){
+			        	foreach ($attachments as $attachment) {
+			        		$email->addAttachment($attachment);
+			        	}
+			        		
 			        }
 			        
 
 			        $turboApiClient = new TurboApiClient(TURBOSMTP_USER,TURBOSMTP_PASS);
-			        //var_dump($turboApiClient);
+			       //var_dump($turboApiClient);
 			       // $response = $turboApiClient->sendEmail($email);
-			        //var_dump($response);
+			      // var_dump($response);
 					try {
 					    $response = $turboApiClient->sendEmail($email);
 					} catch (Exception $e) {
