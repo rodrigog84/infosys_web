@@ -564,6 +564,8 @@ public function consumo_folios_no_enviada(){
 			    /*if(!is_null($cedible)){
 			    	$pdf->setCedible(true);
 			    }*/
+
+			    $pdf_nc = $pdf;
 			    $pdf->agregar($DTE->getDatos(), $DTE->getTED());
 			    if($factura->tipo_caf == 52){
 			    	$pdf->agregar($DTE->getDatos(), $DTE->getTED());
@@ -576,10 +578,13 @@ public function consumo_folios_no_enviada(){
 
 			    //$pdf->Output('facturacion_electronica/pdf/'.$factura->path_dte.'dte_'.$Caratula['RutEmisor'].'_'.$DTE->getID().'.pdf', 'FI');
 			    $archivo = 'dte_'.$Caratula['RutEmisor'].'_'.$DTE->getID();
+			    $archivo_nc = 'dte_'.$Caratula['RutEmisor'].'_'.$DTE->getID()."_Envio";
 			    $nombre_archivo = $archivo.".pdf";
+			    $nombre_archivo_envio = $archivo_nc.".pdf";
 			    //$tipo_generacion = is_null($cedible) ? 'FI' : 'F';
 			    $tipo_generacion = 'FI';
 			    $pdf->Output($path_pdf.$nombre_archivo, $tipo_generacion);
+			    $pdf->Output($path_pdf.$nombre_archivo_envio, $tipo_generacion);
 			    $nombre_campo = is_null($cedible) ? 'pdf' : 'pdf_cedible';
 
 			    $this->db->where('idfactura', $idfactura);
