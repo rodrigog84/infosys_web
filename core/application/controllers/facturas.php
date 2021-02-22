@@ -6947,7 +6947,10 @@ class Facturas extends CI_Controller {
     public function exportFePDF($idfactura,$cedible = null){
 
         $this->load->model('facturaelectronica');
-        $this->facturaelectronica->exportFePDF($idfactura,'id',$cedible);       
+       //      
+        $this->facturaelectronica->exportFePDF($idfactura,'id',$cedible); 
+        $this->facturaelectronica->exportFePDF_Sincedible($idfactura,'id');  
+
 
     }
 
@@ -6973,6 +6976,7 @@ class Facturas extends CI_Controller {
                 //$es_cedible = is_null($cedible) ? false : true;
                 $this->load->model('facturaelectronica');
                 $this->facturaelectronica->exportFePDF($idfactura,'id');
+                $this->facturaelectronica->exportFePDF_Sincedible($idfactura,'id');  
 
         }else{
 

@@ -564,9 +564,15 @@ public function consumo_folios_no_enviada(){
 			    /*if(!is_null($cedible)){
 			    	$pdf->setCedible(true);
 			    }*/
-
-			    $pdf_nc = $pdf;
 			    $pdf->agregar($DTE->getDatos(), $DTE->getTED());
+
+ 				/*$archivo_envio = 'dte_'.$Caratula['RutEmisor'].'_'.$DTE->getID().'_Envio';
+			    $nombre_archivo_envio = $archivo_envio.".pdf";
+			    //$tipo_generacion = is_null($cedible) ? 'FI' : 'F';
+			    $tipo_generacion_envio = 'F';
+			    $pdf->Output($path_pdf.$nombre_archivo_envio, $tipo_generacion_envio);
+				*/
+
 			    if($factura->tipo_caf == 52){
 			    	$pdf->agregar($DTE->getDatos(), $DTE->getTED());
 			    }
@@ -578,13 +584,10 @@ public function consumo_folios_no_enviada(){
 
 			    //$pdf->Output('facturacion_electronica/pdf/'.$factura->path_dte.'dte_'.$Caratula['RutEmisor'].'_'.$DTE->getID().'.pdf', 'FI');
 			    $archivo = 'dte_'.$Caratula['RutEmisor'].'_'.$DTE->getID();
-			    $archivo_nc = 'dte_'.$Caratula['RutEmisor'].'_'.$DTE->getID()."_Envio";
 			    $nombre_archivo = $archivo.".pdf";
-			    $nombre_archivo_envio = $archivo_nc.".pdf";
 			    //$tipo_generacion = is_null($cedible) ? 'FI' : 'F';
 			    $tipo_generacion = 'FI';
 			    $pdf->Output($path_pdf.$nombre_archivo, $tipo_generacion);
-			    $pdf->Output($path_pdf.$nombre_archivo_envio, $tipo_generacion);
 			    $nombre_campo = is_null($cedible) ? 'pdf' : 'pdf_cedible';
 
 			    $this->db->where('idfactura', $idfactura);
@@ -609,6 +612,165 @@ public function consumo_folios_no_enviada(){
 	}
 	 
 
+
+	public function exportFePDF_Sincedible($idfactura,$tipo_consulta){
+
+	 	/*print_r($idfactura);
+
+	 	print_r($tipo_consulta);
+
+	 	print_r($cedible);
+
+	 	exit;*/
+
+	 	include $this->ruta_libredte();	 	
+
+	 	if($tipo_consulta == 'id'){
+	 		$factura = $this->datos_dte($idfactura);
+	 		//print_r($factura);
+	 		//exit;
+
+	 		
+	 	}else if($tipo_consulta == 'trackid'){
+	 		$factura = $this->datos_dte_by_trackid($idfactura);
+	 	}
+	 	$nombre_pdf = is_null($cedible) ? $factura->pdf : $factura->pdf_cedible;
+	 	$nombre_pdf = str_replace('.pdf','_Envio.pdf',$nombre_pdf);
+
+	 	//file_exists 
+
+	 	$crea_archivo = true;
+	 	if($nombre_pdf != ''){
+			$base_path = __DIR__;
+			$base_path = str_replace("\\", "/", $base_path);
+			$file = $base_path . "/../../facturacion_electronica/pdf/".$factura->path_dte.$nombre_pdf;		 		
+	 		if(file_exists($file)){
+	 			$crea_archivo = false;
+	 		}
+	 	}
+	 	$crea_archivo = true;
+	 	$empresa = $this->get_empresa();
+	 		//print_r($empresa); exit;
+
+	 	if($crea_archivo){
+			// sin límite de tiempo para generar documentos
+			set_time_limit(0);
+		 	// archivo XML de EnvioDTE que se generará
+		 	$archivo = "./facturacion_electronica/dte/".$factura->path_dte.$factura->archivo_dte;
+		 	if(file_exists($archivo)){
+		 		$content_xml = file_get_contents($archivo);
+		 	}else{
+		 		$content_xml = $factura->dte;
+		 	}
+
+		 	// Cargar EnvioDTE y extraer arreglo con datos de carátula y DTEs
+		 	$EnvioDte = new \sasco\LibreDTE\Sii\EnvioDte();
+		 	$EnvioDte->loadXML($content_xml);
+			$Caratula = $EnvioDte->getCaratula();
+			$Documentos = $EnvioDte->getDocumentos();	 	
+
+			if(!file_exists('./facturacion_electronica/pdf/'.$factura->path_dte)){
+				mkdir('./facturacion_electronica/pdf/'.$factura->path_dte,0777,true);
+			}		
+
+			$base_path = __DIR__;
+			$base_path = str_replace("\\", "/", $base_path);
+			$path_pdf = $base_path . "/../../facturacion_electronica/pdf/".$factura->path_dte;				
+
+			foreach ($Documentos as $DTE) {
+			    if (!$DTE->getDatos())
+			        die('No se pudieron obtener los datos del DTE');
+			    $pdf = new \sasco\LibreDTE\Sii\PDF\Dte(false); // =false hoja carta, =true papel contínuo (false por defecto si no se pasa)
+			    $pdf->setFooterText();
+			    $pdf->setLogo('./facturacion_electronica/images/logo_empresa.png'); // debe ser PNG!
+
+			    if($factura->giro != ""){
+			    	$pdf->setGiroCliente($factura->giro);
+			    }			    
+
+			    $pdf->setCondPago($factura->cond_pago); 
+			    $pdf->setVendedor($factura->vendedor);
+			    //	echo $empresa->giro; exit;
+			    $pdf->setGiroEmisor($empresa->giro);
+			    $pdf->setDireccion($empresa->dir_origen);
+			    $pdf->setComuna($empresa->comuna_origen);
+			    $pdf->setFono($empresa->texto_fono);
+			    $pdf->setSucursales($empresa->texto_sucursales);
+
+				$pdf->setNeto($factura->neto);
+				$pdf->setIva($factura->iva);		
+				$pdf->setTotal($factura->totalfactura);
+
+
+
+				$datos_transporte = $this->datos_dte_transporte($idfactura);
+				
+				if(count($datos_transporte) > 0){
+					$transporte['RUTTrans'] = $datos_transporte->rut;
+					$transporte['Chofer']['NombreChofer'] = $datos_transporte->nombre;
+					$transporte['Patente'] = $datos_transporte->pat_camion;
+					$transporte['Patente_Carro'] = $datos_transporte->pat_carro;
+					$transporte['Destino'] = $datos_transporte->destino;
+
+				}else{
+					$transporte['RUTTrans'] = null;
+					$transporte['Chofer']['NombreChofer'] = null;
+					$transporte['Patente'] = null;
+					$transporte['Patente_Carro'] = null;
+					$transporte['Destino'] = null;
+
+				}
+
+				
+				$pdf->setTransporte($transporte);
+
+
+
+
+				//stdClass Object ( [rut] => 02675738K [nombre] => MAJUL SAN MARTIN MICHEL [pat_camion] => FY9540 [observacion] => Prueba )
+
+						/*** agregar detalle para facturas de guias **/
+				//echo $factura->tipo_caf ; exit;
+				$texto_guias = "";
+				if($factura->tipo_caf == 33){
+						$this->db->select('num_guia ',false)
+								  ->from('detalle_factura_glosa d')
+								  ->where('d.id_factura',$idfactura)
+								  ->where('d.id_guia != 0');
+						$query = $this->db->get();
+						$datos = $query->result();		
+						if(count($datos) > 0){
+							$texto_guias .= "SEGUN GUIAS NROS: ";
+							foreach ($datos as $guia) {
+								$texto_guias .= $guia->num_guia." ";
+							}
+
+						}
+				}
+
+				$pdf->setTextoGuia($texto_guias);	
+
+			    //$pdf->setTransportista("Prueba");
+			    
+			    
+
+			    $pdf->setResolucion(['FchResol'=>$Caratula['FchResol'], 'NroResol'=>$Caratula['NroResol']]);
+			    /*if(!is_null($cedible)){
+			    	$pdf->setCedible(true);
+			    }*/
+			    $pdf->agregar($DTE->getDatos(), $DTE->getTED());
+			   
+
+			    //$pdf->Output('facturacion_electronica/pdf/'.$factura->path_dte.'dte_'.$Caratula['RutEmisor'].'_'.$DTE->getID().'.pdf', 'FI');
+			    $archivo = 'dte_'.$Caratula['RutEmisor'].'_'.$DTE->getID()."_Envio";
+			    $nombre_archivo = $archivo.".pdf";
+			    //$tipo_generacion = is_null($cedible) ? 'FI' : 'F';
+			    $tipo_generacion = 'F';
+			    $pdf->Output($path_pdf.$nombre_archivo, $tipo_generacion);
+			}		
+
+		}
+	}
 
 
 
@@ -685,6 +847,7 @@ public function consumo_folios_no_enviada(){
 
 			$nombre_dte = $factura->archivo_dte_cliente != '' ? $factura->archivo_dte_cliente : $factura->archivo_dte;
 			$nombre_pdf = $factura->pdf;
+			$nombre_pdf = str_replace('.pdf','_Envio.pdf',$nombre_pdf);
 			//$nombre_dte = $factura->archivo_dte;
 
 			$empresa = $this->get_empresa();
@@ -713,6 +876,7 @@ public function consumo_folios_no_enviada(){
 				$subject = 'Envio de DTE ' .$track_id . '_'.$empresa->rut.'-'.$empresa->dv."_".substr($datos_empresa_factura->rut_cliente,0,strlen($datos_empresa_factura->rut_cliente) - 1)."-".substr($datos_empresa_factura->rut_cliente,-1);
 
 				$ruta =  $factura->archivo_dte_cliente != '' ? 'dte_cliente' : 'dte';
+
 				$attachments = array('./facturacion_electronica/' . $ruta .'/'.$path.$nombre_dte,'./facturacion_electronica/pdf/'.$path.$nombre_pdf);
 				$this->facturaelectronica->envia_mail('enviodte@arnou.cl',$array_email,$subject,$messageBody,'html','Arnou Envio DTE',$attachments);
 
