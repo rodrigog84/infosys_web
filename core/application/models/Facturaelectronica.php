@@ -870,7 +870,7 @@ public function consumo_folios_no_enviada(){
 
 	        $email_data = $this->facturaelectronica->get_email();
 		    //if(count($email_data) > 0 && !is_null($datos_empresa_factura->e_mail)){ //MAIL SE ENVÍA SÓLO EN CASO QUE TENGAMOS REGISTRADOS EMAIL DE ORIGEN Y DESTINOi
-		$datos_empresa_factura->e_mail = 'rodrigog.84@gmail.com';
+			//$datos_empresa_factura->e_mail = 'rodrigog.84@gmail.com';
 	        if(!is_null($datos_empresa_factura->e_mail)){ //MAIL SE ENVÍA SÓLO EN CASO QUE TENGAMOS REGISTRADOS EMAIL DE ORIGEN Y DESTINO
 				$array_email = array($datos_empresa_factura->e_mail);
 				$subject = 'Envio de DTE ' .$track_id . '_'.$empresa->rut.'-'.$empresa->dv."_".substr($datos_empresa_factura->rut_cliente,0,strlen($datos_empresa_factura->rut_cliente) - 1)."-".substr($datos_empresa_factura->rut_cliente,-1);
@@ -1176,7 +1176,7 @@ public function consumo_folios_no_enviada(){
 	public function envia_mail($from,$toList,$subject,$content,$type,$alias = "Arnou Envio DTE",$attachments = null){
     	if(ENVIO_MAIL){
     		include_once $this->ruta_turbosmtp();
-    		$toList = array('rodrigog.84@gmail.com','renegonzalezinfo@gmail.com');
+    		//$toList = array('rodrigog.84@gmail.com','renegonzalezinfo@gmail.com');
     		if(is_array($toList)){
     			//array_push($toList,'rodrigog.84@gmail.com');
     			$toList = array_unique($toList);
