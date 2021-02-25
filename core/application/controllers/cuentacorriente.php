@@ -879,7 +879,7 @@ class Cuentacorriente extends CI_Controller {
 		$resp = array();
 
 
-		$query = $this->db->query("select if(m.proceso = 'OTRO','OTROS INGRESOS',m.proceso) as tipocomprobante, m.numcomprobante as nrocomprobante, left(m.fecha,10) as fecha, cc.nombre as cuentacontable, c.rut as rut, concat(t.descripcion,' ',dm.numdocumento) as documento, DATE_FORMAT(dm.fecvencimiento,'%d/%m/%Y') as fechavencimiento, haber as cargos, debe as abonos from movimiento_cuenta_corriente m
+		$query = $this->db->query("select if(m.proceso = 'OTRO','OTROS INGRESOS',m.proceso) as tipocomprobante, m.numcomprobante as nrocomprobante, left(m.fecha,10) as fecha, cc.nombre as cuentacontable, c.rut as rut, c.nombres as nombrecliente, concat(t.descripcion,' ',dm.numdocumento) as documento, DATE_FORMAT(dm.fecvencimiento,'%d/%m/%Y') as fechavencimiento, haber as cargos, debe as abonos from movimiento_cuenta_corriente m
 									inner join detalle_mov_cuenta_corriente dm on m.id = dm.idmovimiento 
 									inner join cuenta_contable cc on dm.idcuenta = cc.id 
 									left join tipo_documento t on dm.tipodocumento = t.id

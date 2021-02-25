@@ -35,6 +35,10 @@ Ext.define('Infosys_web.view.cuentascorrientes.LibroDiarioPrincipal' ,{
         flex: 1,
         dataIndex: 'rut'
     },{
+        header: "Nombre Cliente",
+        flex: 1,
+        dataIndex: 'nombrecliente'
+    },{
         header: "Documento",
         flex: 1,
         dataIndex: 'documento'

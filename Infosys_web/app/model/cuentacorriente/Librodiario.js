@@ -7,6 +7,7 @@ Ext.define('Infosys_web.model.cuentacorriente.Librodiario', {
     	{name: 'fecha'},
     	{name: 'cuentacontable'},
     	{name: 'rut'},
+        {name: 'nombrecliente'},
     	{name: 'documento'},
     	{name: 'fechavencimiento'},
     	{name: 'cargos'},
