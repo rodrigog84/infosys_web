@@ -3072,15 +3072,15 @@ public function reporte_estadisticas_ventas($mes,$anno)
             $cuentacontable = $this->input->get('cuentacontable');
 
             $sql_filtro = '';
-            if($rutcliente != ''){
+            if($rutcliente != '' && $rutcliente != 'null'){
               $sql_filtro .= "and c.rut = '" . $rutcliente . "'";
 
             }
 
-            if($nombrecliente != ''){
+            if($nombrecliente != '' && $nombrecliente != 'null'){
               $sql_filtro .= "and c.nombres like '%" . $nombrecliente . "%'";
 
-            }if($cuentacontable != ''){
+            }if($cuentacontable != '' && $cuentacontable != 'null'){
 
               $sql_filtro .= "and cco.id = '" . $cuentacontable . "'";
             }
