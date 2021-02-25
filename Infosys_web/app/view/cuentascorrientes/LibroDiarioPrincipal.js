@@ -15,11 +15,11 @@ Ext.define('Infosys_web.view.cuentascorrientes.LibroDiarioPrincipal' ,{
     },
     columns: [{         
         header: "Tipo Comprobante",
-        flex: 1,
+        width: 125,
         dataIndex: 'tipocomprobante'
     },{         
-        header: "Nro. Comprobante",
-        flex: 1,
+        header: "# Comprobante",
+        width: 125,
         dataIndex: 'nrocomprobante'
     },{         
         header: "Fecha",
