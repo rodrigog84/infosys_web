@@ -2965,18 +2965,20 @@ public function reporte_estadisticas_ventas($mes,$anno)
             $fecdesde = $this->input->get('fecdesde');
             $fechasta = $this->input->get('fechasta');
 
-            $fecdesde = substr($fecdesde,6,4)."-".substr($fecdesde,3,2)."-".substr($fecdesde,0,2);
-            $fechasta = substr($fechasta,6,4)."-".substr($fechasta,3,2)."-".substr($fechasta,0,2);    
+             $fecdesde = substr($fecdesde,6,4)."-".substr($fecdesde,0,2)."-".substr($fecdesde,3,2);
+            $fechasta = substr($fechasta,6,4)."-".substr($fechasta,0,2)."-".substr($fechasta,3,2);      
             
             $sql_comprobantes = $comprobante == 'TODOS' ? "" : "and m.proceso = '" . $comprobante . "'";        
 
 
             $this->load->database();
-            
-            $query = $this->db->query("select if(m.proceso = 'OTRO','OTROS INGRESOS',m.proceso) as tipocomprobante, m.numcomprobante as nrocomprobante, left(m.fecha,10) as fecha, cc.nombre as cuentacontable, '' as rut, concat(t.descripcion,' ',dm.numdocumento) as documento, DATE_FORMAT(dm.fecvencimiento,'%d/%m/%Y') as fechavencimiento, haber as cargos, debe as abonos from movimiento_cuenta_corriente m
+          
+            $query = $this->db->query("select if(m.proceso = 'OTRO','OTROS INGRESOS',m.proceso) as tipocomprobante, m.numcomprobante as nrocomprobante, left(m.fecha,10) as fecha, cc.nombre as cuentacontable,c.rut as rut, c.nombres as nombrecliente, concat(t.descripcion,' ',dm.numdocumento) as documento, DATE_FORMAT(dm.fecvencimiento,'%d/%m/%Y') as fechavencimiento, haber as cargos, debe as abonos from movimiento_cuenta_corriente m
                   inner join detalle_mov_cuenta_corriente dm on m.id = dm.idmovimiento 
-                  inner join cuenta_contable cc on dm.idctacte = cc.id 
+                  inner join cuenta_contable cc on dm.idcuenta = cc.id 
                   left join tipo_documento t on dm.tipodocumento = t.id
+                  left join cuenta_corriente cco on dm.idctacte = cco.id
+                  left join clientes c on cco.idcliente = c.id  
                   where left(m.fecha,10) between '" . $fecdesde . "' and '" . $fechasta . "' " . $sql_comprobantes 
                   . " order by m.proceso, m.numcomprobante, m.fecha asc, dm.tipo");
 
@@ -3005,6 +3007,12 @@ public function reporte_estadisticas_ventas($mes,$anno)
                      echo "<td>RUT</td>";
                 endif;
                 
+
+                if (in_array("nombrecliente", $columnas)):
+                     echo "<td>NOMBRE CLIENTE</td>";
+                endif;
+
+
                 if (in_array("documento", $columnas)):
                      echo "<td>DOCUMENTO</td>";
                 endif;
@@ -3039,6 +3047,9 @@ public function reporte_estadisticas_ventas($mes,$anno)
                    endif;
                    if (in_array("rut", $columnas)) :
                       echo "<td>".$data['rut']."</td>";
+                   endif;
+                    if (in_array("rut", $columnas)) :
+                      echo "<td>".$data['nombrecliente']."</td>";
                    endif;
                    if (in_array("documento", $columnas)) :
                       echo "<td>".$data['documento']."</td>";

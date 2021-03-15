@@ -428,7 +428,7 @@ class Cuentacorriente extends CI_Controller {
 					$this->db->insert('cartola_cuenta_corriente', $data);
 										
 					// REBAJA SALDO
-					if($arrayCuentasCorrientes[$i]['tipodocumento'] == 1 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 2 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 19 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 101 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 103){  // FACTURA, BOLETA, FACTURA EXENTA, FACTURA ELECTRONICA, FACTURA EXENTA ELECTRONICA
+					if($arrayCuentasCorrientes[$i]['tipodocumento'] == 1 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 2 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 19 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 101 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 103 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 120){  // FACTURA, BOLETA, FACTURA EXENTA, FACTURA ELECTRONICA, FACTURA EXENTA ELECTRONICA, BOLETA ELECTRÓNICA
 						if($side == "debe"){
 							$query = $this->db->query("UPDATE cuenta_corriente SET saldo = saldo + " . $valor . " where id = " .  $arrayCuentasCorrientes[$i]['id'] );
 							$query = $this->db->query("UPDATE detalle_cuenta_corriente SET saldo = saldo + " . $valor . " where id = " .  $arrayCuentasCorrientes[$i]['iddoctocta'] );
@@ -437,7 +437,7 @@ class Cuentacorriente extends CI_Controller {
 							$query = $this->db->query("UPDATE detalle_cuenta_corriente SET saldo = saldo - " . $valor . " where id = " .  $arrayCuentasCorrientes[$i]['iddoctocta'] );
 						}
 
-					}else if($arrayCuentasCorrientes[$i]['tipodocumento'] == 16){ // SI ES NOTA DE DEBITO, SÓLO SE ABONA A LA FACTURA
+					}else if($arrayCuentasCorrientes[$i]['tipodocumento'] == 16 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 104){ // SI ES NOTA DE DEBITO, SÓLO SE ABONA A LA FACTURA
 						// ESTO ES UN TRUCO, SOLO PARA QUE AL REBAJAR POR FACTURA, EL MOVIMIENTO QUEDE EN CERO
 						$query = $this->db->query("UPDATE cuenta_corriente SET saldo = saldo - " . $valor . " where id = " .  $arrayCuentasCorrientes[$i]['id'] );
 						$query = $this->db->query("UPDATE detalle_cuenta_corriente SET saldo = saldo - " . $valor . " where id = " .  $arrayCuentasCorrientes[$i]['iddoctocta'] );
@@ -597,7 +597,7 @@ class Cuentacorriente extends CI_Controller {
 					$this->db->insert('cartola_cuenta_corriente', $data);
 										
 					// REBAJA SALDO
-					if($arrayCuentasCorrientes[$i]['tipodocumento'] == 1  || $arrayCuentasCorrientes[$i]['tipodocumento'] == 2 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 19 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 101 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 103 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 12){ // SI ES FACTURA, FACTURA EXENTA,FACTURA ELECTRONICA, FACTURA EXENTA ELECTRONICA O CHEQUE POR COBRAR SE REBAJA
+					if($arrayCuentasCorrientes[$i]['tipodocumento'] == 1  || $arrayCuentasCorrientes[$i]['tipodocumento'] == 2 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 19 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 101 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 103 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 12 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 120){ // SI ES FACTURA, FACTURA EXENTA,FACTURA ELECTRONICA, FACTURA EXENTA ELECTRONICA O CHEQUE POR COBRAR SE REBAJA
 
 						if($side == "debe"){
 						$query = $this->db->query("UPDATE cuenta_corriente SET saldo = saldo + " . $valor . " where id = " .  $arrayCuentasCorrientes[$i]['id'] );
@@ -607,7 +607,7 @@ class Cuentacorriente extends CI_Controller {
 							$query = $this->db->query("UPDATE detalle_cuenta_corriente SET saldo = saldo - " . $valor . " where id = " .  $arrayCuentasCorrientes[$i]['iddoctocta'] );
 						}
 
-					}else if($arrayCuentasCorrientes[$i]['tipodocumento'] == 16){ // SI ES NOTA DE DEBITO, SÓLO SE ABONA A LA FACTURA
+					}else if($arrayCuentasCorrientes[$i]['tipodocumento'] == 16 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 104){ // SI ES NOTA DE DEBITO, SÓLO SE ABONA A LA FACTURA
 						// ESTO ES UN TRUCO, SOLO PARA QUE AL REBAJAR POR FACTURA, EL MOVIMIENTO QUEDE EN CERO
 						$query = $this->db->query("UPDATE cuenta_corriente SET saldo = saldo - " . $valor . " where id = " .  $arrayCuentasCorrientes[$i]['id'] );
 						$query = $this->db->query("UPDATE detalle_cuenta_corriente SET saldo = saldo - " . $valor . " where id = " .  $arrayCuentasCorrientes[$i]['iddoctocta'] );
@@ -694,13 +694,13 @@ class Cuentacorriente extends CI_Controller {
 		$sqlCuentaCorriente = $idcuentacorriente != '' && $idcuentacorriente != 0 ? " c.idctacte = '" . $idcuentacorriente . "' ": "";
 		// si son cancelaciones, el valor es negativo
 		$query = $this->db->query("select 
-									(select COALESCE(sum(if(dm.debe is not null,dm.debe,if((c.origen='VENTA' and c.tipodocumento in (1,2,19,101,103,16)) or (c.origen = 'CTACTE' and c.tipodocumento not in (1,2,19,101,103,16)),c.valor,0))),0) as valor 
+									(select COALESCE(sum(if(dm.debe is not null,dm.debe,if((c.origen='VENTA' and c.tipodocumento in (1,2,19,120,101,103,16)) or (c.origen = 'CTACTE' and c.tipodocumento not in (1,2,19,120,101,103,16)),c.valor,0))),0) as valor 
 																	  from cartola_cuenta_corriente c 
 																	  left join detalle_mov_cuenta_corriente dm on c.idmovimiento = dm.idmovimiento and c.idcuenta = dm.idcuenta and c.tipodocumento = dm.tipodocumento and c.numdocumento = dm.numdocumento
 																	where ". $sqlCuentaCorriente . " )
 																	
 									as debe,
-									(select COALESCE(SUM(if(dm.haber is not null,dm.haber,if((c.origen='CTACTE' and c.tipodocumento in (1,2,19,101,103,16)) or (c.origen = 'VENTA' and c.tipodocumento not in (1,2,19,101,103,16)),c.valor,0))),0) as valor
+									(select COALESCE(SUM(if(dm.haber is not null,dm.haber,if((c.origen='CTACTE' and c.tipodocumento in (1,2,19,120,101,103,16)) or (c.origen = 'VENTA' and c.tipodocumento not in (1,2,19,120,101,103,16)),c.valor,0))),0) as valor
 																	  from cartola_cuenta_corriente c 
 																	  left join detalle_mov_cuenta_corriente dm on c.idmovimiento = dm.idmovimiento and c.idcuenta = dm.idcuenta and c.tipodocumento = dm.tipodocumento and c.numdocumento = dm.numdocumento
 																	where ". $sqlCuentaCorriente . " )
@@ -724,7 +724,7 @@ class Cuentacorriente extends CI_Controller {
 		$sqlCuentaCorriente = $idcuentacorriente != '' && $idcuentacorriente != 0 ? " where c.idctacte = '" . $idcuentacorriente . "'": "";
 		$resp = array();
 		// si son cancelaciones, el valor es negativo
-		$query = $this->db->query("select concat(tc.descripcion,' ',c.numdocumento) as origen, concat(tc2.descripcion,' ',c.numdocumento_asoc) as referencia, if(dm.debe is not null,dm.debe,if((c.origen='VENTA' and c.tipodocumento in (1,2,19,101,103,16)) or (c.origen = 'CTACTE' and c.tipodocumento not in (1,2,19,101,103,16)),c.valor,0)) as debe, if(dm.haber is not null,dm.haber,if((c.origen='CTACTE' and c.tipodocumento in (1,2,19,101,103,16)) or (c.origen = 'VENTA' and c.tipodocumento not in (1,2,19,101,103,16)),c.valor,0)) as haber, c.glosa, DATE_FORMAT(c.fecvencimiento,'%d/%m/%Y') as fecvencimiento, DATE_FORMAT(c.fecha,'%d/%m/%Y') as fecha, concat(m.tipo,' ',m.numcomprobante) as comprobante, m.id as idcomprobante
+		$query = $this->db->query("select concat(tc.descripcion,' ',c.numdocumento) as origen, concat(tc2.descripcion,' ',c.numdocumento_asoc) as referencia, if(dm.debe is not null,dm.debe,if((c.origen='VENTA' and c.tipodocumento in (1,2,19,120,101,103,16)) or (c.origen = 'CTACTE' and c.tipodocumento not in (1,2,19,120,101,103,16)),c.valor,0)) as debe, if(dm.haber is not null,dm.haber,if((c.origen='CTACTE' and c.tipodocumento in (1,2,19,120,101,103,16)) or (c.origen = 'VENTA' and c.tipodocumento not in (1,2,19,120,101,103,16)),c.valor,0)) as haber, c.glosa, DATE_FORMAT(c.fecvencimiento,'%d/%m/%Y') as fecvencimiento, DATE_FORMAT(c.fecha,'%d/%m/%Y') as fecha, concat(m.tipo,' ',m.numcomprobante) as comprobante, m.id as idcomprobante
 								  from cartola_cuenta_corriente c 
 								  inner join tipo_documento tc on c.tipodocumento = tc.id
 								  left join tipo_documento tc2 on c.tipodocumento_asoc = tc2.id
@@ -878,8 +878,15 @@ class Cuentacorriente extends CI_Controller {
         $sql_comprobantes = $comprobante == 'TODOS' ? "" : "and m.proceso = '" . $comprobante . "'";
 		$resp = array();
 
-
-		$query = $this->db->query("select if(m.proceso = 'OTRO','OTROS INGRESOS',m.proceso) as tipocomprobante, m.numcomprobante as nrocomprobante, left(m.fecha,10) as fecha, cc.nombre as cuentacontable, c.rut as rut, c.nombres as nombrecliente, concat(t.descripcion,' ',dm.numdocumento) as documento, DATE_FORMAT(dm.fecvencimiento,'%d/%m/%Y') as fechavencimiento, haber as cargos, debe as abonos from movimiento_cuenta_corriente m
+		/*echo "select if(m.proceso = 'OTRO','OTROS INGRESOS',m.proceso) as tipocomprobante, m.numcomprobante as nrocomprobante, left(m.fecha,10) as fecha, cc.nombre as cuentacontable, c.rut as rut, c.nombres as nombrecliente, concat(t.descripcion,' ',dm.numdocumento) as documento, DATE_FORMAT(dm.fecvencimiento,'%d/%m/%Y') as fechavencimiento, haber as cargos, debe as abonos from movimiento_cuenta_corriente m
+									inner join detalle_mov_cuenta_corriente dm on m.id = dm.idmovimiento 
+									inner join cuenta_contable cc on dm.idcuenta = cc.id 
+									left join tipo_documento t on dm.tipodocumento = t.id
+					                left join cuenta_corriente cco on dm.idctacte = cco.id
+					                left join clientes c on cco.idcliente = c.id									
+									where left(m.fecha,10) between '" . $fecdesde . "' and '" . $fechasta . "' " . $sql_comprobantes 
+									. " order by m.proceso, m.numcomprobante, m.fecha asc, dm.tipo"; exit;*/
+		$query = $this->db->query("select if(m.proceso = 'OTRO','OTROS INGRESOS',m.proceso) as tipocomprobante, m.numcomprobante as nrocomprobante, DATE_FORMAT(m.fecha,'%d/%m/%Y') as fecha, cc.nombre as cuentacontable, 	concat(t.descripcion,' ',dm.numdocumento) as documento, DATE_FORMAT(dm.fecvencimiento,'%d/%m/%Y') as fechavencimiento, haber as cargos, debe as abonos from movimiento_cuenta_corriente m
 									inner join detalle_mov_cuenta_corriente dm on m.id = dm.idmovimiento 
 									inner join cuenta_contable cc on dm.idcuenta = cc.id 
 									left join tipo_documento t on dm.tipodocumento = t.id
@@ -1977,7 +1984,7 @@ $body_header = '<tr>
 
             $this->load->database();
 
-            $query = $this->db->query("select concat(tc.descripcion,' ',c.numdocumento) as origen, concat(tc2.descripcion,' ',c.numdocumento_asoc) as referencia, if(dm.debe is not null,dm.debe,if((c.origen='VENTA' and c.tipodocumento in (1,2,19,101,103,16)) or (c.origen = 'CTACTE' and c.tipodocumento not in (1,2,19,101,103,16)),c.valor,0)) as debe, if(dm.haber is not null,dm.haber,if((c.origen='CTACTE' and c.tipodocumento in (1,2,19,101,103,16)) or (c.origen = 'VENTA' and c.tipodocumento not in (1,2,19,101,103,16)),c.valor,0)) as haber, c.glosa, DATE_FORMAT(c.fecvencimiento,'%d/%m/%Y') as fecvencimiento, DATE_FORMAT(c.fecha,'%d/%m/%Y') as fecha, concat(m.tipo,' ',m.numcomprobante) as comprobante, m.id as idcomprobante
+            $query = $this->db->query("select concat(tc.descripcion,' ',c.numdocumento) as origen, concat(tc2.descripcion,' ',c.numdocumento_asoc) as referencia, if(dm.debe is not null,dm.debe,if((c.origen='VENTA' and c.tipodocumento in (1,2,19,120,101,103,16)) or (c.origen = 'CTACTE' and c.tipodocumento not in (1,2,19,120,101,103,16)),c.valor,0)) as debe, if(dm.haber is not null,dm.haber,if((c.origen='CTACTE' and c.tipodocumento in (1,2,19,120,101,103,16)) or (c.origen = 'VENTA' and c.tipodocumento not in (1,2,19,120,101,103,16)),c.valor,0)) as haber, c.glosa, DATE_FORMAT(c.fecvencimiento,'%d/%m/%Y') as fecvencimiento, DATE_FORMAT(c.fecha,'%d/%m/%Y') as fecha, concat(m.tipo,' ',m.numcomprobante) as comprobante, m.id as idcomprobante
                           from cartola_cuenta_corriente c 
                           inner join tipo_documento tc on c.tipodocumento = tc.id
                           left join tipo_documento tc2 on c.tipodocumento_asoc = tc2.id

@@ -25,7 +25,7 @@ Ext.define('Infosys_web.view.cuentascorrientes.LibroDiarioPrincipal' ,{
         header: "Fecha",
         flex: 1,
         dataIndex: 'fecha',
-        renderer: Ext.util.Format.dateRenderer('d/m/Y')
+       // renderer: Ext.util.Format.dateRenderer('d/m/Y')
     },{         
         header: "Cuenta Contable",
         flex: 1,
