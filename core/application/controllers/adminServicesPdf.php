@@ -480,7 +480,7 @@ public function reporte_detalle_productos_stock($idproducto,$mes,$anno){
          }
        
 
-    public function reporte_estadisticas_ventas($mes,$anno){
+    public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio){
 
     ini_set('memory_limit','512M');
 
@@ -491,7 +491,7 @@ public function reporte_detalle_productos_stock($idproducto,$mes,$anno){
     $anno = $anno == 0 ? '' : $anno;
 
     $this->load->model('reporte');
-    $detalle_estadistica_venta = $this->reporte->reporte_estadisticas_ventas(null,null,$mes,$anno);
+    $detalle_estadistica_venta = $this->reporte->reporte_estadisticas_ventas(null,null,$mes,$anno,$tipoprecio);
 
       $this->load->model('facturaelectronica');
     $empresa = $this->facturaelectronica->get_empresa();

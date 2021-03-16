@@ -218,11 +218,12 @@ class Reportes extends CI_Controller {
         $limit = $this->input->get('limit');
         $mes = $this->input->get('mes');
         $anno = $this->input->get('anno');
+        $tipoprecio = $this->input->get('tipoprecio');
 
 
-        if($mes != '' && $anno != ''){
+        if($mes != '' && $anno != '' && $tipoprecio != ''){
 			$this->load->model('reporte');
-			$detalle_estadistica_venta = $this->reporte->reporte_estadisticas_ventas($start,$limit,$mes,$anno);
+			$detalle_estadistica_venta = $this->reporte->reporte_estadisticas_ventas($start,$limit,$mes,$anno,$tipoprecio);
 			//$stock = $this->reporte->get_existencia($idproducto);
 			//1print_r($stock->stock);
 	 		$i = $start + 1;

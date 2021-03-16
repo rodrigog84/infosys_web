@@ -554,7 +554,7 @@ public function reporte_detalle_productos_stock($idproducto,$mes,$anno)
         }
 
 
-public function reporte_estadisticas_ventas($mes,$anno)
+public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
          {
             header("Content-type: application/vnd.ms-excel"); 
             header("Content-disposition: attachment; filename=reporte_estadisticas_ventas.xls"); 
@@ -565,7 +565,7 @@ public function reporte_estadisticas_ventas($mes,$anno)
             $anno = $anno == 0 ? '' : $anno;
 
             $this->load->model('reporte');
-            $detalle_estadistica_venta = $this->reporte->reporte_estadisticas_ventas(null,null,$mes,$anno);
+            $detalle_estadistica_venta = $this->reporte->reporte_estadisticas_ventas(null,null,$mes,$anno,$tipoprecio);
                     
             
             echo '<table>';

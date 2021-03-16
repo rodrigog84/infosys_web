@@ -44,6 +44,16 @@ Ext.define('Infosys_web.view.ventas.EstadisticasVentas' ,{
             autoLoad: true
         }); 
 
+
+         var tipoprecio = Ext.create('Ext.data.Store', {
+            fields: ['value', 'nombre'],
+            data : [
+                {"value":'p_ult_compra', "nombre":"Precio Ultima Compra"},
+                {"value":'p_may_compra', "nombre":"Precio Mayor Comprado"},
+                {"value":'p_promedio', "nombre":"Precion Promedio Ponderado"}
+            ]
+        });
+
         /* var f = new Date();
          var mes_actual = f.getMonth() + 1;
          if(mes_actual < 10){
@@ -54,6 +64,7 @@ Ext.define('Infosys_web.view.ventas.EstadisticasVentas' ,{
 
          var mes_actual = 0;
          var anno_actual = 0;
+         var tipoprecio_actual = '';
 
 
         var estadisticasVentas = Ext.create('Ext.data.Store', {
@@ -115,6 +126,23 @@ Ext.define('Infosys_web.view.ventas.EstadisticasVentas' ,{
                            // value : 2016                            
 
                     },{
+                            xtype: 'combobox',
+                            width: 500,
+                            store : tipoprecio,
+                            fieldLabel: 'Tipo Precio',
+                            labelStyle: ' font-weight:bold',
+                            labelWidth: 200,
+                            emptyText : 'Seleccionar',
+                            editable: false,
+                            itemId : 'tipoprecio' ,
+                            name : 'tipoprecio' ,
+                            forceSelection: true, 
+                            allowBlank : false,
+                            displayField : 'nombre',
+                            valueField : 'value',
+                           // value : 2016                            
+
+                    },{
                         xtype: 'toolbar',
                         dock: 'bottom',
                         items: [{
@@ -126,12 +154,15 @@ Ext.define('Infosys_web.view.ventas.EstadisticasVentas' ,{
                                 if(form.isValid()){
                                     var mes = me.down('#mes').getValue();
                                     var anno = me.down('#anno').getValue();
+                                    var tipoprecio = me.down('#tipoprecio').getValue();
                                     estadisticasVentas.proxy.extraParams = {mes : mes,
-                                                                        anno : anno}
+                                                                        anno : anno,
+                                                                        tipoprecio : tipoprecio}
                                     estadisticasVentas.load();
 
                                     mes_actual = mes;
                                     anno_actual = anno;
+                                    tipoprecio_actual = tipoprecio;
 
                                 }
 
@@ -142,8 +173,8 @@ Ext.define('Infosys_web.view.ventas.EstadisticasVentas' ,{
                             iconCls : 'icon-pdf',
                             text: 'Exportar PDF',
                             handler: function() {
-                                if(mes_actual != 0 && anno_actual != 0){
-                                    window.open(preurl +'adminServicesPdf/reporte_estadisticas_ventas/' + mes_actual + '/' + anno_actual)    
+                                if(mes_actual != 0 && anno_actual != 0  && tipoprecio_actual !=''){
+                                    window.open(preurl +'adminServicesPdf/reporte_estadisticas_ventas/' + mes_actual + '/' + anno_actual + '/' + tipoprecio_actual)    
                                 }
                                 
 
@@ -155,8 +186,8 @@ Ext.define('Infosys_web.view.ventas.EstadisticasVentas' ,{
                             iconCls : 'icon-exel',
                             text: 'Exportar EXCEL',
                             handler: function() {
-                                if(mes_actual != 0 && anno_actual != 0){
-                                    window.open(preurl +'adminServicesExcel/reporte_estadisticas_ventas/' + mes_actual + '/' + anno_actual)    
+                                if(mes_actual != 0 && anno_actual != 0 && tipoprecio_actual !=''){
+                                    window.open(preurl +'adminServicesExcel/reporte_estadisticas_ventas/' + mes_actual + '/' + anno_actual + '/' + tipoprecio_actual)    
                                 }
                                 
 
