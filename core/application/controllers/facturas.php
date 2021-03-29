@@ -3187,7 +3187,7 @@ class Facturas extends CI_Controller {
                         $lista_detalle[$i]['NmbItem'] = $tipo_caf == 39 ? $detalle->nombre : $detalle->nombre." VENC ".substr($detalle->fecha_vencimiento,8,2)."/".substr($detalle->fecha_vencimiento,5,2)."/".substr($detalle->fecha_vencimiento,0,4);
                         $lista_detalle[$i]['QtyItem'] = $detalle->cantidad;
                         $lista_detalle[$i]['CdgItem'] = $detalle->codigo;
-                        $lista_detalle[$i]['UnmdItem'] = $detalle->lote;
+                        $lista_detalle[$i]['UnmdItem'] = substr($detalle->lote,-4);
                         //$lista_detalle[$i]['PrcItem'] = $detalle->precio;
                         //$lista_detalle[$i]['PrcItem'] = round((($detalle->precio*$detalle->cantidad)/1.19)/$detalle->cantidad,0);
                         //$total = $detalle->precio*$detalle->cantidad;
@@ -3374,6 +3374,7 @@ class Facturas extends CI_Controller {
                                                                   'archivo_dte_cliente' => $dte_cliente['nombre_dte'],
                                                                   'trackid' => $track_id
                                                                   )); 
+                           // echo $this->db->last_query(); 
 
 
                         if($track_id != 0 && $datos_empresa_factura->e_mail != ''){ //existe track id, se envía correo
