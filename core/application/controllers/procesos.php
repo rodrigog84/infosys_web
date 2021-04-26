@@ -161,6 +161,119 @@ class Procesos extends CI_Controller {
 	}	
 
 
+	public function envio_programado_boletas_sii()
+    {
+        set_time_limit(0);
+        $this->load->model('facturaelectronica');
+        $facturas = $this->facturaelectronica->get_boleta_no_enviada();
+       // print_r($facturas); exit;
+        include $this->facturaelectronica->ruta_libredte();
+        foreach ($facturas as $factura) {
+            $idfactura = $factura->idfactura;
+            $factura = $this->facturaelectronica->datos_dte($idfactura);
+            //echo "<pre>";
+            //print_r($factura);
+            //print_r($factura->idempresa);
+            //exit;
+
+            $config = $this->facturaelectronica->genera_config();
+            
+            ///print_r($config);
+           // exit;
+            $token = \sasco\LibreDTE\EnvioBoleta::getToken($config['firma']);
+            //$token = \sasco\LibreDTE\Sii\Autenticacion::getToken($config['firma']);
+             if (!$token) {
+                foreach (\sasco\LibreDTE\Log::readAll() as $error) {
+                    $result['error'] = true;
+                }
+                $result['message'] = "Error de conexión con SII";
+                echo json_encode($result);
+                exit;
+            }
+
+            //var_dump($token);
+
+            $Firma = new \sasco\LibreDTE\FirmaElectronica($config['firma']); //lectura de certificado digital
+            $rut = $Firma->getId();
+            $rut_consultante = explode("-", $rut);
+            $RutEnvia = $rut_consultante[0] . "-" . $rut_consultante[1];
+
+            //$archivo = "./facturacion_electronica/dte/202104/774_39_6769_SII_162309.xml";
+            $archivo = "./facturacion_electronica/dte/" . $factura->path_dte . $factura->archivo_dte;
+           // echo "<br>".$archivo."<br>";
+            if (file_exists($archivo)) {
+                $xml = file_get_contents($archivo);
+            } else {
+                $xml = $factura->dte;
+            }               
+
+
+            $EnvioDte = new \sasco\LibreDTE\Sii\EnvioDte();
+            $EnvioDte->loadXML($xml);
+            $Documentos = $EnvioDte->getDocumentos();
+
+            $DTE = $Documentos[0];
+            $RutEmisor = $DTE->getEmisor();
+
+            $result_envio = \sasco\LibreDTE\EnvioBoleta::enviar($RutEnvia, $RutEmisor, $xml, $token);
+            //echo htmlentities($xml)."<br>-----------------";
+
+/*
+array(6) { ["rut_emisor"]=> string(10) "96516320-4" ["rut_envia"]=> string(10) "10022349-K" ["trackid"]=> int(587975533) ["fecha_recepcion"]=> string(19) "2021-04-14 23:51:30" ["estado"]=> string(3) "REC" ["file"]=> string(48) "dte_ac1b7a00d6b388a04622edd2c53a77d5.xmlSRV_CODE" }        */ 
+
+
+
+            // AJUSTAR ESTA PARTE PARA ENVIO DE BOLETAS
+            
+            // si hubo algún error al enviar al servidor mostrar
+
+			//var_dump($result_envio);
+            if ($result_envio === false) {
+                foreach (\sasco\LibreDTE\Log::readAll() as $error) {
+                    $result['error'] = true;
+                }
+                $result['message'] = "Error de envío de DTE";
+                echo json_encode($result);
+                exit;
+            }
+
+            // Mostrar resultado del envío
+            if ($result_envio['estado'] != 'REC') {
+                foreach (\sasco\LibreDTE\Log::readAll() as $error) {
+                    $result['error'] = true;
+                }
+                $result['message'] = "Error de envío de DTE";
+                echo json_encode($result);
+                exit;
+            }
+
+
+            $track_id = 0;
+            $track_id = (int)$result_envio['trackid'];
+            $this->db->where('id', $factura->id);
+            $this->db->update('folios_caf', array('trackid' => $track_id));
+
+
+           // echo "<br>".$this->db->last_query()."<br>";
+
+            /*$datos_empresa_factura = $this->facturaelectronica->get_empresa_factura($idfactura);
+
+            if ($track_id != 0 && $datos_empresa_factura->e_mail != '') { //existe track id, se envía correo
+                $this->facturaelectronica->envio_mail_dte($idfactura);
+            }
+                */
+            echo "idfactura: " . $factura->id . " -- folio : " . $factura->folio . " -- trackid : " . $track_id . "<br>";
+            ob_flush();
+
+            $result['success'] = true;
+            $result['message'] = $track_id != 0 ? "DTE enviado correctamente" : "Error en env&iacute;o de DTE";
+            $result['trackid'] = $track_id;
+            echo json_encode($result);
+            //exit;
+        }
+    }	
+
+
 	public function envio_programado_sii(){
 		set_time_limit(0);
 		$this->load->model('facturaelectronica');
@@ -256,7 +369,11 @@ class Procesos extends CI_Controller {
 	}	
 
 
+	public function envia_email_factura(){
+		$this->load->model('facturaelectronica');
+		$this->facturaelectronica->envio_mail_dte(4810);
 
+	}
 
 	public function envio_programado_consumo_folios(){
 		set_time_limit(0);
