@@ -58,6 +58,8 @@ Ext.define('Infosys_web.view.facturaelectronica.verEstadoDte' ,{
             url: preurl + 'facturas/estado_dte/'+idfactura});
             var obj_estado = Ext.decode(response_estado.responseText);
             var estado_dte = obj_estado.error ? obj_estado.message : obj_estado.glosa_estado + " - " + obj_estado.glosa_err;      
+            estado_envio_dte = tipo_doc == 'Boleta Electrónica' && obj_estado.glosa_estado == 'DOK' ? 'Envio Procesado' : estado_envio_dte;
+
         //}
 
         this.items = [

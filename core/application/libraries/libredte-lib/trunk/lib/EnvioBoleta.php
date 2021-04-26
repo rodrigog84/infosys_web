@@ -350,7 +350,7 @@ class EnvioBoleta
             'Cookie: TOKEN='.$token,
             'accept: application/json',
         ];
-        var_dump($header); echo "<br>";
+       // var_dump($header); echo "<br>";
        
         //throw new \Exception('  '.'$token '.$token);
         //$Emisor = new \website\Dte\Model_Contribuyente($rut);
@@ -360,9 +360,9 @@ class EnvioBoleta
         //$receptor_rut=explode("-",$DteEmitido->getReceptor()->getRUT());
         //$rut_receptor=str_replace('.','',$receptor_rut[0]);
         //$dv_receptor=$receptor_rut[1];
-        $url = 'https://api.sii.cl/recursos/v1/boleta.electronica/10022349-K-39-774/estado?rut_receptor=1&dv_receptor=9&monto=20000&fechaEmision=14-04-2021';
-       /* $url = 'https://api.sii.cl/recursos/v1/boleta.electronica/'.$rut.'-'.$dv.'-'.$dte.'-'.$folio.'/estado?rut_receptor='.$rut_receptor.'&dv_receptor='.$dv_receptor.'&monto='.$monto_dte.'&fechaEmision='.$fecha_envio;*/
-        echo $url."<br>"; 
+       // $url = 'https://api.sii.cl/recursos/v1/boleta.electronica/10022349-K-39-774/estado?rut_receptor=1&dv_receptor=9&monto=20000&fechaEmision=14-04-2021';
+        $url = 'https://api.sii.cl/recursos/v1/boleta.electronica/'.$rut.'-'.$dv.'-'.$dte.'-'.$folio.'/estado?rut_receptor='.$rut_receptor.'&dv_receptor='.$dv_receptor.'&monto='.$monto_dte.'&fechaEmision='.$fecha_envio;
+        //echo $url."<br>"; 
         // $url = 'https://api.sii.cl/recursos/v1/boleta.electronica.envio/'.$rut.'-'.$dv.'-'.$track_id;
         /*$url = self::$URL.'/boleta.electronica/'.$rut.'-'.$dv.'-'.$dte.'-'.$folio.'/estado?rut_receptor='.$rut_receptor.'&dv_receptor='.$dv_receptor.'&monto='.$DteEmitido->getTotal().'&fechaEmision='.$fecha_envio;*/
        // $url = self::$URL.'/boleta.electronica.envio/'.$rut.'-'.$dv.'-'.$track_id;
@@ -373,13 +373,13 @@ class EnvioBoleta
         // enviar al SII
         for ($i=0; $i<$retry; $i++) {
             $response = curl_exec($curl);
-            var_dump($response);//exit;
+           // var_dump($response);//exit;
             if ($response and $response!='Error 500') {
                 break;
             }
         } //exit;
         // verificar respuesta del envío y entregar error en caso que haya uno
-        var_dump($response); echo "<br>";
+       // var_dump($response); echo "<br>";
         if (!$response or $response=='Error 500') {
             if (!$response) {
                 \sasco\LibreDTE\Log::write(Estado::ENVIO_ERROR_CURL, Estado::get(Estado::ENVIO_ERROR_CURL, curl_error($curl)));
@@ -392,13 +392,13 @@ class EnvioBoleta
         // cerrar sesión curl
         curl_close($curl);
         //throw new \Exception('  '.'$token '.$token.' URL '. $url);
-        var_dump($response); 
+      //  var_dump($response); 
         //echo $response;
         //throw new \Exception($response);
         //throw new \Exception(self::status_sended($rut, $dv,$track_id,$response,$token,$retry));
         $respuesta=self::status_sended($rut, $dv,$track_id,$response,$token,$retry);
        
-       var_dump($respuesta); exit;
+       //var_dump($respuesta); exit;
         //if(in_array($respuesta['estado'],self::$rechazado)){
         if(isset(self::$rechazado[$respuesta['estado']])){
            // throw new \Exception('dentro de la condición '. $respuesta['estado']);
@@ -428,10 +428,10 @@ class EnvioBoleta
             'accept: application/json',
         ];
        
-       var_dump($header);
+      // var_dump($header);
         $url = 'https://api.sii.cl/recursos/v1/boleta.electronica.envio/'.$rut.'-'.$dv.'-'.$track_id;
         //$url = self::$URL.'/boleta.electronica.envio/'.$rut.'-'.$dv.'-'.$track_id;
-        echo "<br>". $url; echo "<br>"; //exit;
+       // echo "<br>". $url; echo "<br>"; //exit;
         curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
@@ -439,7 +439,7 @@ class EnvioBoleta
         // enviar al SII
         for ($i=0; $i<$retry; $i++) {
             $response = curl_exec($curl);
-            var_dump($response);exit;
+           // var_dump($response);exit;
             if ($response and $response!='Error 500') {
                 break;
             }
