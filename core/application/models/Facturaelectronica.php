@@ -306,10 +306,12 @@ public function consumo_folios_no_enviada(){
 		$this->db->select('c.idfactura')
 		  ->from('folios_caf c ')
 		  ->join('factura_clientes fc','c.idfactura = fc.id')
+		  ->join('caf f', 'c.idcaf = f.id')
 		  ->where('c.trackid','0')
 		  ->where('c.idfactura <> 0')
 		  ->where('c.estado','O')
-		   ->where("left(c.updated_at,10) >= '2020-11-23'");
+		   ->where("left(c.updated_at,10) >= '2020-11-23'")
+		   ->where('f.tipo_caf <> 39');
 		$query = $this->db->get();
 		return $query->result();
 	 }	
