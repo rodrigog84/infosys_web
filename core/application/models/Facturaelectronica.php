@@ -317,6 +317,24 @@ public function consumo_folios_no_enviada(){
 	 }	
 
 
+
+	public function get_boleta_no_enviada()
+    {
+        // envia todo excepto boletas que se envían aparte
+        $facturas = $this->db->select('c.idfactura')
+            ->from('folios_caf c ')
+            ->join('factura_clientes fc', 'c.idfactura = fc.id')
+            ->join('caf f', 'c.idcaf = f.id')
+            ->where('c.trackid', '0')
+            ->where('c.idfactura <> 0')
+            ->where('c.estado', 'O')
+            ->where("left(c.updated_at,10) >= '2020-11-23'")
+            ->where('f.tipo_caf = 39');
+
+        $query = $facturas->get();
+        return $query->result();
+    } 
+
 	public function get_boletas_dia($fecha){
 		$this->db->select('c.idfactura')
 		  ->from('folios_caf c ')
