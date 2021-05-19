@@ -1804,6 +1804,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
                                
             }else{
             var row = grid.getSelectionModel().getSelection()[0];
+           // console.log(row);
             viewIngresa.down('#productoId').setValue(row.data.id_producto);
             viewIngresa.down('#idpId').setValue(row.data.id);
             viewIngresa.down('#nombreproductoId').setValue(row.data.nom_producto);
