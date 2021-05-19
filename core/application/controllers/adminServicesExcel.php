@@ -3110,7 +3110,7 @@ public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
                   inner join detalle_cuenta_corriente dcc on dcc.idctacte = cc.id
                   inner join clientes c on cc.idcliente = c.id
                   inner join cuenta_contable cco on cc.idcuentacontable = cco.id
-                  where cc.saldo > 0 " . $sql_filtro . "
+                  where cc.saldo > 0 and  dcc.saldo > 0 " . $sql_filtro . "
                   order by cco.id, c.id, dcc.id");
 
             $datas = $query->result_array();
