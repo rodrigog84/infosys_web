@@ -3200,6 +3200,74 @@ public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
         }
 
 
+      public function exportarExcelCartolaTotal(){
+            
+            header("Content-type: application/vnd.ms-excel"); 
+            header("Content-disposition: attachment; filename=Cartola.xls"); 
+            
+
+
+            $this->load->database();
+
+            $query = $this->db->query("SELECT substr(cli.rut,1,length(cli.rut)-1) as rut_cli, substr(cli.rut,-1) as dv, cli.nombres, CONCAT(tc.descripcion,' ',c.numdocumento) AS origen, CONCAT(tc2.descripcion,' ',c.numdocumento_asoc) AS referencia, CONCAT(m.tipo,' ',m.numcomprobante) AS comprobante,  IF(dm.debe IS NOT NULL,dm.debe, IF((c.origen='VENTA' AND c.tipodocumento IN (1,2,19,120,101,103,16)) OR (c.origen = 'CTACTE' AND c.tipodocumento NOT IN (1,2,19,120,101,103,16)),c.valor,0)) AS debe, IF(dm.haber IS NOT NULL,dm.haber, IF((c.origen='CTACTE' AND c.tipodocumento IN (1,2,19,120,101,103,16)) OR (c.origen = 'VENTA' AND c.tipodocumento NOT IN (1,2,19,120,101,103,16)),c.valor,0)) AS haber, c.glosa, DATE_FORMAT(c.fecvencimiento,'%d/%m/%Y') AS fecvencimiento, DATE_FORMAT(c.fecha,'%d/%m/%Y') AS fecha
+FROM cartola_cuenta_corriente c
+INNER JOIN cuenta_corriente cta on c.idctacte  = cta.id
+INNER JOIN clientes cli on cta.idcliente = cli.id
+INNER JOIN tipo_documento tc ON c.tipodocumento = tc.id
+LEFT JOIN tipo_documento tc2 ON c.tipodocumento_asoc = tc2.id
+LEFT JOIN movimiento_cuenta_corriente m ON c.idmovimiento = m.id
+LEFT JOIN detalle_mov_cuenta_corriente dm ON c.idmovimiento = dm.idmovimiento AND c.idcuenta = dm.idcuenta AND c.tipodocumento = dm.tipodocumento AND c.numdocumento = dm.numdocumento
+  ORDER BY cli.rut, cli.nombres, c.tipodocumento, c.numdocumento, c.created_at");            
+
+
+            $datas = $query->result_array();
+
+            echo '<table>
+                  <tr>
+                    <td>Rut Cliente</td>
+                    <td>Dv Cliente</td>
+                    <td>Nombre Cliente</td>
+                    <td>Origen</td>
+                    <td>Referencia</td>
+                    <td>Comprobante</td>
+                    <td>Debe</td>
+                    <td>Haber</td>                    
+                    <td>Fec Vencimiento</td> 
+                    <td>Fecha</td> 
+                    </tr>
+                ';
+
+              $total_debe = 0;
+              $total_haber = 0;
+              
+              foreach($datas as $data){
+                 echo "<tr>
+                        <td>".$data['rut_cli']."</td>
+                        <td>".$data['dv']."</td>
+                        <td>".$data['nombres']."</td>
+                        <td>".$data['origen']."</td>
+                        <td>".$data['referencia']."</td>
+                        <td>".$data['comprobante']."</td>
+                        <td>".$data['debe']."</td>
+                        <td>".$data['haber']."</td>                        
+                        <td>".$data['fecvencimiento']."</td>
+                        <td>".$data['fecha']."</td>
+                      </tr>";
+                      $total_debe += $data['debe'];
+                      $total_haber += $data['haber'];
+                 }
+
+                 echo "<tr>
+                        <td colspan='2'>TOTALES</td>
+                        <td colspan='4'>&nbsp;</td>
+                        <td>".$total_debe."</td>
+                        <td>".$total_haber."</td>
+                      </tr>";
+
+
+            echo '</table>';
+        }
+
 
          public function exportarExcelCartola(){
             
@@ -3266,6 +3334,9 @@ public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
 
             echo '</table>';
         }
+
+
+
 
          public function exportarExcelConsumoDetalle()
          {

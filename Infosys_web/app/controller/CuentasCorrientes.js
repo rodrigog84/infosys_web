@@ -125,7 +125,10 @@ Ext.define('Infosys_web.controller.CuentasCorrientes', {
             },                    
             'cartolaprincipal button[action=buscarctactecartola]': {
                 click: this.buscarctactecartola
-            },            
+            }, 
+            'cartolaprincipal button[action=exportarcartolatotal]': {
+                click: this.exportarcartolatotal
+            },             
             'otrosingresosprincipal button[action=buscarctacteotrosingresos]': {
                 click: this.buscarctacteotrosingresos
             },            
@@ -805,6 +808,13 @@ Ext.define('Infosys_web.controller.CuentasCorrientes', {
 
         window.open(preurl + 'cuentacorriente/exportarCartolaPDF?idctacte='+idctacte);
     },
+
+
+  exportarcartolatotal: function(){
+               window.open(preurl + 'adminServicesExcel/exportarExcelCartolaTotal');
+
+    },
+
 
     buscarctactecartola: function(){
         var view = this.getCartolaprincipal();

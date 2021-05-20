@@ -61,6 +61,11 @@ Ext.define('Infosys_web.view.cuentascorrientes.CartolaPrincipal' ,{
             dock: 'top',
             items: [
             '->',{
+                xtype: 'button',
+                iconCls : 'icon-exel',
+                text: 'Exportar EXCEL',
+                action:'exportarcartolatotal'
+            },'-',{
                             xtype: 'combobox',
                             fieldLabel: '<b>Rut:</b>',
                             store : 'Cartolascuentacorriente',
