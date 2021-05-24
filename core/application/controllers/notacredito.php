@@ -789,19 +789,22 @@ class Notacredito extends CI_Controller {
 		$ftotal = $this->input->post('totalfacturas');
 		$tipodocumento = $this->input->post('tipodocumento');
             $tipo = 101;
+            $tipo2 = 120;
 
             $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
             left join clientes c on (acc.id_cliente = c.id)
             left join vendedores v on (acc.id_vendedor = v.id)
-            WHERE acc.num_factura = '.$numfactura.' AND acc.tipo_documento = '.$tipo.' ');
+            WHERE acc.num_factura = '.$numfactura.' AND acc.tipo_documento in ('.$tipo.','. $tipo2 .') order by id desc');
 
             if($query->num_rows()>0){
 
-            $row = $query->first_row();
+                $row = $query->first_row();
 
-            $forma = ($row->forma);
+                $forma = ($row->forma);
 
-            };
+            }else{
+                $forma = 0;
+            }
 
 
 
@@ -1024,7 +1027,9 @@ class Notacredito extends CI_Controller {
 			include $this->facturaelectronica->ruta_libredte();
 
 			$tipo_nota_credito = $this->input->post('tipo_nota_credito');
-			$glosa = $tipo_nota_credito == 1 ? 'Anula factura '. $numfactura_asoc : 'Correccion factura '. $numfactura_asoc;
+            $tipo_doc_glosa = $tipodocumento_asoc == 120 ? 'boleta' : 'factura';
+
+            $glosa = $tipo_nota_credito == 1 ? 'Anula ' . $tipo_doc_glosa .' '. $numfactura_asoc : 'Correccion '. $tipo_doc_glosa . ' ' . $numfactura_asoc;
 
 			$empresa = $this->facturaelectronica->get_empresa();
 			$datos_empresa_factura = $this->facturaelectronica->get_empresa_factura($idfactura);
@@ -1050,6 +1055,8 @@ class Notacredito extends CI_Controller {
 				//$lista_detalle[$i]['DescuentoMonto'] = $detalle->descuento;
 				$i++;
 			}
+
+            $TpoDocRef = tdtocaf($tipodocumento_asoc);
 
             $rutCliente = substr($datos_empresa_factura->rut_cliente,0,strlen($datos_empresa_factura->rut_cliente) - 1)."-".substr($datos_empresa_factura->rut_cliente,-1);
              $dir_cliente = is_null($datos_empresa_factura->dir_sucursal) ? permite_alfanumerico($datos_empresa_factura->direccion) : permite_alfanumerico($datos_empresa_factura->dir_sucursal);
@@ -1087,7 +1094,7 @@ class Notacredito extends CI_Controller {
 			    ],
 				'Detalle' => $lista_detalle,
 		        'Referencia' => [
-		            'TpoDocRef' => 33,
+		            'TpoDocRef' => $TpoDocRef,
 		            'FolioRef' => $numfactura,
 		            'CodRef' => $tipo_nota_credito,
 		            'RazonRef' => $glosa,

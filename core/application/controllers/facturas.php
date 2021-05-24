@@ -2378,6 +2378,7 @@ class Facturas extends CI_Controller {
         $nombre = $this->input->get('nombre');
         $codigo = $this->input->get('codigo');        
         $tipo = "101";
+        $tipo2 = "120";
 
 
 
@@ -2385,18 +2386,19 @@ class Facturas extends CI_Controller {
 		$data = array();
 
 		if($nombre){
-
+ 
 			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id = '.$nombre.' AND acc.tipo_documento = '.$tipo.' ');
+			WHERE acc.id = '.$nombre.' AND acc.tipo_documento in ('.$tipo.',' . $tipo2 .')');
+
 
 			if($query->num_rows()>0){
 
 		 		$row = $query->first_row();
 
 		 	    $forma = ($row->forma);
-
+        
 		 	    if ($forma==0 or $forma==2){
 
                 $query = $this->db->query('SELECT acc.*, p.nombre as nombre, p.codigo 
@@ -2672,6 +2674,7 @@ class Facturas extends CI_Controller {
         $nombre = $this->input->get('nombre');
         $numero = $this->input->get('numero');        
         $tipo = "101";
+        $tipo2 = "120";
 
 
 		$countAll = $this->db->count_all_results("factura_clientes");
@@ -2681,7 +2684,7 @@ class Facturas extends CI_Controller {
 		$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id_cliente = '.$nombre.' AND acc.tipo_documento = '.$tipo.'' );
+			WHERE acc.id_cliente = '.$nombre.' AND acc.tipo_documento in ('.$tipo.',' . $tipo2 .')');
 
 		
 		  $total = 0;
@@ -2728,7 +2731,7 @@ class Facturas extends CI_Controller {
 		$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.num_factura = '.$numero.' AND acc.tipo_documento = '.$tipo.'' );
+			WHERE acc.num_factura = '.$numero.' AND acc.tipo_documento ('.$tipo.',' . $tipo2 .')' );
 
 		
 		  $total = 0;
