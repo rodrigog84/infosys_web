@@ -82,9 +82,9 @@ Ext.define('Infosys_web.view.Produccion.detalle_stock' ,{
                 hidden: true
 
             },{
-                header: "Precio Venta",
+                header: "Precio Promedio",
                 flex: 1,
-                dataIndex: 'valor_producto',
+                dataIndex: 'p_promedio',
                 align: 'right',
                 renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")}
 

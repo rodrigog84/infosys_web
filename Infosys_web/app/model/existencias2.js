@@ -22,7 +22,7 @@ Ext.define('Infosys_web.model.existencias2', {
         {name: 'fecha_vencimiento', type:'date',dateFormat:"Y-m-d"},  
         {name: 'lote'}, 
         {name: 'stock_critico', decimalPrecision:4}, 
-        {name: 'p_promedio'}, 
+        {name: 'p_promedio', decimalPrecision:4}, 
              
 
             

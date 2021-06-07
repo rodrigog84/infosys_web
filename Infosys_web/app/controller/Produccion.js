@@ -241,7 +241,7 @@ Ext.define('Infosys_web.controller.Produccion', {
                         var cliente = resp.cliente;                        
                         var id = (cliente.id);
                         viewIngresa.down('#productoId').setValue(cliente.id);
-                        viewIngresa.down('#precioId').setValue(cliente.p_venta);
+                        viewIngresa.down('#precioId').setValue(cliente.p_promedio);
                         viewIngresa.down('#cantidadoriId').setValue(cliente.stock);
                         viewIngresa.down('#stockcriticoId').setValue(cliente.stock_critico);
                         viewIngresa.down('#nombreproductoforId').setValue(cliente.nombre); 
@@ -253,7 +253,7 @@ Ext.define('Infosys_web.controller.Produccion', {
                         viewIngresa = Ext.create('Infosys_web.view.Produccion.detalle_stock2').show();
                         viewIngresa.down('#stockId').setValue(cliente.stock);
                         viewIngresa.down('#stockcriticoId').setValue(cliente.stock_critico);
-                        viewIngresa.down('#pventaId').setValue(cliente.p_venta);
+                        viewIngresa.down('#pventaId').setValue(cliente.p_promedio);
                         };                    
                 }else{
                       var view = Ext.create('Infosys_web.view.productos.Ingresar').show();
@@ -650,7 +650,7 @@ Ext.define('Infosys_web.controller.Produccion', {
             viewIngresa.down('#nombreproductoforId').setValue(row.data.nom_producto);
             viewIngresa.down('#codigoId').setValue(row.data.codigo);  
             viewIngresa.down('#cantidadoriId').setValue(row.data.saldo);        
-            viewIngresa.down('#precioId').setValue(row.data.valor_producto);
+            viewIngresa.down('#precioId').setValue(row.data.p_promedio);
             //console.log(row.data.lote);
             viewIngresa.down('#loteId').setValue(row.data.lote);
             viewIngresa.down('#stockcriticoId').setValue(stockcriticoid);
@@ -762,7 +762,7 @@ Ext.define('Infosys_web.controller.Produccion', {
                         var cliente = resp.cliente;                        
                         var id = (cliente.id);
                         viewIngresa.down('#productoId').setValue(cliente.id);
-                        viewIngresa.down('#precioId').setValue(cliente.p_venta);
+                        viewIngresa.down('#precioId').setValue(cliente.p_promedio);
                         viewIngresa.down('#cantidadoriId').setValue(cliente.stock);
                         viewIngresa.down('#stockcriticoId').setValue(cliente.stock_critico);
                         viewIngresa.down('#nombreproductoforId').setValue(cliente.nombre); 
@@ -774,7 +774,7 @@ Ext.define('Infosys_web.controller.Produccion', {
                         viewIngresa = Ext.create('Infosys_web.view.Produccion.detalle_stock').show();
                         viewIngresa.down('#stockId').setValue(cliente.stock);
                         viewIngresa.down('#stockcriticoId').setValue(cliente.stock_critico);
-                        viewIngresa.down('#pventaId').setValue(cliente.p_venta);
+                        viewIngresa.down('#pventaId').setValue(cliente.p_promedio);
                         };                    
                 }else{
                       var view = Ext.create('Infosys_web.view.productos.Ingresar').show();
