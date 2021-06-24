@@ -1526,6 +1526,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
                 fechafactura : fechafactura,
                 fechavenc: fechavenc,
                 tipodocumento : tipo_documento,
+                tipo_nota_credito : tipo_nota_credito,
                 netofactura: viewIngresa.down('#finaltotalnetoId').getValue(),
                 ivafactura: viewIngresa.down('#finaltotalivaId').getValue(),
                 afectofactura: viewIngresa.down('#finalafectoId').getValue(),
