@@ -1042,7 +1042,8 @@ class Notacredito extends CI_Controller {
 				$lista_detalle[$i]['QtyItem'] = $detalle->cantidad;
 				//$lista_detalle[$i]['PrcItem'] = floor($detalle->precio/1.19);
 				//$lista_detalle[$i]['PrcItem'] = round($detalle->precio/1.19,0);
-                $lista_detalle[$i]['PrcItem'] = round($detalle->precio,0);
+                //$lista_detalle[$i]['PrcItem'] = round($detalle->precio,0);
+                $lista_detalle[$i]['PrcItem'] = $detalle->precio;
 
 				if($detalle->descuento != 0){
 					//$porc_descto = round(($detalle->descuento/($detalle->cantidad*$lista_detalle[$i]['PrcItem'])*100),0);
@@ -1101,7 +1102,7 @@ class Notacredito extends CI_Controller {
 		        ]				
 			];			
 
-
+        
 			//FchResol y NroResol deben cambiar con los datos reales de producción
 			$caratula = [
 			    //'RutEnvia' => '11222333-4', // se obtiene de la firma
