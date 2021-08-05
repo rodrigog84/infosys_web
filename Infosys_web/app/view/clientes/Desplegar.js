@@ -12,6 +12,19 @@ Ext.define('Infosys_web.view.clientes.Desplegar', {
     iconCls: 'icon-sheet',
 
    initComponent: function() {
+        me = this;
+        var tipomora = Ext.create('Ext.data.Store', {
+            fields: ['value', 'nombre'],
+            data : [
+                {"value":'5', "nombre":"5 Días"},
+                {"value":'10', "nombre":"10 Días"},
+                {"value":'15', "nombre":"15 Días"},
+                {"value":'20', "nombre":"20 Días"},
+                {"value":'25', "nombre":"25 Días"},
+                {"value":'30', "nombre":"30 Días"}
+            ]
+        });
+
         this.items = [
             {
                 xtype: 'form',
@@ -287,7 +300,7 @@ Ext.define('Infosys_web.view.clientes.Desplegar', {
                         xtype: 'numberfield',
                         name : 'cred_util',
                         labelWidth: 90,
-                        width: 250,
+                        width: 200,
                         itemId: 'credutilId',
                         fieldLabel: 'Cred. Utilizado',
                         readOnly: true
@@ -295,7 +308,7 @@ Ext.define('Infosys_web.view.clientes.Desplegar', {
                     },{xtype: 'splitter'},{
                         xtype: 'combo',
                         labelWidth: 90,
-                        width: 250,
+                        width: 200,
                         itemId: 'tipoclientId',
                         fieldLabel: 'Tipo Cliente',
                         forceSelection : true,
@@ -306,7 +319,21 @@ Ext.define('Infosys_web.view.clientes.Desplegar', {
                         emptyText : "Seleccione",
                         store : 'clientes.Tipo_cliente',
                      
-                    },]
+                    },{xtype: 'splitter'},{
+                        xtype: 'combo',
+                        labelWidth: 90,
+                        width: 250,
+                        itemId: 'mora_permitida',
+                        fieldLabel: 'Mora Permitida',
+                        forceSelection : true,
+                        editable : false,
+                        name : 'dias_mora_permitido',
+                        valueField : 'value',
+                        displayField : 'nombre',
+                        emptyText : "Seleccione",
+                        store : tipomora
+                     
+                    }]
                     }
                 ]
             }

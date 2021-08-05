@@ -78,6 +78,11 @@ Ext.define('Infosys_web.view.clientes.Principal' ,{
         dataIndex: 'nom_id_pago',
         hidden: true
     },{
+        header: "Dias Mora Permitido",
+        flex: 1,
+        dataIndex: 'dias_mora_permitido',
+        hidden: true
+    },{
         header: "Acuerdo",
         width: 130,
         dataIndex: 'tipo_acuerdo',

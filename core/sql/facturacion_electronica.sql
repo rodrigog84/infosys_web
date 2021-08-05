@@ -346,3 +346,10 @@ ALTER TABLE `observacion_facturas`
 
 ALTER TABLE `factura_clientes`
 	ADD COLUMN `num_pedido` VARCHAR(50) NOT NULL AFTER `orden_compra`;
+
+
+
+/******************************************************/
+
+ALTER TABLE `clientes`
+	ADD COLUMN `dias_mora_permitido` INT NOT NULL DEFAULT 0 AFTER `fecha_acuerdo`;

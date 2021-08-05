@@ -889,6 +889,8 @@ Ext.define('Infosys_web.controller.Clientes', {
         var id_credito = view.down('#tipocredId').getValue();
         var ufcredito = view.down('#ufaprobId').getValue();
         var tcliente = view.down('#tipoclientId').getValue();
+        var morapermitida = view.down('#mora_permitida').getValue();
+        //console.log(morapermitida);
         var st = this.getClientesStore();
 
          Ext.Ajax.request({
@@ -914,7 +916,8 @@ Ext.define('Infosys_web.controller.Clientes', {
                 estado : estado,
                 tipocliente : tipocliente,
                 id_credito: id_credito,
-                ufcredito: ufcredito
+                ufcredito: ufcredito,
+                morapermitida: morapermitida
             },
              success: function(response){
                 view.close();
@@ -931,6 +934,7 @@ Ext.define('Infosys_web.controller.Clientes', {
         var view = this.getClientesprincipal();
         if (view.getSelectionModel().hasSelection()) {
             var row = view.getSelectionModel().getSelection()[0];
+            console.log(row)
             var edit = Ext.create('Infosys_web.view.clientes.Desplegar').show();
             edit.down('form').loadRecord(row);
            

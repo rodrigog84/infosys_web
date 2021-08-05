@@ -216,6 +216,7 @@ class Clientes extends CI_Controller {
 		$idcredito = $this->input->post('id_credito');
 		$ufcredito = $this->input->post('ufcredito');
 		$tcliente = $this->input->post('tcliente');
+		$morapermitida = $this->input->post('morapermitida');
 		
 		
 		$data = array(
@@ -237,7 +238,8 @@ class Clientes extends CI_Controller {
           	'tipo' => $tipocliente,
           	'id_credito' => $idcredito,
           	'uf_cred' => $ufcredito,
-          	'tipo_cliente' => $tcliente
+          	'tipo_cliente' => $tcliente,
+          	'dias_mora_permitido' => $morapermitida
               
 	    );
 	    

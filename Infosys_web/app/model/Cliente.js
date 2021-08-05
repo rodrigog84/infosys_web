@@ -35,6 +35,7 @@ Ext.define('Infosys_web.model.Cliente', {
         {name: 'uf_cred'},
         {name: 'cred_util'},
         {name: 'tipo_cliente'},
+        {name: 'dias_mora_permitido'},
 
     ]
 });
