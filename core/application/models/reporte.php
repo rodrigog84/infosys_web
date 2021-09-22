@@ -283,7 +283,7 @@ class Reporte extends CI_Model
 
 		$data_detalle = $mes != '' ? $data_detalle->where('month(f.fecha_factura)',$mes) : $data_detalle;
 		$data_detalle = $anno != '' ? $data_detalle->where('year(f.fecha_factura)',$anno) : $data_detalle;
-		$data_detalle = $tipo != '' ? $data_detalle->where('f.tipo_documento',$tipo,$tipo2) : $data_detalle;
+		$data_detalle = $tipo != '' ? $data_detalle->where('f.tipo_documento',$tipo,$tipo2,$tipo3) : $data_detalle;
 		
 		$query = $this->db->get();                            
         $result_cantidad = $query->row()->cantidad; 
