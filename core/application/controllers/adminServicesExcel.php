@@ -566,7 +566,7 @@ public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
 
             $this->load->model('reporte');
             $detalle_estadistica_venta = $this->reporte->reporte_estadisticas_ventas(null,null,$mes,$anno,$tipoprecio);
-                    
+                  
             
             echo '<table>';
             echo "<tr><td colspan='8'><b>Detalle Estadisticas Ventas - " . month2string((int)$mes)." de " . $anno . "</b></td></tr>";
@@ -588,7 +588,7 @@ public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
                  echo "<td>".$detalle_estadistica->codigo."</td>";
                  echo "<td>".$detalle_estadistica->familia."</td>";
                  echo "<td>".$detalle_estadistica->nombre."</td>";
-                 echo "<td>".$detalle_estadistica->unidades."</td>";
+                 echo "<td>".str_replace('.',',',$detalle_estadistica->unidades)."</td>";
                  echo "<td>".number_format($detalle_estadistica->ventaneta,0,".",".")."</td>";
                  echo "<td>".number_format($detalle_estadistica->costo,0,".",".")."</td>";
                  echo "<td>".$detalle_estadistica->margen."</td>";
