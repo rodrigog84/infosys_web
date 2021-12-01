@@ -353,3 +353,13 @@ ALTER TABLE `factura_clientes`
 
 ALTER TABLE `clientes`
 	ADD COLUMN `dias_mora_permitido` INT NOT NULL DEFAULT 0 AFTER `fecha_acuerdo`;
+
+/*******************************************************************/
+ALTER TABLE `factura_clientes`
+	ADD COLUMN `impuesto` INT(20) NOT NULL AFTER `iva`;
+
+/*******************************************************************/
+
+ALTER TABLE `detalle_factura_cliente`
+	ADD COLUMN `id_guia` INT(11) NOT NULL AFTER `id_notacredito`,
+	ADD COLUMN `num_guia` INT(11) NOT NULL AFTER `id_guia`;

@@ -285,8 +285,9 @@ public function get_consumo_folios_by_id($id){
 	 }
 
 	public function get_detalle_factura_glosa($id_factura){
-		$this->db->select('f.glosa, f.neto, f.iva, f.total ')
+		$this->db->select('p.nombre, f.glosa, f.cantidad, f.neto, f.iva, f.total ')
 		  ->from('detalle_factura_glosa f')
+		  ->join('productos p','f.id_producto = p.id','left')
 		  ->where('f.id_factura',$id_factura);
 		$query = $this->db->get();
 		return $query->result();

@@ -1095,6 +1095,7 @@ Ext.define('Infosys_web.controller.Facturaganado', {
                 var idfactura= resp.idfactura;
                  viewIngresa.close();
                  stFactura.load();
+                  window.open(preurl + 'facturas/exportPDF/?idfactura='+idfactura);
                  //window.open(preurl + 'facturas/exportPDF/?idfactura='+idfactura);      
                  /*if (tipo_documento == 1){
                  window.open(preurl + 'facturas/exportTXTGanado/?idfactura='+idfactura);

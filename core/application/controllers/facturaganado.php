@@ -496,6 +496,8 @@ class Facturaganado extends CI_Controller {
 		
 		$resp = array();
 
+            //print_r($_POST); //exit;
+
 		$idcliente = $this->input->post('idcliente');
 		$numdocuemnto = $this->input->post('numdocumento');
 		$fechafactura = $this->input->post('fechafactura');
@@ -512,6 +514,17 @@ class Facturaganado extends CI_Controller {
 		$tipodocumento = $this->input->post('tipodocumento');
             $ordencompra = $this->input->post('ordencompra');
             $idguia = $this->input->post('idguiadespacho');
+            $numguia = 0;
+
+            $idguia = $idguia == '' ? 0 : $idguia;
+
+            if($idguia != 0){
+                       
+                        $query_guia = $this->db->query('SELECT num_factura FROM factura_clientes WHERE id='.$idguia.'');
+                        $row_guia = $query_guia->first_row();
+                        $numguia = $row_guia->num_factura;
+
+            }
 
             if ($tipodocumento == 19){			
 			$fiva = 0;
@@ -561,12 +574,15 @@ class Facturaganado extends CI_Controller {
 			$factura_clientes_item = array(
 		        'id_factura' => $idfactura,
 		        'id_producto' => $v->id_producto,
-		        'kilos' => $v->kilos,
+		        'kilos' => $v->kilos == NULL ? 0 : $v->kilos,
 		        'cantidad' => $v->cantidad,
 		        'precios' => $v->precio,
 		        'neto' => $v->neto,
 		        'iva' => $v->iva,
-		        'total' => $v->total
+		        'total' => $v->total,
+                    'id_guia' => $v->id_producto == 0 ? $idguia : 0,
+                    'num_guia' => $v->id_producto == 0 ? $numguia : 0,
+                    'glosa' => $numguia != 0 && $v->id_producto == 0 ? 'SEGUN GUIA NRO '. $numguia : ''
 			);
 
 		$this->db->insert('detalle_factura_glosa', $factura_clientes_item);
@@ -767,7 +783,7 @@ class Facturaganado extends CI_Controller {
 		$this->Bitacora->logger("I", 'factura_clientes', $idfactura);
 
       /**************************** FACTURA ELEC ******/
-   /*if($tipodocumento == 101 || $tipodocumento == 103 || $tipodocumento == 107|| $tipodocumento == 105){  // SI ES FACTURA ELECTRONICA O FACTURA EXENTA ELECTRONICA
+   if($tipodocumento == 101 || $tipodocumento == 103 || $tipodocumento == 107|| $tipodocumento == 105){  // SI ES FACTURA ELECTRONICA O FACTURA EXENTA ELECTRONICA
 
                   if($tipodocumento == 101){
                   $tipo_caf = 33;
@@ -799,12 +815,13 @@ class Facturaganado extends CI_Controller {
 
                   $referencia = array();
                   $NroLinRef = 1;
-                  if($ordencompra != ""){
+
+                  if($idguia != 0){
                         $referencia[($NroLinRef-1)]['NroLinRef'] = $NroLinRef;
                         //$referencia['TpoDocRef'] = $datos_empresa_factura->tipodocref;
-                        $referencia[($NroLinRef-1)]['TpoDocRef'] = 801;
-                        $referencia[($NroLinRef-1)]['FolioRef'] = $ordencompra;
-                        $referencia[($NroLinRef-1)]['FchRef'] = substr($fechafactura,0,10);
+                        $referencia[($NroLinRef-1)]['TpoDocRef'] = 52;
+                        $referencia[($NroLinRef-1)]['FolioRef'] = $numguia;
+                        $referencia[($NroLinRef-1)]['RazonRef'] = 'Factura de Ganado asociado a guia '.$numguia;
                         $NroLinRef++;
                   }
 
@@ -813,10 +830,10 @@ class Facturaganado extends CI_Controller {
                   $lista_detalle = array();
                   $i = 0;
                   foreach ($detalle_factura as $detalle) {
-                        $lista_detalle[$i]['NmbItem'] = $detalle->nombre;
-                        $lista_detalle[$i]['QtyItem'] = number_format($detalle->cantidad, 0, ',', '.');
-                        $lista_detalle[$i]['CdgItem'] = $detalle->codigo;                        
-                        $lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 || $tipo_caf == 46 ? $detalle->precios;                        
+                        $lista_detalle[$i]['NmbItem'] = $detalle->nombre == '' ? $detalle->glosa : $detalle->nombre;
+                        $lista_detalle[$i]['QtyItem'] = $detalle->nombre == '' ? 1 : number_format($detalle->cantidad, 0, ',', '.');
+                       // $lista_detalle[$i]['CdgItem'] = $detalle->codigo;                        
+                        $lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 || $tipo_caf == 46 ? $detalle->neto : $detalle->total;                        
                         $i++;
                   }
 
@@ -880,19 +897,8 @@ class Facturaganado extends CI_Controller {
                       'NroResol' => $empresa->nro_resolucion
                   ];  
                   
-                 // print_r($lista_detalle);
-                 // exit;
-
-         
-              
-
-
-                  
-
-
-                  //exit;
                   // Objetos de Firma y Folios
-               /*   $Firma = new sasco\LibreDTE\FirmaElectronica($config['firma']); //lectura de certificado digital            
+                    $Firma = new sasco\LibreDTE\FirmaElectronica($config['firma']); //lectura de certificado digital            
 
                   $caf = $this->facturaelectronica->get_content_caf_folio($numdocuemnto,$tipo_caf);
                   $Folios = new sasco\LibreDTE\Sii\Folios($caf->caf_content);
@@ -930,7 +936,7 @@ class Facturaganado extends CI_Controller {
 
 
                       if($tipo_envio == 'automatico'){
-                            $track_id = $EnvioDTE->enviar();
+                            //$track_id = $EnvioDTE->enviar();
                       }
 
                       $this->db->where('f.folio', $numdocuemnto);
@@ -947,7 +953,8 @@ class Facturaganado extends CI_Controller {
                         if($track_id != 0 && $datos_empresa_factura->e_mail != ''){ //existe track id, se envía correo
                               $this->facturaelectronica->envio_mail_dte($idfactura);
                         }
-                  }*/
+                  }
+            }
 
       
         echo json_encode($resp);
