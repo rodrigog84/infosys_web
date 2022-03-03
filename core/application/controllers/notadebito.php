@@ -7,7 +7,7 @@ class Notadebito extends CI_Controller {
 	public function __construct()
 	{
 		parent::__construct();
-		
+		$this->load->helper('format');
 		$this->load->database();
 	}
 
@@ -441,9 +441,9 @@ class Notadebito extends CI_Controller {
 	}
 
 	public function save(){
-		
+		$this->load->model('facturaelectronica');
 		$resp = array();
-
+           //print_r($_POST); exit;
 		$numfactura_asoc = $this->input->post('numfactura_asoc'); //ID OBTENIDO PARA AUMENTAR EN CUENTA CORRIENTE
 
 		$idcliente = $this->input->post('idcliente');
@@ -462,6 +462,9 @@ class Notadebito extends CI_Controller {
 		$fafecto = $this->input->post('afectofactura');
 		$ftotal = $this->input->post('totalfacturas');
 		$tipodocumento = $this->input->post('tipodocumento');
+
+            $datos_doc_ref = $this->facturaelectronica->get_factura($numfactura);
+            $tipo_doc_ref = isset($datos_doc_ref->tipo_documento) ? tdtocaf($datos_doc_ref->tipo_documento) : 33;
 		//$tipodocumento = 16;
 
 		$data3 = array(
@@ -578,12 +581,20 @@ class Notadebito extends CI_Controller {
 
      if($tipodocumento == 104){  // SI ES NOTA DE DEBITO ELECTRONICA
             header('Content-type: text/plain; charset=ISO-8859-1');
-            $this->load->model('facturaelectronica');
+            
             $config = $this->facturaelectronica->genera_config();
             include $this->facturaelectronica->ruta_libredte();
 
             $tipo_nota_debito = 2; //tenemos sólo nota de crédito glosa
-            $glosa = 'Correccion factura '. $numfactura_asoc;
+            if($tipo_doc_ref == 61){
+                  $glosa = 'Correccion nota de crédito '. $numfactura_asoc;      
+            }else{
+                  $glosa = 'Correccion factura '. $numfactura_asoc;      
+            }
+            
+
+
+
 
             $empresa = $this->facturaelectronica->get_empresa();
             $datos_empresa_factura = $this->facturaelectronica->get_empresa_factura($idfactura);
@@ -636,8 +647,8 @@ class Notadebito extends CI_Controller {
                 ],
                 'Detalle' => $lista_detalle,
                 'Referencia' => [
-                    'TpoDocRef' => 33,
-                    'FolioRef' => $numfactura,
+                    'TpoDocRef' => $tipo_doc_ref,
+                    'FolioRef' => $numfactura_asoc,
                     'CodRef' => $tipo_nota_debito,
                     'RazonRef' => $glosa,
                 ]               
