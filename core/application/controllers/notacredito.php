@@ -636,7 +636,7 @@ class Notacredito extends CI_Controller {
                 'Detalle' => $lista_detalle,
                 'Referencia' => [
                     'TpoDocRef' => 33,
-                    'FolioRef' => $numfactura,
+                    'FolioRef' => $numfactura_asoc,
                     'CodRef' => $tipo_nota_credito,
                     'RazonRef' => $glosa,
                 ]               
