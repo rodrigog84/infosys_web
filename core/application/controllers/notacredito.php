@@ -526,11 +526,10 @@ class Notacredito extends CI_Controller {
 
 
             // VERIFICAR SI CLIENTE YA TIENE CUENTA CORRIENTE
-         $query = $this->db->query("SELECT co.idcliente, co.id as idcuentacorriente  FROM cuenta_corriente co
-                                    WHERE co.idcuentacontable = '$idcuentacontable' and co.idcliente = '" . $idcliente . "' limit 1");
-         $row = $query->row();
-         $idcuentacorriente =  $row->idcuentacorriente; 
-
+        $query = $this->db->query("SELECT co.idcliente, co.id as idcuentacorriente, co.saldo  FROM cuenta_corriente co
+        WHERE co.idcuentacontable = '$idcuentacontable' and co.idcliente = '" . $idcliente . "' limit 1");
+        $row = $query->row();
+        $idcuentacorriente =  $row->idcuentacorriente;
 
         if($query->num_rows() > 0){ 
             $query = $this->db->query("UPDATE detalle_cuenta_corriente SET saldo = saldo - " . $ftotal . " where idctacte = " .  $row->idcuentacorriente . " and numdocumento = " . $numfactura_asoc);
@@ -609,6 +608,7 @@ class Notacredito extends CI_Controller {
                     'IdDoc' => [
                         'TipoDTE' => 61,
                         'Folio' => $numdocuemnto,
+                        'FchEmis' => substr($fechafactura,0,10)
                     ],
                     'Emisor' => [
                         'RUTEmisor' => $empresa->rut.'-'.$empresa->dv,
