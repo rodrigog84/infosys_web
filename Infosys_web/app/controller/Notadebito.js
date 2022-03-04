@@ -641,7 +641,14 @@ Ext.define('Infosys_web.controller.Notadebito', {
         var view = this.getNotadebitoprincipal();
         if (view.getSelectionModel().hasSelection()) {
             var row = view.getSelectionModel().getSelection()[0];
-            window.open(preurl +'notadebito/exportnotadebitoPDF/?idfactura=' + row.data.id)
+            //console.log(row.data)
+             if(row.data.tipo_documento == 104){ // NOTA DE DEBITO ELECTRONICA
+                window.open(preurl +'facturas/exportFePDF/' + row.data.id);   
+             }else{
+                window.open(preurl +'notadebito/exportnotadebitoPDF/?idfactura=' + row.data.id)    
+             }
+
+            
         }else{
             Ext.Msg.alert('Alerta', 'Selecciona un registro.');
             return;
