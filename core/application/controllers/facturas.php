@@ -229,6 +229,36 @@ class Facturas extends CI_Controller {
             echo json_encode($resp);
     }
 
+    public function validaimptocli(){
+        $rutcli = $this->input->post('rutcli');
+       // $rutcli = '78059800K';
+        $respuesta = 'NO';
+        if($rutcli != ''){
+
+          $rutcli = str_replace('.','',$rutcli);
+          $rutcli = str_replace('-','',$rutcli);
+
+          $this->db->select('imp_adicional')
+              ->from('clientes')
+              ->where('rut',$rutcli)
+              ->limit(1);
+            $query = $this->db->get();
+            $datos = $query->row();
+            $impto = $datos->imp_adicional;
+            
+            $respuesta = $impto == 5 ? 'SI' : $respuesta;
+
+        }
+
+
+
+
+            $resp['respuesta'] = $respuesta;
+            $resp['success'] = true;  
+            echo json_encode($resp);          
+    }
+
+
     public function stock2(){
 
         $resp = array();
@@ -709,6 +739,13 @@ class Facturas extends CI_Controller {
 
             // si el estado se pudo recuperar se muestra
             if ($xml!==false) {
+             // echo "<pre>";
+               //var_dump($xml->xpath('/SII:RESPUESTA/SII:RESP_HDR')[0]);
+              //echo "<br>";
+              //var_dump($xml->xpath('/SII:RESPUESTA/SII:RESP_BODY'));
+              //echo "<br>";
+              //var_dump($xml->xpath('/SII:RESPUESTA/SII:RESP_HDR/NUM_ATENCION'));
+
                 $array_result = (array)$xml->xpath('/SII:RESPUESTA/SII:RESP_HDR')[0];
                 $result['error'] = false;
                 $result['glosa_estado'] = $array_result['GLOSA_ESTADO'];
@@ -2391,7 +2428,7 @@ class Facturas extends CI_Controller {
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			WHERE acc.id = '.$nombre.' AND acc.tipo_documento in ('.$tipo.',' . $tipo2 .')');
-
+      
 
 			if($query->num_rows()>0){
 
@@ -2675,6 +2712,7 @@ class Facturas extends CI_Controller {
         $numero = $this->input->get('numero');        
         $tipo = "101";
         $tipo2 = "120";
+        $tipo3 = "102";
 
 
 		$countAll = $this->db->count_all_results("factura_clientes");
@@ -2684,7 +2722,7 @@ class Facturas extends CI_Controller {
 		$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id_cliente = '.$nombre.' AND acc.tipo_documento in ('.$tipo.',' . $tipo2 .')');
+			WHERE acc.id_cliente = '.$nombre.' AND acc.tipo_documento in ('.$tipo.',' . $tipo2 .',' . $tipo3 .')');
 
 		
 		  $total = 0;
@@ -2731,7 +2769,7 @@ class Facturas extends CI_Controller {
 		$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.num_factura = '.$numero.' AND acc.tipo_documento ('.$tipo.',' . $tipo2 .')' );
+			WHERE acc.num_factura = '.$numero.' AND acc.tipo_documento ('.$tipo.',' . $tipo2 .',' . $tipo3 .')' );
 
 		
 		  $total = 0;
@@ -3028,6 +3066,7 @@ class Facturas extends CI_Controller {
 		$neto = $this->input->post('netofactura');
 		$formadepago = $this->input->post('formadepago');
 		$fiva = $this->input->post('ivafactura');
+    $fimptofactura = $this->input->post('imptofactura');
 		$fafecto = $this->input->post('afectofactura');
 		$ftotal = $this->input->post('totalfacturas');
 		$tipodocumento = $this->input->post('tipodocumento');
@@ -3069,6 +3108,7 @@ class Facturas extends CI_Controller {
       'descuento' => ($neto - $fafecto),
       'neto' => $neto,
       'iva' => $fiva,
+      'impuesto' => $fimptofactura,
       'totalfactura' => $ftotal,
       'fecha_factura' => $fechafactura,
       'fecha_venc' => $fechavenc,
@@ -3262,8 +3302,16 @@ class Facturas extends CI_Controller {
                        // $lista_detalle[$i]['PrcItem'] = $detalle->precio;
                        // $lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 || $tipo_caf == 52 ? floor($detalle->neto) : floor($detalle->totalproducto);
 
+                       if($fimptofactura > 0){
+                          $lista_detalle[$i]['CodImpAdic'] = '18';
+
+                       }
+
                         $i++;
                   }
+
+
+
 
                 $rutCliente = substr($datos_empresa_factura->rut_cliente,0,strlen($datos_empresa_factura->rut_cliente) - 1)."-".substr($datos_empresa_factura->rut_cliente,-1);
 
@@ -3303,6 +3351,21 @@ class Facturas extends CI_Controller {
 
                 }else{
 
+                        $totales_xml = array();
+                        $totales_xml['MntNeto'] = isset($datos_factura->neto) ? $datos_factura->neto : 0;
+                        $totales_xml['IVA'] = isset($datos_factura->iva) ? $datos_factura->iva : 0;
+                        $totales_xml['MntTotal'] = isset($datos_factura->totalfactura) ? $datos_factura->totalfactura : 0;
+
+                        // si se cobra impuesto, entonces hay que agregar los tag correspondientes
+                        if($fimptofactura > 0){
+
+                          $totales_xml['ImptoReten'] = array('TipoImp' => '18',
+                                                             'TasaImp' => '5',
+                                                             'MontoImp' => $fimptofactura);
+
+
+                        }
+
                         $factura = [
                                 'Encabezado' => [
                                     'IdDoc' => [
@@ -3326,13 +3389,7 @@ class Facturas extends CI_Controller {
                                         'DirRecep' => substr($dir_cliente,0,70), //LARGO DE DIRECCION NO PUEDE SER SUPERIOR A 70 CARACTERES
                                         'CmnaRecep' => substr($nombre_comuna,0,20), //LARGO DE COMUNA NO PUEDE SER SUPERIOR A 20 CARACTERES
                                     ],
-                                  'Totales' => [
-                                      // estos valores serán calculados automáticamente
-                                      'MntNeto' => isset($datos_factura->neto) ? $datos_factura->neto : 0,
-                                      //'TasaIVA' => \sasco\LibreDTE\Sii::getIVA(),
-                                      'IVA' => isset($datos_factura->iva) ? $datos_factura->iva : 0,
-                                      'MntTotal' => isset($datos_factura->totalfactura) ? $datos_factura->totalfactura : 0,
-                                  ],                        
+                                  'Totales' => $totales_xml,                        
                                 ],
                                   'Detalle' => $lista_detalle,
                                   'Referencia' => $referencia
@@ -7167,6 +7224,9 @@ class Facturas extends CI_Controller {
     $estado = \sasco\LibreDTE\Sii::request('QueryEstUp', 'getEstUp', [$rut, $dv, $trackID, $token]);
     // si el estado se pudo recuperar se muestra estado y glosa
     if ($estado!==false) {
+      echo "<pre>";
+      var_dump($estado->xpath('/SII:RESPUESTA/SII:RESP_HDR'));
+      var_dump($estado->xpath('/SII:RESPUESTA/SII:RESP_BODY'));
         $result['error'] = false;
         $result['codigo'] = (string)$estado->xpath('/SII:RESPUESTA/SII:RESP_HDR/ESTADO')[0];      
         $result['glosa'] = (string)$estado->xpath('/SII:RESPUESTA/SII:RESP_HDR/ESTADO')[0] != -11 ? (string)$estado->xpath('/SII:RESPUESTA/SII:RESP_HDR/GLOSA')[0] : "Trackid Err&oacute;neo";      
