@@ -585,10 +585,12 @@ class Notadebito extends CI_Controller {
             $config = $this->facturaelectronica->genera_config();
             include $this->facturaelectronica->ruta_libredte();
 
-            $tipo_nota_debito = 2; //tenemos sólo nota de crédito glosa
+            ; //tenemos sólo nota de crédito glosa
             if($tipo_doc_ref == 61){
+                  $tipo_nota_debito = 1;
                   $glosa = 'Correccion nota de crédito '. $numfactura_asoc;      
             }else{
+                  $tipo_nota_debito = 2;
                   $glosa = 'Correccion factura '. $numfactura_asoc;      
             }
             
