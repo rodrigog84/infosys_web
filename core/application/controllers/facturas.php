@@ -3066,7 +3066,8 @@ class Facturas extends CI_Controller {
 		$neto = $this->input->post('netofactura');
 		$formadepago = $this->input->post('formadepago');
 		$fiva = $this->input->post('ivafactura');
-    $fimptofactura = $this->input->post('imptofactura');
+   // $fimptofactura = $this->input->post('imptofactura');
+    $fimptofactura = 0;
 		$fafecto = $this->input->post('afectofactura');
 		$ftotal = $this->input->post('totalfacturas');
 		$tipodocumento = $this->input->post('tipodocumento');
@@ -3108,7 +3109,7 @@ class Facturas extends CI_Controller {
       'descuento' => ($neto - $fafecto),
       'neto' => $neto,
       'iva' => $fiva,
-      'impuesto' => $fimptofactura,
+      //'impuesto' => $fimptofactura,
       'totalfactura' => $ftotal,
       'fecha_factura' => $fechafactura,
       'fecha_venc' => $fechavenc,
