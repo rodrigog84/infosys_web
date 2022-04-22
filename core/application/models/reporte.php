@@ -275,6 +275,14 @@ class Reporte extends CI_Model
 		$tipo2=120;
 		$tipo3=102;
 
+
+		$sql_tipo_documento =  "and f.tipo_documento in (101,120,102)";
+		$sql_mes = $mes != '' ? "and month(f.fecha_factura) = '" . $mes . "'" : "";
+		$sql_anno = $anno != '' ? "and year(f.fecha_factura) = '" . $anno . "'" : "";
+
+
+
+
 		$data_detalle = $this->db->select("count(distinct p.id) as cantidad",false)
 		  ->from('detalle_factura_cliente d')
 		  ->join('factura_clientes f','d.id_factura = f.id')
@@ -292,11 +300,90 @@ class Reporte extends CI_Model
 		/*$data_stock = $this->db->select("m.id as num, '' as tipodocto, '' as numdocto, fecha, '' as precio, '' as cant_entradas, '' as cant_salidas, '' as stock, '' as detalle",false)
 		  ->from('movimientodiario_detalle m');*/
 
-		$data_detalle = $this->db->select("p.id, p.codigo, p.nombre, sum(CASE WHEN f.tipo_documento = 102 then d.cantidad*(-1) ELSE d.cantidad END) as unidades, sum(CASE WHEN f.tipo_documento = 102 then d.precio*d.cantidad*(-1) ELSE d.neto END) as ventaneta, round(p." . $tipoprecio . "*sum(CASE WHEN f.tipo_documento = 102 THEN d.cantidad*(-1) ELSE d.cantidad END)) as costo, round((sum(CASE WHEN f.tipo_documento = 102 THEN d.precio*d.cantidad*(-1) ELSE d.neto END) - p." . $tipoprecio . "*sum(CASE WHEN f.tipo_documento = 102 THEN d.cantidad*(-1) ELSE d.cantidad END))) as margen, concat(round((sum(CASE WHEN f.tipo_documento = 102 THEN d.neto*(-1) ELSE d.neto END)/round(p." . $tipoprecio . "*sum(CASE WHEN f.tipo_documento = 102 THEN d.cantidad*(-1) ELSE d.cantidad END)) - 1)*100,2),' %') as porcmargen, tf.nombre as familia",false)
+		  $sql_query = "SELECT 	b.id
+								, b.codigo
+								, b.nombre
+								, sum(cantidad) as unidades
+								, sum(ventaneta) as ventaneta
+								, round(b.tipo_precio*sum(cantidad)) as costo
+								, round((sum(ventaneta) - b.tipo_precio*sum(cantidad))) as margen
+								, concat(round((sum(ventaneta)/round(b.tipo_precio*sum(cantidad)) - 1)*100, 2), ' %') as porcmargen
+								, b.nombre as familia 
+					FROM 	(
+							
+							SELECT 	 p.id
+										, p.codigo
+										, p.nombre
+										,f.tipo_documento
+										,CASE WHEN f.tipo_documento = 102 then d.cantidad*(-1) ELSE d.cantidad END AS cantidad
+										,CASE WHEN f.tipo_documento = 102 then d.precio*d.cantidad*(-1) ELSE d.neto END AS ventaneta
+										,p." . $tipoprecio . " as tipo_precio
+										,tf.nombre as familia 
+										,f.num_factura
+							FROM 		(detalle_factura_cliente d) 
+							JOIN 		factura_clientes f ON d.id_factura = f.id 
+							left JOIN detalle_factura_glosa g ON f.id = g.id_factura AND g.id_guia != 0
+							JOIN 		productos p ON d.id_producto = p.id 
+							JOIN 		familias tf ON p.id_familia = tf.id 
+							WHERE 		1 = 1 " . $sql_mes . " 
+							"	.		$sql_anno . "
+							" . 		$sql_tipo_documento	."
+							AND 		g.id_factura IS null
+							
+							UNION all
+							
+							SELECT 	 p.id
+										, p.codigo
+										, p.nombre
+										,f.tipo_documento
+										,CASE WHEN f.tipo_documento = 102 then d.cantidad*(-1) ELSE d.cantidad END AS cantidad
+										,CASE WHEN f.tipo_documento = 102 then d.precio*d.cantidad*(-1) ELSE d.neto END AS ventaneta
+										,p." . $tipoprecio . " as tipo_precio
+										,tf.nombre as familia 
+										,f.num_factura
+							FROM 		(detalle_factura_cliente d) 
+							INNER JOIN detalle_factura_glosa g ON d.id_factura = g.id_guia
+							JOIN 		factura_clientes f ON g.id_factura = f.id 
+							JOIN 		productos p ON d.id_producto = p.id 
+							JOIN 		familias tf ON p.id_familia = tf.id 
+							WHERE 		1 = 1 " . $sql_mes . " 
+							"	.		$sql_anno . "
+							" . 		$sql_tipo_documento	."
+
+							UNION all
+							
+							SELECT 	 0 id
+										, '00000000' as codigo
+										, 'SERVICIOS' AS nombre
+										,f.tipo_documento
+										,1 as cantidad
+										,d.neto  AS ventaneta
+										,d.precios as tipo_precio
+										, 'SERVICIOS' as familia 
+										,f.num_factura
+							FROM 		(detalle_factura_glosa d) 
+							JOIN 		factura_clientes f ON d.id_factura = f.id 
+							WHERE 		1 = 1 " . $sql_mes . " 
+							"	.		$sql_anno . "
+							" . 		$sql_tipo_documento	."
+							AND 		d.id_guia = 0
+
+							
+							) b
+					GROUP BY b.id";
+
+
+		 $data_query =  $this->db->query($sql_query);
+
+
+
+		/*$data_detalle = $this->db->select("p.id, p.codigo, p.nombre, sum(CASE WHEN f.tipo_documento = 102 then d.cantidad*(-1) ELSE d.cantidad END) as unidades, sum(CASE WHEN f.tipo_documento = 102 then d.precio*d.cantidad*(-1) ELSE d.neto END) as ventaneta, round(p." . $tipoprecio . "*sum(CASE WHEN f.tipo_documento = 102 THEN d.cantidad*(-1) ELSE d.cantidad END)) as costo, round((sum(CASE WHEN f.tipo_documento = 102 THEN d.precio*d.cantidad*(-1) ELSE d.neto END) - p." . $tipoprecio . "*sum(CASE WHEN f.tipo_documento = 102 THEN d.cantidad*(-1) ELSE d.cantidad END))) as margen, concat(round((sum(CASE WHEN f.tipo_documento = 102 THEN d.neto*(-1) ELSE d.neto END)/round(p." . $tipoprecio . "*sum(CASE WHEN f.tipo_documento = 102 THEN d.cantidad*(-1) ELSE d.cantidad END)) - 1)*100,2),' %') as porcmargen, tf.nombre as familia",false)
 		  ->from('detalle_factura_cliente d')
 		  ->join('factura_clientes f','d.id_factura = f.id')
+		  ->join('detalle_factura_glosa g','f.id = g.id_factura AND g.id_guia != 0','LEFT')
 		  ->join('productos p','d.id_producto = p.id')
 		  ->join('familias tf','p.id_familia = tf.id')
+		  ->where('g.id_factura IS null')
 		  ->group_by('p.id');
 
 		$data_detalle = is_null($limit) ? $data_detalle : $data_detalle->limit($limit,$start);
@@ -304,10 +391,12 @@ class Reporte extends CI_Model
 		$data_detalle = $anno != '' ? $data_detalle->where('year(f.fecha_factura)',$anno) : $data_detalle;
 		$data_detalle = $tipo != '' ? $data_detalle->where_in('f.tipo_documento',array($tipo,$tipo2,$tipo3)) : $data_detalle;
 		
+		*/
 
-		$query = $this->db->get();
 		//echo $this->db->last_query(); exit;
-		$result = $query->result();
+		$result = $data_query->result();
+		//echo count($result); 
+		//var_dump($result); exit;
 		 return array('cantidad' => $result_cantidad,'data' => $result);
 	}
 
