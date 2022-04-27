@@ -276,7 +276,7 @@ class Reporte extends CI_Model
 		$tipo3=102;
 
 
-		$sql_tipo_documento =  "and f.tipo_documento in (101,120,102)";
+		$sql_tipo_documento =  "and f.tipo_documento in (101,120,102,104)";
 		$sql_mes = $mes != '' ? "and month(f.fecha_factura) = '" . $mes . "'" : "";
 		$sql_anno = $anno != '' ? "and year(f.fecha_factura) = '" . $anno . "'" : "";
 
@@ -308,7 +308,7 @@ class Reporte extends CI_Model
 								, round(b.tipo_precio*sum(cantidad)) as costo
 								, round((sum(ventaneta) - b.tipo_precio*sum(cantidad))) as margen
 								, concat(round((sum(ventaneta)/round(b.tipo_precio*sum(cantidad)) - 1)*100, 2), ' %') as porcmargen
-								, b.nombre as familia 
+								, b.familia as familia 
 					FROM 	(
 							
 							SELECT 	 p.id
@@ -356,8 +356,8 @@ class Reporte extends CI_Model
 										, '00000000' as codigo
 										, 'SERVICIOS' AS nombre
 										,f.tipo_documento
-										,1 as cantidad
-										,d.neto  AS ventaneta
+										,CASE WHEN f.tipo_documento = 102 then d.cantidad*(-1) ELSE d.cantidad END as cantidad
+										,CASE WHEN f.tipo_documento = 102 then d.neto*(-1) ELSE d.neto END AS ventaneta
 										,d.precios as tipo_precio
 										, 'SERVICIOS' as familia 
 										,f.num_factura
@@ -371,7 +371,7 @@ class Reporte extends CI_Model
 							
 							) b
 					GROUP BY b.id";
-
+					//echo $sql_query; exit;
 
 		 $data_query =  $this->db->query($sql_query);
 
