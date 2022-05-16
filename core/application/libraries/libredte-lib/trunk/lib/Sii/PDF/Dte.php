@@ -86,14 +86,14 @@ class Dte extends \sasco\LibreDTE\PDF
     ]; ///< Glosas de las formas de pago
 
     private $detalle_cols = [
-       'UnmdItem' => ['title'=>'LOTE', 'align'=>'left', 'width'=>22],
+       'UnmdItem' => ['title'=>'LOTE', 'align'=>'left', 'width'=>20],
         'CdgItem' => ['title'=>'CODIGO', 'align'=>'left', 'width'=>20],
         'NmbItem' => ['title'=>'DESCRIPCION', 'align'=>'left', 'width'=>0],
-        'QtyItem' => ['title'=>'CANT.', 'align'=>'right', 'width'=>15],
-        'PrcItem' => ['title'=>'PRECIO', 'align'=>'right', 'width'=>22],
-        'DescuentoMonto' => ['title'=>'Descuento', 'align'=>'right', 'width'=>22],
-        'RecargoMonto' => ['title'=>'Recargo', 'align'=>'right', 'width'=>22],
-        'MontoItem' => ['title'=>'TOTAL', 'align'=>'right', 'width'=>22],
+        'QtyItem' => ['title'=>'CANT.', 'align'=>'right', 'width'=>21],
+        'PrcItem' => ['title'=>'PRECIO', 'align'=>'right', 'width'=>21],
+        'DescuentoMonto' => ['title'=>'Descuento', 'align'=>'right', 'width'=>21],
+        'RecargoMonto' => ['title'=>'Recargo', 'align'=>'right', 'width'=>21],
+        'MontoItem' => ['title'=>'TOTAL', 'align'=>'right', 'width'=>21],
     ]; ///< Nombres de columnas detalle, alineación y ancho
 
     private $traslados = [
@@ -324,6 +324,7 @@ class Dte extends \sasco\LibreDTE\PDF
         $y = 200;
         //$y = $dte['Encabezado']['IdDoc']['TipoDTE'] == 34 ? $y + 5 : $y;
         $this->Rect(155, $y, 45, 13, 'D', ['all' => ['width' => 0.1, 'color' => [0, 0, 0]]]);
+       // $this->Rect(155, $y, 45, 15, 'D', ['all' => ['width' => 0.1, 'color' => [0, 0, 0]]]);
 
 
         // agregar timbre
