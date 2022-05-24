@@ -496,7 +496,7 @@ class Facturaganado extends CI_Controller {
 		
 		$resp = array();
 
-            //print_r($_POST); //exit;
+            //print_r($_POST); exit;
 
 		$idcliente = $this->input->post('idcliente');
 		$numdocuemnto = $this->input->post('numdocumento');
@@ -568,9 +568,26 @@ class Facturaganado extends CI_Controller {
                   
 
             };
-
+            $array_guias_ref = array();
+            $j = 0;
 		foreach($items as $v){
 			$producto = $v->id_producto;
+                  $nombre_producto = $v->nombre;
+                  $array_producto = explode(" ",$nombre_producto);
+
+
+                  if($v->id_producto == 0 && $array_producto[0] == "Guia" && $array_producto[1] == "Nro." ){
+                        $guia_linea = $array_producto[2];
+
+                        $query_guia = $this->db->query('SELECT id FROM factura_clientes WHERE tipo_documento = 105 and num_factura='.$guia_linea.'');
+                        $row_guia = $query_guia->first_row();
+                        $idguia_linea = $row_guia->id;
+                        $array_guias_ref[$j] = $guia_linea;
+                        $j++;                  
+
+                  }
+
+
 			$factura_clientes_item = array(
 		        'id_factura' => $idfactura,
 		        'id_producto' => $v->id_producto,
@@ -580,9 +597,9 @@ class Facturaganado extends CI_Controller {
 		        'neto' => $v->neto,
 		        'iva' => $v->iva,
 		        'total' => $v->total,
-                    'id_guia' => $v->id_producto == 0 ? $idguia : 0,
-                    'num_guia' => $v->id_producto == 0 ? $numguia : 0,
-                    'glosa' => $numguia != 0 && $v->id_producto == 0 ? 'SEGUN GUIA NRO '. $numguia : ''
+                    'id_guia' => $v->id_producto == 0 ? $idguia_linea : 0,
+                    'num_guia' => $v->id_producto == 0 ? $guia_linea : 0,
+                    'glosa' => $numguia != 0 && $v->id_producto == 0 ? 'SEGUN GUIA NRO '. $guia_linea : ''
 			);
 
 		$this->db->insert('detalle_factura_glosa', $factura_clientes_item);
@@ -816,28 +833,35 @@ class Facturaganado extends CI_Controller {
                   $referencia = array();
                   $NroLinRef = 1;
 
-                  if($idguia != 0){
+                  foreach ($array_guias_ref as $guia_ref) {
                         $referencia[($NroLinRef-1)]['NroLinRef'] = $NroLinRef;
                         //$referencia['TpoDocRef'] = $datos_empresa_factura->tipodocref;
                         $referencia[($NroLinRef-1)]['TpoDocRef'] = 52;
-                        $referencia[($NroLinRef-1)]['FolioRef'] = $numguia;
-                        $referencia[($NroLinRef-1)]['RazonRef'] = 'Factura de Ganado asociado a guia '.$numguia;
-                        $NroLinRef++;
+                        $referencia[($NroLinRef-1)]['FolioRef'] = $guia_ref;
+                       // $referencia[($NroLinRef-1)]['RazonRef'] = 'Factura de Ganado asociado a guia '.$guia_ref;
+                        $NroLinRef++;                        
+                        
                   }
+                       
+                  
 
                   
 
                   $lista_detalle = array();
                   $i = 0;
                   foreach ($detalle_factura as $detalle) {
-                        $lista_detalle[$i]['NmbItem'] = $detalle->nombre == '' ? $detalle->glosa : $detalle->nombre;
-                        $lista_detalle[$i]['QtyItem'] = $detalle->nombre == '' ? 1 : number_format($detalle->cantidad, 0, ',', '.');
-                       // $lista_detalle[$i]['CdgItem'] = $detalle->codigo;                        
-                        $lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 || $tipo_caf == 46 ? $detalle->neto : $detalle->total;                        
-                        $i++;
+                        if($detalle->total > 0){
+                              $lista_detalle[$i]['NmbItem'] = $detalle->nombre == '' ? $detalle->glosa : $detalle->cantidad . " " . $detalle->nombre;
+                              $lista_detalle[$i]['QtyItem'] = $detalle->nombre == '' ? 1 : number_format($detalle->kilos, 3, '.', '');
+                             // $lista_detalle[$i]['CdgItem'] = $detalle->codigo;                        
+                              $lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 || $tipo_caf == 46 ? number_format($detalle->neto/$detalle->kilos, 3, '.', '') : number_format($detalle->total/$detalle->kilos, 3, '.', '');
+                              $lista_detalle[$i]['MontoItem']  = $tipo_caf == 33 || $tipo_caf == 46 ? $detalle->neto : $detalle->total;                 
+                              $i++;
+                        }
+                        
                   }
 
-                 
+
                   $dir_cliente = is_null($datos_empresa_factura->dir_sucursal) ? permite_alfanumerico($datos_empresa_factura->direccion) : permite_alfanumerico($datos_empresa_factura->dir_sucursal);
 
                   $nombre_comuna = is_null($datos_empresa_factura->com_sucursal) ? permite_alfanumerico($datos_empresa_factura->nombre_comuna) : permite_alfanumerico($datos_empresa_factura->com_sucursal);
@@ -915,6 +939,18 @@ class Facturaganado extends CI_Controller {
                   $EnvioDTE->setFirma($Firma);
                   $EnvioDTE->setCaratula($caratula);
                   $xml_dte = $EnvioDTE->generar();
+
+
+                  /*var_dump($factura);
+
+                         echo $xml_dte;
+                 var_dump($EnvioDTE->schemaValidate()); 
+
+  foreach (sasco\LibreDTE\Log::readAll() as $error)
+          echo $error,"\n";                  
+                  
+
+                  exit;*/           
 
                   if ($EnvioDTE->schemaValidate()) { // REVISAR PORQUÉ SE CAE CON ESTA VALIDACION
                         
