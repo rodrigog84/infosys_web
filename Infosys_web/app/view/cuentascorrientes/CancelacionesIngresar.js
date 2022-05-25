@@ -26,6 +26,7 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
             autoLoad: true
         });   
 
+
          var cuentasDocumentos = Ext.create('Ext.data.Store', {
             fields: ['id', 'nombre', 'saldo', 'documento'],
             proxy: {
@@ -142,6 +143,12 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                                 listeners: {
                                 
                                     beforeedit: function(e, editor){
+
+                                       var idctacte = me.down("#ctacteId").getValue()
+                                        cuentasDocumentos.proxy.extraParams = {
+                                                                                idcuentacorriente : idctacte}
+                                        cuentasDocumentos.load();
+                                                                                
                                         if(editor.field == 'cuenta'){  // SI ES CUENTA SELECCIONA NORMAL
 
                                             return true;
