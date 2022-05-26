@@ -363,3 +363,9 @@ ALTER TABLE `factura_clientes`
 ALTER TABLE `detalle_factura_cliente`
 	ADD COLUMN `id_guia` INT(11) NOT NULL AFTER `id_notacredito`,
 	ADD COLUMN `num_guia` INT(11) NOT NULL AFTER `id_guia`;
+
+
+/**********************************************************************/
+
+ALTER TABLE `detalle_factura_glosa`
+	CHANGE COLUMN `glosa` `glosa` VARCHAR(500) NOT NULL COLLATE 'latin1_swedish_ci' AFTER `id_producto`;

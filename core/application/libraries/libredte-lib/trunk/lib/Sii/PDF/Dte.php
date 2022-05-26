@@ -53,7 +53,7 @@ class Dte extends \sasco\LibreDTE\PDF
 
     private $condpago;
     private $vendedor;
-
+    private $detalle_glosa;
 
     private $resolucion; ///< Arreglo con los datos de la resolución (índices: NroResol y FchResol)
     private $cedible = false; ///< Por defecto DTEs no son cedibles
@@ -208,6 +208,11 @@ class Dte extends \sasco\LibreDTE\PDF
     } 
 
 
+
+    public function setDetalleGlosa($detalle_glosa)
+    {
+        $this->detalle_glosa = $detalle_glosa;
+    } 
     /**
      * Método que asigna los datos de la resolución del SII que autoriza al
      * emisor a emitir DTEs
@@ -312,9 +317,15 @@ class Dte extends \sasco\LibreDTE\PDF
         $y = 50;
         $y = $dte['Encabezado']['IdDoc']['TipoDTE'] == 34 || $dte['Encabezado']['IdDoc']['TipoDTE'] == 61  || $dte['Encabezado']['IdDoc']['TipoDTE'] == 52 ? $y + 5 : $y+3;
         $this->Rect(10, $y, 190, $h, 'D', ['all' => ['width' => 0.1, 'color' => [0, 0, 0]]]);
+       // echo '<pre>';
+       // var_dump(count($this->detalle_glosa)); exit;
 
-
-        $this->agregarDetalle($dte['Detalle'],$dte['Encabezado']['IdDoc']['TipoDTE']);
+        if(count($this->detalle_glosa) > 0){
+            $this->agregarDetalle($this->detalle_glosa,$dte['Encabezado']['IdDoc']['TipoDTE']);
+        }else{
+            $this->agregarDetalle($dte['Detalle'],$dte['Encabezado']['IdDoc']['TipoDTE']);    
+        }
+        
         if (!empty($dte['DscRcgGlobal']))
             $this->agregarDescuentosRecargos($dte['DscRcgGlobal']);
         $this->agregarTotales($dte['Encabezado']['Totales']);

@@ -285,7 +285,7 @@ public function get_consumo_folios_by_id($id){
 	 }
 
 	public function get_detalle_factura_glosa($id_factura){
-		$this->db->select('p.nombre, f.glosa, f.cantidad, f.neto, f.iva, f.total ')
+		$this->db->select('p.nombre, f.glosa, f.cantidad, f.neto, f.iva, f.total, f.kilos ')
 		  ->from('detalle_factura_glosa f')
 		  ->join('productos p','f.id_producto = p.id','left')
 		  ->where('f.id_factura',$id_factura);
@@ -379,7 +379,7 @@ public function consumo_folios_no_enviada(){
 	public function datos_dte($idfactura){
 
 
-		$this->db->select('f.id, f.folio, f.path_dte, f.archivo_dte, f.archivo_dte_cliente, f.dte, f.dte_cliente, f.pdf, f.pdf_cedible, f.trackid, c.tipo_caf, tc.nombre as tipo_doc, cae.nombre as giro, cp.nombre as cond_pago, v.nombre as vendedor, fc.neto, fc.iva, fc.totalfactura')
+		$this->db->select('f.id, f.folio, f.path_dte, f.archivo_dte, f.archivo_dte_cliente, f.dte, f.dte_cliente, f.pdf, f.pdf_cedible, f.trackid, c.tipo_caf, tc.nombre as tipo_doc, cae.nombre as giro, cp.nombre as cond_pago, v.nombre as vendedor, fc.neto, fc.iva, fc.totalfactura, fc.forma')
 		  ->from('folios_caf f')
 		  ->join('caf c','f.idcaf = c.id')
 		  ->join('tipo_caf tc','c.tipo_caf = tc.id')
@@ -528,6 +528,36 @@ public function consumo_folios_no_enviada(){
 				$pdf->setIva($factura->iva);		
 				$pdf->setTotal($factura->totalfactura);
 
+
+				// esto es para mostrar en la glosa el texto completo.  Hoy se muestra cortado debido a que el xml tiene un texto maximo
+				if($factura->forma == 1){
+					$detalle_factura = $this->facturaelectronica->get_detalle_factura_glosa($idfactura);
+				//	echo '<pre>';
+				//	var_dump($detalle_factura); exit;
+
+					$total_detalle_glosa = 0;
+					$detalle_glosa = array();
+					$linea = 0;
+					foreach ($detalle_factura as $linea_detalle) {
+						array_push($detalle_glosa,array(
+														'NroLinDet' => ($linea+1),
+														'NmbItem' => $linea_detalle->glosa,
+														'QtyItem' => 1,
+														'PrcItem' => $linea_detalle->neto,
+														'MontoItem' => $linea_detalle->neto
+														));
+
+						$total_detalle_glosa += $linea_detalle->total;
+					}
+
+
+					if($total_detalle_glosa == $factura->totalfactura){
+
+						 $pdf->setDetalleGlosa($detalle_glosa);
+					}
+
+
+				}
 
 
 				$datos_transporte = $this->datos_dte_transporte($idfactura);
