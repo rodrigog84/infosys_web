@@ -531,29 +531,38 @@ public function consumo_folios_no_enviada(){
 
 				// esto es para mostrar en la glosa el texto completo.  Hoy se muestra cortado debido a que el xml tiene un texto maximo
 				if($factura->forma == 1){
-					$detalle_factura = $this->facturaelectronica->get_detalle_factura_glosa($idfactura);
-				//	echo '<pre>';
-				//	var_dump($detalle_factura); exit;
 
-					$total_detalle_glosa = 0;
-					$detalle_glosa = array();
-					$linea = 0;
-					foreach ($detalle_factura as $linea_detalle) {
-						array_push($detalle_glosa,array(
-														'NroLinDet' => ($linea+1),
-														'NmbItem' => $linea_detalle->glosa,
-														'QtyItem' => 1,
-														'PrcItem' => $linea_detalle->neto,
-														'MontoItem' => $linea_detalle->neto
-														));
+					$detalle_factura_normal = $this->facturaelectronica->get_detalle_factura($idfactura); 
+					if(count($detalle_factura_normal) == 0){
 
-						$total_detalle_glosa += $linea_detalle->total;
-					}
+							$detalle_factura = $this->facturaelectronica->get_detalle_factura_glosa($idfactura);
 
 
-					if($total_detalle_glosa == $factura->totalfactura){
 
-						 $pdf->setDetalleGlosa($detalle_glosa);
+
+							$total_detalle_glosa = 0;
+							$detalle_glosa = array();
+							$linea = 0;
+							foreach ($detalle_factura as $linea_detalle) {
+								array_push($detalle_glosa,array(
+																'NroLinDet' => ($linea+1),
+																'NmbItem' => $linea_detalle->glosa,
+																'QtyItem' => 1,
+																'PrcItem' => $linea_detalle->neto,
+																'MontoItem' => $linea_detalle->neto
+																));
+
+								$total_detalle_glosa += $linea_detalle->total;
+							}
+
+
+							if($total_detalle_glosa == $factura->totalfactura){
+
+								 $pdf->setDetalleGlosa($detalle_glosa);
+							}
+
+
+
 					}
 
 
