@@ -496,7 +496,7 @@ class Facturaganado extends CI_Controller {
 		
 		$resp = array();
 
-            //print_r($_POST); exit;
+           // print_r($_POST); exit;
 
 		$idcliente = $this->input->post('idcliente');
 		$numdocuemnto = $this->input->post('numdocumento');
@@ -504,7 +504,8 @@ class Facturaganado extends CI_Controller {
 		$fechavenc = $this->input->post('fechavenc');            
             $idbodega = $this->input->post('idbodega');
             $idobserva = $this->input->post('idobserva');
-		$vendedor = $this->input->post('idvendedor');
+            $idcondventa = $this->input->post('idcondventa');
+		$vendedor = $this->input->post('vendedor');
 		$datacliente = json_decode($this->input->post('datacliente'));
 		$items = json_decode($this->input->post('items'));
 		$neto = $this->input->post('netofactura');
@@ -545,6 +546,7 @@ class Facturaganado extends CI_Controller {
               'id_observa' => $idobserva,
 	        'num_factura' => $numdocuemnto,
 	        'id_vendedor' => $vendedor,
+              'id_cond_venta' => $idcondventa,
 	        'sub_total' => $neto,
 	        'neto' => $neto,
 	        'iva' => $fiva,
