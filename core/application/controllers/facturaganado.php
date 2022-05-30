@@ -835,6 +835,10 @@ class Facturaganado extends CI_Controller {
                   $referencia = array();
                   $NroLinRef = 1;
 
+
+                  $agrega_guia_encabezado = true;
+
+
                   foreach ($array_guias_ref as $guia_ref) {
                         $referencia[($NroLinRef-1)]['NroLinRef'] = $NroLinRef;
                         //$referencia['TpoDocRef'] = $datos_empresa_factura->tipodocref;
@@ -843,8 +847,22 @@ class Facturaganado extends CI_Controller {
                        // $referencia[($NroLinRef-1)]['RazonRef'] = 'Factura de Ganado asociado a guia '.$guia_ref;
                         $NroLinRef++;                        
                         
+                        if($numguia == $guia_ref){
+                              $agrega_guia_encabezado = false;
+                        }
+
                   }
                        
+
+                  if($agrega_guia_encabezado){
+                        $referencia[($NroLinRef-1)]['NroLinRef'] = $NroLinRef;
+                        //$referencia['TpoDocRef'] = $datos_empresa_factura->tipodocref;
+                        $referencia[($NroLinRef-1)]['TpoDocRef'] = 52;
+                        $referencia[($NroLinRef-1)]['FolioRef'] = $numguia;
+                       // $referencia[($NroLinRef-1)]['RazonRef'] = 'Factura de Ganado asociado a guia '.$guia_ref;
+                        $NroLinRef++;  
+                        
+                  }
                   
 
                   
