@@ -595,7 +595,7 @@ class Notacredito extends CI_Controller {
             $i = 0;
             foreach ($detalle_factura as $detalle) {
 
-				$lista_detalle[$i]['NmbItem'] = $detalle->glosa;
+				$lista_detalle[$i]['NmbItem'] = substr(permite_alfanumerico($detalle->glosa),0,60);
 				$lista_detalle[$i]['QtyItem'] = 1;
                 $lista_detalle[$i]['PrcItem'] = floor($detalle->neto);
             

@@ -600,7 +600,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
             return false;
         };
 
-        if(glosa.length > 50){
+        if(glosa.length > 250){
             Ext.Msg.alert('Alerta', 'GLOSA SOBREPASA CANTIDAD DE CARACTERES POR LINEA');
             return false;            
         };
