@@ -314,30 +314,91 @@ Ext.define('Infosys_web.controller.Productos', {
 
     recalcularFinal: function(){
 
+
+
         var view = this.getFacturasingresar();
+        var tipo_documento = view.down('#tipoDocumentoId');
         var stItem = this.getProductosItemsStore();
         var grid2 = view.down('#itemsgridId');
         var pretotal = 0;
         var total = 0;
         var iva = 0;
         var neto = 0;
+        var impto = 0;
         var dcto = view.down('#finaldescuentoId').getValue();
 
-        
+        var rutcli = view.down('#rutId').getValue();
+
+        var contiene_carne = false;
+
+        console.log(tipo_documento.getValue())
+
         stItem.each(function(r){
+            //console.log(r.data.codigo.charAt(0));
+
+            contiene_carne = r.data.codigo.charAt(0) == '9' ? true : contiene_carne;
+
+
             pretotal = pretotal + (parseInt(r.data.total))
             //iva = iva + r.data.iva
             //neto = neto + r.data.neto
         });
 
-        neto = (Math.round(pretotal /1.19));
-        iva = ((pretotal - neto));
-        afecto = neto;
-        neto = neto;
-        pretotalfinal = pretotal;
+        // validar si cliente está afecto al impuesto
+        console.log(rutcli);
+       /* Ext.Ajax.request({
+            async: false,
+            url: preurl + 'facturas/validaimptocli',
+            params: {
+                rutcli: rutcli
+               },
+             success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                                                        
+            }           
+        });*/
+
+
+        response_rut = Ext.Ajax.request({
+                                            async: false,
+                                            url: preurl + 'facturas/validaimptocli',
+                                            params: {
+                                                rutcli: rutcli
+                                               }
+                        });
+        var resp = Ext.decode(response_rut.responseText);
+        console.log(resp);
+        var cli_impto = resp.respuesta;
+        
+
+        if(tipo_documento.getValue() == 103){
+
+            neto = pretotal;
+            iva = ((pretotal - neto));
+            afecto = neto;
+            neto = neto;
+            // el impuesto se calcula si cliente está afecto a impuesto, y si el detalle está compuesto por carne
+            impto = contiene_carne && cli_impto == 'SI' ? Math.round(neto * 0.05) : 0;
+            pretotalfinal = neto + iva + impto;
+        }else{
+            neto = (Math.round(pretotal /1.19));
+            iva = ((pretotal - neto));
+            afecto = neto;
+            neto = neto;
+            // el impuesto se calcula si cliente está afecto a impuesto, y si el detalle está compuesto por carne
+            impto = contiene_carne && cli_impto == 'SI' ? Math.round(neto * 0.05) : 0;
+            pretotalfinal = neto + iva + impto;
+
+
+        }
+
+
+        //pretotalfinal = pretotal;
         
         view.down('#finaltotalId').setValue(Ext.util.Format.number(pretotalfinal, '0,000'));
         view.down('#finaltotalpostId').setValue(Ext.util.Format.number(pretotalfinal, '0'));
+        view.down('#imptoId').setValue(Ext.util.Format.number(impto, '0'));
+        
         view.down('#finaltotalnetoId').setValue(Ext.util.Format.number(neto, '0'));
         view.down('#finaltotalivaId').setValue(Ext.util.Format.number(iva, '0'));
         view.down('#finalafectoId').setValue(Ext.util.Format.number(afecto, '0'));
@@ -492,6 +553,8 @@ Ext.define('Infosys_web.controller.Productos', {
             view.down('#tipoDescuentoId').setDisabled(bolEnable);
             view.down('#descuentovalorId').setDisabled(bolEnable);
         };
+
+        console.log(tipo_documento.getValue() );
         if (tipo_documento.getValue() == 2){
 
              var neto = (Math.round(cantidad * precio) - descuento);
@@ -499,13 +562,29 @@ Ext.define('Infosys_web.controller.Productos', {
              var total = (Math.round(neto * 1.19));
 
         }else{
-        
-        var neto = ((cantidad * precio));
-        var tot = (Math.round(neto * 1.19));
-        var exists = 0;
-        var iva = (tot - neto);
-        var neto = (tot - iva);
-        var total = ((neto + iva ));     
+                if(tipo_documento.getValue() == 103){
+
+                    var neto = ((cantidad * precio));
+                    var tot = neto;
+                    var exists = 0;
+                    var iva = (tot - neto);
+                    var neto = (tot - iva);
+                    var total = ((neto + iva ));   
+
+
+                }else{
+
+                    var neto = ((cantidad * precio));
+                    var tot = (Math.round(neto * 1.19));
+                    var exists = 0;
+                    var iva = (tot - neto);
+                    var neto = (tot - iva);
+                    var total = ((neto + iva ));   
+
+
+                }
+
+  
 
         };      
                 

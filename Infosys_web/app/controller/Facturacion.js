@@ -467,8 +467,10 @@ Ext.define('Infosys_web.controller.Facturacion', {
         var view = this.getFacturasprincipal();
         var idbodega = view.down('#bodegaId').getValue();
         var idtipo = 101;
+        var idtipo2 = 103;
         var st = this.getFacturaStore();
         st.proxy.extraParams = {documento: idtipo,
+                                documento2: idtipo2,
                                 idbodega: idbodega }
         st.load();       
     },
@@ -1332,6 +1334,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
                 tipodocumento : tipo_documento.getValue(),
                 netofactura: viewIngresa.down('#finaltotalnetoId').getValue(),
                 ivafactura: viewIngresa.down('#finaltotalivaId').getValue(),
+                imptofactura: 0,//viewIngresa.down('#imptoId').getValue(),
                 afectofactura: viewIngresa.down('#finalafectoId').getValue(),
                 descuentofactura : viewIngresa.down('#descuentovalorId').getValue(),
                 totalfacturas: viewIngresa.down('#finaltotalpostId').getValue()
