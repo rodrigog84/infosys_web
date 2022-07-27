@@ -349,7 +349,23 @@ class Reporte extends CI_Model
 							WHERE 		1 = 1 " . $sql_mes . " 
 							"	.		$sql_anno . "
 							" . 		$sql_tipo_documento	."
-
+							UNION ALL
+							SELECT p.id 
+									,p.codigo
+									,p.nombre
+									,f.tipo_documento 
+									,CASE WHEN f.tipo_documento = 102 THEN d.kilos*(-1) ELSE d.kilos END AS cantidad
+									,CASE WHEN f.tipo_documento = 102 THEN d.precios*d.kilos*(-1) ELSE d.neto END AS ventaneta
+									,p." . $tipoprecio . " as tipo_precio
+									,tf.nombre AS familia
+									,f.num_factura
+							FROM (detalle_factura_glosa d)
+							JOIN factura_clientes f ON d.id_factura = f.id
+							JOIN productos p ON d.id_producto = p.id
+							JOIN familias tf ON p.id_familia = tf.id
+							WHERE 1 = 1  " . $sql_mes . " 
+							"	.		$sql_anno . "
+							" . 		$sql_tipo_documento	."
 							UNION all
 							
 							SELECT 	 0 id
@@ -367,6 +383,7 @@ class Reporte extends CI_Model
 							"	.		$sql_anno . "
 							" . 		$sql_tipo_documento	."
 							AND 		d.id_guia = 0
+							AND 		id_producto  = 0
 
 							
 							) b
