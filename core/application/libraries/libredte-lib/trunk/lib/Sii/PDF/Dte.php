@@ -46,6 +46,7 @@ class Dte extends \sasco\LibreDTE\PDF
     private $ivaBoleta; //Fono de emisor completo
     private $totalBoleta; //Fono de emisor completo
 
+    private $forma; //Fono de emisor completo
 
     private $textoGuia; //Fono de emisor completo
 
@@ -127,6 +128,15 @@ class Dte extends \sasco\LibreDTE\PDF
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
      * @version 2015-09-08
      */
+
+
+    public function setForma($forma)
+    {
+        $this->forma = $forma;
+    }
+
+
+
     public function setLogo($logo)
     {
         $this->logo = $logo;
@@ -730,7 +740,13 @@ class Dte extends \sasco\LibreDTE\PDF
         if (!isset($referencias[0]))
             $referencias = [$referencias];
         foreach($referencias as $r) {
-            $texto = $vacio ? "" : $texto.$r['NroLinRef'].' - '.$this->getTipo($r['TpoDocRef']).' N° '.$r['FolioRef'].' del '.$r['FchRef']."  ";
+    
+            if($r['TpoDocRef'] == 52 && $this->forma == 3){
+                $texto = $vacio ? "" : $texto.$r['NroLinRef'].' - '.$this->getTipo($r['TpoDocRef']).' N° '.$r['FolioRef']."  ";                
+            }else{
+                $texto = $vacio ? "" : $texto.$r['NroLinRef'].' - '.$this->getTipo($r['TpoDocRef']).' N° '.$r['FolioRef'].' del '.$r['FchRef']."  ";                
+            }
+            
             if (isset($r['RazonRef']) and $r['RazonRef']!==false)
                 $texto = $texto.': '.$r['RazonRef'];
             

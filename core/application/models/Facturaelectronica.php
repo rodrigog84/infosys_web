@@ -314,6 +314,7 @@ public function consumo_folios_no_enviada(){
 		   ->where("left(c.updated_at,10) >= '2020-11-23'")
 		   ->where('f.tipo_caf <> 39');
 		$query = $this->db->get();
+		echo $this->db->last_query(); exit;
 		return $query->result();
 	 }	
 
@@ -524,10 +525,19 @@ public function consumo_folios_no_enviada(){
 			    $pdf->setFono($empresa->texto_fono);
 			    $pdf->setSucursales($empresa->texto_sucursales);
 
-				$pdf->setNeto($factura->neto);
-				$pdf->setIva($factura->iva);		
-				$pdf->setTotal($factura->totalfactura);
 
+			    $pdf->setForma($factura->forma);
+
+			    if($factura->neto > 0){
+
+
+					$pdf->setNeto($factura->neto);
+					$pdf->setIva($factura->iva);		
+					$pdf->setTotal($factura->totalfactura);
+
+			    	
+			    }
+			    
 
 				// esto es para mostrar en la glosa el texto completo.  Hoy se muestra cortado debido a que el xml tiene un texto maximo
 				if($factura->forma == 1){
@@ -555,7 +565,7 @@ public function consumo_folios_no_enviada(){
 								$total_detalle_glosa += $linea_detalle->total;
 							}
 
-
+							
 							if($total_detalle_glosa == $factura->totalfactura){
 
 								 $pdf->setDetalleGlosa($detalle_glosa);
