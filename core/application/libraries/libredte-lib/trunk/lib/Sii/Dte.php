@@ -790,7 +790,9 @@ class Dte
                 ],
                 'Receptor' => false,
                 'Totales' => [
+                    'MntNeto' => false,
                     'MntExe' => false,
+                    'IVA' => false,
                     'MntTotal' => 0,
                 ]
             ],

@@ -3401,6 +3401,14 @@ class Facturas extends CI_Controller {
                 $nombre_comuna = is_null($datos_empresa_factura->com_sucursal) ? permite_alfanumerico($datos_empresa_factura->nombre_comuna) : permite_alfanumerico($datos_empresa_factura->com_sucursal);
 
                 if($tipo_caf == 39){
+
+
+                        $totales_xml = array();
+                        $totales_xml['MntNeto'] = isset($datos_factura->neto) ? $datos_factura->neto : 0;
+                        $totales_xml['IVA'] = isset($datos_factura->iva) ? $datos_factura->iva : 0;
+                        $totales_xml['MntTotal'] = isset($datos_factura->totalfactura) ? $datos_factura->totalfactura : 0;
+
+
                           $factura = [
                             // CASO 1
                                 'Encabezado' => [
@@ -3424,6 +3432,12 @@ class Facturas extends CI_Controller {
                                             'DirRecep' => substr($dir_cliente,0,70), //LARGO DE DIRECCION NO PUEDE SER SUPERIOR A 70 CARACTERES
                                             'CmnaRecep' => substr($nombre_comuna,0,20), //LARGO DE COMUNA NO PUEDE SER SUPERIOR A 20 CARACTERES
                                         ],
+                                         'Totales' => [
+                                                // estos valores serán calculados automáticamente
+                                                'MntNeto' => isset($datos_factura->neto) ? $datos_factura->neto : 0,
+                                                'IVA' => isset($datos_factura->iva) ? $datos_factura->iva : 0,
+                                                //'MntTotal' =>  isset($datos_factura->totalfactura) ? $datos_factura->totalfactura : 0
+                                            ],  
                                 ],
                                 'Detalle' => $lista_detalle,
                         ];
@@ -3561,15 +3575,15 @@ class Facturas extends CI_Controller {
                   $EnvioDTE->setFirma($Firma);
                   $EnvioDTE->setCaratula($caratula);
                   $xml_dte = $EnvioDTE->generar();
-            /*      echo $xml_dte;
+                /*  echo $xml_dte;
                  var_dump($EnvioDTE->schemaValidate()); 
 
   foreach (sasco\LibreDTE\Log::readAll() as $error)
           echo $error,"\n";                  
                   
 
-                  exit;
-          */
+                  exit;*/
+          
 
                  if ($EnvioDTE->schemaValidate()) { // REVISAR PORQUÉ SE CAE CON ESTA VALIDACION
                         
