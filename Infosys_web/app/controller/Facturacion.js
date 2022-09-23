@@ -1293,17 +1293,21 @@ Ext.define('Infosys_web.controller.Facturacion', {
         var stItem = this.getProductosItemsStore();
         var stFactura = this.getFacturaStore();
         viewIngresa.down("#grabarfactura").setDisabled(true);
-                    
+        viewIngresa.down("#observaciones").setDisabled(true);
 
+        
+                    
+       // console.log('guardando');
         if(vendedor==0  && tipo_documento.getValue() == 1){
             viewIngresa.down("#grabarfactura").setDisabled(false);
-        
+            viewIngresa.down("#observaciones").setDisabled(false);        
             Ext.Msg.alert('Ingrese Datos del Vendedor');
             return;   
         }
         if(numfactura==0){
             Ext.Msg.alert('Ingrese Datos a La Factura');
             viewIngresa.down("#grabarfactura").setDisabled(false);
+            viewIngresa.down("#observaciones").setDisabled(false);
             return;   
         }
 
@@ -1311,6 +1315,12 @@ Ext.define('Infosys_web.controller.Facturacion', {
         stItem.each(function(r){
             dataItems.push(r.data)
         });
+
+
+        var loginMask = new Ext.LoadMask(Ext.getBody(), {msg:"Generando Documento ..."});
+
+        loginMask.show();
+
 
         Ext.Ajax.request({
             url: preurl + 'facturas/save',
@@ -1346,10 +1356,13 @@ Ext.define('Infosys_web.controller.Facturacion', {
                  st.reload();
                  //window.open(preurl + 'facturas/exportTXT/?idfactura='+idfactura);
                  window.open(preurl + 'facturas/exportPDF/?idfactura='+idfactura);              
-
+                loginMask.hide();
             }
            
         });
+
+
+        //loginMask.hide();
 
         var view = this.getFacturasprincipal();
         var st = this.getFacturaStore();
