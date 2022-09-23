@@ -74,148 +74,47 @@ class Produccion extends CI_Controller {
 		$mensaje="Producto ".$nombre."."."Con Stock Critico Favor informar";
 
 		$items = $this->db->get_where('productos', array('id' => $idproducto));
-
 		foreach($items->result() as $item){			
 			$familia= $item->id_familia;
 		}
 
 		$query = $this->db->query('SELECT * FROM mail_autorizados');
 
+
+		$array_email = array();
+
+		$this->load->model('facturaelectronica');
+		$email_data = $this->facturaelectronica->get_email();
+
+		//echo '<pre>';
+		//$familia = '8';
 		foreach($query->result() as $item){	
-				
-			$veterinaria= $item->veterinaria;
-			$productos= $item->productos;
-			$ganado= $item->ganado;
 
-			if ($veterinaria=="SI"&$familia=="1"){
+				//var_dump($item); exit;
 
-				$html = 'Mensaje de Prueba';
-				$email=$item->email;
-				
-		
-			$this->load->model('facturaelectronica');
-			$email_data = $this->facturaelectronica->get_email();
+				$veterinaria= $item->veterinaria;
+				$productos= $item->productos;
+				$ganado= $item->ganado;				
+				$email = $item->email;
+				//var_dump('productos:' . $veterinaria);
+				//var_dump('ganado:' . $ganado);
+				//var_dump('productos:' . $productos);
+				//var_dump('email:' . $email);
+				if(($veterinaria == 'SI' && $familia == '1') || ($ganado == 'SI' && $familia == '3') || ($productos == 'SI' && $familia == '8')){
+						//echo 'agrega<br>';
+						array_push($array_email, $email);
 
-			if(count($email_data) > 0){
-				$this->load->library('email');
-				$config['protocol']    = $email_data->tserver_intercambio;
-				$config['smtp_host']    = $email_data->host_intercambio;
-				$config['smtp_port']    = $email_data->port_intercambio;
-				$config['smtp_timeout'] = '7';
-				$config['smtp_user']    = $email_data->email_intercambio;
-				$config['smtp_pass']    = $email_data->pass_intercambio;
-				$config['charset']    = 'utf-8';
-				$config['newline']    = "\r\n";
-				$config['mailtype'] = 'html'; // or html
-				$config['validation'] = TRUE; // bool whether to validate email or not      			
-				$this->email->initialize($config);		  		
-
-			    $this->email->from($email_data->email_intercambio, NOMBRE_EMPRESA);
-			    $this->email->to($email);
-			    $this->email->subject('Aviso');
-			    $this->email->message($mensaje);
-				try {
-			      $this->email->send();
-			      //exit;
-			    } catch (Exception $e) {
-			      echo $e->getMessage() . '<br />';
-			      echo $e->getCode() . '<br />';
-			      echo $e->getFile() . '<br />';
-			      echo $e->getTraceAsString() . '<br />';
-			      echo "no";
-
-			    }
-		    }
-				
-			}
-
-			if ($ganado=="SI"&$familia=="3"){
-
-				$html = 'Mensaje de Prueba';
-				$email=$item->email;
-				
-		
-			$this->load->model('facturaelectronica');
-			$email_data = $this->facturaelectronica->get_email();
-
-			if(count($email_data) > 0){
-				$this->load->library('email');
-				$config['protocol']    = $email_data->tserver_intercambio;
-				$config['smtp_host']    = $email_data->host_intercambio;
-				$config['smtp_port']    = $email_data->port_intercambio;
-				$config['smtp_timeout'] = '7';
-				$config['smtp_user']    = $email_data->email_intercambio;
-				$config['smtp_pass']    = $email_data->pass_intercambio;
-				$config['charset']    = 'utf-8';
-				$config['newline']    = "\r\n";
-				$config['mailtype'] = 'html'; // or html
-				$config['validation'] = TRUE; // bool whether to validate email or not      			
-				$this->email->initialize($config);		  		
-
-			    $this->email->from($email_data->email_intercambio, NOMBRE_EMPRESA);
-			    $this->email->to($email);
-			    $this->email->subject('Aviso');
-			    $this->email->message($mensaje);
-				try {
-			      $this->email->send();
-			      //exit;
-			    } catch (Exception $e) {
-			      echo $e->getMessage() . '<br />';
-			      echo $e->getCode() . '<br />';
-			      echo $e->getFile() . '<br />';
-			      echo $e->getTraceAsString() . '<br />';
-			      echo "no";
-
-			    }
-		    }
-				
-			}
-
-			if ($productos=="SI"&$familia=="8"){
-
-				$html = 'Alerta Produccion';
-				$email=$item->email;
-				
-		
-			$this->load->model('facturaelectronica');
-			$email_data = $this->facturaelectronica->get_email();
-
-			if(count($email_data) > 0){
-				$this->load->library('email');
-				$config['protocol']    = $email_data->tserver_intercambio;
-				$config['smtp_host']    = $email_data->host_intercambio;
-				$config['smtp_port']    = $email_data->port_intercambio;
-				$config['smtp_timeout'] = '7';
-				$config['smtp_user']    = $email_data->email_intercambio;
-				$config['smtp_pass']    = $email_data->pass_intercambio;
-				$config['charset']    = 'utf-8';
-				$config['newline']    = "\r\n";
-				$config['mailtype'] = 'html'; // or html
-				$config['validation'] = TRUE; // bool whether to validate email or not      			
-				$this->email->initialize($config);		  		
-
-			    $this->email->from($email_data->email_intercambio, NOMBRE_EMPRESA);
-			    $this->email->to($email);
-			    $this->email->subject('Aviso');
-			    $this->email->message($mensaje);
-				try {
-			      $this->email->send();
-			      //exit;
-			    } catch (Exception $e) {
-			      echo $e->getMessage() . '<br />';
-			      echo $e->getCode() . '<br />';
-			      echo $e->getFile() . '<br />';
-			      echo $e->getTraceAsString() . '<br />';
-			      echo "no";
-
-			    }
-		    }
-				
-			}		
-
+				}
 
 		}		
 		    
+			//	var_dump($array_email);
+	    //$array_email = array('rodrigo.gonzalez@arnou.cl');
+	    	//	var_dump($array_email); exit;
+	   $this->facturaelectronica->envia_mail($email_data->email_intercambio,$array_email,'Alerta Stock Crítico',$mensaje,'html','Arnou Alertas');	
+
+
+
 		//exit;
 
 		$resp['success'] = true;
