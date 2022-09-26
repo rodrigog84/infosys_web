@@ -681,6 +681,7 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                         {
                             xtype: 'button',
                             //iconCls: 'icono',
+                            itemId: 'observaciones',
                             scale: 'large',
                             action: 'observaciones',
                             text: 'OBSERVACIONES'
