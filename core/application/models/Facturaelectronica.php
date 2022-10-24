@@ -259,7 +259,7 @@ public function get_consumo_folios_by_id($id){
 
 		$tabla_contribuyentes = $this->busca_parametro_fe('tabla_contribuyentes');
 
-		$this->db->select('c.nombres as nombre_cliente, c.rut as rut_cliente, c.direccion, m.nombre as nombre_comuna, s.nombre as nombre_ciudad, c.fono, e.nombre as giro, ifnull(ca.mail,c.e_mail) as e_mail, cs.direccion as dir_sucursal, d.nombre as com_sucursal',false)
+		$this->db->select('c.nombres as nombre_cliente, c.rut as rut_cliente, c.direccion, m.nombre as nombre_comuna, s.nombre as nombre_ciudad, c.fono, e.nombre as giro, ifnull(ca.mail,c.e_mail) as e_mail, cs.direccion as dir_sucursal, d.nombre as com_sucursal, c.id as idcliente',false)
 		  ->from('factura_clientes acc')
 		  ->join('clientes c','acc.id_cliente = c.id','left')
 		  ->join('cod_activ_econ e','c.id_giro = e.id','left')
@@ -314,7 +314,6 @@ public function consumo_folios_no_enviada(){
 		   ->where("left(c.updated_at,10) >= '2020-11-23'")
 		   ->where('f.tipo_caf <> 39');
 		$query = $this->db->get();
-		echo $this->db->last_query(); exit;
 		return $query->result();
 	 }	
 
@@ -943,12 +942,18 @@ public function consumo_folios_no_enviada(){
 			//$datos_empresa_factura->e_mail = 'rodrigog.84@gmail.com';
 	        if(!is_null($datos_empresa_factura->e_mail)){ //MAIL SE ENVÍA SÓLO EN CASO QUE TENGAMOS REGISTRADOS EMAIL DE ORIGEN Y DESTINO
 				$array_email = array($datos_empresa_factura->e_mail);
+				if($datos_empresa_factura->idcliente == 2938){
+
+					array_push($array_email,'jorge.vera@colun.cl');
+					//array_push($array_email,'rodrigo.gonzalez@arnou.cl');
+				}
 				$subject = 'Envio de DTE ' .$track_id . '_'.$empresa->rut.'-'.$empresa->dv."_".substr($datos_empresa_factura->rut_cliente,0,strlen($datos_empresa_factura->rut_cliente) - 1)."-".substr($datos_empresa_factura->rut_cliente,-1);
 
 				$ruta =  $factura->archivo_dte_cliente != '' ? 'dte_cliente' : 'dte';
 
 				$attachments = array('./facturacion_electronica/' . $ruta .'/'.$path.$nombre_dte,'./facturacion_electronica/pdf/'.$path.$nombre_pdf);
 				$this->facturaelectronica->envia_mail('enviodte@arnou.cl',$array_email,$subject,$messageBody,'html','Arnou Envio DTE',$attachments);
+				$this->facturaelectronica->envia_mail_sb('enviodte@arnou.cl',$array_email,$subject,$messageBody,'html','Arnou Envio DTE',$attachments);
 
 
 
@@ -1018,6 +1023,7 @@ public function consumo_folios_no_enviada(){
 			$tipo_caf = 39;
 		}			
 
+
 		header('Content-type: text/plain; charset=ISO-8859-1');
 		$this->load->model('facturaelectronica');
 		$config = $this->genera_config();
@@ -1039,7 +1045,7 @@ public function consumo_folios_no_enviada(){
 			$lista_detalle[$i]['QtyItem'] = $detalle->cantidad;
 			$lista_detalle[$i]['CdgItem'] = $detalle->codigo;
             $lista_detalle[$i]['UnmdItem'] = substr($detalle->lote,0,4);
-			$lista_detalle[$i]['PrcItem'] = $detalle->precio;
+			$lista_detalle[$i]['PrcItem'] = $tipo_caf == 39 ? number_format(($detalle->totalproducto/$detalle->cantidad),3,".","") : $detalle->precio;
 			//$lista_detalle[$i]['PrcItem'] = round((($detalle->precio*$detalle->cantidad)/1.19)/$detalle->cantidad,0);
 			//$total = $detalle->precio*$detalle->cantidad;
 			//$neto = round($total/1.19,2);
@@ -1062,36 +1068,121 @@ public function consumo_folios_no_enviada(){
 			$i++;
 		}
 
+		//var_dump($lista_detalle); exit;
+
+		if(count($lista_detalle) == 0){
+
+				$detalle_factura = $this->facturaelectronica->get_detalle_factura_glosa($idfactura);
+                  $i = 0;
+
+
+                  if($data_factura->forma == 3){
+	                  foreach ($detalle_factura as $detalle) {
+	                        if($detalle->total > 0){
+	                              $lista_detalle[$i]['NmbItem'] = $detalle->nombre == '' ? $detalle->glosa : $detalle->cantidad . " " . $detalle->nombre;
+	                              $lista_detalle[$i]['QtyItem'] = $detalle->nombre == '' ? 1 : number_format($detalle->kilos, 3, '.', '');
+	                             // $lista_detalle[$i]['CdgItem'] = $detalle->codigo;                        
+	                              $lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 || $tipo_caf == 46 ? number_format($detalle->neto/$detalle->kilos, 3, '.', '') : number_format($detalle->total/$detalle->kilos, 3, '.', '');
+	                              $lista_detalle[$i]['MontoItem']  = $tipo_caf == 33 || $tipo_caf == 46 ? $detalle->neto : $detalle->total;                 
+	                              $i++;
+	                        }
+	                        
+	                  }
+
+
+
+                  }else{
+
+						foreach ($detalle_factura as $detalle) {
+							$lista_detalle[$i]['NmbItem'] = $detalle->glosa;
+							$lista_detalle[$i]['QtyItem'] = 1;
+							
+							$lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 || $tipo_caf == 46 || $tipo_caf == 52 ? $detalle->neto : $detalle->total;				
+							$i++;
+						}
+
+                  }
+
+
+		}
+
 		//print_r($lista_detalle);
 		//exit;
 
-	    $factura = [
-		    'Encabezado' => [
-		        'IdDoc' => [
-		            'TipoDTE' => $tipo_caf,
-		            'Folio' => $numfactura,
-		            'FchEmis' => $fecemision
-		        ],
-		        'Emisor' => [
-		            'RUTEmisor' => $empresa->rut.'-'.$empresa->dv,
-		            'RznSoc' => substr($empresa->razon_social,0,100), //LARGO DE RAZON SOCIAL NO PUEDE SER SUPERIOR A 100 CARACTERES
-		            'GiroEmis' => substr($empresa->giro,0,80), //LARGO DE GIRO DEL EMISOR NO PUEDE SER SUPERIOR A 80 CARACTERES
-		            'Acteco' => $empresa->cod_actividad,
-		            'DirOrigen' => substr($empresa->dir_origen,0,70), //LARGO DE DIRECCION DE ORIGEN NO PUEDE SER SUPERIOR A 70 CARACTERES
-		            'CmnaOrigen' => substr($empresa->comuna_origen,0,20), //LARGO DE COMUNA DE ORIGEN NO PUEDE SER SUPERIOR A 20 CARACTERES
-		        ],
-		        'Receptor' => [
-		            'RUTRecep' => substr($datos_empresa_factura->rut_cliente,0,strlen($datos_empresa_factura->rut_cliente) - 1)."-".substr($datos_empresa_factura->rut_cliente,-1),
-		            'RznSocRecep' => substr($datos_empresa_factura->nombre_cliente,0,100), //LARGO DE RAZON SOCIAL NO PUEDE SER SUPERIOR A 100 CARACTERES
-		            'GiroRecep' => "pruebaW",//substr($datos_empresa_factura->giro,0,40),  //LARGO DEL GIRO NO PUEDE SER SUPERIOR A 40 CARACTERES
-		            'DirRecep' => substr($datos_empresa_factura->direccion,0,70), //LARGO DE DIRECCION NO PUEDE SER SUPERIOR A 70 CARACTERES
-		            'CmnaRecep' => substr($datos_empresa_factura->nombre_comuna,0,20), //LARGO DE COMUNA NO PUEDE SER SUPERIOR A 20 CARACTERES
-		        ],
+		if($tipo_caf == 39){
 
-		    	
-		    ],		   
-			'Detalle' => $lista_detalle			
-		];
+
+
+ 				$factura = [
+					    'Encabezado' => [
+					        'IdDoc' => [
+					            'TipoDTE' => $tipo_caf,
+					            'Folio' => $numfactura,
+					            'FchEmis' => $fecemision
+					        ],
+					        'Emisor' => [
+					            'RUTEmisor' => $empresa->rut.'-'.$empresa->dv,
+					            'RznSoc' => substr($empresa->razon_social,0,100), //LARGO DE RAZON SOCIAL NO PUEDE SER SUPERIOR A 100 CARACTERES
+					            'GiroEmis' => substr($empresa->giro,0,80), //LARGO DE GIRO DEL EMISOR NO PUEDE SER SUPERIOR A 80 CARACTERES
+					            'Acteco' => $empresa->cod_actividad,
+					            'DirOrigen' => substr($empresa->dir_origen,0,70), //LARGO DE DIRECCION DE ORIGEN NO PUEDE SER SUPERIOR A 70 CARACTERES
+					            'CmnaOrigen' => substr($empresa->comuna_origen,0,20), //LARGO DE COMUNA DE ORIGEN NO PUEDE SER SUPERIOR A 20 CARACTERES
+					        ],
+					        'Receptor' => [
+					            'RUTRecep' => substr($datos_empresa_factura->rut_cliente,0,strlen($datos_empresa_factura->rut_cliente) - 1)."-".substr($datos_empresa_factura->rut_cliente,-1),
+					            'RznSocRecep' => substr($datos_empresa_factura->nombre_cliente,0,100), //LARGO DE RAZON SOCIAL NO PUEDE SER SUPERIOR A 100 CARACTERES
+					            'GiroRecep' => "pruebaW",//substr($datos_empresa_factura->giro,0,40),  //LARGO DEL GIRO NO PUEDE SER SUPERIOR A 40 CARACTERES
+					            'DirRecep' => substr($datos_empresa_factura->direccion,0,70), //LARGO DE DIRECCION NO PUEDE SER SUPERIOR A 70 CARACTERES
+					            'CmnaRecep' => substr($datos_empresa_factura->nombre_comuna,0,20), //LARGO DE COMUNA NO PUEDE SER SUPERIOR A 20 CARACTERES
+					        ],
+					        'Totales' => [
+                                                // estos valores serán calculados automáticamente
+                                                'MntNeto' => $data_factura->neto,
+                                                'IVA' => $data_factura->iva
+                                                //'MntTotal' => 12000
+                                            ],  
+
+					    	
+					    ],		   
+						'Detalle' => $lista_detalle			
+					];
+
+
+		}else{
+
+			    $factura = [
+					    'Encabezado' => [
+					        'IdDoc' => [
+					            'TipoDTE' => $tipo_caf,
+					            'Folio' => $numfactura,
+					            'FchEmis' => $fecemision
+					        ],
+					        'Emisor' => [
+					            'RUTEmisor' => $empresa->rut.'-'.$empresa->dv,
+					            'RznSoc' => substr($empresa->razon_social,0,100), //LARGO DE RAZON SOCIAL NO PUEDE SER SUPERIOR A 100 CARACTERES
+					            'GiroEmis' => substr($empresa->giro,0,80), //LARGO DE GIRO DEL EMISOR NO PUEDE SER SUPERIOR A 80 CARACTERES
+					            'Acteco' => $empresa->cod_actividad,
+					            'DirOrigen' => substr($empresa->dir_origen,0,70), //LARGO DE DIRECCION DE ORIGEN NO PUEDE SER SUPERIOR A 70 CARACTERES
+					            'CmnaOrigen' => substr($empresa->comuna_origen,0,20), //LARGO DE COMUNA DE ORIGEN NO PUEDE SER SUPERIOR A 20 CARACTERES
+					        ],
+					        'Receptor' => [
+					            'RUTRecep' => substr($datos_empresa_factura->rut_cliente,0,strlen($datos_empresa_factura->rut_cliente) - 1)."-".substr($datos_empresa_factura->rut_cliente,-1),
+					            'RznSocRecep' => substr($datos_empresa_factura->nombre_cliente,0,100), //LARGO DE RAZON SOCIAL NO PUEDE SER SUPERIOR A 100 CARACTERES
+					            'GiroRecep' => "pruebaW",//substr($datos_empresa_factura->giro,0,40),  //LARGO DEL GIRO NO PUEDE SER SUPERIOR A 40 CARACTERES
+					            'DirRecep' => substr($datos_empresa_factura->direccion,0,70), //LARGO DE DIRECCION NO PUEDE SER SUPERIOR A 70 CARACTERES
+					            'CmnaRecep' => substr($datos_empresa_factura->nombre_comuna,0,20), //LARGO DE COMUNA NO PUEDE SER SUPERIOR A 20 CARACTERES
+					        ],
+
+					    	
+					    ],		   
+						'Detalle' => $lista_detalle			
+					];
+
+
+		}
+
+
+	
 
 		//print_r($factura);
 		//exit;
@@ -1133,6 +1224,8 @@ public function consumo_folios_no_enviada(){
 		$EnvioDTE->setFirma($Firma);
 		$EnvioDTE->setCaratula($caratula);
 		$EnvioDTE->generar();		
+
+		//var_dump($EnvioDTE->generar()); exit;
 
 		if ($EnvioDTE->schemaValidate()) { // REVISAR PORQUÉ SE CAE CON ESTA VALIDACION
 			
@@ -1241,6 +1334,103 @@ public function consumo_folios_no_enviada(){
 		return $path;
 	}
 
+
+
+    public function ruta_sendinblue()
+    {
+        $base_path = __DIR__;
+        $base_path = str_replace("\\", "/", $base_path);
+        $path = $base_path . "/../libraries/sendinblue.php";
+        return $path;
+    }    
+
+
+public function envia_mail_sb($from, $toList, $subject, $content, $type, $alias = "Arnou Envio DTE")
+    {
+
+
+        if (ENVIO_MAIL) {
+
+
+                include_once $this->ruta_sendinblue();
+
+                // Configure API key authorization: api-key
+                SendinBlue\Client\Configuration::getDefaultConfiguration()->setApiKey('api-key','xkeysib-'.API_KEY_MAIL);
+
+                $api_instance = new SendinBlue\Client\Api\AccountApi();
+
+               
+                $smtp_instance = new SendinBlue\Client\Api\SMTPApi();
+
+
+                if (is_array($toList)) {
+                    //array_push($toList,'rodrigog.84@gmail.com');
+                    $toList = array_unique($toList);
+                    foreach ($toList as $destiny) {
+
+
+                        $sendSmtpEmail = new SendinBlue\Client\Model\SendSmtpEmail([
+                             'subject' => $subject,
+                             'sender' => ['name' => $alias, 'email' => $from],
+                             'replyTo' => ['name' => $alias, 'email' => $from],
+                             'to' => [['email' => $destiny]],
+                             'htmlContent' => $content
+                        ]);
+
+                        try {
+                            $result = $smtp_instance->sendTransacEmail($sendSmtpEmail);
+
+
+                            $data_envio = array(
+                                'email' => $destiny,
+                                'messageid' => $result['messageId'],
+                                'idcomunidad' => $this->session->userdata('comunidadid')
+                            );
+
+                            $this->db->insert('log_envio_mail', $data_envio);
+
+                        } catch (Exception $e) {
+                            echo $e->getMessage(),PHP_EOL;
+                        }
+
+                    }
+                } else {
+
+                        $sendSmtpEmail = new SendinBlue\Client\Model\SendSmtpEmail([
+                             'subject' => $subject,
+                             'sender' => ['name' => $alias, 'email' => $from],
+                             'replyTo' => ['name' => $alias, 'email' => $from],
+                             'to' => [['email' => $toList]],
+                             'htmlContent' => $content
+                        ]);
+
+                    try {
+                        $result = $smtp_instance->sendTransacEmail($sendSmtpEmail);
+
+                        $data_envio = array(
+                            'email' => $destiny,
+                            'messageid' => $result['messageId'],
+                            'idcomunidad' => $this->session->userdata('comunidadid')
+                        );
+
+                        $this->db->insert('log_envio_mail', $data_envio);
+
+
+
+
+                    } catch (Exception $e) {
+                        echo $e->getMessage(),PHP_EOL;
+                    }
+
+
+                }
+
+
+
+        }
+
+
+    }
 
 
 	public function envia_mail($from,$toList,$subject,$content,$type,$alias = "Arnou Envio DTE",$attachments = null){
