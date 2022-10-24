@@ -1383,8 +1383,7 @@ public function envia_mail_sb($from, $toList, $subject, $content, $type, $alias 
 
                             $data_envio = array(
                                 'email' => $destiny,
-                                'messageid' => $result['messageId'],
-                                'idcomunidad' => $this->session->userdata('comunidadid')
+                                'messageid' => $result['messageId']
                             );
 
                             $this->db->insert('log_envio_mail', $data_envio);
@@ -1409,8 +1408,7 @@ public function envia_mail_sb($from, $toList, $subject, $content, $type, $alias 
 
                         $data_envio = array(
                             'email' => $destiny,
-                            'messageid' => $result['messageId'],
-                            'idcomunidad' => $this->session->userdata('comunidadid')
+                            'messageid' => $result['messageId']
                         );
 
                         $this->db->insert('log_envio_mail', $data_envio);

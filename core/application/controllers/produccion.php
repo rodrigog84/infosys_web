@@ -111,8 +111,9 @@ class Produccion extends CI_Controller {
 			//	var_dump($array_email);
 	    //$array_email = array('rodrigo.gonzalez@arnou.cl');
 	    	//	var_dump($array_email); exit;
-	   $this->facturaelectronica->envia_mail($email_data->email_intercambio,$array_email,'Alerta Stock Crítico',$mensaje,'html','Arnou Alertas');	
+	  // $this->facturaelectronica->envia_mail($email_data->email_intercambio,$array_email,'Alerta Stock Crítico',$mensaje,'html','Arnou Alertas');	
 
+	   $this->facturaelectronica->envia_mail_sb($email_data->email_intercambio,$array_email,'Alerta Stock Crítico',$mensaje,'html','Arnou Alertas');	
 
 
 		//exit;
