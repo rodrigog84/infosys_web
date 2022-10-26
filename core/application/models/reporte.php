@@ -354,7 +354,7 @@ class Reporte extends CI_Model
 									,p.codigo
 									,p.nombre
 									,f.tipo_documento 
-									,CASE WHEN f.tipo_documento = 102 THEN d.kilos*(-1) ELSE d.kilos END AS cantidad
+									,CASE WHEN f.tipo_documento = 102 THEN d.cantidad*(-1) ELSE d.cantidad END AS cantidad
 									,CASE WHEN f.tipo_documento = 102 THEN d.precios*d.kilos*(-1) ELSE d.neto END AS ventaneta
 									,p." . $tipoprecio . " as tipo_precio
 									,tf.nombre AS familia
