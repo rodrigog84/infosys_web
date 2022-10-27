@@ -934,7 +934,7 @@ public function consumo_folios_no_enviada(){
 	        //$messageBody .= '<a href="'. base_url() .'facturas/exportFePDF_mail/'.$track_id.'" >Ver Factura</a><br><br>';
 
 	        $messageBody .= 'Este correo adjunta Documentos Tributarios Electrónicos (DTE) para el receptor electrónico indicado.<br><br>';
-	        $messageBody .= 'Facturación Electrónica Arnou SPA.';
+	        $messageBody .= 'Facturación Electrónica Arnou SPA, Soluciones Digitales a tu alcance. Visítanos: <a href="https://www.arnou.cl">www.arnou.cl</a>';
 
 
 	        $email_data = $this->facturaelectronica->get_email();
@@ -952,7 +952,8 @@ public function consumo_folios_no_enviada(){
 				$ruta =  $factura->archivo_dte_cliente != '' ? 'dte_cliente' : 'dte';
 
 				$attachments = array('./facturacion_electronica/' . $ruta .'/'.$path.$nombre_dte,'./facturacion_electronica/pdf/'.$path.$nombre_pdf);
-				$this->facturaelectronica->envia_mail('enviodte@arnou.cl',$array_email,$subject,$messageBody,'html','Arnou Envio DTE',$attachments);
+				//$this->facturaelectronica->envia_mail('enviodte@arnou.cl',$array_email,$subject,$messageBody,'html','Arnou Envio DTE',$attachments);
+				//$array_email = array('rodrigog.84@gmail.com');
 				$this->facturaelectronica->envia_mail_sb('enviodte@arnou.cl',$array_email,$subject,$messageBody,'html','Arnou Envio DTE',$attachments);
 
 
@@ -1345,9 +1346,8 @@ public function consumo_folios_no_enviada(){
     }    
 
 
-public function envia_mail_sb($from, $toList, $subject, $content, $type, $alias = "Arnou Envio DTE")
+public function envia_mail_sb($from, $toList, $subject, $content, $type, $alias = "Arnou Envio DTE",$attachments = null)
     {
-
 
         if (ENVIO_MAIL) {
 
@@ -1368,14 +1368,34 @@ public function envia_mail_sb($from, $toList, $subject, $content, $type, $alias 
                     $toList = array_unique($toList);
                     foreach ($toList as $destiny) {
 
+ 
+				        //var_dump($array_attachments); exit;
+				        //var_dump(json_encode($array_attachments)); exit;
 
+				        $array_attachments = array();
                         $sendSmtpEmail = new SendinBlue\Client\Model\SendSmtpEmail([
                              'subject' => $subject,
                              'sender' => ['name' => $alias, 'email' => $from],
                              'replyTo' => ['name' => $alias, 'email' => $from],
                              'to' => [['email' => $destiny]],
-                             'htmlContent' => $content
+                             'htmlContent' => $content,
+
                         ]);
+
+                    	$array_attachments = array();
+				        if(!is_null($attachments)){
+				        	foreach ($attachments as $attachment) {
+				        		$array_archivo = explode('/',$attachment);
+				        		$array_fila = array('content' => chunk_split(base64_encode(file_get_contents($attachment))),'name' => $array_archivo[count($array_archivo)-1]);
+				        		array_push($array_attachments,$array_fila);
+				        	}
+				        		
+				        }     
+
+				        if(count($array_attachments) > 0){
+				        	$sendSmtpEmail['attachment'] = $array_attachments;	
+				        }
+                        
 
                         try {
                             $result = $smtp_instance->sendTransacEmail($sendSmtpEmail);
@@ -1402,6 +1422,24 @@ public function envia_mail_sb($from, $toList, $subject, $content, $type, $alias 
                              'to' => [['email' => $toList]],
                              'htmlContent' => $content
                         ]);
+
+
+
+
+                    	$array_attachments = array();
+				        if(!is_null($attachments)){
+				        	foreach ($attachments as $attachment) {
+				        		$array_archivo = explode('/',$attachment);
+				        		$array_fila = array('content' => chunk_split(base64_encode(file_get_contents($attachment))),'name' => $array_archivo[count($array_archivo)-1]);
+				        		array_push($array_attachments,$array_fila);
+				        	}
+				        		
+				        }     
+
+				        if(count($array_attachments) > 0){
+				        	$sendSmtpEmail['attachment'] = $array_attachments;	
+				        }
+
 
                     try {
                         $result = $smtp_instance->sendTransacEmail($sendSmtpEmail);
