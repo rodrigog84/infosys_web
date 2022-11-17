@@ -369,3 +369,41 @@ ALTER TABLE `detalle_factura_cliente`
 
 ALTER TABLE `detalle_factura_glosa`
 	CHANGE COLUMN `glosa` `glosa` VARCHAR(500) NOT NULL COLLATE 'latin1_swedish_ci' AFTER `id_producto`;
+
+
+/*****************************************************************************/
+
+
+CREATE TABLE `movimiento_cuenta_corriente_parcial` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`numcomprobante` INT(11) NULL DEFAULT NULL,
+	`tipo` ENUM('INGRESO','EGRESO','REGULARIZACION') NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+	`proceso` ENUM('CANCELACION','DEPOSITO','OTRO') NOT NULL COLLATE 'latin1_swedish_ci',
+	`finalizado` TINYINT(4) NOT NULL DEFAULT '0',
+	`glosa` VARCHAR(255) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+	`fecha` DATETIME NULL DEFAULT NULL,
+	PRIMARY KEY (`id`) USING BTREE
+)
+COLLATE='latin1_swedish_ci'
+ENGINE=InnoDB
+ROW_FORMAT=COMPACT
+;
+
+
+
+CREATE TABLE `detalle_mov_cuenta_corriente_parcial` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`idmov` INT(11) NOT NULL DEFAULT '0',
+	`idcuenta` INT(11) NOT NULL DEFAULT '0',
+	`tipodocumento` INT(11) NOT NULL DEFAULT '0',
+	`documento` INT(11) NOT NULL DEFAULT '0',
+	`docpago` INT(11) NOT NULL DEFAULT '0',
+	`glosa` VARCHAR(250) NOT NULL DEFAULT '0' COLLATE 'latin1_swedish_ci',
+	`debe` BIGINT(20) NOT NULL DEFAULT '0',
+	`haber` BIGINT(20) NOT NULL DEFAULT '0',
+	`saldo` BIGINT(20) NOT NULL DEFAULT '0',
+	`created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`id`) USING BTREE
+)
+COLLATE='latin1_swedish_ci'
+ENGINE=InnoDB;

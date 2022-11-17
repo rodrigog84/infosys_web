@@ -315,6 +315,9 @@ class Cuentacorriente extends CI_Controller {
 
 	public function getDocumentosByCtacte(){
 		
+
+		//var_dump($_POST); exit;
+		//var_dump($_GET); exit;
 		$idcuentacorriente = $this->input->post('idcuentacorriente');
 
 		$sqlCuentaCorriente = $idcuentacorriente != '' ? " and c.id = '" . $idcuentacorriente . "'": "";
@@ -345,6 +348,100 @@ class Cuentacorriente extends CI_Controller {
 
         echo json_encode($resp);
 	}	
+
+
+
+
+
+	public function saveCancelacionParcial(){
+		//echo '<pre>';
+		//var_dump($_POST); exit;
+		$resp = array();
+		$items = json_decode($this->input->post('items'));
+
+		$arrayFecha = explode("T",$this->input->post('fecha'));
+
+		$ctacteId = $this->input->post('ctacteId');
+		$fecha = $arrayFecha[0];
+
+
+        $this->db->select('id')
+          ->from('movimiento_cuenta_corriente_parcial')
+          ->where('numcomprobante',$this->input->post('numero'))
+          ->where('tipo',$this->input->post('tipoComprobante'))
+          ->where('proceso',$this->input->post('origen'));
+        $query = $this->db->get();
+
+
+        $movimiento_data = $query->result(); 
+
+      //  var_dump($movimiento_data);
+
+        if(count($movimiento_data) > 0){
+
+		// guarda movimiento cuenta corriente
+        	$movimiento = $movimiento_data[0];
+        	//var_dump($movimiento); 
+			$data = array(
+		      	'numcomprobante' => $this->input->post('numero'),
+		        'tipo' => $this->input->post('tipoComprobante'),
+		        'proceso' => $this->input->post('origen'),
+		        'glosa' => $this->input->post('detalle'),
+		        'fecha' => date("Y-m-d H:i:s")
+			);
+
+			$this->db->where('id',$movimiento->id);
+			$this->db->update('movimiento_cuenta_corriente_parcial', $data); 
+			$idMovimiento = $movimiento->id;
+
+
+        }else{
+
+
+			// guarda movimiento cuenta corriente
+			$data = array(
+		      	'numcomprobante' => $this->input->post('numero'),
+		        'tipo' => $this->input->post('tipoComprobante'),
+		        'proceso' => $this->input->post('origen'),
+		        'glosa' => $this->input->post('detalle'),
+		        'fecha' => date("Y-m-d H:i:s")
+			);
+
+			$this->db->insert('movimiento_cuenta_corriente_parcial', $data); 
+			$idMovimiento = $this->db->insert_id();
+
+        }
+
+
+
+		$this->db->where('idmov',$idMovimiento);
+		$this->db->delete('detalle_mov_cuenta_corriente_parcial'); 
+
+		foreach($items as $item){
+
+			$array_detalle_mov = array(
+									'idmov' => $idMovimiento,
+									'idcuenta' => $item->cuenta,
+									'tipodocumento' => $item->tipodocumento,
+									'documento' => $item->documento,
+									'docpago' => $item->docpago,
+									'glosa' => $item->glosa,
+									'debe' => $item->debe,
+									'haber' => $item->haber,
+									'saldo' => $item->saldo
+								);
+
+			$this->db->insert('detalle_mov_cuenta_corriente_parcial', $array_detalle_mov); 
+
+		}
+
+        $resp['success'] = true;
+        echo json_encode($resp);
+
+	}		
+
+
+
 
 
 	public function saveCancelacion(){

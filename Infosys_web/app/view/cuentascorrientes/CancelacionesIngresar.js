@@ -304,6 +304,7 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                                                     sumdebe += parseInt(r.data.debe);
                                                     sumhaber += parseInt(r.data.haber);
                                                 });      
+
                                                 me.down("#totaldebe").setValue(sumdebe);                                      
                                                 me.down("#totalhaber").setValue(sumhaber); 
 
@@ -317,6 +318,7 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                                                     }
                                                     return true;
                                                 }
+
 
                                                 store.insert(store.count(), {cuenta:0, documento: 0, docpago:0, glosa : '',debe: 0,haber: 0});
                                                 var newRow = store.getCount()-1;
@@ -392,7 +394,41 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
 
                                             }
                                         }
-                                                   
+                                             
+
+
+
+                                        /**** GUARDAR AQUI *******/
+
+                                        var dataItems = new Array();
+                                        var stItem = me.down("grid").getStore();
+                                        stItem.each(function(r){
+                                            dataItems.push(r.data);
+
+                                        });
+
+                                        
+                                        Ext.Ajax.request({
+                                           //url: preurl + 'cuentacorriente/getCuentaCorriente/' + record.get('cuenta') + '/' + editor.value ,
+                                           url: preurl + 'cuentacorriente/saveCancelacionParcial/',
+                                                params: {
+                                                     ctacteId: me.down("#ctacteId").getValue(),
+                                                     fecha: me.down('#fechaId').getValue(),
+                                                     numero: me.down('#numeroId').getValue(),
+                                                     tipoComprobante: me.down('#tipoComprobante').getValue(),
+                                                     detalle: me.down('#detalleId').getValue(),
+                                                     items: Ext.JSON.encode(dataItems),
+                                                     origen : 'CANCELACION'
+                                                },                                                     
+                                           success: function(response, opts) {
+
+                                           },
+                                           failure: function(response, opts) {
+                                              console.log('server-side failure with status code ' + response.status);
+                                           }
+                                        });   
+
+                                        /********************************/                                                   
                                         
 
                                     }                                    
