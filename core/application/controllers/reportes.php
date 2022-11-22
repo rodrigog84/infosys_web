@@ -16,11 +16,13 @@ class Reportes extends CI_Controller {
 
 		$this->load->model('reporte');
 		$neto_productos = $this->reporte->mensual_ventas($mes,$anno);
- 
+ 	//echo '<pre>';
+ 	//var_dump($neto_productos);
 		foreach ($neto_productos as $producto) {
 			
 			 #Facturacion, Boletas, NCredito, (Facturacion+Boletas-NCredito) as totales 
 			$producto->Facturacion = "<b>(" . str_pad($producto->Facturacion_doctos,5," ",STR_PAD_LEFT).")&nbsp;&nbsp;</b>" .  number_format($producto->Facturacion,0,".",".");
+			$producto->LFactura = "<b>(" . str_pad($producto->LFactura_doctos,5," ",STR_PAD_LEFT).")&nbsp;&nbsp;</b>" .  number_format($producto->LFactura,0,".",".");			
 			$producto->Boletas = "<b>(" . str_pad($producto->Boletas_doctos,5," ",STR_PAD_LEFT).")&nbsp;&nbsp;</b>" .number_format($producto->Boletas,0,".",".");
 			$producto->NDebito = "<b>(" . str_pad($producto->NDebito_doctos,5," ",STR_PAD_LEFT).")&nbsp;&nbsp;</b>" .number_format($producto->NDebito,0,".",".");
 			$producto->NCredito = "<b>(" . str_pad($producto->NCredito_doctos,5," ",STR_PAD_LEFT).")&nbsp;&nbsp;</b>" .number_format($producto->NCredito,0,".",".");
@@ -28,6 +30,7 @@ class Reportes extends CI_Controller {
 
 			if($producto->concepto == '<b>Totales</b>'){
 				$producto->Facturacion = "<b>".$producto->Facturacion."</b>";
+				$producto->LFactura = "<b>".$producto->LFactura."</b>";
 				$producto->Boletas = "<b>".$producto->Boletas."</b>";
 				$producto->NDebito = "<b>".$producto->NDebito."</b>";
 				$producto->NCredito = "<b>".$producto->NCredito."</b>";

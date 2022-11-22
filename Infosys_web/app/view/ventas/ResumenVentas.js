@@ -57,13 +57,13 @@ Ext.define('Infosys_web.view.ventas.ResumenVentas' ,{
 
 
          var ventasMensuales = Ext.create('Ext.data.Store', {
-            fields: ['concepto', 'Facturacion' , 'Boletas', 'NDebito' , 'NCredito' , 'totales'],
+            fields: ['concepto', 'Facturacion' ,  'LFactura' , 'Boletas', 'NDebito' , 'NCredito' , 'totales'],
             data : [
-                {"concepto":'<b>Neto Productos</b>', "Facturacion":"0" , "Boletas":"0" , "NDebito":"0" , "NCredito":"0" , "totales":"0"},
-                {"concepto":'<b>Neto Afecto</b>', "Facturacion":"0" , "Boletas":"0" , "NDebito":"0" , "NCredito":"0" , "totales":"0"},
-                {"concepto":'<b>Neto Exento</b>', "Facturacion":"0" , "Boletas":"0" , "NDebito":"0" , "NCredito":"0" , "totales":"0"},
-                {"concepto":'<b>Impuesto IVA</b>', "Facturacion":"0" , "Boletas":"0" , "NDebito":"0" , "NCredito":"0" , "totales":"0"},
-                {"concepto":'<b>Totales</b>', "Facturacion":"0" , "Boletas":"0" , "NDebito":"0" , "NCredito":"0" , "totales":"0"},
+                {"concepto":'<b>Neto Productos</b>', "Facturacion":"0" , "LFactura":"0" ,  "Boletas":"0" , "NDebito":"0" , "NCredito":"0" , "totales":"0"},
+                {"concepto":'<b>Neto Afecto</b>', "Facturacion":"0" ,  "LFactura":"0" , "Boletas":"0" , "NDebito":"0" , "NCredito":"0" , "totales":"0"},
+                {"concepto":'<b>Neto Exento</b>', "Facturacion":"0" ,  "LFactura":"0" , "Boletas":"0" , "NDebito":"0" , "NCredito":"0" , "totales":"0"},
+                {"concepto":'<b>Impuesto IVA</b>', "Facturacion":"0" ,  "LFactura":"0" , "Boletas":"0" , "NDebito":"0" , "NCredito":"0" , "totales":"0"},
+                {"concepto":'<b>Totales</b>', "Facturacion":"0" ,  "LFactura":"0" , "Boletas":"0" , "NDebito":"0" , "NCredito":"0" , "totales":"0"},
             ]
         });
      
@@ -192,6 +192,7 @@ Ext.define('Infosys_web.view.ventas.ResumenVentas' ,{
                             columns: [
                                 { text: 'Conceptos',  dataIndex: 'concepto', flex: 1},
                                 { text: 'Facturaci&oacute;n',  dataIndex: 'Facturacion', flex: 1  },
+                                { text: 'Liquidaci&oacute;n Factura',  dataIndex: 'LFactura', flex: 1  },
                                 { text: 'Boletas',  dataIndex: 'Boletas', flex: 1, align: 'left'},
                                 { text: 'N/D&eacute;bito',  dataIndex: 'NDebito', flex: 1 },
                                 { text: 'N/Cr&eacute;dito',  dataIndex: 'NCredito', flex: 1 },
