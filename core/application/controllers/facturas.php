@@ -2069,6 +2069,7 @@ class Facturas extends CI_Controller {
         $nombres = $this->input->get('nombre');
         $tipo = $this->input->get('documento');
         $tipo2 = $this->input->get('documento2');
+        $tipo3 = $this->input->get('documento3');
         $bodega = $this->input->get('idbodega');
         if (!$bodega){
 	       $bodega = 0;
@@ -2079,7 +2080,11 @@ class Facturas extends CI_Controller {
         if(!$tipo2){
 	         $sql_tipo_documento = "acc.tipo_documento = " . $tipo . " and ";
         }else{
-           $sql_tipo_documento = "acc.tipo_documento in (" . $tipo . "," . $tipo2 . ") and ";
+          if(!$tipo3){
+            $sql_tipo_documento = "acc.tipo_documento in (" . $tipo . "," . $tipo2 . ") and ";
+          }else{
+            $sql_tipo_documento = "acc.tipo_documento in (" . $tipo . "," . $tipo2 . "," . $tipo3 . ") and ";
+          }
         }
 	    }
 
@@ -7228,7 +7233,7 @@ class Facturas extends CI_Controller {
                 $tipodocumento = $v->tipo_documento; 
         }*/
 
-        if($tipodocumento == 1){
+        if($tipodocumento == 1 || $tipodocumento == 106){
                 $this->exportFacturaPDF($idfactura,$numero);
 
         }else if($tipodocumento ==  101 || $tipodocumento == 103 || $tipodocumento == 105 || $tipodocumento == 107 || $tipodocumento == 120){ // FACTURA ELECTRONICA O FACTURA EXENTA ELECTRONCA O GUIA DE DESPACHO

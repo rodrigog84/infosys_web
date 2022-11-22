@@ -468,9 +468,11 @@ Ext.define('Infosys_web.controller.Facturacion', {
         var idbodega = view.down('#bodegaId').getValue();
         var idtipo = 101;
         var idtipo2 = 103;
+        var idtipo3 = 106;
         var st = this.getFacturaStore();
         st.proxy.extraParams = {documento: idtipo,
                                 documento2: idtipo2,
+                                documento3: idtipo3,
                                 idbodega: idbodega }
         st.load();       
     },
@@ -1216,7 +1218,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
             console.log("Llegamos")
             console.log(row.data.forma)
             console.log(row.data.id_tip_docu)
-            if (row.data.forma==0 && (row.data.id_tip_docu ==105 || row.data.id_tip_docu ==107 || row.data.id_tip_docu ==120)){
+            if (row.data.forma==0 && (row.data.id_tip_docu ==105 || row.data.id_tip_docu ==106 || row.data.id_tip_docu ==107 || row.data.id_tip_docu ==120)){
                 //window.open(preurl +'facturas/exportTXT/?idfactura=' + row.data.id)
                 window.open(preurl +'facturas/exportPDF/?idfactura=' + row.data.id)
             };
@@ -1440,7 +1442,13 @@ Ext.define('Infosys_web.controller.Facturacion', {
             }
 
 
-        }else{        
+        }else{    
+
+            if(nombre == 106){ // LIQUIDACION FACTURA
+                habilita = true;
+            }
+
+
              Ext.Ajax.request({
 
                 url: preurl + 'correlativos/generafact?valida='+nombre,
@@ -1468,8 +1476,11 @@ Ext.define('Infosys_web.controller.Facturacion', {
         var grid  = view.down('#itemsgridId');        
 
         
+
+
+        
         //var bolDisabled = tipo_documento.getValue() == 2 ? true : false; // campos se habilitan sólo en factura
-        var bolDisabled = tipo_documento.getValue() == 1 || tipo_documento.getValue() == 19 || ((tipo_documento.getValue() == 101 || tipo_documento.getValue() == 103 || tipo_documento.getValue() == 105 || tipo_documento.getValue() == 107) && habilita) ? false : true; // campos se habilitan sólo en factura o factura electronica
+        var bolDisabled = tipo_documento.getValue() == 1 || tipo_documento.getValue() == 19  || tipo_documento.getValue() == 106 || ((tipo_documento.getValue() == 101 || tipo_documento.getValue() == 103 || tipo_documento.getValue() == 105 || tipo_documento.getValue() == 107) && habilita) ? false : true; // campos se habilitan sólo en factura o factura electronica
 
         if(bolDisabled == true){  // limpiar campos
            view.down('#rutId').setValue('19');
