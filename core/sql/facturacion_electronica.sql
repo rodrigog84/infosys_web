@@ -407,3 +407,36 @@ CREATE TABLE `detalle_mov_cuenta_corriente_parcial` (
 )
 COLLATE='latin1_swedish_ci'
 ENGINE=InnoDB;
+
+
+
+/********************************************************************************************************/
+
+
+ALTER TABLE `movimiento_cuenta_corriente_parcial`
+	ADD COLUMN `idctacte` INT(11) NOT NULL DEFAULT '0' AFTER `id`;
+
+	
+/***************************************************************************/
+INSERT INTO `tipo_documento` (`id`, `descripcion`, `correlativo`) VALUES ('106', 'LIQUIDACION FACTURA', '0');
+INSERT INTO `correlativos` (`id`, `nombre`, `correlativo`, `hasta`, `fecha_venc`) VALUES ('106', 'LIQUIDACION FACTURA', '0', '50000', '2025-12-31');
+
+
+
+/*******************************************************************************/
+
+CREATE TABLE `param_cc` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`nombre` VARCHAR(30) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+	`valor` VARCHAR(100) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+	PRIMARY KEY (`id`) USING BTREE
+)
+COLLATE='latin1_swedish_ci'
+ENGINE=InnoDB
+ROW_FORMAT=COMPACT
+;
+
+
+
+INSERT INTO `infosys_web`.`param_cc` (`nombre`) VALUES ('tasa_interes');
+INSERT INTO `infosys_web`.`param_cc` (`nombre`) VALUES ('dias_cobro');

@@ -140,6 +140,7 @@ Ext.define('Infosys_web.controller.General', {
         'cuentascorrientes.ResumenMovimientoPrincipal',
         'cuentascorrientes.LibroDiarioPrincipal',
         'cuentascorrientes.SaldoDocumentosPrincipal',
+        'cuentascorrientes.Parametros',
         'Tabladescuento.Ingresar',
         'Tabladescuento.Principal',
         'usuarios.CambioClave'
@@ -276,6 +277,9 @@ Ext.define('Infosys_web.controller.General', {
         ref: 'creacioncuentasprincipal',
         selector: 'creacioncuentasprincipal'
     },{
+        ref: 'parametroscc',
+        selector: 'parametroscc'
+    },{
         ref: 'resumenmovimientoprincipal',
         selector: 'resumenmovimientoprincipal'
     },{
@@ -391,9 +395,12 @@ Ext.define('Infosys_web.controller.General', {
             'topmenus menuitem[action=mplazas]': {
                 click: this.mplazas
             },
+            'topmenus menuitem[action=cc_tg_parametros]': {
+                click: this.cc_tg_parametros
+            },     
             'topmenus menuitem[action=cc_tg_creacioncuentas]': {
                 click: this.cc_tg_creacioncuentas
-            },             
+            },                     
             'topmenus menuitem[action=cc_md_mcancelaciones]': {
                 click: this.cc_md_mcancelaciones
             }, 
@@ -1118,6 +1125,13 @@ Ext.define('Infosys_web.controller.General', {
         var viewport = this.getPanelprincipal();
         viewport.removeAll();
         viewport.add({xtype: 'saldodocumentosprincipal'});
+    },
+
+
+    cc_tg_parametros: function(){
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'parametroscc'});
     },
 
 

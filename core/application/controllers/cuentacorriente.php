@@ -36,6 +36,32 @@ class Cuentacorriente extends CI_Controller {
 
 	}
 
+
+    public function busca_parametro_cc($parametro){
+
+        $this->load->model('ctacte');
+        $result = $this->ctacte->busca_parametro_cc($parametro);
+        $resp['data'] = $result;
+        echo json_encode($resp);       
+    }
+
+
+    public function actualiza_parametros_cc(){
+
+
+    	$tasa_interes = $this->input->post('tasa_interes');
+    	$dias_cobro = $this->input->post('dias_cobro');
+
+    	$this->load->model('ctacte');
+    	$result = $this->ctacte->set_parametro_cc('tasa_interes',$tasa_interes);
+    	$result = $this->ctacte->set_parametro_cc('dias_cobro',$dias_cobro);
+   
+    }
+
+
+
+
+
 	public function update(){
 		$resp = array();
 
@@ -352,6 +378,48 @@ class Cuentacorriente extends CI_Controller {
 
 
 
+	public function getMovimientoParcial(){
+
+
+        $proceso = $this->input->post('proceso');
+        $idctacte = $this->input->post('idctacte');
+
+
+        $this->db->select('id, idctacte, numcomprobante, tipo, proceso, glosa')
+          ->from('movimiento_cuenta_corriente_parcial')
+          ->where('proceso',$proceso)
+          ->where('idctacte',$idctacte)
+          ->where('finalizado',0);
+        $query = $this->db->get();
+
+
+        $data = $query->row();
+
+
+        $idMovimiento = isset($data->id) ? $data->id : 0;
+
+        $data_detalle = array();
+        if($idMovimiento != 0){
+		        $this->db->select('idmov, idcuenta, tipodocumento, documento, docpago, glosa, debe, haber, saldo')
+		          ->from('detalle_mov_cuenta_corriente_parcial')
+		          ->where('idmov',$idMovimiento);
+		        $query = $this->db->get();
+
+
+		        $data_detalle = $query->result();
+
+
+        }
+
+
+        $resp['success'] = true;
+        //$resp['total'] = $countAll;
+        $resp['data'] = $data;
+        $resp['detalle'] = $data_detalle;
+
+        echo json_encode($resp);
+	}
+
 
 	public function saveCancelacionParcial(){
 		//echo '<pre>';
@@ -383,6 +451,7 @@ class Cuentacorriente extends CI_Controller {
         	$movimiento = $movimiento_data[0];
         	//var_dump($movimiento); 
 			$data = array(
+				'idctacte' => $ctacteId,
 		      	'numcomprobante' => $this->input->post('numero'),
 		        'tipo' => $this->input->post('tipoComprobante'),
 		        'proceso' => $this->input->post('origen'),
@@ -419,19 +488,30 @@ class Cuentacorriente extends CI_Controller {
 
 		foreach($items as $item){
 
-			$array_detalle_mov = array(
-									'idmov' => $idMovimiento,
-									'idcuenta' => $item->cuenta,
-									'tipodocumento' => $item->tipodocumento,
-									'documento' => $item->documento,
-									'docpago' => $item->docpago,
-									'glosa' => $item->glosa,
-									'debe' => $item->debe,
-									'haber' => $item->haber,
-									'saldo' => $item->saldo
-								);
 
-			$this->db->insert('detalle_mov_cuenta_corriente_parcial', $array_detalle_mov); 
+			$debe = is_null($item->debe) ? 0 : $item->debe;
+			$haber = is_null($item->haber) ? 0 : $item->haber;
+
+
+			if($debe > 0 || $haber > 0 || $item->tipodocumento > 0){
+
+				$array_detalle_mov = array(
+										'idmov' => $idMovimiento,
+										'idcuenta' => $item->cuenta,
+										'tipodocumento' => $item->tipodocumento,
+										'documento' => $item->documento,
+										'docpago' => $item->docpago,
+										'glosa' => $item->glosa,
+										'debe' => $debe,
+										'haber' => $haber,
+										'saldo' => is_null($item->saldo) ? 0 : $item->saldo
+									);
+
+				$this->db->insert('detalle_mov_cuenta_corriente_parcial', $array_detalle_mov); 
+
+			}
+
+
 
 		}
 
@@ -1336,6 +1416,9 @@ $header = '
 
 			exit;            
         }
+
+
+
 
 
 

@@ -739,7 +739,7 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                         iconCls: '',
                          itemId: 'cc_tg_parametros',
                         disabled: true,
-                        action: ''
+                        action: 'cc_tg_parametros'
                 },{
                         text: 'Asociacion de Cuentas',
                         iconCls: '',
