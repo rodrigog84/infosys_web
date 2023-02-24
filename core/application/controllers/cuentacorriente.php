@@ -6,7 +6,8 @@ class Cuentacorriente extends CI_Controller {
 	public function __construct()
 	{
 		parent::__construct();
-		error_reporting(0);
+		//error_reporting(0);
+		$this->load->helper('format');
 		$this->load->database();
 	}
 
@@ -35,6 +36,57 @@ class Cuentacorriente extends CI_Controller {
         echo json_encode($resp);
 
 	}
+
+
+    public function del_clave_caducada(){
+
+
+
+		$this->load->model('ctacte');
+        $vigente = $this->ctacte->del_clave_caducada();
+      	$resp['data'] = 1;
+  		echo json_encode($resp);   
+    }	
+
+
+
+
+    public function get_clave_autorizacion(){
+
+
+    	/*
+			1.- Buscar si  existe clave vigente para el usuario.  Si existe, traer
+			2.- Si no existe, crear una con vigencia de 90 segundos.  Luego traer
+
+
+    	*/
+
+		$fec_actual = date('Y-m-d H:i:s');
+		$fec_caducidad= strtotime("+ 90 seconds", strtotime ($fec_actual));			
+		$fec_caducidad = date('Y-m-d H:i:s',$fec_caducidad);
+		//var_dump($fec_actual);
+		//var_dump($fec_caducidad); exit;
+
+		$this->load->model('ctacte');
+        $vigente = $this->ctacte->get_clave_vigente();
+        //var_dump($vigente); exit;
+
+        $clave_vigente = '';
+        if(count($vigente) == 0){ // generar clave
+        	$clave = randomnumber_mm(6);
+        	$vigente = $this->ctacte->crea_clave_vigente($clave);
+        	$tiempo_restante = 90;
+        }else{
+        	$clave_vigente = $vigente[0];
+        	$clave = $clave_vigente->clave;
+        	$tiempo_restante = $clave_vigente->tiemporestante;
+        }
+
+    	
+        $resp['data'] = $clave;
+        $resp['tiempo'] = $tiempo_restante;
+        echo json_encode($resp);       
+    }	
 
 
     public function busca_parametro_cc($parametro){

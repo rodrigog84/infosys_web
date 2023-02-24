@@ -56,4 +56,57 @@ class Ctacte extends CI_Model
 
 
 
+	 public function get_clave_vigente(){
+
+	 	$usuario = $this->session->userdata('username');
+	 	$fec_compara = date('Y-m-d H:i:s');
+		$this->db->select("clave, TIME_TO_SEC(TIMEDIFF(fec_caducidad,'" . $fec_compara . "')) AS tiemporestante",	false)
+		  ->from('clave_acceso_dinamica')
+		  ->where('usuario',$usuario)
+		  ->where("fec_caducidad >= '" . $fec_compara . "'"); 	
+		$query = $this->db->get();
+		$clave = $query->result();	
+
+		return $clave;
+
+	 }
+
+
+
+	public function crea_clave_vigente($clave){
+
+			$usuario = $this->session->userdata('username');
+			$fec_actual = date('Y-m-d H:i:s');
+			$fec_caducidad= strtotime("+ 90 seconds", strtotime ($fec_actual));
+			$fec_caducidad = date('Y-m-d H:i:s',$fec_caducidad);
+
+
+			$array_insert = array(
+						'clave' => $clave,
+						'fec_genera' => $fec_actual,
+						'fec_caducidad' => $fec_caducidad,
+						'usuario' => $usuario
+						);
+
+		$this->db->insert('clave_acceso_dinamica',$array_insert); 
+		return $clave;
+	}	 
+
+
+
+
+
+	 public function del_clave_caducada(){
+
+	 	$usuario = $this->session->userdata('username');
+	 	$fec_actual = date('Y-m-d H:i:s');
+		  $this->db->where('usuario',$usuario);
+		  $this->db->where("fec_caducidad < '" . $fec_actual . "'");
+		  $this->db->delete('clave_acceso_dinamica');
+
+		return $clave;
+
+	 }
+
+
 }

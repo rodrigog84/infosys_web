@@ -141,6 +141,7 @@ Ext.define('Infosys_web.controller.General', {
         'cuentascorrientes.LibroDiarioPrincipal',
         'cuentascorrientes.SaldoDocumentosPrincipal',
         'cuentascorrientes.Parametros',
+        'cuentascorrientes.Autorizacion',
         'Tabladescuento.Ingresar',
         'Tabladescuento.Principal',
         'usuarios.CambioClave'
@@ -397,7 +398,10 @@ Ext.define('Infosys_web.controller.General', {
             },
             'topmenus menuitem[action=cc_tg_parametros]': {
                 click: this.cc_tg_parametros
-            },     
+            },   
+            'topmenus menuitem[action=cc_tg_autorizacion]': {
+                click: this.cc_tg_autorizacion
+            },               
             'topmenus menuitem[action=cc_tg_creacioncuentas]': {
                 click: this.cc_tg_creacioncuentas
             },                     
@@ -1134,6 +1138,68 @@ Ext.define('Infosys_web.controller.General', {
         viewport.add({xtype: 'parametroscc'});
     },
 
+    cc_tg_autorizacion: function(){
+
+
+
+        var viewport = this.getPanelprincipal();
+
+        viewport.removeAll();
+        viewport.add({xtype: 'autorizacioncc'});
+
+       // var segundos_ciclo = 5;
+       // var seg_restante = segundos_ciclo;
+
+        Ext.Ajax.request({
+            async: false,
+            url: preurl + 'cuentacorriente/del_clave_caducada',
+            success: function(response){
+                    console.log('borra clave caducada')
+
+            }
+
+        });
+
+
+
+        // Reloj que se ejecuta cada 1 segundo
+        var updateClock = function(){
+
+            //if(seg_restante == segundos_ciclo){
+
+                Ext.Ajax.request({
+                    async: false,
+                    url: preurl + 'cuentacorriente/get_clave_autorizacion',
+                    success: function(response){
+                                var resp = Ext.JSON.decode(response.responseText);
+                                viewport.down('#clave_autorizacion').setValue(resp.data);
+                                viewport.down('#tiempo_restante').setValue(resp.tiempo);
+
+                    }
+
+                });
+
+
+
+            //}
+           //  console.log('ciclo sr:' + seg_restante)
+           // viewport.down('#tiempo_restante').setValue(seg_restante);
+
+
+           // seg_restante = seg_restante - 1;
+           // seg_restante = seg_restante == 0 ? segundos_ciclo : seg_restante;
+
+         }
+
+
+         var runner = new Ext.util.TaskRunner();
+         var task = runner.start({
+             run: updateClock,
+             interval: 1000
+         });        
+
+        
+    },
 
     cc_tg_creacioncuentas: function(){
         var viewport = this.getPanelprincipal();

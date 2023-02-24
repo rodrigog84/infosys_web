@@ -741,6 +741,12 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                         disabled: true,
                         action: 'cc_tg_parametros'
                 },{
+                        text: 'Clave Autorizaci&oacute;n',
+                        iconCls: '',
+                         itemId: 'cc_tg_autorizacion',
+                        disabled: true,
+                        action: 'cc_tg_autorizacion'
+                },{
                         text: 'Asociacion de Cuentas',
                         iconCls: '',
                         itemId: 'cc_tg_creacioncuentas',

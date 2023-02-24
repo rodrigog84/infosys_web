@@ -440,3 +440,21 @@ ROW_FORMAT=COMPACT
 
 INSERT INTO `infosys_web`.`param_cc` (`nombre`) VALUES ('tasa_interes');
 INSERT INTO `infosys_web`.`param_cc` (`nombre`) VALUES ('dias_cobro');
+
+
+
+/***********************************************************************/
+
+INSERT INTO `infosys_web`.`accesos` (`codigo`, `reg_estado`, `descripcion`) VALUES ('cc_tg_autorizacion', '1', 'cuentas corrientes->tablas generales->clave_autorizacion');
+INSERT INTO `infosys_web`.`rol_acceso` (`id_rol`, `id_acceso`) VALUES ('1', '108');
+
+CREATE TABLE `clave_acceso_dinamica` (
+	`clave` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+	`fec_genera` DATETIME NULL DEFAULT NULL,
+	`fec_caducidad` DATETIME NULL DEFAULT NULL,
+	`usuario` VARCHAR(50) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci'
+)
+COLLATE='latin1_swedish_ci'
+ENGINE=InnoDB
+;
+
