@@ -159,6 +159,10 @@ class Cuentacorriente extends CI_Controller {
 		{
 			$row->rut_sf = $row->rut;
 			$row->dato_cliente = substr($row->rut, 0, strlen($row->rut) - 1)."-".substr($row->rut,-1)." ".$row->cliente;
+			$row->rut = str_replace('-','',$row->rut);
+			//echo '<pre>';
+			//var_dump($row->rut);
+
 			$row->rut = number_format(substr($row->rut, 0, strlen($row->rut) - 1),0,".",".")."-".substr($row->rut,-1); //formatea rut
 
 			$data[] = $row;
