@@ -304,7 +304,9 @@ class Cuentacorriente extends CI_Controller {
 		$sqlCuentaCorriente =  $idctacte != '' ? " and cc.id = '" . $idctacte . "'" : "";
 
 		$query = $this->db->query('SELECT cc.id, c.nombres as cliente, c.id as idcliente, c.rut, cco.nombre as cuentacontable, format(cc.saldo,0,"de_DE") as saldo,
-									(select if(sum(saldo) is not null, sum(saldo),0) from detalle_cuenta_corriente where idctacte = cc.id and fechavencimiento < curdate()) as deudavencida
+									(select if(sum(saldo) is not null, sum(saldo),0) from detalle_cuenta_corriente where idctacte = cc.id and fechavencimiento < curdate()) as deudavencida,
+									(SELECT valor FROM param_cc WHERE nombre = "tasa_interes") AS tasa_interes,
+									(SELECT valor FROM param_cc WHERE nombre = "dias_cobro") AS dias_cobro									
 								 FROM cuenta_corriente cc
 								  inner join clientes c on cc.idcliente = c.id
 								  inner join cuenta_contable cco on cc.idcuentacontable = cco.id

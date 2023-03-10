@@ -123,6 +123,25 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                             width: 500,
                             name: 'detalle',
                             itemId: 'detalleId'
+                        },{
+                        xtype: 'splitter'
+                        },{
+                            xtype: 'numberfield',
+                            fieldLabel: 'Tasa Inter&eacute;s',
+                            width: 250,
+                            name: 'tasainteres',
+                            itemId: 'tasainteres',
+                            readOnly: true
+                        },{
+                        xtype: 'splitter'
+                        },{
+                            xtype: 'numberfield',
+                            fieldLabel: 'D&iacute;as Cobro',
+                            width: 250,
+                            allowDecimals : false,
+                            name: 'diascobro',
+                            itemId: 'diascobro',
+                            readOnly: true
                         }]
                     }
 

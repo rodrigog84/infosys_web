@@ -250,24 +250,100 @@ Ext.define('Infosys_web.controller.CuentasCorrientes', {
                     var title_saldo = obj.saldo != '' ?  "Saldo $: " + obj.saldo + ".  ": "";
 
                     edit = Ext.create('Infosys_web.view.cuentascorrientes.CancelacionesIngresar').show();
+
+
+                   edit.down('#tasainteres').setValue(obj.tasa_interes);
+                   edit.down('#diascobro').setValue(obj.dias_cobro);
+                   
+                    var existe_parcial = false;
+
                     Ext.Ajax.request({
                        //url: preurl + 'cuentacorriente/getCuentaCorriente/' + record.get('cuenta') + '/' + editor.value ,
-                       url: preurl + 'cuentacorriente/getCorrelativo/',
+                       url: preurl + 'cuentacorriente/getMovimientoParcial/',
                             params: {
-                                tipoCorrelativo: 'CANCELACIONES CTA CTE'
+                                proceso: 'CANCELACION',
+                                idctacte : ctacteid
                             },
+                            async: false,
                        success: function(response, opts) {                         
-                          var obj = Ext.decode(response.responseText);
-                          edit.down('#numeroId').setValue(obj.data[0].correlativo);
-                          edit.down('#ctacteId').setValue(ctacteid);
-                          edit.down('#totaldebe').setValue(0);
-                          edit.down('#totalhaber').setValue(0);
-                          edit.down('#ingresoDetalleCancelacionId').setTitle("Cancelacion Cuenta Corriente.  " + title_rut + title_nombre + title_saldo);
-                       },
+                              var obj = Ext.decode(response.responseText);
+                              if(typeof obj.data.numcomprobante == 'undefined'){
+                                  existe_parcial = false;
+
+                              }else{
+                                  existe_parcial = true;
+
+                                   edit.down("#ctacteId").setValue(obj.data.idctacte);
+                                   //edit.down('#fechaId').setValue(),
+                                   edit.down('#numeroId').setValue(obj.data.numcomprobante);
+                                   edit.down('#tipoComprobante').setValue(obj.data.tipo);
+                                   edit.down('#detalleId').setValue(obj.data.glosa);
+                                   //items: Ext.JSON.encode(dataItems),
+                                   //origen : 'CANCELACION'
+                                   //console.log(obj.detalle)
+                                  edit.down('#ingresoDetalleCancelacionId').setTitle("Cancelacion Cuenta Corriente.  " + title_rut + title_nombre + title_saldo);
+                                  var store = edit.down('grid').getStore();
+
+                                  var linea = 0;
+
+                                  Ext.Array.each(obj.detalle, function(value) {
+                                      if(linea == 0){
+                                          var rec = store.getAt(linea);
+                                          store.remove(rec);
+
+                                      }
+
+                                      store.insert(store.count(), {cuenta:value.idcuenta, tipodocumento:value.tipodocumento, documento:value.documento, docpago:value.documento, glosa : value.glosa,debe: value.debe,haber: value.haber});
+                                      linea = linea + 1;
+
+                                      var combo = edit.down('grid').columns[0].getEditor(store.getAt(linea))
+                                      console.log(combo)
+                                      //combo.setValue("Force active");
+                                      //combo.set("text",'jahahah');
+                                  });    
+
+                                  store.insert(store.count(), {cuenta:0, documento: 0, docpago:0, glosa : '',debe: 0,haber: 0});
+                                  var newRow = store.getCount()-1;
+                                  edit.down('grid').plugins[0].startEditByPosition({
+                                      row: newRow,
+                                      column: 0
+                                  });
+
+                              }
+                          },
                        failure: function(response, opts) {
                           console.log('server-side failure with status code ' + response.status);
                        }
-                    });           
+                    });     
+
+
+                    if(!existe_parcial){
+
+
+                          Ext.Ajax.request({
+                             //url: preurl + 'cuentacorriente/getCuentaCorriente/' + record.get('cuenta') + '/' + editor.value ,
+                             url: preurl + 'cuentacorriente/getCorrelativo/',
+                                  params: {
+                                      tipoCorrelativo: 'CANCELACIONES CTA CTE'
+                                  },
+                             success: function(response, opts) {                         
+                                var obj = Ext.decode(response.responseText);
+                                edit.down('#numeroId').setValue(obj.data[0].correlativo);
+                                edit.down('#ctacteId').setValue(ctacteid);
+                                edit.down('#totaldebe').setValue(0);
+                                edit.down('#totalhaber').setValue(0);
+                                edit.down('#ingresoDetalleCancelacionId').setTitle("Cancelacion Cuenta Corriente.  " + title_rut + title_nombre + title_saldo);
+                             },
+                             failure: function(response, opts) {
+                                console.log('server-side failure with status code ' + response.status);
+                             }
+                          });   
+
+
+
+                    }
+
+        
 
                  },
                  failure: function(response, opts) {
