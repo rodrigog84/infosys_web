@@ -70,6 +70,16 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                         hidden:true
                     },{
                         xtype: 'numberfield',
+                        itemId : 'totalinteres',
+                        name: 'totalinteres',
+                        hidden:true
+                    },{
+                        xtype: 'textfield',
+                        itemId : 'titlepanel',
+                        name: 'titlepanel',
+                        hidden:true
+                    },{
+                        xtype: 'numberfield',
                         itemId : 'totaldebe',
                         name: 'totaldebe',
                         hidden:true
@@ -142,7 +152,39 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                             name: 'diascobro',
                             itemId: 'diascobro',
                             readOnly: true
+                        },{
+                        xtype: 'splitter'
+                        },{
+                            xtype: 'button',
+                            text: 'Modificar',
+                            maxHeight: 25,
+                            width: 80,
+                            allowBlank: true,
+                            //disabled : true,                                            
+                            action: 'modificatasa',
+                            itemId: 'modificaTasa'
                         }]
+                    },{
+                        xtype: 'fieldcontainer',
+                        layout: 'hbox',
+                        labelWidth: 250,
+                        items: [{
+                            xtype: 'textfield',
+                            fieldLabel: 'Glosa Factura',
+                            width: 500,
+                            name: 'glosafact',
+                            itemId: 'glosafact',
+                            readOnly: true
+                        },{
+                        xtype: 'displayfield',
+                        itemId : 'mensaje_glosafact',
+                        fieldLabel : '',
+                        labelStyle: ' font-weight:bold',
+                        fieldStyle: 'font-weight:bold;background-color:yellow;',
+                        value : '',
+                        labelWidth: 200,
+                        hidden : false
+                    }]
                     }
 
                 ]
@@ -164,8 +206,16 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                                     beforeedit: function(e, editor){
 
                                        var idctacte = me.down("#ctacteId").getValue()
+                                       var fechaId = me.down("#fechaId").getValue()
+                                       var tasainteres = me.down("#tasainteres").getValue()
+                                       var diascobro = me.down("#diascobro").getValue()
+
                                         cuentasDocumentos.proxy.extraParams = {
-                                                                                idcuentacorriente : idctacte}
+                                                                                idcuentacorriente : idctacte,
+                                                                                feccancelacion: fechaId,
+                                                                                tasainteres: tasainteres,
+                                                                                diascobro: diascobro
+                                                                            }
                                         cuentasDocumentos.load();
                                                                                 
                                         if(editor.field == 'cuenta'){  // SI ES CUENTA SELECCIONA NORMAL
@@ -238,6 +288,39 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                                              }
                                      
                                         }
+
+
+                                        var title = me.down('#titlepanel').getValue();
+                                        var monto_cancelado = 0;
+                                        var monto_interes_cancelado = 0;
+                                        var dataItems = new Array();
+                                        var stItem = me.down("grid").getStore();
+                                        stItem.each(function(r){
+                                            dataItems.push(r.data);
+                                            monto_cancelado += r.data.saldo === undefined || r.data.saldo == '' ? 0 : Math.round(parseFloat(r.data.saldo));
+                                            monto_interes_cancelado += r.data.interes === undefined || r.data.interes == '' ? 0 : Math.round(parseFloat(r.data.interes));
+
+                                        });
+                                        title += ' . | Saldo Acumulado : $ ' + monto_cancelado  + '.  Inter&eacute;s Acumulado : $ ' + monto_interes_cancelado;
+                                        me.down('#ingresoDetalleCancelacionId').setTitle(title);
+                                        me.down('#totalinteres').setValue(monto_interes_cancelado);        
+                                        console.log(stItem.count())                                                                       
+                                        if(stItem.count() > 1){
+                                            me.down('#modificaTasa').setDisabled(true)
+
+                                        }     
+
+                                        if(monto_interes_cancelado > 0){
+                                             me.down('#glosafact').setReadOnly(false)
+                                             me.down('#mensaje_glosafact').setValue('&nbsp;&nbsp;Se generar&aacute; factura de glosa correspondiente a los intereses pagados')
+
+                                        }else{
+                                             me.down('#glosafact').setReadOnly(true)
+                                             me.down('#glosafact').setValue('')
+                                             me.down('#mensaje_glosafact').setValue('')
+
+                                        }
+                                       
                                         
                                     },
 
@@ -245,18 +328,20 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                                         var grid = me.down('grid')
 
                                    
-                                        var record = editor.record;   
+                                        var record = editor.record; 
+                                        console.log(record)  
                                         if(editor.field == "debe" || editor.field == "haber"){
                                             if(editor.value != null && editor.value != 0){
 
-                                                if(editor.field == "haber" && record.get('saldo') != 0 && editor.value > record.get('saldo')){
+
+                                                if(editor.field == "haber" && record.get('saldo') != 0 && parseInt(editor.value) > (parseInt(record.get('saldo')) + parseInt(record.get('interes'))) ){
                                                         Ext.Msg.alert('Alerta', 'Monto no puede ser mayor que el saldo de la cuenta.');
                                                         editor.record.set({haber: 0});  
                                                         return false;
                                                 }
                                             }
                                         }else if(editor.field == "cuenta"){
-                                                editor.record.set({documento : 0, docpago: 0, saldo : 0,debe: 0, haber : 0});  
+                                                editor.record.set({documento : 0, docpago: 0, saldo : 0, interes: 0, debe: 0, haber : 0});  
 
                                                 if(editor.value == null || editor.value == 0){
                                                     editor.record.set({cuenta: 0});  
@@ -269,7 +354,41 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
 
                                         }
 
+
+                                        var title = me.down('#titlepanel').getValue();
+                                        var monto_cancelado = 0;
+                                        var monto_interes_cancelado = 0;
+                                        var dataItems = new Array();
+                                        var stItem = me.down("grid").getStore();
+                                        stItem.each(function(r){
+                                            dataItems.push(r.data);
+                                            monto_cancelado += r.data.saldo === undefined || r.data.saldo == '' ? 0 : Math.round(parseFloat(r.data.saldo));
+                                            monto_interes_cancelado += r.data.interes === undefined || r.data.interes == '' ? 0 : Math.round(parseFloat(r.data.interes));
+
+                                        });
+                                        title += ' . | Saldo Acumulado : $ ' + monto_cancelado  + '.  Inter&eacute;s Acumulado : $ ' + monto_interes_cancelado;
+                                        me.down('#ingresoDetalleCancelacionId').setTitle(title);
+                                        me.down('#totalinteres').setValue(monto_interes_cancelado);
+                                        console.log(stItem.count())  
+                                        if(stItem.count() > 1){
+                                            me.down('#modificaTasa').setDisabled(true)
+
+                                        }                                      
                                         
+
+                                        if(monto_interes_cancelado > 0){
+                                             me.down('#glosafact').setReadOnly(false)
+                                             me.down('#mensaje_glosafact').setValue('&nbsp;&nbsp;Se generar&aacute; factura de glosa correspondiente a los intereses pagados')
+
+                                        }else{
+                                             me.down('#glosafact').setReadOnly(true)
+                                             me.down('#glosafact').setValue('')
+                                             me.down('#mensaje_glosafact').setValue('')
+                                        }
+                                       
+                                       
+
+
                                         return true;
                                     },
                                     edit : function(ed, editor) {
@@ -350,27 +469,37 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                                         }else if(editor.field == "documento"){
                                             editor.record.set({debe: 0});  
                                             editor.record.set({haber: 0});  
+
+                                            var fechaId = me.down("#fechaId").getValue()
+                                            var tasainteres = me.down("#tasainteres").getValue()
+                                            var diascobro = me.down("#diascobro").getValue()
+
                                             if(editor.value != null && editor.value != 0){
                                                Ext.Ajax.request({
                                                    //url: preurl + 'cuentacorriente/getCuentaCorriente/' + record.get('cuenta') + '/' + editor.value ,
                                                    url: preurl + 'cuentacorriente/getDocumentoById/',
                                                         params: {
-                                                            idDocumento: editor.value
+                                                            idDocumento: editor.value,
+                                                            feccancelacion: fechaId,
+                                                            tasainteres : tasainteres,
+                                                            diascobro : diascobro
                                                         },                                                     
                                                    success: function(response, opts) {
                                                       var obj = Ext.decode(response.responseText);
+                                                      //console.log(obj)
                                                        // REVISAR QUE EN CASO QUE NO EXISTA CUENTA, DESPLEGAR UN CERO
                                                       editor.record.set({saldo: obj.data[0].saldo});  
+                                                      editor.record.set({interes: obj.data[0].monto_interes});  
                                                       editor.record.set({tipodocumento: obj.data[0].tipodocumento});  
                                                       if(obj.data[0].tipodocumento == 11){
-                                                        editor.record.set({debe: obj.data[0].saldo});  
+                                                        editor.record.set({debe: parseInt(obj.data[0].saldo) + parseInt(obj.data[0].monto_interes)});  
                                                         grid.plugins[0].startEditByPosition({
                                                             row: editor.rowIdx,
                                                             column: 5
                                                         });    
 
                                                       }else{
-                                                        editor.record.set({haber: obj.data[0].saldo});  
+                                                        editor.record.set({haber: parseInt(obj.data[0].saldo)  + parseInt(obj.data[0].monto_interes)});  
                                                         grid.plugins[0].startEditByPosition({
                                                             row: editor.rowIdx,
                                                             column: 6
@@ -418,15 +547,38 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
 
 
                                         /**** GUARDAR AQUI *******/
-
+                                        //console.log(me.down('#ingresoDetalleCancelacionId').title)
+                                        var title = me.down('#titlepanel').getValue();
+                                        var monto_cancelado = 0;
+                                        var monto_interes_cancelado = 0;
                                         var dataItems = new Array();
                                         var stItem = me.down("grid").getStore();
                                         stItem.each(function(r){
                                             dataItems.push(r.data);
+                                            monto_cancelado += r.data.saldo === undefined || r.data.saldo == '' ? 0 : Math.round(parseFloat(r.data.saldo));
+                                            monto_interes_cancelado += r.data.interes === undefined || r.data.interes == '' ? 0 : Math.round(parseFloat(r.data.interes));
 
                                         });
+                                        title += ' . | Saldo Acumulado : $ ' + monto_cancelado  + '.  Inter&eacute;s Acumulado : $ ' + monto_interes_cancelado;
+                                        me.down('#ingresoDetalleCancelacionId').setTitle(title);
+                                        me.down('#totalinteres').setValue(monto_interes_cancelado);
+                                        console.log(stItem.count())
+                                        if(stItem.count() > 1){
+                                            me.down('#modificaTasa').setDisabled(true)
 
-                                        
+                                        }     
+
+                                        if(monto_interes_cancelado > 0){
+                                             me.down('#glosafact').setReadOnly(false)
+                                             me.down('#mensaje_glosafact').setValue('&nbsp;&nbsp;Se generar&aacute; factura de glosa correspondiente a los intereses pagados')
+
+                                        }else{
+                                             me.down('#glosafact').setReadOnly(true)
+                                             me.down('#glosafact').setValue('')
+                                             me.down('#mensaje_glosafact').setValue('')
+                                        }
+                                       
+                                       
                                         Ext.Ajax.request({
                                            //url: preurl + 'cuentacorriente/getCuentaCorriente/' + record.get('cuenta') + '/' + editor.value ,
                                            url: preurl + 'cuentacorriente/saveCancelacionParcial/',
@@ -597,11 +749,63 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                                 handler: function (grid, rowIndex, colIndex) {
                                     var rec = grid.getStore().getAt(rowIndex);
                                     if(grid.getStore().getCount()==1){
-                                       Ext.Msg.alert('Alerta', 'No puede eliminar el ultimo registro.');
+                                        console.log(rec.get('haber'))
 
-                                       return false; 
+                                        rec.set('cuenta',0)
+                                        rec.set('tipodocumento',0)
+                                        rec.set('documento',0)
+                                        rec.set('interes',0)
+                                        rec.set('docpago',0)
+                                        rec.set('glosa','')
+                                        rec.set('saldo',0)
+                                        rec.set('debe',0)
+                                        rec.set('haber',0)
+                                        me.down('#modificaTasa').setDisabled(false)
+
+                                        var title = me.down('#titlepanel').getValue();
+                                        title += ' . | Saldo Acumulado : $ 0.  Inter&eacute;s Acumulado : $ 0';
+                                        me.down('#ingresoDetalleCancelacionId').setTitle(title);
+                                        me.down('#totalinteres').setValue(0);
+                                       //Ext.Msg.alert('Alerta', 'No puede eliminar el ultimo registro.');
+                                        me.down('#glosafact').setReadOnly(true)
+                                        me.down('#glosafact').setValue('')
+                                        me.down('#mensaje_glosafact').setValue('')
+
+                                       //return false;
+
+                                      // agrega_vacia = true;
+                                    }else{
+                                        grid.getStore().remove(rec);
+
+                                       var stItem = me.down("grid").getStore();
+                                        var title = me.down('#titlepanel').getValue();
+                                        var monto_cancelado = 0;
+                                        var monto_interes_cancelado = 0;
+
+                                        stItem.each(function(r){
+                                            monto_cancelado += r.data.saldo === undefined || r.data.saldo == '' ? 0 : Math.round(parseFloat(r.data.saldo));
+                                            monto_interes_cancelado += r.data.interes === undefined || r.data.interes == '' ? 0 : Math.round(parseFloat(r.data.interes));
+
+                                        });
+                                        title += ' . | Saldo Acumulado : $ ' + monto_cancelado  + '.  Inter&eacute;s Acumulado : $ ' + monto_interes_cancelado;
+                                        me.down('#ingresoDetalleCancelacionId').setTitle(title);
+                                        me.down('#totalinteres').setValue(monto_interes_cancelado);
+
+                                 
+
+                                        if(monto_interes_cancelado > 0){
+                                             me.down('#glosafact').setReadOnly(false)
+                                             me.down('#mensaje_glosafact').setValue('&nbsp;&nbsp;Se generar&aacute; factura de glosa correspondiente a los intereses pagados')
+
+                                        }else{
+                                             me.down('#glosafact').setReadOnly(true)
+                                             me.down('#glosafact').setValue('')
+                                             me.down('#mensaje_glosafact').setValue('')
+                                        }
+                                       
                                     }
-                                    grid.getStore().remove(rec);
+
+
                                 }
                             }]
                         }

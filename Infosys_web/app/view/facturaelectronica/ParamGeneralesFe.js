@@ -21,7 +21,7 @@ Ext.define('Infosys_web.view.facturaelectronica.ParamGeneralesFe' ,{
 
         response_param_fe = Ext.Ajax.request({
         async: false,
-        url: preurl + 'facturas/busca_parametro_fe/envio_sii'});
+        url: preurl + 'cuentacorriente/busca_parametro_cc/envio_sii'});
         var obj_param_fe_envio = Ext.decode(response_param_fe.responseText);
 
         this.items = [

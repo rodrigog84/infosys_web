@@ -185,12 +185,29 @@ Ext.define('Infosys_web.view.facturaglosa.Facturaglosa', {
                                             fieldLabel: '<b>RAZON SOCIAL</b>',
                                             maxHeight: 25,
                                             labelWidth: 80,
-                                            width: 845,
+                                            width: 450,
                                             itemId: 'nombre_id',
                                             name : 'nombre',
                                             //disabled : true,                                            
                                             readOnly: true
                                             
+                                        },{
+                                            xtype: 'displayfield',
+                                            width: 10
+                                        },{
+                                            xtype: 'combo',
+                                            itemId: 'tipogastoId',
+                                            width: 450,
+                                            fieldCls: 'required',
+                                            maxHeight: 25,
+                                            fieldLabel: '<b>TIPO GASTO</b>',
+                                            forceSelection : true,
+                                            name : 'id_tipogasto',
+                                            valueField : 'id',
+                                            displayField : 'nombre',
+                                            emptyText : "Seleccione",
+                                            store : 'Tipo_gasto',
+                                            //disabled : true, 
                                         }
                                     ]
                                 }, {

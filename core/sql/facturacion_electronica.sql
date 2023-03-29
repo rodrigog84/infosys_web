@@ -458,3 +458,29 @@ COLLATE='latin1_swedish_ci'
 ENGINE=InnoDB
 ;
 
+
+/***************************************************************************/
+
+
+CREATE TABLE `tipo_gasto` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`nombre` VARCHAR(250) NULL DEFAULT NULL COLLATE 'latin1_swedish_ci',
+	`activo` TINYINT(4) NULL DEFAULT '1',
+	`created_at` DATETIME NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`id`) USING BTREE
+)
+COLLATE='latin1_swedish_ci'
+ENGINE=InnoDB
+;
+
+INSERT INTO `tipo_gasto` (`nombre`, `activo`, `created_at`) VALUES ('COMISION COMERCIALIZACION DE GANADO', 1, '2023-03-29 14:51:06');
+INSERT INTO `tipo_gasto` (`nombre`, `activo`, `created_at`) VALUES ('DIFERENCIA DE PRECIO', 1, '2023-03-29 14:51:13');
+INSERT INTO `tipo_gasto` (`nombre`, `activo`, `created_at`) VALUES ('RECUPERACION DE GASTO DE FLETE', 1, '2023-03-29 14:51:23');
+INSERT INTO `tipo_gasto` (`nombre`, `activo`, `created_at`) VALUES ('VENTA DE MATERIA PRIMA', 1, '2023-03-29 14:51:29');
+INSERT INTO `tipo_gasto` (`nombre`, `activo`, `created_at`) VALUES ('INGRESOS FINANCIEROS POR MAYOR PLAZO', 1, '2023-03-29 14:51:39');
+INSERT INTO `tipo_gasto` (`nombre`, `activo`, `created_at`) VALUES ('EXAMEN DE BRUCELOSIS', 1, '2023-03-29 14:51:46');
+
+
+
+ALTER TABLE `factura_clientes`
+	ADD COLUMN `idtipogasto` INT(11) NOT NULL AFTER `id_cond_venta`;

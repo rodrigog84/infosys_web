@@ -32,6 +32,7 @@ Ext.define('Infosys_web.controller.General', {
               'Banco',
               'cond_pagos.Items',
               'Cond_pago',
+              'Tipo_gasto',
               'sucursales.Items',
               'Sucursal',
               'plazas.Items',

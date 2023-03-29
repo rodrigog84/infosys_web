@@ -277,10 +277,10 @@ if (!function_exists('randomnumber_mm'))
 
   function randomnumber_mm($large)
   {
-    $pattern1 = "1234567890";
+    $pattern1 = "123456789";
     $key = "";
     for($i=0;$i<$large;$i++){
-      $key .= $pattern1{rand(0,9)};
+      $key .= $pattern1{rand(0,8)};
     }
     return $key;
   }

@@ -41,6 +41,8 @@ define('PATH_FILES',  'http://localhost/Infosys_web/core/');
 define('NOMBRE_EMPRESA',		'INFOSYS');
 
 
+define('PORCT_IVA',		19);
+define('FACTOR_SUMA_IVA',		1.19);
 define('TURBOSMTP_USER',		'rodrigo.gonzalez@arnou.cl');
 define('TURBOSMTP_PASS',		'P6nLKAvx');
 

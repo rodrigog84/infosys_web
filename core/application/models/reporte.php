@@ -331,7 +331,37 @@ class Reporte extends CI_Model
 		/*$data_stock = $this->db->select("m.id as num, '' as tipodocto, '' as numdocto, fecha, '' as precio, '' as cant_entradas, '' as cant_salidas, '' as stock, '' as detalle",false)
 		  ->from('movimientodiario_detalle m');*/
 
-		  $sql_query = "SELECT 	b.id
+		  $sql_query = "
+							SELECT
+								d.id
+								,d.codigo
+								,d.nombre
+								,d.cantidad AS unidades
+								,d.ventaneta
+								,round(d.tipo_precio*cantidad) AS costo
+								,ROUND((d.ventaneta - d.tipo_precio*d.cantidad)) as margen
+								,concat(ROUND((d.ventaneta/round(d.tipo_precio*d.cantidad) - 1)*100, 2), ' %') as porcmargen
+								,d.familia
+							FROM (
+								SELECT 	 0 id
+											, '00000000' as codigo
+											,d.glosa AS nombre
+											,f.tipo_documento
+											,CASE WHEN f.tipo_documento = 102 then d.cantidad*(-1) ELSE d.cantidad END as cantidad
+											,CASE WHEN f.tipo_documento = 102 then d.neto*(-1) ELSE d.neto END AS ventaneta
+											,d.precios as tipo_precio
+											, 'SERVICIOS' as familia 
+											,f.num_factura
+								FROM 		(detalle_factura_glosa d) 
+								JOIN 		factura_clientes f ON d.id_factura = f.id 
+								WHERE 		1 = 1 " . $sql_mes . " 
+								"	.		$sql_anno . "
+								" . 		$sql_tipo_documento	."
+								AND 		d.id_guia = 0
+								AND 		id_producto  = 0
+					)d
+					UNION all
+		  			SELECT 	b.id
 								, b.codigo
 								, b.nombre
 								, sum(cantidad) as unidades
@@ -397,8 +427,16 @@ class Reporte extends CI_Model
 							WHERE 1 = 1  " . $sql_mes . " 
 							"	.		$sql_anno . "
 							" . 		$sql_tipo_documento	."
-							UNION all
+
 							
+
+							
+							) b
+					GROUP BY b.id
+					";
+					//echo $sql_query; exit;
+
+						/*
 							SELECT 	 0 id
 										, '00000000' as codigo
 										, 'SERVICIOS' AS nombre
@@ -415,11 +453,7 @@ class Reporte extends CI_Model
 							" . 		$sql_tipo_documento	."
 							AND 		d.id_guia = 0
 							AND 		id_producto  = 0
-
-							
-							) b
-					GROUP BY b.id";
-					//echo $sql_query; exit;
+						*/
 
 		 $data_query =  $this->db->query($sql_query);
 

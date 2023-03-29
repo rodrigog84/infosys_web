@@ -661,6 +661,8 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
         var idtipo= viewIngresa.down('#tipoDocumentoId').getValue();
         var idsucursal= viewIngresa.down('#id_sucursalID').getValue();
         var idcondventa= viewIngresa.down('#tipocondpagoId').getValue();
+        var idtipogasto= viewIngresa.down('#tipogastoId').getValue();
+
         var vendedor = viewIngresa.down('#tipoVendedorId').getValue();
         var ordencompra = viewIngresa.down('#ordencompraId').getValue();
         var numdocumento = viewIngresa.down('#numfacturaId').getValue();
@@ -671,14 +673,30 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
         var stFactura = this.getFacturaStore();        
         
         if(numdocumento==0){
-            Ext.Msg.alert('Ingrese Datos a La Factura');
+            Ext.Msg.alert('Alerta','Ingrese Datos a La Factura');
             return;   
             }
+
+        console.log(idtipogasto);
+        if(idtipogasto== '' || idtipogasto == 0 || idtipogasto == null){
+            Ext.Msg.alert('Alerta','Debe seleccionar tipo de gasto');
+            return;   
+            }
+
+
 
         var dataItems = new Array();
         stItem.each(function(r){
             dataItems.push(r.data)
         });
+
+
+
+        var loginMask = new Ext.LoadMask(Ext.getBody(), {msg:"Generando Documento ..."});
+
+        loginMask.show();
+
+
 
         Ext.Ajax.request({
             url: preurl + 'facturaglosa/save',
@@ -687,6 +705,7 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
                 numdocumento: numdocumento,
                 idsucursal: idsucursal,
                 idcondventa: idcondventa,
+                idtipogasto: idtipogasto,
                 idtipo: idtipo,
                 idbodega: idbodega,
                 ordencompra: ordencompra,
@@ -706,6 +725,7 @@ Ext.define('Infosys_web.controller.Facturaglosa', {
                  viewIngresa.close();
                  stFactura.reload();
                  window.open(preurl + 'facturaglosa/exportPDF/?idfactura='+idfactura);
+                 loginMask.hide();
 
             }
            

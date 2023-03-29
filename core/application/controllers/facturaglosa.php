@@ -12,7 +12,8 @@ class Facturaglosa extends CI_Controller {
 	}
 
 	public function save(){
-		
+		//echo '<pre>';
+		//var_dump($_POST);exit;
 		$resp = array();
 		$idcliente = $this->input->post('idcliente');
 		$numdocuemnto = $this->input->post('numdocumento');
@@ -22,6 +23,7 @@ class Facturaglosa extends CI_Controller {
 		$datacliente = json_decode($this->input->post('datacliente'));
 		$ordencompra = $this->input->post('ordencompra');
 		$idobserva = $this->input->post('idobserva');
+		$idtipogasto = $this->input->post('idtipogasto');
 		$idcondventa = $this->input->post('idcondventa');
 		$idsucursal = $this->input->post('idsucursal');		
 		$items = json_decode($this->input->post('items'));
@@ -33,6 +35,8 @@ class Facturaglosa extends CI_Controller {
 		$tipodocumento = $this->input->post('tipodocumento');
 		$observacion = $this->input->post('observacion');
 
+
+		$idtipogasto = is_null($idtipogasto) ? 0 : $idtipogasto;
 		if ($tipodocumento == 19){
 			
 			$fiva = 0;
@@ -68,6 +72,7 @@ class Facturaglosa extends CI_Controller {
 	        'num_factura' => $numdocuemnto,
 	        'id_vendedor' => $vendedor,
 	        'sub_total' => $fafecto,
+	        'idtipogasto' => $idtipogasto,
 	        'id_cond_venta' => $idcondventa,
 	        'id_sucursal' => $idsucursal,
 	        'neto' => $neto,
@@ -252,7 +257,7 @@ class Facturaglosa extends CI_Controller {
 				$i++;
 			}
 
-			//print_r($datos_empresa_factura);
+			//print_r($detalle_factura); exit;
 			//exit;
 
 			$dir_cliente = is_null($datos_empresa_factura->dir_sucursal) ? permite_alfanumerico($datos_empresa_factura->direccion) : permite_alfanumerico($datos_empresa_factura->dir_sucursal);
@@ -337,6 +342,17 @@ class Facturaglosa extends CI_Controller {
 			$EnvioDTE->setFirma($Firma);
 			$EnvioDTE->setCaratula($caratula);
 			$xml_dte = $EnvioDTE->generar();
+
+
+                /*  echo $xml_dte;
+                 var_dump($EnvioDTE->schemaValidate()); 
+
+  foreach (sasco\LibreDTE\Log::readAll() as $error)
+          echo $error,"\n";                  
+                  
+
+                  exit;*/
+
 
 			if ($EnvioDTE->schemaValidate()) { // REVISAR PORQUÉ SE CAE CON ESTA VALIDACION
 				

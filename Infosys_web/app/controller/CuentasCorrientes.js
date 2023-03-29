@@ -36,6 +36,7 @@ Ext.define('Infosys_web.controller.CuentasCorrientes', {
             'cuentascorrientes.LibroDiarioPrincipal',
             'cuentascorrientes.SaldoDocumentosPrincipal',
             'cuentascorrientes.SaldoDocumentosMail',
+            'cuentascorrientes.modificaTasa',
             'clientes.Principal'
 
             ],
@@ -76,6 +77,9 @@ Ext.define('Infosys_web.controller.CuentasCorrientes', {
         },{
             ref: 'asociacuenta',
             selector: 'asociacuenta'
+        },{
+            ref: 'modificatasa',
+            selector: 'modificatasa'
         },{
             ref: 'resumenmovimientoprincipal',
             selector: 'resumenmovimientoprincipal'
@@ -135,7 +139,9 @@ Ext.define('Infosys_web.controller.CuentasCorrientes', {
             'cancelacionesprincipal': {
                 verCartola: this.verCartola
             },          
-                                       
+            'modificatasa': {
+                actualizaciontasacorrecta: this.actualizaciontasacorrecta
+            },                                        
             'otrosingresosprincipal': {
                 verCartola: this.verCartola
             },
@@ -167,7 +173,13 @@ Ext.define('Infosys_web.controller.CuentasCorrientes', {
             },                            
             'cancelacionesingresar button[action=cancelacioningresargrabar]': {
                 click: this.cancelacioningresargrabar
-            },    
+            },  
+
+            'cancelacionesingresar button[action=modificatasa]': {
+                click: this.modificatasa
+            },  
+
+
             'otrosingresosingresar button[action=otrosingresosingresargrabar]': {
                 click: this.otrosingresosingresargrabar
             },
@@ -232,6 +244,71 @@ Ext.define('Infosys_web.controller.CuentasCorrientes', {
     },
 
 
+    modificatasa: function(){
+
+        var view = this.getCancelacionesingresar();
+        diascobro = view.down('#diascobro').getValue();
+        tasainteres = view.down('#tasainteres').getValue();        
+        edit = Ext.create('Infosys_web.view.cuentascorrientes.modificaTasa').show();
+
+
+       edit.down('#tasainteres').setValue(tasainteres);
+       edit.down('#diascobro').setValue(diascobro);
+
+
+        //Ext.create('Infosys_web.view.cuentascorrientes.modificaTasa', {idfactura: 24072});
+          
+    },
+
+
+
+
+    actualizaciontasacorrecta: function(){
+
+        var view1 = this.getModificatasa();
+        var view = this.getCancelacionesingresar();
+
+        diascobro = view1.down('#diascobro').getValue();
+        tasainteres = view1.down('#tasainteres').getValue();
+        claveautorizacion = view1.down('#claveautorizacion').getValue();
+
+        Ext.Ajax.request({
+           //url: preurl + 'cuentacorriente/getCuentaCorriente/' + record.get('cuenta') + '/' + editor.value ,
+           url: preurl + 'cuentacorriente/valida_actualiza_tasa/',
+                params: {
+                    claveautorizacion : claveautorizacion
+                },
+                async: false,
+           success: function(response, opts) {                         
+                  var obj = Ext.decode(response.responseText);
+                  Ext.Msg.alert('Atención', obj.message); 
+
+                  if(obj.valida == 1){
+                    view1.close();
+                   // var view = this.getCancelacionesingresar();
+
+                    view.down('#tasainteres').setValue(tasainteres);
+                    view.down('#diascobro').setValue(diascobro);
+
+
+                  }
+
+                  
+              },
+           failure: function(response, opts) {
+              console.log('server-side failure with status code ' + response.status);
+           }
+        });   
+
+        
+          
+
+
+    },
+
+
+
+
     agregarcancelacion: function(){
         var view = this.getCancelacionesprincipal();
         if (view.getSelectionModel().hasSelection()) {
@@ -254,7 +331,7 @@ Ext.define('Infosys_web.controller.CuentasCorrientes', {
 
                    edit.down('#tasainteres').setValue(obj.tasa_interes);
                    edit.down('#diascobro').setValue(obj.dias_cobro);
-                   
+
                     var existe_parcial = false;
 
                     Ext.Ajax.request({
@@ -281,7 +358,8 @@ Ext.define('Infosys_web.controller.CuentasCorrientes', {
                                    //items: Ext.JSON.encode(dataItems),
                                    //origen : 'CANCELACION'
                                    //console.log(obj.detalle)
-                                  edit.down('#ingresoDetalleCancelacionId').setTitle("Cancelacion Cuenta Corriente.  " + title_rut + title_nombre + title_saldo);
+                                  edit.down('#ingresoDetalleCancelacionId').setTitle("Cancelacion Cta Cte.  " + title_rut + title_nombre + title_saldo);
+                                  edit.down('#titlepanel').setValue("Cancelacion Cta Cte.  " + title_rut + title_nombre + title_saldo);
                                   var store = edit.down('grid').getStore();
 
                                   var linea = 0;
@@ -1025,6 +1103,10 @@ Ext.define('Infosys_web.controller.CuentasCorrientes', {
         });        
 
 
+        var totalinteres = parseInt(view.down("#totalinteres").getValue());
+        var glosafact = view.down("#glosafact").getValue();
+        
+
         if(view.down('#numeroId').getValue() == null){
             Ext.Msg.alert('Alerta', 'Debe Ingresar un Número de Folio.');      
         }else if(view.down('#fechaId').getValue() == null){
@@ -1035,9 +1117,58 @@ Ext.define('Infosys_web.controller.CuentasCorrientes', {
             Ext.Msg.alert('Alerta', 'Debe Ingresar al menos un detalle de cancelacion.');                          
         }else if(sumdebe != sumhaber){
             Ext.Msg.alert('Alerta', 'Totales de Debe y Haber deben coincidir.');
+        }else if(totalinteres > 0  && glosafact == ''){
+            Ext.Msg.alert('Alerta', 'Debe ingresar una glosa para la factura asociada a intereses');            
         }else if(sincuenta > 0){
             Ext.Msg.alert('Alerta', 'Debe validar el ingreso de cuenta en cada linea.');
         }else{
+
+            var facturaglosa = totalinteres > 0 ? 1 : 0;
+            var permite_cancelacion = true;
+            var numdoc = 0;
+
+            var loginMask = new Ext.LoadMask(Ext.getBody(), {msg:"Guardando Cancelación ..."});
+            loginMask.show();
+            if(facturaglosa == 1){
+
+
+                response_certificado = Ext.Ajax.request({
+                async: false,
+                url: preurl + 'facturas/existe_certificado/'});
+
+                var obj_certificado = Ext.decode(response_certificado.responseText);
+
+                if(obj_certificado.existe == true){
+
+                    //buscar folio factura electronica
+                    // se buscan folios pendientes, o ocupados hace más de 4 horas
+
+                    response_folio = Ext.Ajax.request({
+                    async: false,
+                    url: preurl + 'facturas/folio_documento_electronico/101'});  
+                    var obj_folio = Ext.decode(response_folio.responseText);
+                    //console.log(obj_folio); 
+                    nuevo_folio = obj_folio.folio;
+                    if(nuevo_folio != 0){
+                        numdoc = nuevo_folio;
+                    }else{
+                        Ext.Msg.alert('Atención','No existen folios disponibles');
+                        permite_cancelacion = false;
+
+                        //return
+                    }
+
+                }else{
+                        Ext.Msg.alert('Atención','No se ha cargado certificado');
+                        permite_cancelacion = false;
+                }
+
+
+
+            }
+
+
+
 
             /*var form = view.down('form').getForm();  
             if (form.isValid()) {
@@ -1052,29 +1183,48 @@ Ext.define('Infosys_web.controller.CuentasCorrientes', {
                 });
             }*/
 
-            Ext.Ajax.request({
-               url: preurl + 'cuentacorriente/saveCancelacion/',
-                params: {
-                    ctacteId: view.down('#ctacteId').getValue(),
-                    fecha: view.down('#fechaId').getValue(),
-                    numero: view.down('#numeroId').getValue(),
-                    tipoComprobante: view.down('#tipoComprobante').getValue(),
-                    detalle: view.down('#detalleId').getValue(),
-                    items: Ext.JSON.encode(dataItems),
-                    origen : 'CANCELACION'
-                },               
-               success: function(response, opts) {
-                  win.store.reload();      
+            if(permite_cancelacion){
 
-                     
-               },
-               failure: function(response, opts) {
-                  console.log('server-side failure with status code ' + response.status);
-               }
-            })    
 
-         view.close();   
-       
+
+
+
+                    Ext.Ajax.request({
+                       async: false,
+                       url: preurl + 'cuentacorriente/saveCancelacion/',
+                        params: {
+                            ctacteId: view.down('#ctacteId').getValue(),
+                            fecha: view.down('#fechaId').getValue(),
+                            numero: view.down('#numeroId').getValue(),
+                            tipoComprobante: view.down('#tipoComprobante').getValue(),
+                            detalle: view.down('#detalleId').getValue(),
+                            items: Ext.JSON.encode(dataItems),
+                            origen : 'CANCELACION',
+                            totalinteres: totalinteres,
+                            glosafact : glosafact,
+                            facturaglosa : facturaglosa,
+                            numdoc : numdoc
+                        },               
+                       success: function(response, opts) {
+                          win.store.reload();      
+                          
+                             
+                       },
+                       failure: function(response, opts) {
+                          console.log('server-side failure with status code ' + response.status);
+                       }
+                    })    
+
+
+                 loginMask.hide();
+                 view.close();  
+
+
+
+
+            }
+ 
+            
 
              
         }

@@ -73,6 +73,22 @@ class Ctacte extends CI_Model
 
 
 
+	  public function valida_clave_vigente($clave){
+
+	 	$fec_compara = date('Y-m-d H:i:s');
+		$this->db->select("clave",	false)
+		  ->from('clave_acceso_dinamica')
+		  ->where('clave',$clave)
+		  ->where("fec_caducidad >= '" . $fec_compara . "'"); 	
+		$query = $this->db->get();
+		$clave = $query->result();	
+
+		return $clave;
+
+	 }
+
+
+
 	public function crea_clave_vigente($clave){
 
 			$usuario = $this->session->userdata('username');
@@ -108,5 +124,59 @@ class Ctacte extends CI_Model
 
 	 }
 
+
+
+
+	 public function calcula_interes_factura($fecha_venc,$feccancelacion,$saldo,$tasa_interes,$dias_cobro){
+
+
+	 	//$tasa_interes = $this->ctacte->busca_parametro_cc('tasa_interes');
+	 	//$dias_cobro = (int)$this->ctacte->busca_parametro_cc('dias_cobro');
+
+	 	$tasa_interes = (float)str_replace(',','.',$tasa_interes);
+
+		$date1 = new DateTime($fecha_venc);
+		$date2 = new DateTime($feccancelacion);
+		$diff = $date1->diff($date2);
+
+		$dias_atraso = $diff->days - $dias_cobro; // ver si la cantidad de dias corresponde a los dias que no se cobra, o es el primer dia que se cobra
+		if($diff->days > 0){
+
+			$tasa_cobro = $tasa_interes*$dias_atraso;
+			$interes = $saldo*($tasa_cobro/100);
+
+		}else{
+
+			$interes = 0;
+
+		}
+
+		$saldo_interes = $saldo + $interes;
+
+
+		return $interes;
+	 }
+
+
+
+
+	public function get_empresa_ctacte($ctacteId){
+
+		$this->load->model('facturaelectronica');
+
+		$tabla_contribuyentes = $this->facturaelectronica->busca_parametro_fe('tabla_contribuyentes');
+
+		$this->db->select("c.nombres as nombre_cliente, c.rut as rut_cliente, c.direccion, m.nombre as nombre_comuna, s.nombre as nombre_ciudad, c.fono, e.nombre as giro, ifnull(ca.mail,c.e_mail) as e_mail, '' as dir_sucursal,'' as com_sucursal, c.id as idcliente",false)
+		  ->from('cuenta_corriente acc')
+		  ->join('clientes c','acc.idcliente = c.id','left')
+		  ->join('cod_activ_econ e','c.id_giro = e.id','left')
+		  ->join('comuna m','c.id_comuna = m.id','left')	  
+		  ->join('ciudad s','c.id_ciudad = s.id','left')	
+		  ->join($tabla_contribuyentes . ' ca','c.rut = concat(ca.rut,ca.dv)','left')
+		  ->where('acc.id',$ctacteId)
+		  ->limit(1);
+		$query = $this->db->get();
+		return $query->row();
+	 }	 
 
 }
