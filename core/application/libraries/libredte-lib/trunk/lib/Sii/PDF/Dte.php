@@ -268,6 +268,8 @@ class Dte extends \sasco\LibreDTE\PDF
      */
     public function agregar(array $dte, $timbre)
     {
+        //var_dump($dte);
+        //var_dump($this->papelContinuo); exit
         if ($this->papelContinuo) {
             $this->agregarContinuo($dte, $timbre, $this->papelContinuo);
         } else {

@@ -1336,12 +1336,13 @@ class Dte
                         if ($d['IndExe']==1) {
                             $datos['Encabezado']['Totales']['MntExe'] += $d['MontoItem'];
                         }
-                    }
+                    }                
                     // agregar al monto total
                     $datos['Encabezado']['Totales']['MntTotal'] += $d['MontoItem'];
                 }
             }
         }
+
     }
 
     /**
