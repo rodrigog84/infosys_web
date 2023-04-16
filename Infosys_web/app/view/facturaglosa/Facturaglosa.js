@@ -200,7 +200,7 @@ Ext.define('Infosys_web.view.facturaglosa.Facturaglosa', {
                                             width: 450,
                                             fieldCls: 'required',
                                             maxHeight: 25,
-                                            fieldLabel: '<b>TIPO GASTO</b>',
+                                            fieldLabel: '<b>TIPO INGRESO</b>',
                                             forceSelection : true,
                                             name : 'id_tipogasto',
                                             valueField : 'id',

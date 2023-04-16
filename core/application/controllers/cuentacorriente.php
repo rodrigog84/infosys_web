@@ -457,7 +457,7 @@ class Cuentacorriente extends CI_Controller {
 		$sqlCuentaCorriente = $idcuentacorriente != '' ? " and c.id = '" . $idcuentacorriente . "'": "and 3=4";
 		$resp = array();
 
-		$query = $this->db->query("select dc.id, concat(t.descripcion,' ',dc.numdocumento) as nombre, date_format(fc.fecha_factura,'%d/%m/%Y') as fecha_factura, fecha_venc,  dc.saldo
+		$query = $this->db->query("select dc.id, t.id as tipodocumento,  concat(t.descripcion,' ',dc.numdocumento) as nombre, dc.numdocumento, date_format(fc.fecha_factura,'%d/%m/%Y') as fecha_factura,  date_format(fc.fecha_venc,'%d/%m/%Y') as fecha_venc_format, fecha_venc,  dc.saldo
 								  from detalle_cuenta_corriente dc 
 								  inner join tipo_documento t on dc.tipodocumento = t.id
 								  inner join cuenta_corriente c on dc.idctacte = c.id
@@ -474,8 +474,39 @@ class Cuentacorriente extends CI_Controller {
 			foreach ($query->result() as $row)
 			{
 
+				$tipo_documento = '';
+				if($row->tipodocumento == 101){
+					$tipo_documento = 'FE';
+				}else if($row->tipodocumento == 102){
+					$tipo_documento = 'NC';
+				}else if($row->tipodocumento == 104){
+					$tipo_documento = 'ND';
+				}else if($row->tipodocumento == 105){
+					$tipo_documento = 'GD';
+				}else if($row->tipodocumento == 106){
+					$tipo_documento = 'LF';
+				}else if($row->tipodocumento == 120){
+					$tipo_documento = 'BE';
+				}else{
+					$tipo_documento = $row->nombre;
+				}
+
+
+				$date1 = new DateTime($row->fecha_venc);
+				$date2 = new DateTime($feccancelacion);
+
+
+				if($date1 > $date2){
+					$dias_mora = 0;
+
+				}else{
+					$diff = $date1->diff($date2);
+					$dias_mora = $diff->days;
+				}
+
+
 				$monto_interes = $this->ctacte->calcula_interes_factura($row->fecha_venc,$feccancelacion,$row->saldo,$tasainteres,$diascobro);
-				$row->documento = $row->nombre." | ".$row->fecha_factura." | $ ". number_format($row->saldo,0,".",".")." | Interés: $ ". number_format($monto_interes*FACTOR_SUMA_IVA,0,".",".");
+				$row->documento = $tipo_documento." " . $row->numdocumento . " | ".$row->fecha_venc_format." | $ ". number_format($row->saldo,0,".",".")." | Días Mora: " . $dias_mora . " | Interés: $ ". number_format($monto_interes*FACTOR_SUMA_IVA,0,".",".");
 				$data[] = $row;
 			}
 		}else{
@@ -649,12 +680,19 @@ class Cuentacorriente extends CI_Controller {
 		$fecha = $arrayFecha[0];
 
 
+
+		$arrayFechaVenc = explode("T",$this->input->post('fechavenc'));
+		$fechavenc = $arrayFechaVenc[0];
+
 		$this->load->model('ctacte');
 		/*****************************************************************************/
 
 		$facturaglosa = $this->input->post('facturaglosa');
 		$folio = $this->input->post('numdoc');
 		$glosafact = $this->input->post('glosafact');
+		$idcondventa = $this->input->post('idcondventa');
+		$idtipogasto = $this->input->post('idtipogasto');
+
 		$totalinteres = $this->input->post('totalinteres');// viene con IVA
 		$tipodocumento = 101;
 
@@ -677,13 +715,14 @@ class Cuentacorriente extends CI_Controller {
 		        'num_factura' => $folio,
 		        'id_vendedor' => 1,
 		        'sub_total' => $neto,
-		        'id_cond_venta' => 1,
+		        'idtipogasto' => $idtipogasto,
+		        'id_cond_venta' => $idcondventa,
 		        'id_sucursal' => 0,
 		        'neto' => $neto,
 		        'iva' => $iva,
 		        'totalfactura' => $ftotal,
 		        'fecha_factura' => $fechafactura,
-		        'fecha_venc' => $fechafactura,
+		        'fecha_venc' => $fechavenc,
 		        'forma' => 1,
 		        'orden_compra' => '',
 		        'id_observa' => 0,
@@ -744,17 +783,24 @@ class Cuentacorriente extends CI_Controller {
 			}else{ //sumamos el saldo de la factura de intereses a la cuenta corriente
 				$row = $row[0];
 				$saldoctacte=$row->saldo;
-				//$query = $this->db->query("UPDATE cuenta_corriente SET saldo = saldo + " . $ftotal . " where id = " .  $row->idcuentacorriente );
 				$idcuentacorriente =  $row->idcuentacorriente;
+				if($idcondventa != 1){ // si es contado, mantiene el saldo, en caso contrario le suma el total de la factura por intereses
+					$query = $this->db->query("UPDATE cuenta_corriente SET saldo = saldo + " . $ftotal . " where id = " .  $row->idcuentacorriente );
 
-				$saldoctacte=$saldoctacte + $ftotal;
+					//$idcuentacorriente =  $row->idcuentacorriente;
 
-	            $sadoctacte = array(
-	             'cred_util' => $saldoctacte
-	            );
-	            $this->db->where('id', $idcliente);
+					$saldoctacte=$saldoctacte + $ftotal;
 
-	            $this->db->update('clientes', $sadoctacte);
+		            $sadoctacte = array(
+		             'cred_util' => $saldoctacte
+		            );
+		            $this->db->where('id', $idcliente);
+
+		            $this->db->update('clientes', $sadoctacte);
+
+				}
+
+
 
 
 			}
@@ -767,8 +813,8 @@ class Cuentacorriente extends CI_Controller {
 		        'tipodocumento' => $tipodocumento,
 		        'numdocumento' => $folio,
 		        'saldoinicial' => $ftotal,
-		        'saldo' => 0,
-		        'fechavencimiento' => $fechafactura,
+		        'saldo' => $idcondventa == 1 ? 0 : $ftotal, // si es contado lo deja saldado, en caso contrario lo deja por el saldo de la factura de intereses
+		        'fechavencimiento' => $fechavenc,
 		        'fecha' => $fechafactura
 			);
 
@@ -781,10 +827,11 @@ class Cuentacorriente extends CI_Controller {
 		        'tipodocumento' => $tipodocumento,
 		        'numdocumento' => $folio,
 		        'glosa' => 'Registro de Factura en Cuenta Corriente',
-		        'fecvencimiento' => $fechafactura,
+		        'fecvencimiento' => $fechavenc,
 		        'valor' => $ftotal,
 		        'origen' => 'VENTA',
-		        'fecha' => $fechafactura
+		        'fecha' => $fechafactura,
+		        'factintereses' => 1
 			);
 
 			$this->db->insert('cartola_cuenta_corriente', $cartola_cuenta_corriente); 
@@ -999,7 +1046,7 @@ class Cuentacorriente extends CI_Controller {
 				$valor = $item->debe != 0 ? $item->debe : $item->haber;
 
 				$interes = isset($item->interes) ? $item->interes : 0;
-				$valor = $valor - $interes;
+				//$valor = $valor - $interes;
 
 
 				$side = $item->debe != 0 ? "debe" : "haber";
@@ -1034,31 +1081,6 @@ class Cuentacorriente extends CI_Controller {
 
 					$this->db->insert('cartola_cuenta_corriente', $data);
 								
-
-					// genera cartola por interes		
-					if($interes > 0){
-
-						$data_interes = array(
-					      	'idctacte' => $arrayCuentasCorrientes[$i]['id'],
-					        'idcuenta' => $item->cuenta,
-					        'idmovimiento' => $idMovimiento,
-					        'tipodocumento' => $tipodocumento,
-					        'numdocumento' => $folio,
-					        'fecvencimiento' => $fecvencimiento,
-					        'glosa' => $item->glosa,		        
-					        'valor' => $interes,
-					        'origen' => 'CTACTE',
-					        'fecha' => $fecha
-						);
-
-						$this->db->insert('cartola_cuenta_corriente', $data_interes);
-
-					}
-
-
-
-
-
 					// REBAJA SALDO
 					if($arrayCuentasCorrientes[$i]['tipodocumento'] == 1 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 2 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 19 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 101 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 103 || $arrayCuentasCorrientes[$i]['tipodocumento'] == 120){  // FACTURA, BOLETA, FACTURA EXENTA, FACTURA ELECTRONICA, FACTURA EXENTA ELECTRONICA, BOLETA ELECTRÓNICA
 						if($side == "debe"){
@@ -1084,10 +1106,10 @@ class Cuentacorriente extends CI_Controller {
 					$data = array(
 				      	'idmovimiento' => $idMovimiento,
 				        'tipo' => $tipoMovimiento,
-				        'idctacte' => $arrayCuentasCorrientes[$i]['id'],
+				        'idctacte' => isset($arrayCuentasCorrientes[$i]['id']) ? $arrayCuentasCorrientes[$i]['id'] : null,
 				        'idcuenta' => $item->cuenta,
-				        'tipodocumento' => $arrayCuentasCorrientes[$i]['tipodocumento'],
-				        'numdocumento' => $arrayCuentasCorrientes[$i]['numdocumento'],		
+				        'tipodocumento' => isset($arrayCuentasCorrientes[$i]['tipodocumento']) ? $arrayCuentasCorrientes[$i]['tipodocumento'] : null,
+				        'numdocumento' => isset($arrayCuentasCorrientes[$i]['numdocumento']) ? $arrayCuentasCorrientes[$i]['numdocumento'] : null,		
 				        'docpago' => $item->docpago,		        
 				        'glosa' => $item->glosa,		        
 				        'fecvencimiento' => $fecvencimiento,		        
@@ -1100,6 +1122,91 @@ class Cuentacorriente extends CI_Controller {
 			}
 			$i++;
 		}
+
+
+		if($idcondventa == 1){ // Si es pago contado, se debe crear cancelacion
+
+
+			 		$tipoCorrelativo = 'CANCELACIONES CTA CTE';
+					$resp = array();
+
+					$query = $this->db->query("select (correlativo + 1) as correlativo from correlativos where nombre = '" . $tipoCorrelativo . "'");
+
+					$data = array();
+					if(count($query->result()) > 0){
+						$this->db->query("update correlativos set correlativo = correlativo + 1 where nombre = '" . $tipoCorrelativo . "'");			
+						foreach ($query->result() as $row)
+						{
+
+							$correlativo = $row->correlativo;
+						}
+					}else{
+						$correlativo = 0;
+					}
+
+
+					$data = array(
+				      	'numcomprobante' => $correlativo,
+				        'tipo' => 'INGRESO',
+				        'proceso' => 'CANCELACION',
+				        'glosa' => 'CANCELACION AUTOMATICA DE FACTURA DE INTERESES',
+				        'fecha' => date("Y-m-d H:i:s")
+					);
+
+					$this->db->insert('movimiento_cuenta_corriente', $data); 
+					$idMovimientoInt = $this->db->insert_id();
+
+
+					$data = array(
+				      	'idmovimiento' => $idMovimientoInt,
+				        'tipo' => 'CTACTE',
+				        'idctacte' => $idcuentacorriente,
+				        'idcuenta' => $idcuentacontable,
+				        'tipodocumento' => 101,
+				        'numdocumento' => $folio,		
+				        'docpago' => 0,		        
+				        'glosa' => '',		        
+				        'fecvencimiento' => null,		        
+				        'debe' => 0,
+				        'haber' => $ftotal,
+					);
+
+					$this->db->insert('detalle_mov_cuenta_corriente', $data); 						
+
+
+
+					$data = array(
+				      	'idmovimiento' => $idMovimientoInt,
+				        'tipo' => 'CUADRATURA',
+				        'idctacte' => null,
+				        'idcuenta' => 7,
+				        'tipodocumento' => null,
+				        'numdocumento' => null,		
+				        'docpago' => 0,		        
+				        'glosa' => '',		        
+				        'fecvencimiento' => null,		        
+				        'debe' => $ftotal,
+				        'haber' => 0,
+					);
+
+					$this->db->insert('detalle_mov_cuenta_corriente', $data); 	
+
+					 $data_cartola = array(
+					      	'idctacte' => $idcuentacorriente,
+					        'idcuenta' => $idcuentacontable,
+					        'idmovimiento' => $idMovimientoInt,
+					        'tipodocumento' => 101,
+					        'numdocumento' => $folio,
+					        'fecvencimiento' => $fechavenc,
+					        'glosa' => '',		        
+					        'valor' => $ftotal,
+					        'origen' => 'CTACTE',
+					        'fecha' => $fecha
+						);
+
+						$this->db->insert('cartola_cuenta_corriente', $data_cartola);
+		}
+
 
         $resp['success'] = true;
         echo json_encode($resp);
@@ -1373,7 +1480,7 @@ class Cuentacorriente extends CI_Controller {
 		$resp = array();
 		// si son cancelaciones, el valor es negativo
 
-		$query = $this->db->query("select concat(tc.descripcion,' ',c.numdocumento) as origen, concat(tc2.descripcion,' ',c.numdocumento_asoc) as referencia, if((c.origen='VENTA' and c.tipodocumento in (1,2,19,120,101,103,16)) or (c.origen = 'CTACTE' and c.tipodocumento not in (1,2,19,120,101,103,16)),c.valor,0) as debe, if((c.origen='CTACTE' and c.tipodocumento in (1,2,19,120,101,103,16)) or (c.origen = 'VENTA' and c.tipodocumento not in (1,2,19,120,101,103,16)),c.valor,0) as haber, c.glosa, DATE_FORMAT(c.fecvencimiento,'%d/%m/%Y') as fecvencimiento, DATE_FORMAT(c.fecha,'%d/%m/%Y') as fecha, concat(m.tipo,' ',m.numcomprobante) as comprobante, m.id as idcomprobante
+		$query = $this->db->query("select concat(tc.descripcion,' ',c.numdocumento) as origen, case when c.factintereses = 1 then 'FACTURA INTERESES' else concat(tc2.descripcion,' ',c.numdocumento_asoc) end as referencia, if((c.origen='VENTA' and c.tipodocumento in (1,2,19,120,101,103,16)) or (c.origen = 'CTACTE' and c.tipodocumento not in (1,2,19,120,101,103,16)),c.valor,0) as debe, if((c.origen='CTACTE' and c.tipodocumento in (1,2,19,120,101,103,16)) or (c.origen = 'VENTA' and c.tipodocumento not in (1,2,19,120,101,103,16)),c.valor,0) as haber, c.glosa, DATE_FORMAT(c.fecvencimiento,'%d/%m/%Y') as fecvencimiento, DATE_FORMAT(c.fecha,'%d/%m/%Y') as fecha, concat(m.tipo,' ',m.numcomprobante) as comprobante, m.id as idcomprobante
 								  from cartola_cuenta_corriente c 
 								  inner join tipo_documento tc on c.tipodocumento = tc.id
 								  left join tipo_documento tc2 on c.tipodocumento_asoc = tc2.id
@@ -2449,10 +2556,14 @@ $header = '
 
             $this->load->database();
             
-            $queryencabezado = $this->db->query("select numcomprobante, tipo, proceso, glosa, DATE_FORMAT(fecha,'%d/%m/%Y') as fecha from movimiento_cuenta_corriente where id = " . $idmovimiento . " limit 1");
+            $queryencabezado = $this->db->query("select numcomprobante, tipo, proceso, glosa, DATE_FORMAT(fecha,'%d/%m/%Y') as fecha, (SELECT 		MAX(fecha) AS feccancelacion
+FROM 			cartola_cuenta_corriente
+WHERE 		idmovimiento = " . $idmovimiento . ") as feccancelacion from movimiento_cuenta_corriente where id = " . $idmovimiento . " limit 1");
 
 
             $datas_encabezado = $queryencabezado->row_array();
+
+			//var_dump($datas_encabezado); exit;            
 
             if($datas_encabezado['proceso'] == "OTRO"){
             	$tipo_proceso = "OTROS INGRESO";
@@ -2525,8 +2636,8 @@ $this->load->model('facturaelectronica');
 		    			<td width="395px">'.$datas_encabezado['tipo'].'</td>
 		    		</tr>
 		    		<tr>
-		    			<td width="197px">Fecha Comprobante:</td>
-		    			<td width="395px">'.$datas_encabezado['fecha'].'</td>
+		    			<td width="197px">Fecha Cancelación:</td>
+		    			<td width="395px">'.$datas_encabezado['feccancelacion'].'</td>
 		    		</tr>		    		
 		    		<tr>
 		    			<td width="197px">Glosa:</td>

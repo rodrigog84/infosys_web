@@ -185,7 +185,55 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                         labelWidth: 200,
                         hidden : false
                     }]
-                    }
+                    },{
+                        xtype: 'fieldcontainer',
+                        layout: 'hbox',
+                        labelWidth: 250,
+                        items: [{
+                                    xtype: 'combo',
+                                    itemId: 'tipogastoId',
+                                    width: 450,
+                                    fieldCls: 'required',
+                                    maxHeight: 25,
+                                    fieldLabel: '<b>TIPO INGRESO</b>',
+                                    forceSelection : true,
+                                    name : 'id_tipogasto',
+                                    valueField : 'id',
+                                    displayField : 'nombre',
+                                    emptyText : "Seleccione",
+                                    store : 'Tipo_gasto',
+                                    readOnly: true
+                                    //disabled : true, 
+                                },{
+                                    xtype: 'combo',
+                                    itemId: 'tipocondpagoId',
+                                    width: 300,
+                                    fieldCls: 'required',
+                                    maxHeight: 25,
+                                    fieldLabel: '<b>COND.PAGO</b>',
+                                    forceSelection : true,
+                                    name : 'id_condpago',
+                                    valueField : 'id',
+                                    displayField : 'nombre',
+                                    emptyText : "Seleccione",
+                                    store : 'Cond_pago',
+                                    readOnly: true
+                                    //disabled : true, 
+                                } ,{
+                                            xtype: 'datefield',
+                                            fieldCls: 'required',
+                                            maxHeight: 25,
+                                             labelWidth: 100,
+                                            width: 300,
+                                            fieldLabel: '<b>VENC</b>',
+                                            itemId: 'fechavencId',
+                                            name: 'fecha_venc',
+                                            value: new Date(),
+                                            readOnly: true
+
+                                }
+                             ]
+                    }                   
 
                 ]
             }, 
@@ -289,16 +337,18 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                                      
                                         }
 
-
+                                        console.log('beforeedit')
                                         var title = me.down('#titlepanel').getValue();
+                                        var monto_saldo = 0;
                                         var monto_cancelado = 0;
                                         var monto_interes_cancelado = 0;
                                         var dataItems = new Array();
                                         var stItem = me.down("grid").getStore();
                                         stItem.each(function(r){
                                             dataItems.push(r.data);
-                                            monto_cancelado += r.data.saldo === undefined || r.data.saldo == '' ? 0 : Math.round(parseFloat(r.data.saldo));
-                                            monto_interes_cancelado += r.data.interes === undefined || r.data.interes == '' ? 0 : Math.round(parseFloat(r.data.interes));
+                                            monto_saldo += r.data.saldo === undefined || r.data.saldo == '' ? 0 : Math.round(parseFloat(r.data.saldo));
+                                            monto_cancelado += r.data.haber;
+                                            monto_interes_cancelado += r.data.interes === undefined || r.data.interes == '' ? 0 : Math.round(parseFloat( ( Math.round(parseFloat(r.data.interes)) / monto_saldo  )*Math.round(parseFloat(r.data.haber)) ));
 
                                         });
                                         title += ' . | Saldo Acumulado : $ ' + monto_cancelado  + '.  Inter&eacute;s Acumulado : $ ' + monto_interes_cancelado;
@@ -313,11 +363,20 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                                         if(monto_interes_cancelado > 0){
                                              me.down('#glosafact').setReadOnly(false)
                                              me.down('#mensaje_glosafact').setValue('&nbsp;&nbsp;Se generar&aacute; factura de glosa correspondiente a los intereses pagados')
+                                             me.down('#tipogastoId').setReadOnly(false)
+                                             me.down('#tipocondpagoId').setReadOnly(false)
+
 
                                         }else{
                                              me.down('#glosafact').setReadOnly(true)
                                              me.down('#glosafact').setValue('')
                                              me.down('#mensaje_glosafact').setValue('')
+                                             me.down('#tipogastoId').setValue('')
+                                             me.down('#tipocondpagoId').setValue('')
+                                             me.down('#tipogastoId').setReadOnly(true)
+                                             me.down('#tipocondpagoId').setReadOnly(true)
+                                             me.down('#fechavencId').setValue(new Date())
+
 
                                         }
                                        
@@ -329,19 +388,19 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
 
                                    
                                         var record = editor.record; 
-                                        console.log(record)  
+                                        //console.log(record)  
                                         if(editor.field == "debe" || editor.field == "haber"){
                                             if(editor.value != null && editor.value != 0){
 
 
-                                                if(editor.field == "haber" && record.get('saldo') != 0 && parseInt(editor.value) > (parseInt(record.get('saldo')) + parseInt(record.get('interes'))) ){
+                                                if(editor.field == "haber" && record.get('saldo') != 0 && parseInt(editor.value) > parseInt(record.get('saldo'))  ){
                                                         Ext.Msg.alert('Alerta', 'Monto no puede ser mayor que el saldo de la cuenta.');
                                                         editor.record.set({haber: 0});  
                                                         return false;
                                                 }
                                             }
                                         }else if(editor.field == "cuenta"){
-                                                editor.record.set({documento : 0, docpago: 0, saldo : 0, interes: 0, debe: 0, haber : 0});  
+                                                editor.record.set({documento : 0, docpago: 0, saldo : 0, interes: 0, interes_cancelado: 0, debe: 0, haber : 0});  
 
                                                 if(editor.value == null || editor.value == 0){
                                                     editor.record.set({cuenta: 0});  
@@ -354,17 +413,22 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
 
                                         }
 
-
+                                        console.log('validateedit')
                                         var title = me.down('#titlepanel').getValue();
+                                        var monto_saldo = 0;
                                         var monto_cancelado = 0;
                                         var monto_interes_cancelado = 0;
                                         var dataItems = new Array();
                                         var stItem = me.down("grid").getStore();
                                         stItem.each(function(r){
                                             dataItems.push(r.data);
-                                            monto_cancelado += r.data.saldo === undefined || r.data.saldo == '' ? 0 : Math.round(parseFloat(r.data.saldo));
-                                            monto_interes_cancelado += r.data.interes === undefined || r.data.interes == '' ? 0 : Math.round(parseFloat(r.data.interes));
-
+                                            monto_saldo += r.data.saldo === undefined || r.data.saldo == '' ? 0 : Math.round(parseFloat(r.data.saldo));
+                                            monto_cancelado += r.data.haber;
+                                            monto_interes_cancelado += r.data.interes === undefined || r.data.interes == '' ? 0 : Math.round(parseFloat( ( Math.round(parseFloat(r.data.interes)) / monto_saldo  )*Math.round(parseFloat(r.data.haber)) ));
+                                            console.log(r.data.saldo)
+                                            console.log(r.data.haber)
+                                            console.log(r.data)
+                                            console.log(r.data.haber)
                                         });
                                         title += ' . | Saldo Acumulado : $ ' + monto_cancelado  + '.  Inter&eacute;s Acumulado : $ ' + monto_interes_cancelado;
                                         me.down('#ingresoDetalleCancelacionId').setTitle(title);
@@ -379,11 +443,19 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                                         if(monto_interes_cancelado > 0){
                                              me.down('#glosafact').setReadOnly(false)
                                              me.down('#mensaje_glosafact').setValue('&nbsp;&nbsp;Se generar&aacute; factura de glosa correspondiente a los intereses pagados')
+                                             me.down('#tipogastoId').setReadOnly(false)
+                                             me.down('#tipocondpagoId').setReadOnly(false)
 
                                         }else{
                                              me.down('#glosafact').setReadOnly(true)
                                              me.down('#glosafact').setValue('')
                                              me.down('#mensaje_glosafact').setValue('')
+                                             me.down('#tipogastoId').setValue('')
+                                             me.down('#tipocondpagoId').setValue('')
+                                             me.down('#tipogastoId').setReadOnly(true)
+                                             me.down('#tipocondpagoId').setReadOnly(true)      
+                                             me.down('#fechavencId').setValue(new Date())                                   
+
                                         }
                                        
                                        
@@ -458,7 +530,7 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                                                 }
 
 
-                                                store.insert(store.count(), {cuenta:0, documento: 0, docpago:0, glosa : '',debe: 0,haber: 0});
+                                                store.insert(store.count(), {cuenta:0, documento: 0, docpago:0, glosa : '',interes: 0, interes_cancelado: 0, debe: 0,haber: 0});
                                                 var newRow = store.getCount()-1;
                                                 grid.plugins[0].startEditByPosition({
                                                     row: newRow,
@@ -491,15 +563,15 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                                                       editor.record.set({saldo: obj.data[0].saldo});  
                                                       editor.record.set({interes: obj.data[0].monto_interes});  
                                                       editor.record.set({tipodocumento: obj.data[0].tipodocumento});  
-                                                      if(obj.data[0].tipodocumento == 11){
-                                                        editor.record.set({debe: parseInt(obj.data[0].saldo) + parseInt(obj.data[0].monto_interes)});  
+                                                      if(obj.data[0].tipodocumento == 11 || obj.data[0].tipodocumento == 102){
+                                                        editor.record.set({debe: parseInt(obj.data[0].saldo)});  
                                                         grid.plugins[0].startEditByPosition({
                                                             row: editor.rowIdx,
                                                             column: 5
                                                         });    
 
                                                       }else{
-                                                        editor.record.set({haber: parseInt(obj.data[0].saldo)  + parseInt(obj.data[0].monto_interes)});  
+                                                        editor.record.set({haber: parseInt(obj.data[0].saldo)});  
                                                         grid.plugins[0].startEditByPosition({
                                                             row: editor.rowIdx,
                                                             column: 6
@@ -528,7 +600,7 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                                                         column: 5
                                                     });                                                    
                                             }else{
-                                                    if(record.get('tipodocumento') == 11){
+                                                    if(record.get('tipodocumento') == 11 || record.get('tipodocumento') == 102){
                                                         grid.plugins[0].startEditByPosition({
                                                             row: editor.rowIdx,
                                                             column: 5
@@ -548,15 +620,18 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
 
                                         /**** GUARDAR AQUI *******/
                                         //console.log(me.down('#ingresoDetalleCancelacionId').title)
+                                        console.log('edit')
                                         var title = me.down('#titlepanel').getValue();
+                                        var monto_saldo = 0;
                                         var monto_cancelado = 0;
                                         var monto_interes_cancelado = 0;
                                         var dataItems = new Array();
                                         var stItem = me.down("grid").getStore();
                                         stItem.each(function(r){
                                             dataItems.push(r.data);
-                                            monto_cancelado += r.data.saldo === undefined || r.data.saldo == '' ? 0 : Math.round(parseFloat(r.data.saldo));
-                                            monto_interes_cancelado += r.data.interes === undefined || r.data.interes == '' ? 0 : Math.round(parseFloat(r.data.interes));
+                                            monto_saldo += r.data.saldo === undefined || r.data.saldo == '' ? 0 : Math.round(parseFloat(r.data.saldo));
+                                            monto_cancelado += r.data.haber;
+                                            monto_interes_cancelado += r.data.interes === undefined || r.data.interes == '' ? 0 : Math.round(parseFloat( ( Math.round(parseFloat(r.data.interes)) / monto_saldo  )*Math.round(parseFloat(r.data.haber)) ));
 
                                         });
                                         title += ' . | Saldo Acumulado : $ ' + monto_cancelado  + '.  Inter&eacute;s Acumulado : $ ' + monto_interes_cancelado;
@@ -571,13 +646,22 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                                         if(monto_interes_cancelado > 0){
                                              me.down('#glosafact').setReadOnly(false)
                                              me.down('#mensaje_glosafact').setValue('&nbsp;&nbsp;Se generar&aacute; factura de glosa correspondiente a los intereses pagados')
-
+                                             me.down('#tipogastoId').setReadOnly(false)
+                                             me.down('#tipocondpagoId').setReadOnly(false)
                                         }else{
                                              me.down('#glosafact').setReadOnly(true)
                                              me.down('#glosafact').setValue('')
                                              me.down('#mensaje_glosafact').setValue('')
+                                             me.down('#tipogastoId').setValue('')
+                                             me.down('#tipocondpagoId').setValue('')
+                                             me.down('#tipogastoId').setReadOnly(true)
+                                             me.down('#tipocondpagoId').setReadOnly(true)    
+                                             me.down('#fechavencId').setValue(new Date())                                             
                                         }
+                                        
+                                        var interes_linea = record.get('interes') === undefined ||  record.get('interes') == '' ? 0 : Math.round(parseFloat( ( Math.round(parseFloat(record.get('interes'))) / record.get('saldo')  )*Math.round(parseFloat(record.get('haber'))) ));
                                        
+                                        record.set({interes_cancelado: interes_linea});  
                                        
                                         Ext.Ajax.request({
                                            //url: preurl + 'cuentacorriente/getCuentaCorriente/' + record.get('cuenta') + '/' + editor.value ,
@@ -668,7 +752,7 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                                 store: cuentasDocumentos,
                                 itemId: 'cuentaDocto',
                                 listConfig: {
-                                        width :  300,
+                                        width :  500,
                                         minWidth : 300
                                 },
                             },
@@ -755,6 +839,7 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                                         rec.set('tipodocumento',0)
                                         rec.set('documento',0)
                                         rec.set('interes',0)
+                                        rec.set('interes_cancelado',0)
                                         rec.set('docpago',0)
                                         rec.set('glosa','')
                                         rec.set('saldo',0)
@@ -770,7 +855,11 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                                         me.down('#glosafact').setReadOnly(true)
                                         me.down('#glosafact').setValue('')
                                         me.down('#mensaje_glosafact').setValue('')
-
+                                         me.down('#tipogastoId').setValue('')
+                                         me.down('#tipocondpagoId').setValue('')
+                                         me.down('#tipogastoId').setReadOnly(true)
+                                         me.down('#tipocondpagoId').setReadOnly(true)
+                                         me.down('#fechavencId').setValue(new Date())    
                                        //return false;
 
                                       // agrega_vacia = true;
@@ -779,12 +868,15 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
 
                                        var stItem = me.down("grid").getStore();
                                         var title = me.down('#titlepanel').getValue();
+                                        var monto_saldo = 0;
                                         var monto_cancelado = 0;
                                         var monto_interes_cancelado = 0;
 
                                         stItem.each(function(r){
-                                            monto_cancelado += r.data.saldo === undefined || r.data.saldo == '' ? 0 : Math.round(parseFloat(r.data.saldo));
-                                            monto_interes_cancelado += r.data.interes === undefined || r.data.interes == '' ? 0 : Math.round(parseFloat(r.data.interes));
+                                            dataItems.push(r.data);
+                                            monto_saldo += r.data.saldo === undefined || r.data.saldo == '' ? 0 : Math.round(parseFloat(r.data.saldo));
+                                            monto_cancelado += r.data.haber;
+                                            monto_interes_cancelado += r.data.interes === undefined || r.data.interes == '' ? 0 : Math.round(parseFloat( ( Math.round(parseFloat(r.data.interes)) / monto_saldo  )*Math.round(parseFloat(r.data.haber)) ));
 
                                         });
                                         title += ' . | Saldo Acumulado : $ ' + monto_cancelado  + '.  Inter&eacute;s Acumulado : $ ' + monto_interes_cancelado;
@@ -796,11 +888,18 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                                         if(monto_interes_cancelado > 0){
                                              me.down('#glosafact').setReadOnly(false)
                                              me.down('#mensaje_glosafact').setValue('&nbsp;&nbsp;Se generar&aacute; factura de glosa correspondiente a los intereses pagados')
+                                             me.down('#tipogastoId').setReadOnly(false)
+                                             me.down('#tipocondpagoId').setReadOnly(false)                                             
 
                                         }else{
                                              me.down('#glosafact').setReadOnly(true)
                                              me.down('#glosafact').setValue('')
                                              me.down('#mensaje_glosafact').setValue('')
+                                             me.down('#tipogastoId').setValue('')
+                                             me.down('#tipocondpagoId').setValue('')
+                                             me.down('#tipogastoId').setReadOnly(true)
+                                             me.down('#tipocondpagoId').setReadOnly(true)     
+                                             me.down('#fechavencId').setValue(new Date())                                            
                                         }
                                        
                                     }
@@ -823,7 +922,8 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
             items: ['->', {
                 iconCls: 'icon-save',
                 text: 'Grabar',
-                action: 'cancelacioningresargrabar'
+                action: 'cancelacioningresargrabar',
+                itemId: 'grabarcancelacion',
             },'-',{
                 iconCls: 'icon-reset',
                 text: 'Cancelar',

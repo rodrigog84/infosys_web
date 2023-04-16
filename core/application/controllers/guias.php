@@ -1351,6 +1351,8 @@ class Guias extends CI_Controller {
 		$this->db->insert('factura_clientes', $factura_cliente); 
 		$idfactura = $this->db->insert_id();
             $inserta_pedido = false;
+            $array_guias_ref = array();
+            $j = 0;
 		foreach($items as $v){
       			$factura_clientes_item = array(
       		        'id_guia' => $v->id_guia,
@@ -1361,6 +1363,8 @@ class Guias extends CI_Controller {
       		        'iva' => $v->iva,
       		        'total' => $v->total
       			);
+                  $array_guias_ref[$j] = $v->num_guia;
+                  $j++;   
 
                   $query2 = $this->db->get_where('detalle_factura_cliente', array('id_factura' => $v->id_guia));
 
@@ -1567,6 +1571,20 @@ class Guias extends CI_Controller {
                         $referencia[($NroLinRef-1)]['FchRef'] = substr($fechafactura,0,10);
                         $NroLinRef++;
                   }
+
+
+
+
+                  foreach ($array_guias_ref as $guia_ref) {
+                        $referencia[($NroLinRef-1)]['NroLinRef'] = $NroLinRef;
+                        //$referencia['TpoDocRef'] = $datos_empresa_factura->tipodocref;
+                        $referencia[($NroLinRef-1)]['TpoDocRef'] = 52;
+                        $referencia[($NroLinRef-1)]['FolioRef'] = $guia_ref;
+                       // $referencia[($NroLinRef-1)]['RazonRef'] = 'Factura de Ganado asociado a guia '.$guia_ref;
+                        $NroLinRef++;                        
+                  }
+                       
+
 
                   $lista_detalle = array();
                   $i = 0;

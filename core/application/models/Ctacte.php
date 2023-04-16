@@ -137,10 +137,28 @@ class Ctacte extends CI_Model
 
 		$date1 = new DateTime($fecha_venc);
 		$date2 = new DateTime($feccancelacion);
-		$diff = $date1->diff($date2);
 
-		$dias_atraso = $diff->days - $dias_cobro; // ver si la cantidad de dias corresponde a los dias que no se cobra, o es el primer dia que se cobra
-		if($diff->days > 0){
+		if($date1 > $date2){
+			$dias_atraso = 0;
+
+		}else{
+			$diff = $date1->diff($date2);
+			$dias_atraso = $diff->days - $dias_cobro;
+		}
+
+		//$diff = $date1->diff($date2);
+
+		//$dias_atraso = $diff->days - $dias_cobro; // ver si la cantidad de dias corresponde a los dias que no se cobra, o es el primer dia que se cobra
+
+		/*** calcular el interes por dia ****/
+
+		$interes_total = $saldo*($tasa_interes/100);
+		$interes_diario = $interes_total/30;
+
+		$interes = $dias_atraso > 0 ? $interes_diario*$dias_atraso : 0;
+
+
+		/*if($dias_atraso > 0){
 
 			$tasa_cobro = $tasa_interes*$dias_atraso;
 			$interes = $saldo*($tasa_cobro/100);
@@ -149,7 +167,7 @@ class Ctacte extends CI_Model
 
 			$interes = 0;
 
-		}
+		}*/
 
 		$saldo_interes = $saldo + $interes;
 

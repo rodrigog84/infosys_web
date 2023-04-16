@@ -484,3 +484,19 @@ INSERT INTO `tipo_gasto` (`nombre`, `activo`, `created_at`) VALUES ('EXAMEN DE B
 
 ALTER TABLE `factura_clientes`
 	ADD COLUMN `idtipogasto` INT(11) NOT NULL AFTER `id_cond_venta`;
+
+ALTER TABLE `cartola_cuenta_corriente`
+	ADD COLUMN `factintereses` TINYINT NULL DEFAULT '0' AFTER `fecha`;
+
+
+
+INSERT INTO `infosys_web`.`roles` (`id`) VALUES ('108');
+UPDATE `infosys_web`.`roles` SET `nombre`='AUTORIZACION', `descripcion`='AUTORIZACION', `reg_estado`='1' WHERE  `id`=108;
+		delete
+		FROM 	rol_acceso
+		WHERE id_acceso = 108
+
+
+INSERT INTO `infosys_web`.`rol_acceso` (`id_rol`, `id_acceso`) VALUES ('108', '108');
+INSERT INTO `infosys_web`.`usuario_rol` (`id_usuario`, `id_rol`) VALUES ('2', '108');
+INSERT INTO `infosys_web`.`usuario_rol` (`id_usuario`, `id_rol`) VALUES ('18', '108');	

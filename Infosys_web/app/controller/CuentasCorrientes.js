@@ -112,6 +112,9 @@ Ext.define('Infosys_web.controller.CuentasCorrientes', {
             'cancelacionesprincipal button[action=agregarcancelacion]': {
                 click: this.agregarcancelacion
             },  
+            'cancelacionesingresar #tipocondpagoId': {
+                select: this.selecttipocondpago                
+            },            
             'cancelacionesprincipal button[action=buscarctactecancelacion]': {
                 click: this.buscarctactecancelacion
             },
@@ -307,7 +310,34 @@ Ext.define('Infosys_web.controller.CuentasCorrientes', {
     },
 
 
+    selecttipocondpago: function() {
+        
+        console.log('aaaa')
+        var view =this.getCancelacionesingresar();
+        var condicion = view.down('#tipocondpagoId');
+        var fechafactura = view.down('#fechaId').getValue();                
 
+        var stCombo = condicion.getStore();
+        var record = stCombo.findRecord('id', condicion.getValue()).data;
+        dias = record.dias;
+        
+        Ext.Ajax.request({
+            url: preurl + 'facturas/calculofechas',
+            params: {
+                dias: dias,
+                fechafactura : fechafactura
+            },
+            success: function(response){
+               var resp = Ext.JSON.decode(response.responseText);
+               var fecha_final= resp.fecha_final;
+               view.down("#fechavencId").setValue(fecha_final);
+                           
+            }
+           
+        });
+       
+            
+    },
 
     agregarcancelacion: function(){
         var view = this.getCancelacionesprincipal();
@@ -553,6 +583,7 @@ Ext.define('Infosys_web.controller.CuentasCorrientes', {
 
 
     },
+
 
 
 
@@ -1105,6 +1136,8 @@ Ext.define('Infosys_web.controller.CuentasCorrientes', {
 
         var totalinteres = parseInt(view.down("#totalinteres").getValue());
         var glosafact = view.down("#glosafact").getValue();
+        var tipogastoId = view.down("#tipogastoId").getValue();
+        var tipocondpagoId = view.down("#tipocondpagoId").getValue();
         
 
         if(view.down('#numeroId').getValue() == null){
@@ -1118,7 +1151,11 @@ Ext.define('Infosys_web.controller.CuentasCorrientes', {
         }else if(sumdebe != sumhaber){
             Ext.Msg.alert('Alerta', 'Totales de Debe y Haber deben coincidir.');
         }else if(totalinteres > 0  && glosafact == ''){
-            Ext.Msg.alert('Alerta', 'Debe ingresar una glosa para la factura asociada a intereses');            
+            Ext.Msg.alert('Alerta', 'Debe ingresar una glosa para la factura asociada a intereses');         
+        }else if(totalinteres > 0  && (tipogastoId == '' || tipogastoId == 0 || tipogastoId == null)){
+            Ext.Msg.alert('Alerta', 'Debe seleccionar un tipo de gasto para la factura asociada a intereses');
+        }else if(totalinteres > 0  && (tipocondpagoId == '' || tipocondpagoId == 0 || tipocondpagoId == null)){
+            Ext.Msg.alert('Alerta', 'Debe seleccionar una condicion de pago para la factura asociada a intereses');                        
         }else if(sincuenta > 0){
             Ext.Msg.alert('Alerta', 'Debe validar el ingreso de cuenta en cada linea.');
         }else{
@@ -1127,8 +1164,7 @@ Ext.define('Infosys_web.controller.CuentasCorrientes', {
             var permite_cancelacion = true;
             var numdoc = 0;
 
-            var loginMask = new Ext.LoadMask(Ext.getBody(), {msg:"Guardando Cancelación ..."});
-            loginMask.show();
+
             if(facturaglosa == 1){
 
 
@@ -1186,11 +1222,12 @@ Ext.define('Infosys_web.controller.CuentasCorrientes', {
             if(permite_cancelacion){
 
 
-
-
+                  var loginMask = new Ext.LoadMask(Ext.getBody(), {msg:"Guardando Cancelación ..."});
+                  loginMask.show();
+                  view.down("#grabarcancelacion").setDisabled(true);
 
                     Ext.Ajax.request({
-                       async: false,
+                      // async: false,
                        url: preurl + 'cuentacorriente/saveCancelacion/',
                         params: {
                             ctacteId: view.down('#ctacteId').getValue(),
@@ -1202,12 +1239,17 @@ Ext.define('Infosys_web.controller.CuentasCorrientes', {
                             origen : 'CANCELACION',
                             totalinteres: totalinteres,
                             glosafact : glosafact,
+                            idtipogasto : tipogastoId,
+                            idcondventa : tipocondpagoId,
+                            fechavenc: view.down('#fechavencId').getValue(),
                             facturaglosa : facturaglosa,
                             numdoc : numdoc
                         },               
                        success: function(response, opts) {
                           win.store.reload();      
-                          
+                          loginMask.hide();
+                          view.close();  
+                        
                              
                        },
                        failure: function(response, opts) {
@@ -1216,8 +1258,6 @@ Ext.define('Infosys_web.controller.CuentasCorrientes', {
                     })    
 
 
-                 loginMask.hide();
-                 view.close();  
 
 
 
