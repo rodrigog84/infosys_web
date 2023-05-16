@@ -479,6 +479,8 @@ public function consumo_folios_no_enviada(){
 	 	$crea_archivo = true;
 	 	$empresa = $this->get_empresa();
 	 		//print_r($empresa); exit;
+
+	 	//var_dump($crea_archivo); exit;
 	 	if($crea_archivo){
 			// sin límite de tiempo para generar documentos
 			set_time_limit(0);
@@ -507,8 +509,8 @@ public function consumo_folios_no_enviada(){
 			foreach ($Documentos as $DTE) {
 			    if (!$DTE->getDatos())
 			        die('No se pudieron obtener los datos del DTE');
-			    $pdf = new \sasco\LibreDTE\Sii\PDF\Dte(false); // =false hoja carta, =true papel contínuo (false por defecto si no se pasa)
-			    $pdf->setFooterText();
+			    $pdf = new \sasco\LibreDTE\Sii\PDF\Dte(); // =false hoja carta, =true papel contínuo (false por defecto si no se pasa)
+			    //$pdf->setFooterText();
 			    $pdf->setLogo('./facturacion_electronica/images/logo_empresa.png'); // debe ser PNG!
 
 			    if($factura->giro != ""){
@@ -655,6 +657,8 @@ public function consumo_folios_no_enviada(){
 			    $archivo = 'dte_'.$Caratula['RutEmisor'].'_'.$DTE->getID();
 			    $nombre_archivo = $archivo.".pdf";
 			    //$tipo_generacion = is_null($cedible) ? 'FI' : 'F';
+
+			    //var_dump($nombre_archivo); exit;
 			    $tipo_generacion = 'FI';
 			    $pdf->Output($path_pdf.$nombre_archivo, $tipo_generacion);
 			    $nombre_campo = is_null($cedible) ? 'pdf' : 'pdf_cedible';

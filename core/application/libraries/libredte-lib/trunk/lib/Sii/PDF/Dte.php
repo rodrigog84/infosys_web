@@ -344,7 +344,7 @@ class Dte extends \sasco\LibreDTE\PDF
 
         //AGREGAR RECUADRO PARA DATOS DEL DESTINATARIO
 
-        $y = 200;
+        $y = 190;
         //$y = $dte['Encabezado']['IdDoc']['TipoDTE'] == 34 ? $y + 5 : $y;
         $this->Rect(155, $y, 45, 13, 'D', ['all' => ['width' => 0.1, 'color' => [0, 0, 0]]]);
        // $this->Rect(155, $y, 45, 15, 'D', ['all' => ['width' => 0.1, 'color' => [0, 0, 0]]]);
@@ -357,7 +357,7 @@ class Dte extends \sasco\LibreDTE\PDF
             if (!in_array($dte['Encabezado']['IdDoc']['TipoDTE'], $this->sinAcuseRecibo)) {
                 $this->agregarAcuseRecibo();
             }
-            $this->agregarLeyendaDestino($dte['Encabezado']['IdDoc']['TipoDTE']);
+            //$this->agregarLeyendaDestino($dte['Encabezado']['IdDoc']['TipoDTE']);
         }
     }
 
@@ -914,7 +914,7 @@ class Dte extends \sasco\LibreDTE\PDF
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
      * @version 2016-03-10
      */
-    private function agregarTotales(array $totales, $y = 200, $x = 145, $offset = 25)
+    private function agregarTotales(array $totales, $y = 190, $x = 145, $offset = 25)
     {
         // normalizar totales
         $totales = array_merge([
@@ -989,7 +989,7 @@ class Dte extends \sasco\LibreDTE\PDF
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
      * @version 2016-03-10
      */
-    private function agregarTimbre($timbre, $x_timbre = 20, $x = 20, $y = 200, $w = 70, $font_size = 8)
+    private function agregarTimbre($timbre, $x_timbre = 20, $x = 20, $y = 190, $w = 70, $font_size = 8)
     {
         $style = [
             'border' => false,
@@ -1019,7 +1019,27 @@ class Dte extends \sasco\LibreDTE\PDF
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
      * @version 2015-09-08
      */
-    private function agregarAcuseRecibo($x = 93, $y = 200, $w = 55, $h = 40)
+
+    private function agregarAcuseRecibo($x = 10, $y)
+    {
+        $this->SetAutoPageBreak(TRUE, 0);
+        $this->RoundedRect($x, 240, 190, 30, 1, '1111', 'D', ['width' => 0.1, 'color' => [0, 0, 0]]);
+        $this->setFont('', '', 7);
+        $this->Texto('Nombre: ____________________________________________________', $x, 242);
+        $this->Texto('R.U.T.: ______________________________', 94, 242);
+        $this->Texto('Fecha: _________________________________', $x, 248);
+        $this->Texto('Recinto.: ______________________________', 73, 248);
+        $this->Texto('Firma.: ________________________________', 145, 248);
+        $this->setFont('', '', 6);
+        $this->MultiTexto('1.- "El acuse de recibo que se declara en este acto, de acuerdo a lo dispuesto en la letra b) del Art. 4°, y la letra c) del Art. 5° de la Ley 19.983, acredita que la entrega de mercaderías o servicio(s) prestado(s) ha(n) sido recibido(s)."
+2.- Artículo 160 del Código de Comercio. No reclamándose contra el contenido de esta factura dentro de los 8 días siguientes a la entrega, se tendrá como irrevocablemente aceptada.
+3.- La Factura no pagada a su vencimiento, devengará el interés máximo convencional vigente a la fecha de la mora o simple retardo.
+4.- En caso de no pago integro y oportuno de la presente factura, el receptor autoriza expresamente de acuerdo a la ley 19.628, al emisor para publicar los datos del incumplimiento parcial o total, en cualquier sistema de información comercial existente, sin limitación alguna.', $x, 253, 'L', 190);
+        $this->setFont('', 'B', 10);
+        $this->Texto('CEDIBLE', $x, 271, 'R');
+    }
+
+    /*private function agregarAcuseRecibo($x = 93, $y = 200, $w = 55, $h = 40)
     {
         $this->SetTextColorArray([0,0,0]);
         $this->Rect($x, $y, $w, $h, 'D', ['all' => ['width' => 0.1, 'color' => [0, 0, 0]]]);
@@ -1038,7 +1058,7 @@ class Dte extends \sasco\LibreDTE\PDF
         $this->Texto('________________', $x+18);
         $this->setFont('', 'C', 7);
         $this->MultiTexto('El acuse de recibo que se declara en este acto, de acuerdo a lo dispuesto en la letra b) del Art. 4°, y la letra c) del Art. 5° de la Ley 19.983, acredita que la entrega de mercaderías o servicio (s) prestado (s) ha (n) sido recibido (s).'."\n", $x, $this->y+6, 'J', $w);
-    }
+    }*/
 
     /**
      * Método que agrega el acuse de rebido
