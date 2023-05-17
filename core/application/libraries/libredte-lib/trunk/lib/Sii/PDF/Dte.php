@@ -1020,8 +1020,10 @@ class Dte extends \sasco\LibreDTE\PDF
      * @version 2015-09-08
      */
 
-    private function agregarAcuseRecibo($x = 10, $y)
+
+    private function agregarAcuseRecibo($x = 10)
     {
+
         $this->SetAutoPageBreak(TRUE, 0);
         $this->RoundedRect($x, 240, 190, 30, 1, '1111', 'D', ['width' => 0.1, 'color' => [0, 0, 0]]);
         $this->setFont('', '', 7);
@@ -1038,6 +1040,25 @@ class Dte extends \sasco\LibreDTE\PDF
         $this->setFont('', 'B', 10);
         $this->Texto('CEDIBLE', $x, 271, 'R');
     }
+
+    /*private function agregarAcuseRecibo($x = 10, $y)
+    {
+        $this->SetAutoPageBreak(TRUE, 0);
+        $this->RoundedRect($x, 240, 190, 30, 1, '1111', 'D', ['width' => 0.1, 'color' => [0, 0, 0]]);
+        $this->setFont('', '', 7);
+        $this->Texto('Nombre: ____________________________________________________', $x, 242);
+        $this->Texto('R.U.T.: ______________________________', 94, 242);
+        $this->Texto('Fecha: _________________________________', $x, 248);
+        $this->Texto('Recinto.: ______________________________', 73, 248);
+        $this->Texto('Firma.: ________________________________', 145, 248);
+        $this->setFont('', '', 6);
+        $this->MultiTexto('1.- "El acuse de recibo que se declara en este acto, de acuerdo a lo dispuesto en la letra b) del Art. 4°, y la letra c) del Art. 5° de la Ley 19.983, acredita que la entrega de mercaderías o servicio(s) prestado(s) ha(n) sido recibido(s)."
+2.- Artículo 160 del Código de Comercio. No reclamándose contra el contenido de esta factura dentro de los 8 días siguientes a la entrega, se tendrá como irrevocablemente aceptada.
+3.- La Factura no pagada a su vencimiento, devengará el interés máximo convencional vigente a la fecha de la mora o simple retardo.
+4.- En caso de no pago integro y oportuno de la presente factura, el receptor autoriza expresamente de acuerdo a la ley 19.628, al emisor para publicar los datos del incumplimiento parcial o total, en cualquier sistema de información comercial existente, sin limitación alguna.', $x, 253, 'L', 190);
+        $this->setFont('', 'B', 10);
+        $this->Texto('CEDIBLE', $x, 271, 'R');
+    }*/
 
     /*private function agregarAcuseRecibo($x = 93, $y = 200, $w = 55, $h = 40)
     {
