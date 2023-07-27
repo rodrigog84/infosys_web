@@ -346,7 +346,10 @@ class Dte extends \sasco\LibreDTE\PDF
 
         $y = 190;
         //$y = $dte['Encabezado']['IdDoc']['TipoDTE'] == 34 ? $y + 5 : $y;
-        $this->Rect(155, $y, 45, 13, 'D', ['all' => ['width' => 0.1, 'color' => [0, 0, 0]]]);
+        //var_dump($dte['Encabezado']['IdDoc']['TipoDTE']); exit;
+        $h = $dte['Encabezado']['IdDoc']['TipoDTE'] == 61 ? 16 : 13;
+
+        $this->Rect(155, $y, 45, $h, 'D', ['all' => ['width' => 0.1, 'color' => [0, 0, 0]]]);
        // $this->Rect(155, $y, 45, 15, 'D', ['all' => ['width' => 0.1, 'color' => [0, 0, 0]]]);
 
 
