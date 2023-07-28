@@ -496,8 +496,8 @@ class Facturaganado extends CI_Controller {
 		
 		$resp = array();
 
-           // print_r($_POST); exit;
 
+		//var_dump($_POST); exit;
 		$idcliente = $this->input->post('idcliente');
 		$numdocuemnto = $this->input->post('numdocumento');
 		$fechafactura = $this->input->post('fechafactura');
@@ -525,7 +525,22 @@ class Facturaganado extends CI_Controller {
                         $row_guia = $query_guia->first_row();
                         $numguia = $row_guia->num_factura;
 
+            }else{
+
+                  if($ordencompra != 0 && $ordencompra != ''){
+
+                        $numguia = $ordencompra;
+                  }
+
             }
+
+
+             
+
+
+
+
+
 
             if ($tipodocumento == 19){			
 			$fiva = 0;
@@ -605,8 +620,7 @@ class Facturaganado extends CI_Controller {
 			);
 
 		$this->db->insert('detalle_factura_glosa', $factura_clientes_item);
-
-            if (!$idguia){
+			if (!$idguia){
 
 		$query = $this->db->query('SELECT * FROM productos WHERE id="'.$producto.'"');
 		 if($query->num_rows()>0){
@@ -667,9 +681,8 @@ class Facturaganado extends CI_Controller {
             $this->db->insert('existencia_detalle', $datos2);
 
             }else{     
-            
+				
                   $tipod=105;      
-
                   $queryt = $this->db->query('SELECT * FROM existencia_detalle WHERE id_tipo_movimiento='.$tipod.' and id_bodega='.$idbodega.' and num_movimiento = '.$ordencompra.' and id_producto = '.$producto.'');                 
                   if ($queryt->num_rows()>0){
                   $row = $queryt->result();
@@ -713,14 +726,76 @@ class Facturaganado extends CI_Controller {
 
                   $this->db->update('productos', $datos);                              
                   
-            };
+            	}else{ // el sistema asumia que ya se habia descontado al generar la guia, pero no, no se ha descontado
+
+					$query = $this->db->query('SELECT * FROM productos WHERE id="'.$producto.'"');
+					if($query->num_rows()>0){
+						$row = $query->first_row();
+						$saldo = ($row->stock - $v->cantidad );
+					
+		   
+					   $prod = array(
+						'stock' => $saldo
+					   );
+		   
+					   $this->db->where('id', $producto);
+		   
+					   $this->db->update('productos', $prod);
+					   
+					$query = $this->db->query('SELECT * FROM existencia WHERE id_producto='.$producto.' and id_bodega='.$idbodega.'');
+					$row = $query->result();
+			  		if ($query->num_rows()>0){
+					   $row = $row[0];	 
+				   if ($producto==($row->id_producto) and $idbodega==($row->id_bodega)){
+							 $datos3 = array(
+							 'stock' => $saldo,
+							 'fecha_ultimo_movimiento' => $fechafactura
+							 );
+					 $this->db->where('id_producto', $producto);
+						   $this->db->update('existencia', $datos3);
+					   }else{
+	 
+					   $datos3 = array(
+						 'id_producto' => $producto,
+						 'stock' =>  $saldo,
+						 'fecha_ultimo_movimiento' =>$fechafactura,
+						 'id_bodega' => $idbodega                      
+					   );
+					   $this->db->insert('existencia', $datos3);
+					  }
+					}else{
+								$datos3 = array(
+							'id_producto' => $producto,
+							'stock' =>  $saldo,
+							'fecha_ultimo_movimiento' =>$fechafactura,
+							'id_bodega' => $idbodega                
+							);
+							$this->db->insert('existencia', $datos3);
+						};
+		
+					$datos2 = array(
+						'num_movimiento' => $numdocuemnto,
+						'id_producto' => $v->id_producto,
+						'id_tipo_movimiento' => $tipodocumento,
+						'valor_producto' =>  $v->precio,
+						'cantidad_salida' => $v->cantidad,
+						'fecha_movimiento' => $fechafactura,
+						'id_bodega' => $idbodega,
+						'id_cliente' => $idcliente,
+						'p_promedio' => $v->precio
+					);
+
+					$this->db->insert('existencia_detalle', $datos2);
+					};
+
+				}
                   
             }
 
 		};
 
            
-            
+       // exit;
 		/******* CUENTAS CORRIENTES ****/
 
 		 $query = $this->db->query("SELECT cc.id as idcuentacontable FROM cuenta_contable cc WHERE cc.nombre = 'FACTURAS POR COBRAR'");
