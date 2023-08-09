@@ -167,6 +167,9 @@ class Cuentacorriente extends CI_Controller {
 
 			$data[] = $row;
 		}
+
+		$queryQuestion = $this->db->query("CALL sp_quita_duplicados_cta_cte()");
+		
         $resp['success'] = true;
         $resp['total'] = count($data);
         $resp['data'] = $data;
