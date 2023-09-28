@@ -550,7 +550,7 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                         items: [{
                             xtype: 'numberfield',
                             fieldCls: 'required',
-                            width: 200,
+                            width: 150,
                             name : 'neto',
                             itemId: 'finaltotalnetoId',
                             readOnly: true,
@@ -561,7 +561,40 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                         {
                             xtype: 'numberfield',
                             fieldCls: 'required',
-                            width: 200,
+                            width: 150,
+                            name : 'ncomisionganado',
+                            itemId: 'finalcomisionganadoId',
+                            readOnly: true,
+                            fieldLabel: '<b>COMISION GANADO</b>',
+                            labelAlign: 'top'
+                        },
+                        {xtype: 'splitter'},
+                        {
+                            xtype: 'numberfield',
+                            fieldCls: 'required',
+                            width: 150,
+                            name : 'notroscargos',
+                            itemId: 'finalotroscargosId',
+                            readOnly: true,
+                            fieldLabel: '<b>OTROS CARGOS</b>',
+                            labelAlign: 'top'
+                        },
+                        {xtype: 'splitter'},
+                        {
+                            xtype: 'numberfield',
+                            fieldCls: 'required',
+                            width: 150,
+                            name : 'ncostomayorplazo',
+                            itemId: 'finalcostomayorplazoId',
+                            readOnly: true,
+                            fieldLabel: '<b>COSTO MAYOR PLAZO</b>',
+                            labelAlign: 'top'
+                        },                        
+                        {xtype: 'splitter'},
+                        {
+                            xtype: 'numberfield',
+                            fieldCls: 'required',
+                            width: 150,
                             name : 'afecto',
                             itemId: 'finalafectoId',
                             readOnly: true,
@@ -570,7 +603,7 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                         },{xtype: 'splitter'},
                         {
                             xtype: 'numberfield',
-                            width: 200,
+                            width: 150,
                             fieldCls: 'required',
                             name : 'iva',
                             itemId: 'finaltotalivaId',
@@ -581,7 +614,7 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                         },{xtype: 'splitter'},{
                             xtype: 'textfield',
                             fieldCls: 'required',
-                            width: 300,
+                            width: 150,
                             name : 'total',
                             itemId: 'finaltotalId',
                             readOnly: true,
@@ -590,6 +623,24 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                         },{
                             xtype: 'numberfield',
                             itemId: 'finaltotalpostId',
+                            hidden: true
+                        },{
+                            xtype: 'numberfield',
+                            itemId: 'mcomisionganado',
+                            value : 0,
+                            renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")},
+                            hidden: true
+                        },{
+                            xtype: 'numberfield',
+                            itemId: 'mcostomayorplazo',
+                            value : 0,
+                            renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")},
+                            hidden: true
+                        },{
+                            xtype: 'numberfield',
+                            itemId: 'motroscargos',
+                            value : 0,
+                            renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")},
                             hidden: true
                         }]
                     }
@@ -617,12 +668,22 @@ Ext.define('Infosys_web.view.facturaganado.Facturaganado', {
                             xtype: 'button',
                             //iconCls: 'icono',
                             scale: 'large',
+                            action: 'cobrosadic',
+                            itemId: 'cobrosadic',
+                            text: 'COBROS ADICIONALES'
+                        },
+                        {
+                            xtype: 'button',
+                            //iconCls: 'icono',
+                            scale: 'large',
+                            itemId: 'observaciones',
                             action: 'observaciones',
                             text: 'OBSERVACIONES'
                         },{
                             xtype: 'button',
                             iconCls: 'icon-save',
                             scale: 'large',
+                            itemId: 'grabarfactura',
                             action: 'grabarfacturaganado',
                             text: 'Grabar / Emitir'
                         }

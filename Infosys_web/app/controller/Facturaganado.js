@@ -25,7 +25,8 @@ Ext.define('Infosys_web.controller.Facturaganado', {
             'facturaganado.Selecionadetalle',
             'facturaganado.BuscarGuias',
             'ventas.Principalfactura',
-            'facturaganado.Observaciones'],
+            'facturaganado.Observaciones',
+            'facturaganado.Cobrosadic'],
 
     //referencias, es un alias interno para el controller
     //podemos dejar el alias de la vista en el ref y en el selector
@@ -51,6 +52,9 @@ Ext.define('Infosys_web.controller.Facturaganado', {
     },{
         ref: 'observacionesfacturasganado',
         selector: 'observacionesfacturasganado'
+    },{
+        ref: 'cobrosadicfacturasganado',
+        selector: 'cobrosadicfacturasganado'
     },{
         ref: 'buscarguiasganado',
         selector: 'buscarguiasganado'
@@ -139,9 +143,18 @@ Ext.define('Infosys_web.controller.Facturaganado', {
             'facturaganado button[action=observaciones]': {
                 click: this.observaciones
             },
+            'facturaganado button[action=cobrosadic]': {
+                click: this.cobrosadic
+            },            
             'observacionesfacturasganado button[action=ingresaobs]': {
                 click: this.ingresaobs
             },
+
+            'cobrosadicfacturasganado button[action=ingresacobadic]': {
+                click: this.ingresacobadic
+            },
+
+
             'observacionesfacturasganado #rutId': {
                 specialkey: this.special6
             },
@@ -242,15 +255,16 @@ Ext.define('Infosys_web.controller.Facturaganado', {
         
         
         stItem1.each(function(r){
-
+            //console.log(r.data);
             producto = r.data.id_producto,
-            nomproducto = r.data.nombre_producto,
+           // nomproducto = r.data.nombre_producto,
+            nomproducto = "Guia Nro. " + r.data.num_factura, 
             precio = r.data.precios,
             cantidad = r.data.cantidad,
             kilos = r.data.kilos,
-            neto = r.data.neto,
-            total = r.data.total,
-            iva = r.data.iva,
+            neto = 0, //r.data.neto,
+            total = 0, //r.data.total,
+            iva = 0,//r.data.iva,
             codigo = r.data.codigo,
              
             stItem.add(new Infosys_web.model.facturaganado.Item({
@@ -399,7 +413,51 @@ Ext.define('Infosys_web.controller.Facturaganado', {
         });
        }
     },
+           
+
+
+
+
+    cobrosadic: function(){
+
+        var viewIngresa = this.getFacturaganado();
+        var view = Ext.create('Infosys_web.view.facturaganado.Cobrosadic').show();
+        var mcomisionganado = viewIngresa.down('#mcomisionganado').getValue();
+        var mcostomayorplazo = viewIngresa.down('#mcostomayorplazo').getValue();
+        var motroscargos = viewIngresa.down('#motroscargos').getValue();
+
+        view.down('#comisionganado').setValue(mcomisionganado);
+        view.down('#costomayorplazo').setValue(mcostomayorplazo);
+        view.down('#otroscargos').setValue(motroscargos);
+    },
             
+
+
+
+
+ingresacobadic: function(){
+
+        //console.log('llega');
+        //console.log(this.getCobrosadicfacturasganado());
+        var view = this.getCobrosadicfacturasganado();
+        var viewIngresa = this.getFacturaganado();
+
+        var comisionganado = view.down('#comisionganado').getValue();
+        var costomayorplazo = view.down('#costomayorplazo').getValue();
+        var otroscargos = view.down('#otroscargos').getValue();
+
+
+        viewIngresa.down('#mcomisionganado').setValue(comisionganado);
+        viewIngresa.down('#mcostomayorplazo').setValue(costomayorplazo);
+        viewIngresa.down('#motroscargos').setValue(otroscargos);
+
+        view.close()
+
+        this.recalcularFinal();
+
+
+    },
+
     ingresaobs: function(){
 
         var view = this.getObservacionesfacturasganado();
@@ -707,7 +765,46 @@ Ext.define('Infosys_web.controller.Facturaganado', {
             pretotal = (parseInt(pretotal) + parseInt(r.data.neto))
           
         });
-        
+
+        mcomisionganado = view.down('#mcomisionganado').getValue();
+        mcostomayorplazo = view.down('#mcostomayorplazo').getValue();
+        motroscargos = view.down('#motroscargos').getValue();
+
+        /*var val_comisionganado = parseInt(pretotal * (mcomisionganado / 100));
+        var val_netocomision = pretotal + val_comisionganado;
+
+
+
+
+        var val_costomayorplazo = parseInt(val_netocomision * (mcostomayorplazo / 100));
+
+        var val_netocomisioncosto = val_netocomision + val_costomayorplazo;
+
+
+        var val_netocomisioncostoiva = parseInt(val_netocomisioncosto * 1.19);
+
+        var val_otroscargos = parseInt(val_netocomisioncostoiva * (motroscargos / 100));
+
+        neto = pretotal;
+        pretotal = pretotal + val_comisionganado + val_costomayorplazo + val_otroscargos;*/
+
+        var val_comisionganado = parseInt(pretotal * (mcomisionganado / 100));
+        var val_netocomision = pretotal + val_comisionganado;
+
+        var val_netocomisioniva = parseInt(val_netocomision * 1.19);
+
+        var val_otroscargos = parseInt(val_netocomisioniva * (motroscargos / 100));
+
+
+        var val_netocomisioncargos = val_netocomision + val_otroscargos;
+        var val_netocomisioncargosiva = parseInt(val_netocomisioncargos * 1.19);
+
+        var val_costomayorplazo = parseInt(val_netocomisioncargosiva * (mcostomayorplazo / 100));
+
+        neto = pretotal;
+        pretotal = pretotal + val_comisionganado + val_costomayorplazo + val_otroscargos;
+
+
         total = (pretotal * 1.19);
         afecto = pretotal;
         iva = total - pretotal;
@@ -715,9 +812,14 @@ Ext.define('Infosys_web.controller.Facturaganado', {
         //iva = (total - afecto);
         view.down('#finaltotalId').setValue(Ext.util.Format.number(total, '0,000'));
         view.down('#finaltotalpostId').setValue(Ext.util.Format.number(total, '0'));
-        view.down('#finaltotalnetoId').setValue(Ext.util.Format.number(pretotal, '0'));
+        view.down('#finaltotalnetoId').setValue(Ext.util.Format.number(neto, '0'));
         view.down('#finaltotalivaId').setValue(Ext.util.Format.number(iva, '0'));
         view.down('#finalafectoId').setValue(Ext.util.Format.number(afecto, '0'));
+
+
+        view.down('#finalcomisionganadoId').setValue(Ext.util.Format.number(val_comisionganado, '0'));
+        view.down('#finalcostomayorplazoId').setValue(Ext.util.Format.number(val_costomayorplazo, '0'));
+        view.down('#finalotroscargosId').setValue(Ext.util.Format.number(val_otroscargos, '0'));
           
     },
 
@@ -1048,8 +1150,26 @@ Ext.define('Infosys_web.controller.Facturaganado', {
         var numdocumento = viewIngresa.down('#numfacturaId').getValue();
         var fechafactura = viewIngresa.down('#fechafacturaId').getValue();
         var fechavenc = viewIngresa.down('#fechavencId').getValue();
+
+        //COBROS ADICIONALES
+        var mcomisionganado = viewIngresa.down('#mcomisionganado').getValue();
+        var mcostomayorplazo = viewIngresa.down('#mcostomayorplazo').getValue();
+        var motroscargos = viewIngresa.down('#motroscargos').getValue();
+
+
+        var valcomisionganado = viewIngresa.down('#finalcomisionganadoId').getValue();
+        var valcostomayorplazo = viewIngresa.down('#finalcostomayorplazoId').getValue();
+        var valotroscargos = viewIngresa.down('#finalotroscargosId').getValue();        
+
         var stItem = this.getFacturaganadoItemsStore();
-        var stFactura = this.getFacturaStore();        
+        var stFactura = this.getFacturaStore();  
+
+        viewIngresa.down("#grabarfactura").setDisabled(true);
+        viewIngresa.down("#observaciones").setDisabled(true);
+        viewIngresa.down("#cobrosadic").setDisabled(true);
+
+        
+
         
         if(numdocumento==0){
             Ext.Msg.alert('Ingrese Datos a La Factura');
@@ -1067,6 +1187,10 @@ Ext.define('Infosys_web.controller.Facturaganado', {
         stItem.each(function(r){
             dataItems.push(r.data)
         });
+
+        var loginMask = new Ext.LoadMask(Ext.getBody(), {msg:"Generando Documento ..."});
+
+        loginMask.show();
 
         Ext.Ajax.request({
             url: preurl + 'facturaganado/save',
@@ -1088,7 +1212,13 @@ Ext.define('Infosys_web.controller.Facturaganado', {
                 netofactura: viewIngresa.down('#finaltotalnetoId').getValue(),
                 ivafactura: viewIngresa.down('#finaltotalivaId').getValue(),
                 afectofactura: viewIngresa.down('#finalafectoId').getValue(),
-                totalfacturas: viewIngresa.down('#finaltotalpostId').getValue()
+                totalfacturas: viewIngresa.down('#finaltotalpostId').getValue(),
+                mcomisionganado: mcomisionganado,
+                mcostomayorplazo: mcostomayorplazo,
+                motroscargos: motroscargos,
+                valcomisionganado: valcomisionganado,
+                valcostomayorplazo: valcostomayorplazo,
+                valotroscargos: valotroscargos,                
             },
             success: function(response){
                 var resp = Ext.JSON.decode(response.responseText);
@@ -1103,6 +1233,7 @@ Ext.define('Infosys_web.controller.Facturaganado', {
                  if (tipo_documento == 3){
                  window.open(preurl + 'facturas/exportTXTGDGanado/?idfactura='+idfactura);
                  };*/
+                 loginMask.hide();
             }
            
         });

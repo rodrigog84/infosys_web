@@ -497,6 +497,8 @@ class Facturaganado extends CI_Controller {
 		$resp = array();
 
 
+            //agregar campos en tabla factura_clientes
+            // agregar porcentajes en lineas
 		//var_dump($_POST); exit;
 		$idcliente = $this->input->post('idcliente');
 		$numdocuemnto = $this->input->post('numdocumento');
@@ -516,6 +518,14 @@ class Facturaganado extends CI_Controller {
             $ordencompra = $this->input->post('ordencompra');
             $idguia = $this->input->post('idguiadespacho');
             $numguia = 0;
+
+            $pcomisionganado = $this->input->post('mcomisionganado');
+            $pcostomayorplazo = $this->input->post('mcostomayorplazo');
+            $potroscargos = $this->input->post('motroscargos');   
+
+            $comisionganado = $this->input->post('valcomisionganado');
+            $costomayorplazo = $this->input->post('valcostomayorplazo');
+            $otroscargos = $this->input->post('valotroscargos');            
 
             $idguia = $idguia == '' ? 0 : $idguia;
 
@@ -563,7 +573,16 @@ class Facturaganado extends CI_Controller {
 	        'id_vendedor' => $vendedor,
               'id_cond_venta' => $idcondventa,
 	        'sub_total' => $neto,
-	        'neto' => $neto,
+
+              'porccomisionganado' => $pcomisionganado,
+              'porccostomayorplazo' => $pcostomayorplazo,
+              'porcotroscargos' => $potroscargos,
+
+              'comisionganado' => $comisionganado,
+              'costomayorplazo' => $costomayorplazo,
+              'otroscargos' => $otroscargos,
+
+	        'neto' => $fafecto,
 	        'iva' => $fiva,
 	        'totalfactura' => $ftotal,
 	        'fecha_factura' => $fechafactura,
@@ -957,6 +976,40 @@ class Facturaganado extends CI_Controller {
                   }
 
 
+
+                  //GUARDAR EN TABLA ESTOS CAMPOS
+                  if($comisionganado > 0){
+                        $lista_detalle[$i]['NmbItem'] = 'COMISION GANADO '. $pcomisionganado . '%';
+                        $lista_detalle[$i]['QtyItem'] = 1;
+                        
+                        $lista_detalle[$i]['PrcItem'] = $comisionganado;    
+                        $lista_detalle[$i]['MontoItem'] = $comisionganado;                     
+                        $i++;       
+                  }
+
+
+
+                  if($otroscargos > 0){
+                        $lista_detalle[$i]['NmbItem'] = 'OTROS CARGOS '. $potroscargos . '%';
+                        $lista_detalle[$i]['QtyItem'] = 1;
+                        
+                        $lista_detalle[$i]['PrcItem'] = $otroscargos;
+                        $lista_detalle[$i]['MontoItem'] = $otroscargos;                      
+                        $i++;       
+                  }                                   
+
+
+
+                  if($costomayorplazo > 0){
+                        $lista_detalle[$i]['NmbItem'] = 'COSTO MAYOR PLAZO '. $pcostomayorplazo . '%';
+                        $lista_detalle[$i]['QtyItem'] = 1;
+                        
+                        $lista_detalle[$i]['PrcItem'] = $costomayorplazo;     
+                        $lista_detalle[$i]['MontoItem'] = $costomayorplazo;                   
+                        $i++;       
+                  }     
+
+
                   $dir_cliente = is_null($datos_empresa_factura->dir_sucursal) ? permite_alfanumerico($datos_empresa_factura->direccion) : permite_alfanumerico($datos_empresa_factura->dir_sucursal);
 
                   $nombre_comuna = is_null($datos_empresa_factura->com_sucursal) ? permite_alfanumerico($datos_empresa_factura->nombre_comuna) : permite_alfanumerico($datos_empresa_factura->com_sucursal);
@@ -988,7 +1041,7 @@ class Facturaganado extends CI_Controller {
                           ],
                         'Totales' => [
                             // estos valores serán calculados automáticamente
-                            'MntNeto' => isset($datos_factura->neto) ? $datos_factura->neto : 0,
+                            'MntNeto' => isset($datos_factura->neto) ? $datos_factura->neto: 0,
                             'TasaIVA' => \sasco\LibreDTE\Sii::getIVA(),
                             'IVA' => isset($datos_factura->iva) ? $datos_factura->iva : 0,
                             'MntTotal' => isset($datos_factura->totalfactura) ? $datos_factura->totalfactura : 0,

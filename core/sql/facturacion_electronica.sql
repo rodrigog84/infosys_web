@@ -500,3 +500,50 @@ UPDATE `infosys_web`.`roles` SET `nombre`='AUTORIZACION', `descripcion`='AUTORIZ
 INSERT INTO `infosys_web`.`rol_acceso` (`id_rol`, `id_acceso`) VALUES ('108', '108');
 INSERT INTO `infosys_web`.`usuario_rol` (`id_usuario`, `id_rol`) VALUES ('2', '108');
 INSERT INTO `infosys_web`.`usuario_rol` (`id_usuario`, `id_rol`) VALUES ('18', '108');	
+
+
+/********************************************************************************/
+
+ALTER TABLE `cartola_cuenta_corriente`
+	ADD INDEX `idctacte` (`idctacte`);
+
+ALTER TABLE `cuenta_corriente`
+	ADD INDEX `idcliente` (`idcliente`);
+
+ALTER TABLE `detalle_mov_cuenta_corriente`
+	ADD INDEX `idmovimiento` (`idmovimiento`);
+
+
+
+/******************************************************************/
+CREATE TABLE `lista_id_detalle_cta_cte` (
+	`id` INT(11) NULL DEFAULT NULL
+)
+COLLATE='latin1_swedish_ci'
+ENGINE=InnoDB
+;
+
+
+CREATE TABLE `lista_id_cartola_cta_cte` (
+	`id` INT(11) NULL DEFAULT NULL
+)
+COLLATE='latin1_swedish_ci'
+ENGINE=InnoDB
+ROW_FORMAT=COMPACT
+;
+
+sp_quita_duplicados_cta_cte
+
+
+
+/*******************************************************************/
+
+ALTER TABLE `factura_clientes`
+	ADD COLUMN `porccomisionganado` FLOAT NOT NULL DEFAULT 0 AFTER `descuento`,
+	ADD COLUMN `porccostomayorplazo` FLOAT NOT NULL DEFAULT 0 AFTER `porccomisionganado`,
+	ADD COLUMN `porcotroscargos` FLOAT NOT NULL DEFAULT 0 AFTER `porccostomayorplazo`,
+	ADD COLUMN `comisionganado` INT(20) NOT NULL AFTER `porcotroscargos`,
+	ADD COLUMN `costomayorplazo` INT(20) NOT NULL AFTER `comisionganado`,
+	ADD COLUMN `otroscargos` INT(20) NOT NULL AFTER `costomayorplazo`;
+
+	
