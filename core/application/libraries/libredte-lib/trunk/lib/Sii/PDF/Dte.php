@@ -324,10 +324,22 @@ class Dte extends \sasco\LibreDTE\PDF
        // print_r($dte['Referencia']); exit;
             $this->agregarReferencia($dte['Referencia']);
 
-        $h = $this->transporte['RUTTrans'] == null ? 29 : 33;
+        $h = $this->transporte['RUTTrans'] == null ? 29 : 36    ;
         //AGREGAR RECUADRO PARA DATOS DEL DESTINATARIO
         $y = 50;
-        $y = $dte['Encabezado']['IdDoc']['TipoDTE'] == 34 || $dte['Encabezado']['IdDoc']['TipoDTE'] == 61  || $dte['Encabezado']['IdDoc']['TipoDTE'] == 52 ? $y + 5 : $y+3;
+
+        if($dte['Encabezado']['IdDoc']['TipoDTE'] == 34 || $dte['Encabezado']['IdDoc']['TipoDTE'] == 61){
+                $y = $y + 5;
+
+        }else if($dte['Encabezado']['IdDoc']['TipoDTE'] == 52){
+                $y = $y + 5;
+                //$y = $y + 9;
+        }else{
+                $y = $y + 3;
+        }       
+       
+
+       /* $y = $dte['Encabezado']['IdDoc']['TipoDTE'] == 34 || $dte['Encabezado']['IdDoc']['TipoDTE'] == 61  || $dte['Encabezado']['IdDoc']['TipoDTE'] == 52 ? $y + 5 : $y+3;*/
         $this->Rect(10, $y, 190, $h, 'D', ['all' => ['width' => 0.1, 'color' => [0, 0, 0]]]);
        // echo '<pre>';
        // var_dump(count($this->detalle_glosa)); exit;

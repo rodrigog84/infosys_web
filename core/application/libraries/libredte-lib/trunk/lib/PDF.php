@@ -221,7 +221,7 @@ class PDF extends \TCPDF
         }
 
         //RELLENAR CON FILAS EN BLANCO (PERSONALIZADO A INFOSYS)
-        while($num_filas < 28){
+        while($num_filas < 25){
             $buffer .= '<tr>';
             foreach ($headers as &$col) {
                 $width = ($w and isset($w[$i])) ? (';width:'.$w[$i].'mm') : '';
