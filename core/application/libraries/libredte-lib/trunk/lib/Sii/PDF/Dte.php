@@ -749,7 +749,8 @@ class Dte extends \sasco\LibreDTE\PDF
             if($r['TpoDocRef'] == 52 && $this->forma == 3){
                 $texto = $vacio ? "" : $texto.$r['NroLinRef'].' - '.$this->getTipo($r['TpoDocRef']).' N° '.$r['FolioRef']."  ";                
             }else{
-                $texto = $vacio ? "" : $texto.$r['NroLinRef'].' - '.$this->getTipo($r['TpoDocRef']).' N° '.$r['FolioRef'].' del '.$r['FchRef']."  ";                
+                //$texto = $vacio ? "" : $texto.$r['NroLinRef'].' - '.$this->getTipo($r['TpoDocRef']).' N° '.$r['FolioRef'].' del '.$r['FchRef']."  ";                
+                $texto = $vacio ? "" : $texto.$r['NroLinRef'].' - '.$this->getTipo($r['TpoDocRef']).' N° '.$r['FolioRef'];                
             }
             
             if (isset($r['RazonRef']) and $r['RazonRef']!==false)
