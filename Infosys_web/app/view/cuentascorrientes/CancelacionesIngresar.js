@@ -340,21 +340,25 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                                         console.log('beforeedit')
                                         var title = me.down('#titlepanel').getValue();
                                         var monto_saldo = 0;
+                                        var monto_saldo_linea = 0;
                                         var monto_cancelado = 0;
                                         var monto_interes_cancelado = 0;
                                         var dataItems = new Array();
                                         var stItem = me.down("grid").getStore();
+
+                                        //console.log(stItem);
+
                                         stItem.each(function(r){
                                             dataItems.push(r.data);
                                             monto_saldo += r.data.saldo === undefined || r.data.saldo == '' ? 0 : Math.round(parseFloat(r.data.saldo));
+                                            monto_saldo_linea = r.data.saldo === undefined || r.data.saldo == '' ? 0 : Math.round(parseFloat(r.data.saldo));
                                             monto_cancelado += r.data.haber;
-                                            monto_interes_cancelado += r.data.interes === undefined || r.data.interes == '' ? 0 : Math.round(parseFloat( ( Math.round(parseFloat(r.data.interes)) / monto_saldo  )*Math.round(parseFloat(r.data.haber)) ));
+                                            monto_interes_cancelado += r.data.interes === undefined || r.data.interes == '' ? 0 : Math.round(parseFloat( ( Math.round(parseFloat(r.data.interes)) / monto_saldo_linea  )*Math.round(parseFloat(r.data.haber)) ));
 
                                         });
                                         title += ' . | Saldo Acumulado : $ ' + monto_cancelado  + '.  Inter&eacute;s Acumulado : $ ' + monto_interes_cancelado;
                                         me.down('#ingresoDetalleCancelacionId').setTitle(title);
-                                        me.down('#totalinteres').setValue(monto_interes_cancelado);        
-                                        console.log(stItem.count())                                                                       
+                                        me.down('#totalinteres').setValue(monto_interes_cancelado);                                                                        
                                         if(stItem.count() > 1){
                                             me.down('#modificaTasa').setDisabled(true)
 
@@ -416,6 +420,7 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                                         console.log('validateedit')
                                         var title = me.down('#titlepanel').getValue();
                                         var monto_saldo = 0;
+                                        var monto_saldo_linea = 0;
                                         var monto_cancelado = 0;
                                         var monto_interes_cancelado = 0;
                                         var dataItems = new Array();
@@ -423,12 +428,18 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                                         stItem.each(function(r){
                                             dataItems.push(r.data);
                                             monto_saldo += r.data.saldo === undefined || r.data.saldo == '' ? 0 : Math.round(parseFloat(r.data.saldo));
+                                            monto_saldo_linea = r.data.saldo === undefined || r.data.saldo == '' ? 0 : Math.round(parseFloat(r.data.saldo));
                                             monto_cancelado += r.data.haber;
-                                            monto_interes_cancelado += r.data.interes === undefined || r.data.interes == '' ? 0 : Math.round(parseFloat( ( Math.round(parseFloat(r.data.interes)) / monto_saldo  )*Math.round(parseFloat(r.data.haber)) ));
-                                            console.log(r.data.saldo)
-                                            console.log(r.data.haber)
-                                            console.log(r.data)
-                                            console.log(r.data.haber)
+                                            monto_interes_cancelado += r.data.interes === undefined || r.data.interes == '' ? 0 : Math.round(parseFloat( ( Math.round(parseFloat(r.data.interes)) / monto_saldo_linea  )*Math.round(parseFloat(r.data.haber)) ));
+                                           // console.log(r.data)
+                                           // console.log(r.data.haber)
+                                           // console.log('interes linea ' + r.data.interes)
+                                           // console.log('monto saldo ' + monto_saldo)
+                                           // console.log('monto haber ' + r.data.haber)
+                                           // console.log('numerador ' + parseFloat( ( parseFloat(r.data.interes) / monto_saldo_linea  )))
+                                           // console.log('interes calculado ' + Math.round(parseFloat( ( parseFloat(r.data.interes) / monto_saldo_linea  )*parseFloat(r.data.haber) )))
+                                           // console.log('interes acumulado ' + monto_interes_cancelado)
+                                            
                                         });
                                         title += ' . | Saldo Acumulado : $ ' + monto_cancelado  + '.  Inter&eacute;s Acumulado : $ ' + monto_interes_cancelado;
                                         me.down('#ingresoDetalleCancelacionId').setTitle(title);
@@ -623,6 +634,7 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                                         console.log('edit')
                                         var title = me.down('#titlepanel').getValue();
                                         var monto_saldo = 0;
+                                        var monto_saldo_linea = 0;
                                         var monto_cancelado = 0;
                                         var monto_interes_cancelado = 0;
                                         var dataItems = new Array();
@@ -630,8 +642,9 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                                         stItem.each(function(r){
                                             dataItems.push(r.data);
                                             monto_saldo += r.data.saldo === undefined || r.data.saldo == '' ? 0 : Math.round(parseFloat(r.data.saldo));
+                                            monto_saldo_linea = r.data.saldo === undefined || r.data.saldo == '' ? 0 : Math.round(parseFloat(r.data.saldo));
                                             monto_cancelado += r.data.haber;
-                                            monto_interes_cancelado += r.data.interes === undefined || r.data.interes == '' ? 0 : Math.round(parseFloat( ( Math.round(parseFloat(r.data.interes)) / monto_saldo  )*Math.round(parseFloat(r.data.haber)) ));
+                                            monto_interes_cancelado += r.data.interes === undefined || r.data.interes == '' ? 0 : Math.round(parseFloat( ( Math.round(parseFloat(r.data.interes)) / monto_saldo_linea  )*Math.round(parseFloat(r.data.haber)) ));
 
                                         });
                                         title += ' . | Saldo Acumulado : $ ' + monto_cancelado  + '.  Inter&eacute;s Acumulado : $ ' + monto_interes_cancelado;
@@ -869,14 +882,16 @@ Ext.define('Infosys_web.view.cuentascorrientes.CancelacionesIngresar', {
                                        var stItem = me.down("grid").getStore();
                                         var title = me.down('#titlepanel').getValue();
                                         var monto_saldo = 0;
+                                        var monto_saldo_linea = 0;
                                         var monto_cancelado = 0;
                                         var monto_interes_cancelado = 0;
 
                                         stItem.each(function(r){
                                             dataItems.push(r.data);
                                             monto_saldo += r.data.saldo === undefined || r.data.saldo == '' ? 0 : Math.round(parseFloat(r.data.saldo));
+                                            monto_saldo_linea = r.data.saldo === undefined || r.data.saldo == '' ? 0 : Math.round(parseFloat(r.data.saldo));
                                             monto_cancelado += r.data.haber;
-                                            monto_interes_cancelado += r.data.interes === undefined || r.data.interes == '' ? 0 : Math.round(parseFloat( ( Math.round(parseFloat(r.data.interes)) / monto_saldo  )*Math.round(parseFloat(r.data.haber)) ));
+                                            monto_interes_cancelado += r.data.interes === undefined || r.data.interes == '' ? 0 : Math.round(parseFloat( ( Math.round(parseFloat(r.data.interes)) / monto_saldo_linea  )*Math.round(parseFloat(r.data.haber)) ));
 
                                         });
                                         title += ' . | Saldo Acumulado : $ ' + monto_cancelado  + '.  Inter&eacute;s Acumulado : $ ' + monto_interes_cancelado;
