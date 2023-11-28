@@ -361,6 +361,68 @@ class Reporte extends CI_Model
 								AND 		id_producto  = 0
 					)d
 					UNION all
+
+
+					SELECT MAX(id) AS id
+						 ,MAX(codigo) AS codigo
+						 ,nombre
+						 ,SUM(cantidad) AS unidades
+						 ,SUM(ventaneta) AS ventaneta
+						 ,SUM(ROUND(tipo_precio*cantidad)) AS costo
+						 ,sum(ROUND((ventaneta - tipo_precio*cantidad))) as margen
+						 ,concat(SUM(ROUND((ventaneta/round(tipo_precio*cantidad) - 1)*100, 2)), ' %') as porcmargen
+						 ,MAX(familia) AS familia
+						 
+							FROM 		(
+										SELECT 0 id
+												, '00000000' as codigo
+												,'COMISION GANADO' as nombre
+												,f.tipo_documento 
+												,0 AS cantidad
+												,CASE WHEN f.tipo_documento = 102 THEN f.comisionganado*(-1) ELSE f.comisionganado END AS ventaneta
+												,0 as tipo_precio
+												, 'SERVICIOS' as familia 
+												,f.num_factura
+										FROM factura_clientes f 
+										WHERE 1 = 1 " . $sql_mes . " 
+										"	.		$sql_anno . "
+										" . 		$sql_tipo_documento	."
+										AND f.comisionganado > 0
+										UNION 
+										SELECT 0 id
+												, '00000000' as codigo
+												,'COSTO MAYOR PLAZO' as nombre
+												,f.tipo_documento 
+												,0 AS cantidad
+												,CASE WHEN f.tipo_documento = 102 THEN f.costomayorplazo*(-1) ELSE f.costomayorplazo END AS ventaneta
+												,0 as tipo_precio
+												, 'SERVICIOS' as familia 
+												,f.num_factura
+										FROM factura_clientes f 
+										WHERE 1 = 1 " . $sql_mes . " 
+										"	.		$sql_anno . "
+										" . 		$sql_tipo_documento	."
+										AND f.costomayorplazo > 0
+										UNION 
+										SELECT 0 id
+												, '00000000' as codigo
+												,'OTROS CARGOS' as nombre
+												,f.tipo_documento 
+												,0 AS cantidad
+												,CASE WHEN f.tipo_documento = 102 THEN f.otroscargos*(-1) ELSE f.otroscargos END AS ventaneta
+												,0 as tipo_precio
+												, 'SERVICIOS' as familia 
+												,f.num_factura
+										FROM factura_clientes f 
+										WHERE 1 = 1 " . $sql_mes . " 
+										"	.		$sql_anno . "
+										" . 		$sql_tipo_documento	."
+										AND f.otroscargos > 0
+										) c
+					GROUP BY		nombre					
+					
+					UNION all
+
 		  			SELECT 	b.id
 								, b.codigo
 								, b.nombre
