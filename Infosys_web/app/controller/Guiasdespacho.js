@@ -3617,6 +3617,9 @@ seleccionarclienteguias4: function(){
         var stFactura = this.getGuiasdespachopendientesStore();
         var stFactura = this.getGuiasdespachopendientes2Store();
 
+        viewIngresa.down("#grabarfactura").setDisabled(true);
+        viewIngresa.down("#observaciones").setDisabled(true);        
+
         if(vendedor==0  && tipo_documento.getValue() == 1){
             Ext.Msg.alert('Ingrese Datos del Vendedor');
             return;   
@@ -3631,6 +3634,11 @@ seleccionarclienteguias4: function(){
         stItem.each(function(r){
             dataItems.push(r.data)
         });
+
+
+        var loginMask = new Ext.LoadMask(Ext.getBody(), {msg:"Generando Documento ..."});
+
+        loginMask.show();
 
         Ext.Ajax.request({
             url: preurl + 'guias/save',
@@ -3659,6 +3667,7 @@ seleccionarclienteguias4: function(){
                 viewIngresa.close();
                 stFactura.reload();
                 window.open(preurl + 'facturas/exportPDF/?idfactura='+idfactura);
+                loginMask.hide();   
             }
            
         });

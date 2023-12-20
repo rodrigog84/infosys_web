@@ -570,6 +570,7 @@ Ext.define('Infosys_web.view.guiasdespacho.Facturaguias', {
                             //iconCls: 'icono',
                             scale: 'large',
                             action: 'observaciones',
+                            itemId: 'observaciones',
                             text: 'OBSERVACIONES'
                         },
                         {
@@ -577,6 +578,7 @@ Ext.define('Infosys_web.view.guiasdespacho.Facturaguias', {
                             iconCls: 'icon-save',
                             scale: 'large',
                             action: 'grabarfactura',
+                            itemId: 'grabarfactura',
                             text: 'Grabar / Emitir'
                         }
                     ]
