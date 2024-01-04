@@ -1183,7 +1183,7 @@ public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
                       echo "<td>".$v['nom_bodega']."</td>";
                   endif;
                   if (in_array("p_venta", $columnas)) :
-                      echo "<td>".$v['p_venta']."</td>";
+                      echo "<td>".number_format($v['p_venta'],2,',','.')."</td>";
                   endif;
                   if (in_array("p_costo", $columnas)) :
                       echo "<td>".$v['p_costo']."</td>";
