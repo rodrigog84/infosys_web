@@ -1098,7 +1098,6 @@ public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
               left join bodegas bo on (acc.id_bodega = bo.id)' );
 
             $users = $query->result_array();
-            
             echo '<table>';
             echo "<td></td>";
             echo "<td>LISTADO DE PRODUCTOS</td>";
@@ -1153,8 +1152,13 @@ public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
                 endif;
 
                 echo "<tr>";
+
+                //echo '<pre>';
+                //var_dump($users); exit;
               
+
               foreach($users as $v){
+
                  echo "<tr>";
                    if (in_array("id", $columnas)) :
                       echo "<td>".$v['id']."</td>";
@@ -1194,7 +1198,7 @@ public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
                       echo "<td>".$v['p_may_compra']."</td>";
                   endif;
                   if (in_array("stock", $columnas)) :
-                      echo "<td>".$v['stock']."</td>";
+                      echo "<td>".number_format($v['stock'],2,',','.')."</td>";
                   endif;
                    if (in_array("nom_familia", $columnas)) :
                       echo "<td>".$v['nom_familia']."</td>";
