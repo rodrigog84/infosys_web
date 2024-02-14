@@ -404,6 +404,8 @@ class Productos extends CI_Controller {
 	public function buscacodigo(){
 
 		$nombres = $this->input->get('codigo');
+		$bodegaid = $this->input->get('bodegaid');
+		$sql_bodega = $bodegaid ? 'AND acc.id_bodega = ' . $bodegaid : '';
 
 		$query = $this->db->query('SELECT acc.*, c.nombre as nom_ubi_prod, ca.nombre as nom_uni_medida, m.nombre as nom_marca, fa.nombre as nom_familia, bo.nombre as nom_bodega, ag.nombre as nom_agrupacion, sb.nombre as nom_subfamilia FROM productos acc
 			left join mae_ubica c on (acc.id_ubi_prod = c.id)
@@ -413,7 +415,7 @@ class Productos extends CI_Controller {
 			left join agrupacion ag on (acc.id_agrupacion = ag.id)
 			left join subfamilias sb on (acc.id_subfamilia = sb.id)
 			left join bodegas bo on (acc.id_bodega = bo.id)
-			WHERE acc.codigo = "'.$nombres.'"');
+			WHERE acc.codigo = "'.$nombres.'" ' . $sql_bodega);
 
 		if($query->num_rows()>0){
 	   			$row = $query->first_row();

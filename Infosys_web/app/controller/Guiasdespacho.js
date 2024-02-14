@@ -1989,8 +1989,18 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
         var tipo = viewIngresa.down('#tipoDocumentoId').getValue();
         var codigo = viewIngresa.down('#codigoId').getValue();
         var id = viewIngresa.down('#productoId').getValue();
+        var bodegaid = viewIngresa.down('#bodegaId').getValue();
+        console.log(bodegaid);
+        
         if(!codigo){
             var st = this.getProductosfStore();
+
+
+            st.proxy.extraParams = {
+                                                    bodegaid : bodegaid
+                                                }
+
+
             Ext.create('Infosys_web.view.productos.BuscarProductos2').show();
             st.load();
         };
@@ -2000,14 +2010,14 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
             var st = this.getExistencias4Store();                 
 
             Ext.Ajax.request({
-            url: preurl + 'productos/buscacodigo?codigo='+codigo,
+            url: preurl + 'productos/buscacodigo?codigo='+codigo + '&bodegaid=' + bodegaid,
             params: {
                 id: 1
             },
             success: function(response){
                 var resp = Ext.JSON.decode(response.responseText);
                 var cero = "";
-                var bodega = 1;
+                var bodega = bodegaid;
                 if (resp.success == true){                    
                     if(resp.cliente){
                         var cliente = resp.cliente;                        

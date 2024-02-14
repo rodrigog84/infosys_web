@@ -33,6 +33,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
              'ventas.ResumenVentas',
              'ventas.EstadisticasVentas',
              'ventas.InformeStock',
+             'ventas.Saldodocfecha',
              'notacredito.Principal',
              'ventas.VerDetalleProductoStock',  
              'facturaelectronica.CargaCertificadoDigital',
@@ -153,7 +154,9 @@ Ext.define('Infosys_web.controller.Facturacion', {
             'topmenus menuitem[action=estadisticasventas]': {
                 click: this.estadisticasventas
             },
-
+            'topmenus menuitem[action=saldodocfecha]': {
+                click: this.saldodocfecha
+            },
             'topmenus menuitem[action=informestock]': {
                 click: this.informestock
             },
@@ -176,6 +179,9 @@ Ext.define('Infosys_web.controller.Facturacion', {
                 click: this.cerrarfactura
             },
 
+            'saldodocfecha button[action=cerrarfactura]': {
+                click: this.cerrarfactura
+            },
 
             'informestock': {
                 verDetalleProductoStock: this.verDetalleProductoStock
@@ -1130,6 +1136,8 @@ Ext.define('Infosys_web.controller.Facturacion', {
 
     seleccionarcliente: function(){
 
+        console.log('bisca')
+
         var view = this.getBuscarclientes();
         var viewIngresa = this.getFacturasingresar();
         var grid  = view.down('grid');
@@ -1161,6 +1169,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
             var stCombo = condicion.getStore();
             var record = stCombo.findRecord('id', condicion.getValue()).data;
             dias = record.dias;
+            console.log(dias)
             var bolEnable = false;
             if (row.data.id_pago == 1){
 
@@ -1632,8 +1641,17 @@ Ext.define('Infosys_web.controller.Facturacion', {
         var tipo = viewIngresa.down('#tipoDocumentoId').getValue();
         var codigo = viewIngresa.down('#codigoId').getValue();
         var id = viewIngresa.down('#productoId').getValue();
+        var bodegaid = viewIngresa.down('#bodegaId').getValue();
         if(!codigo){
             var st = this.getProductosfStore();
+
+
+            st.proxy.extraParams = {
+                                                    bodegaid : bodegaid
+                                                }
+
+
+            
             Ext.create('Infosys_web.view.productos.BuscarProductos').show();
             st.load();
         };
@@ -1643,14 +1661,14 @@ Ext.define('Infosys_web.controller.Facturacion', {
             var st = this.getExistencias4Store();                 
 
             Ext.Ajax.request({
-            url: preurl + 'productos/buscacodigo?codigo='+codigo,
+            url: preurl + 'productos/buscacodigo?codigo='+codigo + '&bodegaid=' + bodegaid,
             params: {
                 id: 1
             },
             success: function(response){
                 var resp = Ext.JSON.decode(response.responseText);
                 var cero = "";
-                var bodega = 1;
+                var bodega = bodegaid;
                 if (resp.success == true){                    
                     if(resp.cliente){
                         var cliente = resp.cliente;                        
@@ -1942,6 +1960,19 @@ Ext.define('Infosys_web.controller.Facturacion', {
           Ext.create('Infosys_web.view.ventas.VerDetalleProductoStock', {id_producto: r.data.id});            
 
     },        
+          
+
+
+    saldodocfecha: function(){
+//
+
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'saldodocfecha'});
+        
+    },      
+
+   
           
   
 });

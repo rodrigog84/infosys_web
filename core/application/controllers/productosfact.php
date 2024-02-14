@@ -128,6 +128,10 @@ class Productosfact extends CI_Controller {
         $subfamilia = $this->input->get('subfamilia');
         $agrupacion = $this->input->get('agrupacion');
         $codigo = $this->input->get('codigo');
+
+        $bodegaid = $this->input->get('bodegaid');
+
+        $sql_bodega = $bodegaid ? 'AND acc.id_bodega = ' . $bodegaid : '';
         
 		$countAll = $this->db->count_all_results("productos");
 
@@ -141,7 +145,7 @@ class Productosfact extends CI_Controller {
 			left join agrupacion ag on (acc.id_agrupacion = ag.id)
 			left join subfamilias sb on (acc.id_subfamilia = sb.id)
 			left join bodegas bo on (acc.id_bodega = bo.id)
-			WHERE acc.codigo like "'.$codigo.'"');
+			WHERE acc.codigo like "'.$codigo.'" ' . $sql_bodega);
 
 			$total = 0;
 
@@ -175,7 +179,7 @@ class Productosfact extends CI_Controller {
 			left join agrupacion ag on (acc.id_agrupacion = ag.id)
 			left join subfamilias sb on (acc.id_subfamilia = sb.id)
 			left join bodegas bo on (acc.id_bodega = bo.id)
-			WHERE ' . $sql_nombre . ' 1 = 1');
+			WHERE ' . $sql_nombre . '  ' . $sql_bodega . ' 1 = 1');
 
 			$total = 0;
 
@@ -196,7 +200,7 @@ class Productosfact extends CI_Controller {
 			left join agrupacion ag on (acc.id_agrupacion = ag.id)
 			left join subfamilias sb on (acc.id_subfamilia = sb.id)
 			left join bodegas bo on (acc.id_bodega = bo.id)
-			WHERE acc.id_familia like "%'.$familia.'%"');
+			WHERE acc.id_familia like "%'.$familia.'%"  ' . $sql_bodega);
 
 			$total = 0;
 
@@ -218,7 +222,7 @@ class Productosfact extends CI_Controller {
 			left join agrupacion ag on (acc.id_agrupacion = ag.id)
 			left join subfamilias sb on (acc.id_subfamilia = sb.id)
 			left join bodegas bo on (acc.id_bodega = bo.id)
-			WHERE acc.id_subfamilia like "%'.$subfamilia.'%"');
+			WHERE acc.id_subfamilia like "%'.$subfamilia.'%"  ' . $sql_bodega);
 
 			$total = 0;
 
@@ -241,7 +245,7 @@ class Productosfact extends CI_Controller {
 			left join agrupacion ag on (acc.id_agrupacion = ag.id)
 			left join subfamilias sb on (acc.id_subfamilia = sb.id)
 			left join bodegas bo on (acc.id_bodega = bo.id)
-			WHERE acc.id_agrupacion like "%'.$agrupacion.'%"');
+			WHERE acc.id_agrupacion like "%'.$agrupacion.'%"  ' . $sql_bodega);
 
 			$total = 0;
 
@@ -256,6 +260,7 @@ class Productosfact extends CI_Controller {
 			
 
 		}else{
+			
 			$query = $this->db->query('SELECT acc.*, c.nombre as nom_ubi_prod, ca.nombre as nom_uni_medida,
 			fa.nombre as nom_familia, bo.nombre as nom_bodega, ag.nombre as nom_agrupacion, sb.nombre as nom_subfamilia FROM productos acc
 			left join mae_ubica c on (acc.id_ubi_prod = c.id)
@@ -264,6 +269,7 @@ class Productosfact extends CI_Controller {
 			left join agrupacion ag on (acc.id_agrupacion = ag.id)
 			left join subfamilias sb on (acc.id_subfamilia = sb.id)
 			left join bodegas bo on (acc.id_bodega = bo.id)
+			WHERE 1 = 1   ' . $sql_bodega . '
 			limit '.$start.', '.$limit.'
 		     ' );
 		}
