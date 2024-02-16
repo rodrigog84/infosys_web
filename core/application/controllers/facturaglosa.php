@@ -250,7 +250,7 @@ class Facturaglosa extends CI_Controller {
 			$lista_detalle = array();
 			$i = 0;
 			foreach ($detalle_factura as $detalle) {
-				$lista_detalle[$i]['NmbItem'] = $detalle->glosa;
+				$lista_detalle[$i]['NmbItem'] = permite_alfanumerico($detalle->glosa);
 				$lista_detalle[$i]['QtyItem'] = 1;
 				
 				$lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 || $tipo_caf == 46 || $tipo_caf == 52 ? $detalle->neto : $detalle->total;				
