@@ -716,6 +716,7 @@ Ext.define('Infosys_web.view.notacredito.Notacredito', {
                             iconCls: 'icon-save',
                             scale: 'large',
                             action: 'grabarnotacredito',
+                            itemId: 'grabarfactura',
                             text: 'Grabar / Emitir'
                         }
                     ]

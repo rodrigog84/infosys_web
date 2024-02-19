@@ -520,6 +520,9 @@ Ext.define('Infosys_web.controller.Notacredito', {
         var fechavenc = viewIngresa.down('#fechavencId').getValue();
         var stItem = this.getNotacreditoItemsStore();
         var stnotacredito = this.getNotacreditoStore();
+        viewIngresa.down("#grabarfactura").setDisabled(true);
+
+
 
         if(!docurelacionado){
             var docurelacionado =1;
@@ -534,6 +537,10 @@ Ext.define('Infosys_web.controller.Notacredito', {
         stItem.each(function(r){
             dataItems.push(r.data)
         });
+
+        var loginMask = new Ext.LoadMask(Ext.getBody(), {msg:"Generando Documento ..."});
+
+        loginMask.show();        
 
         Ext.Ajax.request({
             url: preurl + 'notacredito/save2',
@@ -564,6 +571,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
                  stnotacredito.load();
                  //window.open(preurl + 'notadebito/exportnotadebitoPDF/?idfactura='+idfactura);
                  window.open(preurl + 'facturas/exportTXTNCGLO/?idfactura='+idfactura);
+                 loginMask.hide();   
             }
            
         });      
@@ -1477,6 +1485,11 @@ Ext.define('Infosys_web.controller.Notacredito', {
         var stItem = this.getProductosItemsStore();
         var stNotacredito = this.getNotacreditoStore();
 
+
+        viewIngresa.down("#grabarfactura").setDisabled(true); 
+
+
+
         if(!vendedor){
             Ext.Msg.alert('Ingrese Vendedor');
             return;   
@@ -1508,6 +1521,11 @@ Ext.define('Infosys_web.controller.Notacredito', {
         stItem.each(function(r){
             dataItems.push(r.data)
         });
+
+
+        var loginMask = new Ext.LoadMask(Ext.getBody(), {msg:"Generando Documento ..."});
+
+        loginMask.show();
 
         Ext.Ajax.request({
             url: preurl + 'notacredito/save',
@@ -1542,6 +1560,8 @@ Ext.define('Infosys_web.controller.Notacredito', {
                  }else{
                     window.open(preurl + 'facturas/exportPDF/?idfactura='+idfactura);
                  }  
+
+                 loginMask.hide();  
             }
            
         });      

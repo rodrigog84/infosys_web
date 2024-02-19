@@ -573,6 +573,7 @@ Ext.define('Infosys_web.view.notacredito.Notacreditoglosa', {
                             iconCls: 'icon-save',
                             scale: 'large',
                             action: 'grabarnotacredito2',
+                            itemId: 'grabarfactura',
                             text: 'Grabar / Emitir'
                         }
                     ]
