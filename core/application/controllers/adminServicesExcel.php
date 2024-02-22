@@ -2390,6 +2390,10 @@ public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
             $columnas = json_decode($this->input->get('cols'));
             $nombres = json_decode($this->input->get('idproducto'));
             
+                  $query = $this->db->query('update existencia_detalle set cantidad_entrada_tarjeta = cantidad_entrada where cantidad_entrada_tarjeta is null');
+
+                  $query = $this->db->query('update existencia_detalle set cantidad_salida_tarjeta = cantidad_salida where cantidad_salida_tarjeta is null');
+
             $this->load->database();
             if($nombres){
                   $query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, cor.nombre as nom_tipo_movimiento FROM existencia_detalle acc
@@ -2405,6 +2409,8 @@ public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
             $users = $query->result_array();
             $row = $query->result();
             $row = $row[0];
+
+
             $nomproducto = $row->nom_producto;
             
             echo '<table>';
@@ -2442,8 +2448,8 @@ public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
                       endif;
                       echo "<td>".$v['nom_tipo_movimiento']."</td>";
                       echo "<td>".$v['num_movimiento']."</td>";
-                      echo "<td>".number_format($v['cantidad_entrada'],2,",",".")."</td>";
-                      echo "<td>".number_format($v['cantidad_salida'],2,",",".")."</td>";
+                      echo "<td>".number_format($v['cantidad_entrada_tarjeta'],2,",",".")."</td>";
+                      echo "<td>".number_format($v['cantidad_salida_tarjeta'],2,",",".")."</td>";
                       echo "<td>".$v['fecha_movimiento']."</td>";
                       echo "<td>".$v['transportista']."</td>";
                       echo "<td>".number_format($v['saldo'],2,",",".")."</td>";
