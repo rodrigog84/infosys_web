@@ -1111,12 +1111,25 @@ class Pedidos2 extends CI_Controller {
 		$this->db->where('id', $idpedidos);
 		
 		$this->db->update('pedidos', $data2); 
-	        
+
+
+		$formula_data = $this->db->query('SELECT * FROM formula 
+	   	    WHERE id = "'.$idformula.'"');		
+		$formula_result = $formula_data->row();
+	    $cantidad_formula = $formula_result->cantidad;
+	    //$cantidadform
+
+
 
 		$itemsf = $this->db->query('SELECT * FROM formula_detalle 
 	   	    WHERE id_formula like "'.$idformula.'"');
 
 		foreach($itemsf->result() as $item){
+
+			// si la cantidad solicitada es mayor a la formula, aumentar la cantidad de materia prima de forma proporcional
+			// si la cantidad es menor o igual, siempre se debe producir segun la formula
+			$cantidad_linea = 	$cantidadform > $cantidad_formula ? round(($cantidadform*($item->porcentaje/100)),4) : $item->cantidad;
+
 			
 			$formula_detalle2 = array(
 		        'id_producto' => $item->id_producto,
@@ -1124,7 +1137,7 @@ class Pedidos2 extends CI_Controller {
 		        'nom_formula' => $nomformula,
 		        'id_bodega' => $idbodega,
 		        'porcentaje' => $item->porcentaje,
-		        'cantidad' => $item->cantidad,
+		        'cantidad' => $cantidad_linea,
 		        'valor_compra' => $item->valor_compra,
 		        'valor_produccion' => $item->valor_produccion,
 		        );
