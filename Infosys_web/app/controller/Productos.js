@@ -397,7 +397,7 @@ Ext.define('Infosys_web.controller.Productos', {
         
         view.down('#finaltotalId').setValue(Ext.util.Format.number(pretotalfinal, '0,000'));
         view.down('#finaltotalpostId').setValue(Ext.util.Format.number(pretotalfinal, '0'));
-        view.down('#imptoId').setValue(Ext.util.Format.number(impto, '0'));
+        //view.down('#imptoId').setValue(Ext.util.Format.number(impto, '0'));
         
         view.down('#finaltotalnetoId').setValue(Ext.util.Format.number(neto, '0'));
         view.down('#finaltotalivaId').setValue(Ext.util.Format.number(iva, '0'));
@@ -753,6 +753,13 @@ Ext.define('Infosys_web.controller.Productos', {
             }
 
         });
+
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'productosprincipal'});
+        var view = this.getProductosprincipal();
+        view.down("#nombreId").focus();
+
     },
 
    

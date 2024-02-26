@@ -32,6 +32,7 @@ Ext.define('Infosys_web.model.Producto', {
         {name: 'diasvencimiento'},
         {name: 'nom_bodega'},
         {name: 'u_lote'},
-        {name: 'clasificacion'},        
+        {name: 'clasificacion'},    
+        {name: 'requiere_receta'},        
     ]
 });

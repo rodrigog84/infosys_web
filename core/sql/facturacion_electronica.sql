@@ -547,3 +547,11 @@ ALTER TABLE `factura_clientes`
 	ADD COLUMN `otroscargos` INT(20) NOT NULL AFTER `costomayorplazo`;
 
 	
+
+/*******************************************************************************/
+
+
+ALTER TABLE `productos`
+	ADD COLUMN `requiere_receta` ENUM('SI','NO') NOT NULL DEFAULT 'NO' AFTER `imagen`;
+
+	

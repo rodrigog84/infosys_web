@@ -16,6 +16,16 @@ Ext.define('Infosys_web.view.productos.Ingresar', {
             },
 
     initComponent: function() {
+
+         var st_requiere_receta = Ext.create('Ext.data.Store', {
+            fields: ['value', 'nombre'],
+            data : [
+                {"value":"SI", "nombre":"SI"},
+                {"value":"NO", "nombre":"NO"}
+            ]
+        });
+
+         
         this.items = [{
             xtype: 'form',
             padding: '5 5 0 5',
@@ -142,6 +152,19 @@ Ext.define('Infosys_web.view.productos.Ingresar', {
                 store : 'Medidas'
             }]
         },{
+            xtype: 'combo',
+            itemId: 'requiereRecetaId',
+            fieldLabel: 'Requiere Receta',
+            forceSelection : true,
+            anchor: '65%',
+            editable : false,
+            name : 'requiere_receta',
+            valueField : 'value',
+            displayField : 'nombre',
+            emptyText : "Seleccione",
+            store : st_requiere_receta,
+            allowBlank: false
+                    },{
             xtype: 'fieldset',
             title: 'Precios',
             items: [
