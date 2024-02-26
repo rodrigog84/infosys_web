@@ -13,7 +13,7 @@ public function __construct()
    public function exportarExcelproducciondiario(){
 
           header("Content-type: application/vnd.ms-excel");
-          header("Content-disposition: attachment; filename=PeoduccionDiario.xls"); 
+          header("Content-disposition: attachment; filename=ProduccionDiario.xls"); 
           $fecha = $this->input->get('fecha');
           list($dia, $mes, $anio) = explode("/",$fecha);
           $fecha3 = $anio ."-". $mes ."-". $dia;
@@ -187,7 +187,7 @@ public function __construct()
               echo "<tr>";
               echo "<td>".$v['codigo']."</td>";
               echo "<td>".$v['nom_producto']."</td>";   
-              echo "<td>".number_format($v['cantidad'], 2, ',', '.')."</td>";
+              echo "<td>".number_format($v['cantidad_pro'], 2, ',', '.')."</td>";
               echo "<td>".$v['lote']."</td>";
               echo "<td>".$z['fecha_termino']."</td>"; 
               echo "<td>".$z['num_produccion']."</td>";              
@@ -199,7 +199,7 @@ public function __construct()
               echo "<tr>";     
               echo "<td>".$v['codigo']."</td>";
               echo "<td>".$v['nom_producto']."</td>";   
-              echo "<td>".number_format($v['cantidad'], 2, ',', '.')."</td>";
+              echo "<td>".number_format($v['cantidad_pro'], 2, ',', '.')."</td>";
               echo "<td>".$v['lote']."</td>";
               echo "<td>".$z['fecha_termino']."</td>";
               echo "<td>".$z['num_produccion']."</td>";              

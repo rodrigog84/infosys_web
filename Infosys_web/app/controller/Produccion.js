@@ -566,6 +566,14 @@ Ext.define('Infosys_web.controller.Produccion', {
                  if(resp.cliente){
                     var cliente = resp.cliente;
                     var stock = resp.saldo;
+
+                    console.log(cliente.fecha_vencimiento);
+
+                    if(cliente.fecha_vencimiento === undefined){
+                        fecvencimiento = new Date();
+                    }else{
+                        fecvencimiento = cliente.fecha_vencimiento;
+                    }
                     
                     //var cantidadproducida = cantidadproducida - row.data.cantidad_real;                    
                    
@@ -579,7 +587,7 @@ Ext.define('Infosys_web.controller.Produccion', {
                     view.down('#cantidadoriId').setValue(resp.saldo);
                     view.down('#stockTotalId').setValue(resp.saldo);
                     view.down('#loteId').setValue(row.data.lote);
-                    view.down('#fechavencimientoId').setValue(cliente.fecha_vencimiento);
+                    view.down('#fechavencimientoId').setValue(fecvencimiento);
                     //view.down('#cantidadproduccalId').setValue(cantidadproducida);
                     view.down('#stockcriticoId').setValue(cliente.stock_critico);
                 }                                        
@@ -981,18 +989,24 @@ Ext.define('Infosys_web.controller.Produccion', {
         };
         cantreal=0;
         var dataItems = new Array();
+        var permite_guardado = true;
         stItem.each(function(r){
             dataItems.push(r.data)
-            cantreal=r.cantidad_real
+
+            cantreal=r.data.cantidad_real
             if(cantreal==0){
                 view.down("#grabarproduccion2").setDisabled(false);
                  Ext.Msg.alert('Debe Ingresar Toda la Produccion');
-            return;
+                 permite_guardado = false;
+                 return false;
                 
             }
         });
 
-        Ext.Ajax.request({
+        
+        if(permite_guardado){
+
+                Ext.Ajax.request({
             url: preurl + 'produccion/save2',
             params: {
                 fechaproduccion: Ext.Date.format(fechaproduccion,'Y-m-d'),
@@ -1018,7 +1032,13 @@ Ext.define('Infosys_web.controller.Produccion', {
                  stProduccion.reload();
                  window.open(preurl + 'produccion/exportPDF2/?idproduccion='+idproduccion);
             }           
-        });    
+                });
+
+
+        }
+        
+
+            
     },
 
     agregarItem: function() {
@@ -1038,6 +1058,9 @@ Ext.define('Infosys_web.controller.Produccion', {
         var cantidadori = view.down('#cantidadoriId').getValue();
         var fechamov = view.down('#fechadocumId').getValue();
         var fechavenc = view.down('#fechavencimientoId').getValue();
+        //var fechavenc = view.down('#fechavencId').getValue();
+
+        
         var lote = view.down('#loteId').getValue();
         var idexistencia = view.down('#idpId').getValue();
         var id = view.down('#corrId').getValue();

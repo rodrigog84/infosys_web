@@ -20,7 +20,7 @@ Ext.define('Infosys_web.view.Produccion.ProduccionTermino', {
 
     autoShow: true,
     height: 520,
-    width: 1300,
+    width: 1450,
     layout: 'fit',
     title: 'PRODUCCION TERMINO',
     closable: false,
@@ -487,8 +487,8 @@ Ext.define('Infosys_web.view.Produccion.ProduccionTermino', {
                                 fieldLabel: '<b>VENC.</b>',
                                 itemId: 'fechavencimientoId',
                                 name: 'fecha_vencimiento',
-                                //value: new Date(),
-                                hidden: true,
+                                value: new Date(),
+                                hidden: false,
                             },{xtype: 'splitter'},{
                                 xtype: 'button',
                                 text: 'Agregar',
