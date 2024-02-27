@@ -554,4 +554,40 @@ ALTER TABLE `factura_clientes`
 ALTER TABLE `productos`
 	ADD COLUMN `requiere_receta` ENUM('SI','NO') NOT NULL DEFAULT 'NO' AFTER `imagen`;
 
-	
+
+/**********************************************************************************/
+
+CREATE TABLE `pedidos_estados` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`nombre` VARCHAR(50) NOT NULL DEFAULT '0' COLLATE 'latin1_swedish_ci',
+	PRIMARY KEY (`id`) USING BTREE
+)
+COLLATE='latin1_swedish_ci'
+ENGINE=InnoDB
+;
+
+INSERT INTO `infosys_web2`.`pedidos_estados` (`nombre`) VALUES ('Pedido Ingresado');
+INSERT INTO `infosys_web2`.`pedidos_estados` (`nombre`) VALUES ('Pedido Requiere Producción');
+INSERT INTO `infosys_web2`.`pedidos_estados` (`nombre`) VALUES ('Solicitud Producción Realizada');
+INSERT INTO `infosys_web2`.`pedidos_estados` (`nombre`) VALUES ('Termino Producción Realizada');
+
+
+ALTER TABLE `pedidos`
+	ADD COLUMN `tipopedido` ENUM('I','E') NOT NULL DEFAULT 'I' COMMENT 'I: Interno, E: Externo' AFTER `num_guia`;
+
+ALTER TABLE `pedidos`
+	ADD COLUMN `idestadopedido` INT NOT NULL DEFAULT '1' AFTER `tipopedido`;
+
+
+CREATE TABLE `pedidos_log_estados` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`idpedido` INT(11) NOT NULL,
+	`idestado` INT(11) NOT NULL,
+	`fecha` DATETIME NOT NULL,
+	`created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`id`) USING BTREE
+)
+COLLATE='latin1_swedish_ci'
+ENGINE=InnoDB
+;
+

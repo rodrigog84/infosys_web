@@ -443,7 +443,8 @@ Ext.define('Infosys_web.controller.Pedidos2', {
         var idtipo = 1;
         var st = this.getPedidosStore();
         st.proxy.extraParams = {documento: idtipo,
-                                idbodega: idbodega }
+                                idbodega: idbodega,
+                                tipopedido: 'I' }
         st.load();       
     },
 
@@ -1875,6 +1876,10 @@ Ext.define('Infosys_web.controller.Pedidos2', {
 
     mPedidos2: function(){       
         var viewport = this.getPanelprincipal();
+        /*var st = this.getPedidosStore();
+        st.proxy.extraParams = {tipopedido : 'E'}
+        st.load();
+        */
         viewport.removeAll();
         viewport.add({xtype: 'pedidosprincipalformula'});
     },

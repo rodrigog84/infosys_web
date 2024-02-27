@@ -1612,6 +1612,7 @@ Ext.define('Infosys_web.controller.Produccion', {
     buscarpedidopro2: function(){
 
         var st = this.getPedidosProduccionStore();
+        st.proxy.extraParams = {tipopedido: 'I' }        
         st.load();                
         Ext.create('Infosys_web.view.Produccion.BuscarPedidos2').show();            
       

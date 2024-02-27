@@ -590,12 +590,23 @@ class Produccion extends CI_Controller {
 		};
 
 		$pedidos = array(
-	        'estado' => 2
+	        'estado' => 2,
+	        'idestadopedido' => 3
 			);			
 
 			
 		$this->db->where('id', $idpedido);
 		$this->db->update('pedidos', $pedidos);
+
+
+		$pedidos_log = array(
+								'idpedido' => $idpedido,
+								'idestado' => 3,
+								'fecha' => date('Y-m-d H:i:s')
+							);
+		$this->db->insert('pedidos_log_estados', $pedidos_log); 
+
+
 
         $resp['idproduccion'] = $idproduccion;		
         $resp['success'] = true;
@@ -1015,10 +1026,21 @@ class Produccion extends CI_Controller {
         $resp['success'] = true;
 
 		$pedidos = array(
-		'estado' => 3
+		'estado' => 3,
+		'idestadopedido' => 4
 		);			
 		$this->db->where('id', $idpedido);
 		$this->db->update('pedidos', $pedidos);
+
+
+
+		$pedidos_log = array(
+								'idpedido' => $idpedido,
+								'idestado' => 4,
+								'fecha' => date('Y-m-d H:i:s')
+							);
+		$this->db->insert('pedidos_log_estados', $pedidos_log); 
+
        
 		$this->Bitacora->logger("M", 'produccion', $idproduccion);
 		$this->Bitacora->logger("M", 'produccion_detalle', $idproduccion);    
