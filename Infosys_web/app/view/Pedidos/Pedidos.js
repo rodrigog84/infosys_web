@@ -39,7 +39,7 @@ Ext.define('Infosys_web.view.Pedidos.Pedidos', {
                 },
                 items: [{
                     xtype: 'container',
-                    height: 140,
+                    height: 160,
                     layout: {
                         type: 'vbox',
                         align: 'stretch'
@@ -189,56 +189,26 @@ Ext.define('Infosys_web.view.Pedidos.Pedidos', {
                                 hidden: true
                             }
                             ]
-                        }/*
-                        ,{
+                        },{
                             xtype: 'fieldcontainer',
-                            height: 30,
+                            height: 20,
                             width: 462,
                             fieldLabel: '',
                             layout: {
                                 type: 'hbox',
                                 align: 'stretch'
                             },
-                            items: [
-                             {
-                                    xtype: 'textfield',
-                                    fieldCls: 'required',
-                                    msgTarget: 'side',
-                                    labelWidth: 155,
-                                    maxHeight: 25,
-                                    width: 520,
-                                    fieldLabel: '<b>NOMBRE FORMULA</b>',
-                                    itemId: 'nombreformulaId',
-                                    name : 'nombre'                                         
-                                },{
-                                    xtype: 'displayfield',
-                                    width: 10                                   
-                                },{
-                                    xtype: 'numberfield',
-                                    fieldCls: 'required',
-                                    msgTarget: 'side',
-                                    labelWidth: 80,
-                                    maxHeight: 25,
-                                    width: 180,
-                                    fieldLabel: '<b>CANTIDAD</b>',
-                                    itemId: 'cantidadformId',
-                                    name : 'cantidad_form_or'                                         
-                                },{
-                                    xtype: 'button',
-                                    text: 'Buscar Formula',
-                                    maxHeight: 25,
-                                    width: 120,                                                                        
-                                    action: 'buscarformula',
-                                    itemId: 'buscarBtnf'
-                                },{
-                                    xtype: 'textfield',
-                                    itemId: 'formulaId',
-                                    name : 'id_formula',
-                                    fieldLabel: 'Id Formula',
-                                    hidden: true
-                                }
+                            items: [{
+                                        xtype: 'displayfield',
+                                        itemId : 'estado_cliente',
+                                        fieldLabel : 'Estado Cliente:',
+                                        labelStyle: ' font-weight:bold',
+                                        fieldStyle: '',
+                                        value : '',
+                                        labelWidth: 200,
+                                    }
                             ]
-                        }*/
+                        }
                         ,{
                     xtype: 'fieldset',
                     title: 'Items Documento',

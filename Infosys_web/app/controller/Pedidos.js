@@ -1770,7 +1770,7 @@ Ext.define('Infosys_web.controller.Pedidos', {
         if (grid.getSelectionModel().hasSelection()) {
             var row = grid.getSelectionModel().getSelection()[0];
             var estado = (row.data.estado);
-            if (estado == 3) {
+            /*if (estado == 3) {
                 Ext.Msg.alert('Cliente Bloqueado');
                 view.close();
                 return;                  
@@ -1787,7 +1787,28 @@ Ext.define('Infosys_web.controller.Pedidos', {
             view.close();
             var bolEnable = false;
             
-            };
+            };*/
+
+
+             if (estado == 3){
+                    viewIngresa.down('#estado_cliente').setFieldStyle('font-weight:bold;background-color:red;')
+                    viewIngresa.down('#estado_cliente').setValue('&nbsp;Cliente Bloqueado -  Se debe autorizar pedido&nbsp;')
+
+             }else if(estado == 4){
+                    viewIngresa.down('#estado_cliente').setFieldStyle('font-weight:bold;background-color:red;')
+                    viewIngresa.down('#estado_cliente').setValue('&nbsp;Cliente protestos Vigentes -  Se debe autorizar pedido&nbsp;')
+             }else{
+                    viewIngresa.down('#estado_cliente').setFieldStyle('font-weight:bold;background-color:green;')
+                    viewIngresa.down('#estado_cliente').setValue('&nbsp;Cliente Válido&nbsp;')
+             }
+                viewIngresa.down('#id_cliente').setValue(row.data.id);
+                viewIngresa.down('#nombre_id').setValue(row.data.nombres);
+                viewIngresa.down('#tipoVendedorId').setValue(row.data.id_vendedor);
+                viewIngresa.down('#rutId').setValue(row.data.rut);
+                viewIngresa.down('#tipoVendedorId').setValue(row.data.id_vendedor);
+                view.close();
+                var bolEnable = false;
+                    
         }else{
             Ext.Msg.alert('Alerta', 'Selecciona un registro.');
             return;
@@ -1828,7 +1849,7 @@ Ext.define('Infosys_web.controller.Pedidos', {
                     
                     if(resp.cliente){
                         var cliente = resp.cliente;
-                        if (cliente.estado=="3"){
+                       /* if (cliente.estado=="3"){
                             view.down("#rutId").setValue(cero);
                             Ext.Msg.alert('Cliente Bloqueado');
                             return;
@@ -1837,7 +1858,23 @@ Ext.define('Infosys_web.controller.Pedidos', {
                             view.down("#rutId").setValue(cero);
                             Ext.Msg.alert('Cliente Protestos Vigentes');
                             return;                            
-                        };
+                        };*/
+
+
+
+                         if (cliente.estado == 3){
+                                view.down('#estado_cliente').setFieldStyle('font-weight:bold;background-color:red;')
+                                view.down('#estado_cliente').setValue('&nbsp;Cliente Bloqueado -  Se debe autorizar pedido&nbsp;')
+
+                         }else if(cliente.estado == 4){
+                                view.down('#estado_cliente').setFieldStyle('font-weight:bold;background-color:red;')
+                                view.down('#estado_cliente').setValue('&nbsp;Cliente protestos Vigentes -  Se debe autorizar pedido&nbsp;')
+                         }else{
+                                view.down('#estado_cliente').setFieldStyle('font-weight:bold;background-color:green;')
+                                view.down('#estado_cliente').setValue('&nbsp;Cliente Válido&nbsp;')
+                                
+                         }
+
                         view.down("#id_cliente").setValue(cliente.id)
                         view.down("#nombre_id").setValue(cliente.nombres)                        
                         view.down("#rutId").setValue(rut)

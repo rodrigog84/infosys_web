@@ -591,3 +591,11 @@ COLLATE='latin1_swedish_ci'
 ENGINE=InnoDB
 ;
 
+
+/*********************************************************************************************/
+
+
+INSERT INTO `infosys_web2`.`pedidos_estados` (`id`, `nombre`) VALUES ('5', 'Pedido Sin Stock');
+UPDATE `infosys_web2`.`pedidos_estados` SET `nombre`='Pedido con Stock Disponible' WHERE  `id`=5;
+
+INSERT INTO `infosys_web2`.`pedidos_estados` (`nombre`) VALUES ('Cliente Pendiente Autorización');
