@@ -566,10 +566,10 @@ COLLATE='latin1_swedish_ci'
 ENGINE=InnoDB
 ;
 
-INSERT INTO `infosys_web2`.`pedidos_estados` (`nombre`) VALUES ('Pedido Ingresado');
-INSERT INTO `infosys_web2`.`pedidos_estados` (`nombre`) VALUES ('Pedido Requiere Producción');
-INSERT INTO `infosys_web2`.`pedidos_estados` (`nombre`) VALUES ('Solicitud Producción Realizada');
-INSERT INTO `infosys_web2`.`pedidos_estados` (`nombre`) VALUES ('Termino Producción Realizada');
+INSERT INTO `pedidos_estados` (`nombre`) VALUES ('Pedido Ingresado');
+INSERT INTO `pedidos_estados` (`nombre`) VALUES ('Pedido Requiere Producción');
+INSERT INTO `pedidos_estados` (`nombre`) VALUES ('Solicitud Producción Realizada');
+INSERT INTO `pedidos_estados` (`nombre`) VALUES ('Termino Producción Realizada');
 
 
 ALTER TABLE `pedidos`

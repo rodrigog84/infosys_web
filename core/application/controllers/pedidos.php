@@ -1063,11 +1063,22 @@ class Pedidos extends CI_Controller {
 	        'iva' => $fiva,
 	        'total' => $ftotal,
 	        'id_observa' => $idobserva,
-	        'estado' => 4
+	        'estado' => 4,
+	        'tipopedido' => 'E',
+	        'idestadopedido' => 1
 		);
 
 		$this->db->insert('pedidos', $pedidos); 
 		$idpedidos = $this->db->insert_id();
+
+
+		$pedidos_log = array(
+								'idpedido' => $idpedidos,
+								'idestado' => 1,
+								'fecha' => date('Y-m-d H:i:s')
+							);
+		$this->db->insert('pedidos_log_estados', $pedidos_log); 
+
 
 		$secuencia = 0;
 		$cantidadform = 0;
