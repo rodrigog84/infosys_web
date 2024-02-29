@@ -209,13 +209,14 @@ Ext.define('Infosys_web.view.productos.Desplegar', {
                     readOnly : true
                 },{xtype: 'splitter'},
                 {
-                    xtype: 'textfield',
+                    xtype: 'numberfield',
                     fieldLabel: 'Venta',
                     name:'p_venta',
                     align: 'right',
+                    decimalSeparator: '.',
                     renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")},
                     //anchor: '20%',
-                    readOnly : true
+                    readOnly : false
                 }
 
                 ]
@@ -229,6 +230,7 @@ Ext.define('Infosys_web.view.productos.Desplegar', {
                     fieldLabel: 'Costo',
                     name:'p_costo',
                     align: 'right',
+
                     renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")},
                     //anchor: '20%',
                     readOnly : true
