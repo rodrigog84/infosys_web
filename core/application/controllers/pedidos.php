@@ -1080,6 +1080,36 @@ class Pedidos extends CI_Controller {
 		$this->db->insert('pedidos_log_estados', $pedidos_log); 
 
 
+
+
+		$this->db->select('estado',false)
+						  ->from('clientes c')
+						  ->where('c.id',$idcliente); 	                  
+		$query = $this->db->get();		
+		$cliente = $query->row();
+
+
+		$requiere_autorizacion = false;
+		if($cliente->estado == 3 || $cliente->estado == 4){
+
+			$pedidos = array(
+		        'idestadopedido' => 6
+				);			
+
+				
+			$this->db->where('id', $idpedidos);
+			$this->db->update('pedidos', $pedidos);			
+
+			$pedidos_log = array(
+										'idpedido' => $idpedidos,
+										'idestado' => 6,
+										'fecha' => date('Y-m-d H:i:s')
+									);
+			$this->db->insert('pedidos_log_estados', $pedidos_log); 
+			$requiere_autorizacion = true;
+		}
+
+
 		$secuencia = 0;
 		$cantidadform = 0;
 
@@ -1110,6 +1140,8 @@ class Pedidos extends CI_Controller {
 		$general = $this->db->query('SELECT * FROM pedidos_general WHERE id_producto="'.$producto.'"
     	AND fecha_produccion = "'.$fechapedidos.'"');	
 
+    	$existe_stock = true;
+
 		if($general->num_rows()>0){
 		 		$row = $general->first_row();
 		 	    $id = ($row->id);
@@ -1119,7 +1151,13 @@ class Pedidos extends CI_Controller {
 				$producto = $this->db->get("productos");	
 				$producto = $producto->result();
 				$producto = $producto[0];
-				
+
+
+				if($cantidadform > $producto->stock){
+					$existe_stock = false;
+				}
+
+
 			    $pedidos_update = array(
 		        'cantidad' => $cantidad,
 		        );
@@ -1133,7 +1171,13 @@ class Pedidos extends CI_Controller {
 				$producto = $this->db->get("productos");	
 				$producto = $producto->result();
 				$producto = $producto[0];
-				
+					
+
+				if($cantidadform > $producto->stock){
+					$existe_stock = false;
+				}
+
+
 				$pedidos_general = array(
 				'id_producto' => $v->id_producto,
 				'cantidad' => $v->cantidad,
@@ -1146,6 +1190,36 @@ class Pedidos extends CI_Controller {
 	    };
     	
 		};
+
+
+		// SI NO NECESITA AUTORIZACION, EVALUA EL STOCK
+		if(!$requiere_autorizacion){
+				if($existe_stock){
+
+						$estado_nuevo = 5;
+
+				}else{
+
+						$estado_nuevo = 2;
+				}
+
+				$pedidos = array(
+			        'idestadopedido' => $estado_nuevo
+					);			
+
+					
+				$this->db->where('id', $idpedidos);
+				$this->db->update('pedidos', $pedidos);			
+
+				$pedidos_log = array(
+											'idpedido' => $idpedidos,
+											'idestado' => $estado_nuevo,
+											'fecha' => date('Y-m-d H:i:s')
+										);
+				$this->db->insert('pedidos_log_estados', $pedidos_log); 
+
+		}
+
 		
 		$data2 = array(
 	        'cantidad' => $cantidadform,
