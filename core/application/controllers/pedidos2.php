@@ -1032,7 +1032,7 @@ class Pedidos2 extends CI_Controller {
 	        'total' => $ftotal,
 	        'id_observa' => $idobserva,
 	        'estado' => 4,
-	        'idestadopedido' => 2
+	        'idestadopedido' => 1
 
 		);
 
@@ -1048,13 +1048,65 @@ class Pedidos2 extends CI_Controller {
 		$this->db->insert('pedidos_log_estados', $pedidos_log); 
 
 
-		$pedidos_log = array(
+
+
+		$this->db->select('estado',false)
+						  ->from('clientes c')
+						  ->where('c.id',$idcliente); 	                  
+		$query = $this->db->get();		
+		$cliente = $query->row();
+
+
+		$requiere_autorizacion = false;
+		if($cliente->estado == 3 || $cliente->estado == 4){
+
+			$pedidos = array(
+		        'idestadopedido' => 6
+				);			
+
+				
+			$this->db->where('id', $idpedidos);
+			$this->db->update('pedidos', $pedidos);			
+
+			$pedidos_log = array(
+										'idpedido' => $idpedidos,
+										'idestado' => 6,
+										'fecha' => date('Y-m-d H:i:s')
+									);
+			$this->db->insert('pedidos_log_estados', $pedidos_log); 
+			$requiere_autorizacion = true;
+		}else{
+
+
+			$pedidos = array(
+		        'idestadopedido' => 7
+				);			
+
+				
+			$this->db->where('id', $idpedidos);
+			$this->db->update('pedidos', $pedidos);			
+
+			$pedidos_log = array(
+										'idpedido' => $idpedidos,
+										'idestado' => 7,
+										'fecha' => date('Y-m-d H:i:s')
+									);
+			$this->db->insert('pedidos_log_estados', $pedidos_log); 
+
+		}
+
+
+
+
+
+
+		/*$pedidos_log = array(
 								'idpedido' => $idpedidos,
 								'idestado' => 2,
 								'fecha' => date('Y-m-d H:i:s')
 							);
 		$this->db->insert('pedidos_log_estados', $pedidos_log); 
-
+		*/
 
 		
 
@@ -1069,6 +1121,7 @@ class Pedidos2 extends CI_Controller {
 			$pedidos_detalle = array(
 		        'id_producto' => $v->id_producto,
 		        'id_pedido' => $idpedidos,
+		        'id_formula' => $idformula,
 		        'id_bodega' => $v->id_bodega,
 		        'num_pedido' => $numeropedido,
 		        'precio' => $v->precio,
@@ -1078,12 +1131,106 @@ class Pedidos2 extends CI_Controller {
 		        'iva' => $v->iva,
 		        'total' => $v->total,
 		        'secuencia' => $secuencia,
-		        'fecha' => $fechapedidos
-			);
+		        'fecha' => $fechapedidos,
+		        'idestadoproducto' => 1
+ 			);
+
 
 		$producto = $v->id;
 
 		$this->db->insert('pedidos_detalle', $pedidos_detalle);
+
+
+
+		$iddtallepedidos = $this->db->insert_id(); 			
+
+		$pedidos_detalle_log = array(
+									'idproductodetalle' => $iddtallepedidos,
+									'idestado' => 1,
+									'fecha' => date('Y-m-d H:i:s')
+								);
+		$this->db->insert('pedidos_detalle_log_estados', $pedidos_detalle_log); 	
+
+
+		// agrega detalle del producto si no tiene stock
+		if(!$requiere_autorizacion){
+
+
+		   	$this->db->where('id', $v->id_producto);
+			$producto_result = $this->db->get("productos");	
+			$producto_res = $producto_result->result();
+			$producto_row = $producto_res[0];
+
+
+			$existe_stock = true;
+			if($v->cantidad > $producto_row->stock){
+				$existe_stock = false;
+			}
+
+
+			
+			if($existe_stock){
+
+					$estado_nuevo_detalle = 5;
+
+			}else{
+
+					$estado_nuevo_detalle = 2;
+			}
+
+
+
+
+			$pedidos_detalle_log = array(
+										'idproductodetalle' => $iddtallepedidos,
+										'idestado' => $estado_nuevo_detalle,
+										'fecha' => date('Y-m-d H:i:s')
+									);
+			$this->db->insert('pedidos_detalle_log_estados', $pedidos_detalle_log); 	
+
+				
+			$this->db->where('id', $iddtallepedidos);
+			$this->db->update('pedidos_detalle', array('idestadoproducto' => $estado_nuevo_detalle));			
+
+
+
+		}	
+
+
+
+		$formula_data = $this->db->query('SELECT * FROM formula 
+	   	    WHERE id = "'.$idformula.'"');		
+		$formula_result = $formula_data->row();
+	    $cantidad_formula = $formula_result->cantidad;
+	    //$cantidadform
+
+
+
+		$itemsf = $this->db->query('SELECT * FROM formula_detalle 
+	   	    WHERE id_formula like "'.$idformula.'"');
+
+		foreach($itemsf->result() as $item){
+
+			// si la cantidad solicitada es mayor a la formula, aumentar la cantidad de materia prima de forma proporcional
+			// si la cantidad es menor o igual, siempre se debe producir segun la formula
+			$cantidad_linea = 	$v->cantidad > $cantidad_formula ? round(($cantidadform*($item->porcentaje/100)),4) : $item->cantidad;
+
+			
+			$formula_detalle2 = array(
+		        'id_producto' => $item->id_producto,
+		        'id_pedido' => $idpedidos,
+		        'id_detalle_pedido' => $iddtallepedidos,
+		        'nom_formula' => $nomformula,
+		        'id_bodega' => $idbodega,
+		        'porcentaje' => $item->porcentaje,
+		        'cantidad' => $cantidad_linea,
+		        'valor_compra' => $item->valor_compra,
+		        'valor_produccion' => $item->valor_produccion,
+		        );
+
+			$this->db->insert('formula_pedido', $formula_detalle2);	
+		}	 
+
 
 		$general = $this->db->query('SELECT * FROM pedidos_general WHERE id_producto="'.$producto.'"
     	AND fecha_produccion = "'.$fechapedidos.'"');	
@@ -1122,6 +1269,14 @@ class Pedidos2 extends CI_Controller {
 				$this->db->insert('pedidos_general', $pedidos_general);
 
 	    };
+
+
+
+
+
+
+
+
     	
 		};
 		
@@ -1134,37 +1289,6 @@ class Pedidos2 extends CI_Controller {
 		$this->db->update('pedidos', $data2); 
 
 
-		$formula_data = $this->db->query('SELECT * FROM formula 
-	   	    WHERE id = "'.$idformula.'"');		
-		$formula_result = $formula_data->row();
-	    $cantidad_formula = $formula_result->cantidad;
-	    //$cantidadform
-
-
-
-		$itemsf = $this->db->query('SELECT * FROM formula_detalle 
-	   	    WHERE id_formula like "'.$idformula.'"');
-
-		foreach($itemsf->result() as $item){
-
-			// si la cantidad solicitada es mayor a la formula, aumentar la cantidad de materia prima de forma proporcional
-			// si la cantidad es menor o igual, siempre se debe producir segun la formula
-			$cantidad_linea = 	$cantidadform > $cantidad_formula ? round(($cantidadform*($item->porcentaje/100)),4) : $item->cantidad;
-
-			
-			$formula_detalle2 = array(
-		        'id_producto' => $item->id_producto,
-		        'id_pedido' => $idpedidos,
-		        'nom_formula' => $nomformula,
-		        'id_bodega' => $idbodega,
-		        'porcentaje' => $item->porcentaje,
-		        'cantidad' => $cantidad_linea,
-		        'valor_compra' => $item->valor_compra,
-		        'valor_produccion' => $item->valor_produccion,
-		        );
-
-		$this->db->insert('formula_pedido', $formula_detalle2);	
-		}	 
 
 		
         $resp['success'] = true;

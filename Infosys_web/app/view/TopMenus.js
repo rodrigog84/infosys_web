@@ -423,6 +423,12 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                         disabled: true,
                         action: 'mPedidos'
                         },{
+                        text: 'Autoriza Pedidos Cliente Bloqueado',
+                        iconCls: '',
+                        itemId: 'pro_md_autoriza',
+                        disabled: true,
+                        action: 'mAutorizaPedidos'
+                        },{
                         text: 'Pedidos Formula',
                         iconCls: '',
                         itemId: 'pro_md_pedidosformula',
@@ -711,6 +717,10 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                             text: 'Estad&iacute;stica de Ventas',
                             iconCls: '',
                             action: 'estadisticasventas'
+                        },{
+                            text: 'Saldos Documentos por Fecha',
+                            iconCls: '',
+                            action: 'saldodocfecha'
                         }]
                 },]
 

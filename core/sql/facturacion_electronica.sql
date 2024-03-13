@@ -599,3 +599,59 @@ INSERT INTO `infosys_web2`.`pedidos_estados` (`id`, `nombre`) VALUES ('5', 'Pedi
 UPDATE `infosys_web2`.`pedidos_estados` SET `nombre`='Pedido con Stock Disponible' WHERE  `id`=5;
 
 INSERT INTO `infosys_web2`.`pedidos_estados` (`nombre`) VALUES ('Cliente Pendiente Autorización');
+
+
+
+
+
+/***********************************************************************************************/
+INSERT INTO `accesos` (`id`, `codigo`, `reg_estado`, `descripcion`) VALUES (109, 'pro_md_autoriza', 1, 'Produccion -> Movimiento Diario -> Genera Pedidos');
+INSERT INTO `infosys_web2`.`rol_acceso` (`id_rol`, `id_acceso`) VALUES ('1', '109');
+
+
+
+/*****************************************************************************************************/
+
+
+INSERT INTO `infosys_web2`.`pedidos_estados` (`id`, `nombre`) VALUES ('7', 'Pedido por Evaluar');
+
+CREATE TABLE `pedidos_detalle_estados` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`nombre` VARCHAR(50) NOT NULL DEFAULT '0' COLLATE 'latin1_swedish_ci',
+	PRIMARY KEY (`id`) USING BTREE
+)
+COLLATE='latin1_swedish_ci'
+ENGINE=InnoDB
+ROW_FORMAT=COMPACT
+;
+
+INSERT INTO `infosys_web2`.`pedidos_detalle_estados` (`nombre`) VALUES ('Producto Ingresado');
+INSERT INTO `infosys_web2`.`pedidos_detalle_estados` (`nombre`) VALUES ('Producto Requiere Producción');
+INSERT INTO `infosys_web2`.`pedidos_detalle_estados` (`nombre`) VALUES ('Solicitud Producción Realizada');
+INSERT INTO `infosys_web2`.`pedidos_detalle_estados` (`nombre`) VALUES ('Termino Producción Realizada');
+INSERT INTO `infosys_web2`.`pedidos_detalle_estados` (`nombre`) VALUES ('Pedido con Stock Disponible');
+
+
+ALTER TABLE `pedidos_detalle`
+	ADD COLUMN `idestadoproducto` INT(10) NOT NULL DEFAULT '0' AFTER `secuencia`;
+
+CREATE TABLE `pedidos_detalle_log_estados` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`idproductodetalle` INT(11) NOT NULL,
+	`idestado` INT(11) NOT NULL,
+	`fecha` DATETIME NOT NULL,
+	`created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	PRIMARY KEY (`id`) USING BTREE
+)
+COLLATE='latin1_swedish_ci'
+ENGINE=InnoDB
+ROW_FORMAT=COMPACT
+;
+
+
+
+ALTER TABLE `pedidos_detalle`
+	ADD COLUMN `id_formula` INT(11) NOT NULL AFTER `id_bodega`;
+
+ALTER TABLE `formula_pedido`
+	ADD COLUMN `id_detalle_pedido` INT(11) NOT NULL AFTER `id_pedido`;

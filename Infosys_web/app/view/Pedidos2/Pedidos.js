@@ -236,6 +236,25 @@ Ext.define('Infosys_web.view.Pedidos2.Pedidos', {
                                     hidden: true
                                 }
                             ]
+                        },{
+                            xtype: 'fieldcontainer',
+                            height: 20,
+                            width: 462,
+                            fieldLabel: '',
+                            layout: {
+                                type: 'hbox',
+                                align: 'stretch'
+                            },
+                            items: [{
+                                        xtype: 'displayfield',
+                                        itemId : 'estado_cliente',
+                                        fieldLabel : 'Estado Cliente:',
+                                        labelStyle: ' font-weight:bold',
+                                        fieldStyle: '',
+                                        value : '',
+                                        labelWidth: 200,
+                                    }
+                            ]
                         }
                         ,{
                     xtype: 'fieldset',

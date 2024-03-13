@@ -9,6 +9,100 @@ class Pedidos extends CI_Controller {
 		$this->load->database();
 	}
 
+
+
+	public function autoriza_pedido($idpedido){
+
+
+				$this->db->select('id, id_producto, cantidad')
+						 ->from('pedidos_detalle')
+						 ->where('id_pedido',$idpedido);
+
+
+			   $query = $this->db->get();		
+			   $detalle_pedido = $query->result();
+
+			   $cantidad_producto = 0;
+			   $idproducto = 0;
+			   foreach ($detalle_pedido as $detalle) {
+
+					$cantidad_producto = $detalle->cantidad;
+			   		$idproducto = $detalle->id_producto;
+			   
+				   	$this->db->where('id', $idproducto);
+					$producto = $this->db->get("productos");	
+					$producto = $producto->result();
+					$producto = $producto[0];
+
+
+					$existe_stock = true;
+					if($cantidad_producto > $producto->stock){
+						$existe_stock = false;
+					}
+
+					if($existe_stock){
+
+							$estado_nuevo_detalle = 5;
+
+					}else{
+
+							$estado_nuevo_detalle = 2;
+					}
+
+
+
+					$pedidos_detalle_log = array(
+												'idproductodetalle' => $detalle->id,
+												'idestado' => $estado_nuevo_detalle,
+												'fecha' => date('Y-m-d H:i:s')
+											);
+					$this->db->insert('pedidos_detalle_log_estados', $pedidos_detalle_log); 						
+
+
+				
+					$this->db->where('id', $detalle->id);
+					$this->db->update('pedidos_detalle', array('idestadoproducto' => $estado_nuevo_detalle));			
+
+
+
+
+			   }
+
+
+
+
+
+
+
+				
+
+
+
+				/*****************************************************/
+
+
+				$estado_nuevo = 7;
+
+				$pedidos = array(
+			        'idestadopedido' => $estado_nuevo
+					);			
+
+					
+				$this->db->where('id', $idpedido);
+				$this->db->update('pedidos', $pedidos);			
+
+				$pedidos_log = array(
+											'idpedido' => $idpedido,
+											'idestado' => $estado_nuevo,
+											'fecha' => date('Y-m-d H:i:s')
+										);
+				$this->db->insert('pedidos_log_estados', $pedidos_log); 
+		$result['success'] = true;
+		$result['message'] = "Pedido Autorizado";
+		echo json_encode($result);
+			
+	}
+
 	public function eliminapedido(){
 
 		$resp = array();
@@ -1804,6 +1898,7 @@ class Pedidos extends CI_Controller {
         $tipo = $this->input->post('tipo');
         $estado = $this->input->post('estado');
         $tipopedido = $this->input->post('tipopedido');
+        $idestadopedido = $this->input->post('idestadopedido');
 
 
         //var_dump($_POST); exit;
@@ -1824,6 +1919,15 @@ class Pedidos extends CI_Controller {
         	$sql_tipo_pedido = " AND acc.tipopedido = '" . $tipopedido . "' ";
         }
 
+        $sql_estado_pedido = '';
+        if($idestadopedido != ''){
+
+        	$sql_estado_pedido = " AND acc.idestadopedido = '" . $idestadopedido . "' ";
+        }
+
+        //echo '<pre>';
+        //var_dump($_POST);
+       	//var_dump($sql_estado_pedido); exit;
         if($vendedor){
 
         	if($opcion == "Rut"){
@@ -1836,7 +1940,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND c.rut = "'.$nombres.'" ' . $sql_tipo_pedido . ' 
+			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND c.rut = "'.$nombres.'" ' . $sql_tipo_pedido . ' ' . $sql_estado_pedido . '
 			order by acc.id desc');
 
 		    $total = 0;
@@ -1854,7 +1958,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND c.rut = "'.$nombres.'"  ' . $sql_tipo_pedido . 'order by acc.id desc			
+			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND c.rut = "'.$nombres.'"  ' . $sql_tipo_pedido . ' ' . $sql_estado_pedido . ' order by acc.id desc			
 			limit '.$start.', '.$limit.'');
 
 		}else{
@@ -1865,7 +1969,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND c.rut = "'.$nombres.'" and acc.estado = "'.$estado.'" ' . $sql_tipo_pedido . '
+			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND c.rut = "'.$nombres.'" and acc.estado = "'.$estado.'" ' . $sql_tipo_pedido . ' ' . $sql_estado_pedido . ' 
 			order by acc.id desc');
 
 		    $total = 0;
@@ -1883,7 +1987,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND c.rut = "'.$nombres.'" and acc.estado = "'.$estado.'"  ' . $sql_tipo_pedido . '  order by acc.id desc			
+			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND c.rut = "'.$nombres.'" and acc.estado = "'.$estado.'"  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' order by acc.id desc			
 			limit '.$start.', '.$limit.'');
 
 		};
@@ -1905,7 +2009,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND ' . $sql_nombre . '  ' . $sql_tipo_pedido . ' ');
+			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND ' . $sql_nombre . '  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' ');
 
 			$total = 0;
 
@@ -1922,7 +2026,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND ' . $sql_nombre . ' ' . $sql_tipo_pedido . '  order by acc.id desc
+			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND ' . $sql_nombre . ' ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' order by acc.id desc
 			limit '.$start.', '.$limit.'');
 	    		
 
@@ -1943,7 +2047,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND acc.estado = "'.$estado.'" ' . $sql_nombre . '  ' . $sql_tipo_pedido . '
+			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND acc.estado = "'.$estado.'" ' . $sql_nombre . '  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
 			order by acc.id desc'
 						
 			);
@@ -1963,7 +2067,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND acc.estado = "'.$estado.'" ' . $sql_nombre . '  ' . $sql_tipo_pedido . ' order by acc.id desc
+			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND acc.estado = "'.$estado.'" ' . $sql_nombre . '  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' order by acc.id desc
 			limit '.$start.', '.$limit.'');
 
 		    };
@@ -1977,7 +2081,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' ' . $sql_tipo_pedido . '
+			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
 			order by acc.id desc');
 
 			$total = 0;
@@ -1995,7 +2099,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' ' . $sql_tipo_pedido . '
+			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
 			order by acc.id desc
 			limit '.$start.', '.$limit.''	
 			
@@ -2009,7 +2113,7 @@ class Pedidos extends CI_Controller {
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
 			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND (acc.estado = "'.$estado.'" OR acc.estado = 1) 
-			 ' . $sql_tipo_pedido . ' order by acc.id desc');
+			 ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' order by acc.id desc');
 
 			$total = 0;
 
@@ -2026,7 +2130,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND acc.estado = "'.$estado.'"  ' . $sql_tipo_pedido . '
+			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND acc.estado = "'.$estado.'"  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
 			order by acc.id desc
 			limit '.$start.', '.$limit.''	
 			
@@ -2044,7 +2148,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND acc.num_pedido =  "'.$nombres.'" ' . $sql_tipo_pedido . '
+			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND acc.num_pedido =  "'.$nombres.'" ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
 			order by acc.id desc');
 
 			$total = 0;
@@ -2062,7 +2166,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND acc.num_pedido =  "'.$nombres.'"  ' . $sql_tipo_pedido . '
+			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND acc.num_pedido =  "'.$nombres.'"  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
 			order by acc.id desc');
 
 			}else{
@@ -2074,7 +2178,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND acc.num_pedido =  "'.$nombres.'" and acc.estado = "'.$estado.'" ' . $sql_tipo_pedido . '
+			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND acc.num_pedido =  "'.$nombres.'" and acc.estado = "'.$estado.'" ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
 			order by acc.id desc');
 
 			$total = 0;
@@ -2092,7 +2196,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND acc.num_pedido =  "'.$nombres.'" and acc.estado = "'.$estado.'" ' . $sql_tipo_pedido . '
+			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND acc.num_pedido =  "'.$nombres.'" and acc.estado = "'.$estado.'" ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
 			order by acc.id desc');
 				
 			}
@@ -2112,7 +2216,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_bodega='.$bodega.' AND c.rut = "'.$nombres.'"  ' . $sql_tipo_pedido . '
+			WHERE acc.id_bodega='.$bodega.' AND c.rut = "'.$nombres.'"  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
 			order by acc.id desc');
 
 		    $total = 0;
@@ -2130,7 +2234,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_bodega='.$bodega.' AND c.rut = "'.$nombres.'"  ' . $sql_tipo_pedido . ' order by acc.id desc			
+			WHERE acc.id_bodega='.$bodega.' AND c.rut = "'.$nombres.'"  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' order by acc.id desc			
 			limit '.$start.', '.$limit.'');
 
 		}else{
@@ -2141,7 +2245,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_bodega='.$bodega.' AND c.rut = "'.$nombres.'" and acc.estado = "'.$estado.'" ' . $sql_tipo_pedido . '
+			WHERE acc.id_bodega='.$bodega.' AND c.rut = "'.$nombres.'" and acc.estado = "'.$estado.'" ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
 			order by acc.id desc');
 
 		    $total = 0;
@@ -2159,7 +2263,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_bodega='.$bodega.' AND c.rut = "'.$nombres.'" and acc.estado = "'.$estado.'" ' . $sql_tipo_pedido . ' order by acc.id desc			
+			WHERE acc.id_bodega='.$bodega.' AND c.rut = "'.$nombres.'" and acc.estado = "'.$estado.'" ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' order by acc.id desc			
 			limit '.$start.', '.$limit.'');
 
 		};
@@ -2181,7 +2285,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_bodega='.$bodega.' AND ' . $sql_nombre . '  ' . $sql_tipo_pedido . ' ');
+			WHERE acc.id_bodega='.$bodega.' AND ' . $sql_nombre . '  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' ');
 
 			$total = 0;
 
@@ -2198,7 +2302,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_bodega='.$bodega.' AND ' . $sql_nombre . ' ' . $sql_tipo_pedido . ' order by acc.id desc
+			WHERE acc.id_bodega='.$bodega.' AND ' . $sql_nombre . ' ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' order by acc.id desc
 			limit '.$start.', '.$limit.'');
 	    		
 
@@ -2219,7 +2323,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_bodega='.$bodega.' AND acc.estado = "'.$estado.'" ' . $sql_nombre . '  ' . $sql_tipo_pedido . '
+			WHERE acc.id_bodega='.$bodega.' AND acc.estado = "'.$estado.'" ' . $sql_nombre . '  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
 			order by acc.id desc'
 						
 			);
@@ -2239,7 +2343,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_bodega='.$bodega.' AND acc.estado = "'.$estado.'" ' . $sql_nombre . '  ' . $sql_tipo_pedido . 'order by acc.id desc
+			WHERE acc.id_bodega='.$bodega.' AND acc.estado = "'.$estado.'" ' . $sql_nombre . '  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' order by acc.id desc
 			limit '.$start.', '.$limit.'');
 
 		    };
@@ -2253,7 +2357,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_bodega='.$bodega.' ' . $sql_tipo_pedido . '
+			WHERE acc.id_bodega='.$bodega.' ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
 			order by acc.id desc');
 
 			$total = 0;
@@ -2271,7 +2375,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_bodega='.$bodega.' ' . $sql_tipo_pedido . '
+			WHERE acc.id_bodega='.$bodega.' ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
 			order by acc.id desc
 			limit '.$start.', '.$limit.''	
 			
@@ -2284,7 +2388,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_bodega='.$bodega.' AND (acc.estado = "'.$estado.'" or acc.estado = 1 )  ' . $sql_tipo_pedido . '
+			WHERE acc.id_bodega='.$bodega.' AND (acc.estado = "'.$estado.'" or acc.estado = 1 )  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
 			order by acc.id desc');
 
 			$total = 0;
@@ -2302,7 +2406,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_bodega='.$bodega.' AND (acc.estado = "'.$estado.'" or acc.estado = 1 )  ' . $sql_tipo_pedido . '
+			WHERE acc.id_bodega='.$bodega.' AND (acc.estado = "'.$estado.'" or acc.estado = 1 )  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
 			order by acc.id desc
 			limit '.$start.', '.$limit.''	
 			
@@ -2320,7 +2424,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_bodega='.$bodega.' AND acc.num_pedido =  "'.$nombres.'" ' . $sql_tipo_pedido . '
+			WHERE acc.id_bodega='.$bodega.' AND acc.num_pedido =  "'.$nombres.'" ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
 			order by acc.id desc');
 
 			$total = 0;
@@ -2338,7 +2442,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_bodega='.$bodega.' AND acc.num_pedido =  "'.$nombres.'"  ' . $sql_tipo_pedido . '
+			WHERE acc.id_bodega='.$bodega.' AND acc.num_pedido =  "'.$nombres.'"  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
 			order by acc.id desc');
 
 			}else{
@@ -2350,7 +2454,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_bodega='.$bodega.' AND acc.num_pedido =  "'.$nombres.'" and acc.estado = "'.$estado.'" ' . $sql_tipo_pedido . '
+			WHERE acc.id_bodega='.$bodega.' AND acc.num_pedido =  "'.$nombres.'" and acc.estado = "'.$estado.'" ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
 			order by acc.id desc');
 
 			$total = 0;
@@ -2368,7 +2472,7 @@ class Pedidos extends CI_Controller {
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_bodega='.$bodega.' AND acc.num_pedido =  "'.$nombres.'" and acc.estado = "'.$estado.'" ' . $sql_tipo_pedido . '
+			WHERE acc.id_bodega='.$bodega.' AND acc.num_pedido =  "'.$nombres.'" and acc.estado = "'.$estado.'" ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
 			order by acc.id desc');
 				
 			}

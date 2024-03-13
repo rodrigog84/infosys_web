@@ -38,7 +38,8 @@ Ext.define('Infosys_web.controller.Pedidos', {
             'Pedidos.Exportar2',
             'Pedidos.Facturas',
             'Pedidos.EstadoPedido',
-            'Pedidos.Elimina'
+            'Pedidos.Elimina',
+            'Pedidos.Autoriza'
             ],
 
     //referencias, es un alias interno para el controller
@@ -47,6 +48,12 @@ Ext.define('Infosys_web.controller.Pedidos', {
     refs: [{    
        ref: 'pedidosprincipal',
         selector: 'pedidosprincipal'
+    },{    
+       ref: 'pedidosautorizaprincipal',
+        selector: 'pedidosautorizaprincipal'
+    },{    
+       ref: 'autorizapedido',
+        selector: 'autorizapedido'
     },{    
         ref: 'pedidosingresar',
         selector: 'pedidosingresar'
@@ -105,6 +112,9 @@ Ext.define('Infosys_web.controller.Pedidos', {
             'topmenus menuitem[action=mPedidos]': {
                 click: this.mPedidos
             },
+            'topmenus menuitem[action=mAutorizaPedidos]': {
+                click: this.mAutorizaPedidos
+            },            
             'topmenus menuitem[action=mInforme]': {
                 click: this.exportarlibrorecaudacion
             },            
@@ -242,6 +252,17 @@ Ext.define('Infosys_web.controller.Pedidos', {
             'pedidosprincipal #bodegaId': {
                 select: this.despliegadocumentos
             },
+            'pedidosautorizaprincipal #bodegaId': {
+                select: this.despliegadocumentosautoriza
+            },  
+
+            'pedidosautorizaprincipal' : {
+                autorizaPedido: this.autorizaPedido
+            },   
+
+            'autorizapedido' : {
+                autorizaPedido: this.autorizaPedido2
+            },                                      
             'buscarformulas button[action=seleccionarformula]': {
                 click: this.seleccionarformula
             },
@@ -429,6 +450,61 @@ Ext.define('Infosys_web.controller.Pedidos', {
         var st = this.getPedidosStore();
         st.proxy.extraParams = {documento: idtipo,
                                 idbodega: idbodega }
+        st.load();       
+    },
+
+
+
+
+    autorizaPedido: function(r,t){   
+        Ext.create('Infosys_web.view.pedidos.autorizaPedido', {data: r.data});     
+
+    },
+
+
+    autorizaPedido2: function(idpedido){   
+        console.log('llega')
+        console.log(idpedido)
+
+
+        Ext.Ajax.request({
+            url: preurl + 'pedidos/autoriza_pedido/' + idpedido,
+            async: false,
+            success: function(response){
+                Ext.Msg.alert('Atención', 'Pedido Autorizado');          
+
+            }
+           
+        });
+
+
+
+        var view = this.getPedidosautorizaprincipal();
+        var idbodega = view.down('#bodegaId').getValue();
+        var idtipo = 1;
+        var st = this.getPedidosStore();
+        st.proxy.extraParams = {documento: idtipo,
+                                idbodega: idbodega,
+                                idestadopedido : 6 }
+        st.load();       
+
+
+        var view2 = this.getAutorizapedido();
+        view2.close()
+
+    },
+
+
+
+    despliegadocumentosautoriza: function(){
+
+        var view = this.getPedidosautorizaprincipal();
+        var idbodega = view.down('#bodegaId').getValue();
+        var idtipo = 1;
+        var st = this.getPedidosStore();
+        st.proxy.extraParams = {documento: idtipo,
+                                idbodega: idbodega,
+                                idestadopedido : 6 }
         st.load();       
     },
 
@@ -1902,8 +1978,18 @@ Ext.define('Infosys_web.controller.Pedidos', {
         var viewport = this.getPanelprincipal();
         viewport.removeAll();
         viewport.add({xtype: 'pedidosprincipal'});
+        var st = this.getPedidosStore();
+        st.removeAll();
     },
 
+
+    mAutorizaPedidos: function(){       
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'pedidosautorizaprincipal'});
+        var st = this.getPedidosStore();
+        st.removeAll();        
+    },
     
     buscarpedidos: function(){
         
