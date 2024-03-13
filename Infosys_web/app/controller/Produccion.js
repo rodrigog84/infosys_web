@@ -13,6 +13,7 @@ Ext.define('Infosys_web.controller.Produccion', {
 
     stores: ['Pedidos',
              'Produccion',
+             'Produccionprod',
              'PedidosProduccion',
              'PedidosFormula',
              'Valida',
@@ -26,6 +27,7 @@ Ext.define('Infosys_web.controller.Produccion', {
              ],
     
     views: ['Produccion.Principal',
+            'Produccion.Principalprod',
             'Produccion.Produccion',
             'Produccion.BuscarPedidos',
             'Produccion.ValidaStock',
@@ -43,6 +45,9 @@ Ext.define('Infosys_web.controller.Produccion', {
     refs: [{    
        ref: 'produccionprincipal',
         selector: 'produccionprincipal'
+    },{    
+       ref: 'produccionprincipalprod',
+        selector: 'produccionprincipalprod'
     },{
         ref: 'topmenus',
         selector: 'topmenus'
@@ -94,6 +99,9 @@ Ext.define('Infosys_web.controller.Produccion', {
             'topmenus menuitem[action=mProduccion]': {
                 click: this.mProduccion
             },
+            'topmenus menuitem[action=mProduccionprod]': {
+                click: this.mProduccionprod
+            },            
             'produccionprincipal button[action=cerrarproduccion]': {
                 click: this.cerrarproduccion
             },
@@ -1684,6 +1692,12 @@ Ext.define('Infosys_web.controller.Produccion', {
         viewport.add({xtype: 'produccionprincipal'});
     },
 
+
+    mProduccionprod: function(){       
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'produccionprincipalprod'});
+    },
     
     cerrarproduccion: function(){
         var viewport = this.getPanelprincipal();

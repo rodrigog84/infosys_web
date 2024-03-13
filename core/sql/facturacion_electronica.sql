@@ -655,3 +655,12 @@ ALTER TABLE `pedidos_detalle`
 
 ALTER TABLE `formula_pedido`
 	ADD COLUMN `id_detalle_pedido` INT(11) NOT NULL AFTER `id_pedido`;
+
+
+/****************************************************************************************************/
+
+
+INSERT INTO `accesos` (`id`, `codigo`, `reg_estado`, `descripcion`) VALUES (110, 'pro_md_reproprod', 1, 'Produccion -> Movimiento Diario -> Registro Produccion Productos');
+INSERT INTO `infosys_web2`.`rol_acceso` (`id_rol`, `id_acceso`) VALUES ('1', '110');
+
+

@@ -417,6 +417,12 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                         disabled: true,
                         action: 'mProduccion'
                         },{
+                        text: 'Registro Produccion Productos (En construcción)',
+                        iconCls: '',
+                        itemId: 'pro_md_reproprod',
+                        disabled: true,
+                        action: 'mProduccionprod'
+                        },{
                         text: 'Genera Pedidos',
                         iconCls: '',
                         itemId: 'pro_md_pedidos',
