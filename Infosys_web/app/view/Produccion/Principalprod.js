@@ -112,13 +112,8 @@ Ext.define('Infosys_web.view.Produccion.Principalprod' ,{
             items: [{
                 xtype: 'button',
                 iconCls: 'icon-add',
-                action: 'generaproduccion',
-                text : 'Genera Produccion'
-            },{
-                xtype: 'button',
-                iconCls: 'icon-add',
-                action: 'generaproduccionformula',
-                text : 'Produccion Formula'
+                action: 'solicitaproduccionformula',
+                text : 'Solicita Produccion Formula'
             },{
                 xtype: 'button',
                 iconCls: 'icon-add',

@@ -39,6 +39,7 @@ Ext.define('Infosys_web.controller.Produccion', {
             'Produccion.BuscarProductos2',
             'Produccion.detalle_stock2',
             'Produccion.ProduccionFormula',
+            'Produccion.Solicitaproduccion',
             'Produccion.BuscarPedidos2'
             ],
    
@@ -114,6 +115,9 @@ Ext.define('Infosys_web.controller.Produccion', {
             'produccionprincipal button[action=generaproduccionformula]': {
                 click: this.generaproduccionformula
             },
+            'produccionprincipalprod button[action=solicitaproduccionformula]': {
+                click: this.solicitaproduccionformula
+            },            
             'produccionprincipal button[action=buscarpedidoprincipal]': {
                 click: this.buscarpedidoprincipal
             },
@@ -1685,6 +1689,38 @@ Ext.define('Infosys_web.controller.Produccion', {
          
        
     },
+
+
+ solicitaproduccionformula: function(){
+
+         var viewIngresa = this.getProduccionprincipal();
+         var nombre = "23";    
+         Ext.Ajax.request({
+
+            url: preurl + 'correlativos/genera?valida='+nombre,
+            params: {
+                id: 1
+            },
+            success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+
+                if (resp.success == true) {
+                    var view = Ext.create('Infosys_web.view.Produccion.Solicitaproduccion').show();                   
+                    var cliente = resp.cliente;
+                    var correlanue = cliente.correlativo;
+                    correlanue = (parseInt(correlanue)+1);
+                    var correlanue = correlanue;
+                    view.down("#ticketId").setValue(correlanue);
+                }else{
+                    Ext.Msg.alert('Correlativo YA Existe');
+                    return;
+                }
+            }            
+        });
+        
+         
+       
+    },    
     
     mProduccion: function(){       
         var viewport = this.getPanelprincipal();
