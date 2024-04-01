@@ -9,7 +9,7 @@ Ext.define('Infosys_web.store.Produccionprod', {
 
         api: {
             //create: preurl + 'productos/save', 
-            read: preurl + 'produccion/getAll',
+            read: preurl + 'produccion/getAllProd',
             //update: preurl + 'productos/update'
             //destroy: 'php/deletaContacto.php'
         },

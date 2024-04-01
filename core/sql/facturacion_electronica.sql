@@ -664,3 +664,30 @@ INSERT INTO `accesos` (`id`, `codigo`, `reg_estado`, `descripcion`) VALUES (110,
 INSERT INTO `infosys_web2`.`rol_acceso` (`id_rol`, `id_acceso`) VALUES ('1', '110');
 
 
+
+/***********************************************************************************************************/
+
+CREATE TABLE `produccion_detalle_pedidos` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`id_produccion` INT(11) NOT NULL DEFAULT '0',
+	`id_cliente` INT(11) NOT NULL,
+	`id_pedido` INT(11) NOT NULL,
+	`id_detalle_pedido` INT(11) NOT NULL,
+	`nom_producto` VARCHAR(100) NOT NULL COLLATE 'latin1_swedish_ci',
+	`id_producto` INT(11) NOT NULL,
+	`cantidad` DECIMAL(20,2) NOT NULL,
+	`cantidad_prod` DECIMAL(10,2) NOT NULL,
+	`cant_real` DECIMAL(10,2) NOT NULL,
+	`valor_prod` DECIMAL(10,2) NOT NULL,
+	PRIMARY KEY (`id`) USING BTREE
+)
+COLLATE='latin1_swedish_ci'
+ENGINE=InnoDB
+ROW_FORMAT=COMPACT
+;
+
+
+INSERT INTO `pedidos_estados` (`id`, `nombre`) VALUES ('8', 'Pedido Finalizado');
+
+UPDATE `infosys_web2`.`pedidos_detalle_estados` SET `nombre`='Producto con Stock Disponible' WHERE  `id`=5;
+

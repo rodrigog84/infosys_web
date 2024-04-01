@@ -66,6 +66,123 @@ class Produccion extends CI_Controller {
 
 	}
 
+
+	public function getFormulasporproducir(){
+		
+		$query = $this->db->query("SELECT 		DISTINCT 
+													f.id
+													,f.nombre_formula
+													,f.cantidad
+									FROM 			pedidos_detalle d
+									INNER JOIN	formula f ON d.id_formula =  f.id
+									WHERE 		d.idestadoproducto = 2");
+
+
+		$data = array();
+		if(count($query->result()) > 0){
+			foreach ($query->result() as $row)
+			{
+				$row->texto = $row->nombre_formula . ' | ' . $row->cantidad;
+				$data[] = $row;
+			}
+			
+		}else{
+			$data[] = array('id' => '','nombre_formula' => '','cantidad' => 0,'texto' => '');
+		}
+
+        $resp['success'] = true;
+        //$resp['total'] = $countAll;
+        $resp['data'] = $data;
+
+        echo json_encode($resp);
+	}	
+
+
+
+
+	public function getProductosFormulabyiddetalle(){
+		
+
+
+		$iddetallelinea = $this->input->post('iddetallelinea');
+		$sql_formula = $iddetallelinea != '' ? " and d.id_detalle_pedido = '" . $iddetallelinea . "'": "and 3=4";
+	
+		$query = $this->db->query("SELECT 			d.id_producto
+													,pro.codigo
+													,pro.nombre as nombre_producto
+													,d.id_bodega
+													,d.valor_compra
+													,d.cantidad
+													,d.valor_produccion
+													,d.porcentaje
+									FROM 			formula_pedido d
+									INNER JOIN 	pedidos p ON d.id_pedido = p.id
+									INNER JOIN 	productos pro ON d.id_producto = pro.id
+									WHERE 		1 = 1
+									" . $sql_formula );
+
+
+		$data = array();
+		if(count($query->result()) > 0){
+			foreach ($query->result() as $row)
+			{
+				$data[] = $row;
+			}
+			
+		}else{
+			$data[] = array('id_producto' => '','codigo' => '','nombre_producto' => '','id_bodega' =>  0,'valor_compra' =>  '','cantidad' => '','valor_produccion' => '','porcentaje' => 0);
+		}
+
+        $resp['success'] = true;
+        //$resp['total'] = $countAll;
+        $resp['data'] = $data;
+
+        echo json_encode($resp);
+	}	
+
+
+
+	public function getPedidosFormula(){
+		
+
+
+		$idformula = $this->input->post('idformula');
+		$iddetalle = $this->input->post('iddetalle');
+		$sql_formula = $idformula != '' ? " and d.id_formula = '" . $idformula . "'": "and 3=4";
+		$sql_detalle = $iddetalle != '' ? " and d.id = '" . $iddetalle . "'": "";
+
+		$query = $this->db->query("SELECT 			d.id
+													,pro.codigo
+													,pro.nombre as producto
+													,d.num_pedido
+													,p.nombre_cliente
+									FROM 			pedidos_detalle d
+									INNER JOIN 	pedidos p ON d.id_pedido = p.id
+									INNER JOIN 	productos pro ON d.id_producto = pro.id
+									WHERE 		d.idestadoproducto = 2
+									" . $sql_formula . " " . $sql_detalle);
+
+
+		$data = array();
+		if(count($query->result()) > 0){
+			foreach ($query->result() as $row)
+			{
+				$row->texto = $row->codigo . ' | ' . $row->producto . ' | # PEDIDO: ' . $row->num_pedido . ' | ' . $row->nombre_cliente;
+				$data[] = $row;
+			}
+			
+		}else{
+			$data[] = array('id' => '','codigo' => '','producto' => '','num_pedido' =>  0,'cliente' =>  '','texto' => '');
+		}
+
+        $resp['success'] = true;
+        //$resp['total'] = $countAll;
+        $resp['data'] = $data;
+
+        echo json_encode($resp);
+	}	
+
+
 	public function enviarMail(){
 		
 		$resp = array();
@@ -238,6 +355,301 @@ class Produccion extends CI_Controller {
         echo json_encode($resp);		
 
 	}
+
+
+	public function termino2(){
+
+	   $resp = array();
+	   $idproduccion = $this->input->get('idproduccion');
+	  
+	   $query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, p.fecha_pedido as fecha_pedido, p.num_pedido as num_pedido, pr.diasvencimiento as dias FROM produccion acc
+		left join clientes c on (acc.id_cliente = c.id)
+		left join pedidos p on (acc.id_pedido = p.id)
+		left join productos pr on (acc.id_producto = pr.id)
+		WHERE acc.id = "'.$idproduccion.'"');
+
+		foreach ($query->result() as $row){
+			$rutautoriza = $row->rut_cliente;
+		   	if (strlen($rutautoriza) == 8){
+		      $ruta1 = substr($rutautoriza, -1);
+		      $ruta2 = substr($rutautoriza, -4, 3);
+		      $ruta3 = substr($rutautoriza, -7, 3);
+		      $ruta4 = substr($rutautoriza, -8, 1);
+		      $row->rut_cliente = ($ruta4.".".$ruta3.".".$ruta2."-".$ruta1);
+		    };
+		    if (strlen($rutautoriza) == 9){
+		      $ruta1 = substr($rutautoriza, -1);
+		      $ruta2 = substr($rutautoriza, -4, 3);
+		      $ruta3 = substr($rutautoriza, -7, 3);
+		      $ruta4 = substr($rutautoriza, -9, 2);
+		      $row->rut_cliente = ($ruta4.".".$ruta3.".".$ruta2."-".$ruta1);
+		   
+		    };
+
+		     if (strlen($rutautoriza) == 2){
+		      $ruta1 = substr($rutautoriza, -1);
+		      $ruta2 = substr($rutautoriza, -4, 1);
+		      $row->rut_cliente = ($ruta2."-".$ruta1);
+		     
+		    };
+
+		   if (strlen($rutautoriza) == 7){
+		      $ruta1 = substr($rutautoriza, -1);
+		      $ruta2 = substr($rutautoriza, -4, 3);
+		      $ruta3 = substr($rutautoriza, -7, 3);
+		      $row->rut_cliente = ($ruta3.".".$ruta2."-".$ruta1);
+		     
+		    };
+		    if (strlen($rutautoriza) == 4){
+		      $ruta1 = substr($rutautoriza, -1);
+		      $ruta2 = substr($rutautoriza, -4, 3);
+		      $row->rut_cliente = ($ruta2."-".$ruta1);
+		     
+		    };
+		    if (strlen($rutautoriza) == 6){
+		      $ruta1 = substr($rutautoriza, -1);
+		      $ruta2 = substr($rutautoriza, -4, 3);
+		      $ruta3 = substr($rutautoriza, -6, 2);
+		      $row->rut_cliente = ($ruta3.".".$ruta2."-".$ruta1);
+		     
+		    };		    
+			
+		}
+
+        $resp['success'] = true;
+        $resp['cliente'] = $row;
+
+        echo json_encode($resp);		
+
+	}
+
+
+
+
+	public function getAllProd(){
+		
+		$resp = array();
+		$idBodega=1;
+
+		$tipo = $this->input->get('tipo');
+		$nombres = $this->input->get('nombre');
+
+        $start = $this->input->get('start');
+        $limit = $this->input->get('limit');
+
+       
+        if(!$tipo){
+        	$tipo="Todos";
+        };
+                		
+        $data = array();
+        
+        if ($tipo=="Nombre"){
+
+    	$sql_nombre = "";
+        $arrayNombre =  explode(" ",$nombres);
+
+        foreach ($arrayNombre as $nombre) {
+        	$sql_nombre .= "c.nombres like '%".$nombre."%' and ";
+        }        
+
+		$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, p.fecha_pedido as fecha_pedido FROM produccion acc
+		left join clientes c on (acc.id_cliente = c.id)
+		left join pedidos p on (acc.id_pedido = p.id)
+		WHERE ' . $sql_nombre . ' 1 = 1');
+
+			$total = 0;
+
+		  foreach ($query->result() as $row)
+
+
+		    
+			{
+				$total = $total +1;
+			
+			}
+
+			$countAll = $total;
+			
+
+
+		        	
+        };
+
+        if ($tipo=="Rut"){        
+        		
+		$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, p.fecha_pedido as fecha_pedido FROM produccion acc
+		left join clientes c on (acc.id_cliente = c.id)
+		left join pedidos p on (acc.id_pedido = p.id)
+		WHERE c.rut = "'.$nombres.'" ');
+
+			$total = 0;
+
+		  foreach ($query->result() as $row)
+
+
+		    
+			{
+				$total = $total +1;
+			
+			}
+
+			$countAll = $total;
+			
+
+	    };
+
+	    if ($tipo=="Numero"){        
+        		
+		$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, p.fecha_pedido as fecha_pedido FROM produccion acc
+		left join clientes c on (acc.id_cliente = c.id)
+		left join pedidos p on (acc.id_pedido = p.id)
+		WHERE acc.num_produccion = "'.$nombres.'" ');
+
+			$total = 0;
+
+		  foreach ($query->result() as $row)
+
+
+		    
+			{
+				$total = $total +1;
+			
+			}
+
+			$countAll = $total;
+			
+
+	    };
+
+	    if ($tipo=="Producto"){ 
+	    
+	    $sql_nombre = "";
+        $arrayNombre =  explode(" ",$nombres);
+
+        foreach ($arrayNombre as $nombre) {
+        	$sql_nombre .= "acc.nom_producto like '%".$nombre."%' and ";
+        }           
+        		
+		$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, p.fecha_pedido as fecha_pedido FROM produccion acc
+		left join clientes c on (acc.id_cliente = c.id)
+		left join pedidos p on (acc.id_pedido = p.id)
+		WHERE ' . $sql_nombre . ' 1 = 1');
+
+			$total = 0;
+
+		  foreach ($query->result() as $row)
+
+
+		    
+			{
+				$total = $total +1;
+			
+			}
+
+			$countAll = $total;
+			
+
+	    };
+
+	    if ($tipo=="Todos"){ 
+
+	    
+		$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, p.fecha_pedido as fecha_pedido FROM produccion acc
+		left join clientes c on (acc.id_cliente = c.id)
+		left join pedidos p on (acc.id_pedido = p.id)
+		order by acc.num_produccion desc');
+
+		
+			$total = 0;
+
+		  foreach ($query->result() as $row)
+
+
+		    
+			{
+				$total = $total +1;
+			
+			}
+
+			$countAll = $total;
+			
+
+		
+
+		$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, p.fecha_pedido as fecha_pedido FROM produccion acc
+		left join clientes c on (acc.id_cliente = c.id)
+		left join pedidos p on (acc.id_pedido = p.id)
+		order by acc.num_produccion desc 
+		limit '.$start.', '.$limit.'
+            '
+			);
+
+		
+	    };
+
+	   
+
+		foreach ($query->result() as $row){
+			
+			$rutautoriza = $row->rut_cliente;
+		   	if (strlen($rutautoriza) == 8){
+		      $ruta1 = substr($rutautoriza, -1);
+		      $ruta2 = substr($rutautoriza, -4, 3);
+		      $ruta3 = substr($rutautoriza, -7, 3);
+		      $ruta4 = substr($rutautoriza, -8, 1);
+		      $row->rut_cliente = ($ruta4.".".$ruta3.".".$ruta2."-".$ruta1);
+		    };
+		    if (strlen($rutautoriza) == 9){
+		      $ruta1 = substr($rutautoriza, -1);
+		      $ruta2 = substr($rutautoriza, -4, 3);
+		      $ruta3 = substr($rutautoriza, -7, 3);
+		      $ruta4 = substr($rutautoriza, -9, 2);
+		      $row->rut_cliente = ($ruta4.".".$ruta3.".".$ruta2."-".$ruta1);
+		   
+		    };
+
+		     if (strlen($rutautoriza) == 2){
+		      $ruta1 = substr($rutautoriza, -1);
+		      $ruta2 = substr($rutautoriza, -4, 1);
+		      $row->rut_cliente = ($ruta2."-".$ruta1);
+		     
+		    };
+
+		   if (strlen($rutautoriza) == 7){
+		      $ruta1 = substr($rutautoriza, -1);
+		      $ruta2 = substr($rutautoriza, -4, 3);
+		      $ruta3 = substr($rutautoriza, -7, 3);
+		      $row->rut_cliente = ($ruta3.".".$ruta2."-".$ruta1);
+		     
+		    };
+		    
+		    
+		    if (strlen($rutautoriza) == 4){
+		      $ruta1 = substr($rutautoriza, -1);
+		      $ruta2 = substr($rutautoriza, -4, 3);
+		      $row->rut_cliente = ($ruta2."-".$ruta1);
+		     
+		    };	
+
+
+		     if (strlen($rutautoriza) == 6){
+		      $ruta1 = substr($rutautoriza, -1);
+		      $ruta2 = substr($rutautoriza, -4, 3);
+		      $ruta3 = substr($rutautoriza, -6, 2);
+		      $row->rut_cliente = ($ruta3.".".$ruta2."-".$ruta1);
+		     
+		    };		    
+			$data[] = $row;
+		}
+
+        $resp['success'] = true;
+        $resp['total'] = $countAll;
+        $resp['data'] = $data;
+
+        echo json_encode($resp);
+	}
+
 
 	public function getAll(){
 		
@@ -533,6 +945,145 @@ class Produccion extends CI_Controller {
 
         echo json_encode($resp);
 	}
+
+
+
+	public function savesolicita(){
+		
+
+		//var_dump($_POST); exit;
+		//exit;
+		$resp = array();
+		$numproduccion = $this->input->post('numproduccion');
+		$fechaproduccion = $this->input->post('fechaproduccion');
+		$idformula = $this->input->post('idformula');
+		$lote = $this->input->post('lote');
+		$items = json_decode($this->input->post('items'));
+		$productos = json_decode($this->input->post('productos'));	
+		$horainicio = $this->input->post('horainicio');
+		$encargado = $this->input->post('encargado');
+					
+
+        $this->db->select('id, nombre_formula')
+          ->from('formula')
+          ->where('id',$idformula);
+        $query = $this->db->get();
+        $data_formula = $query->row();
+
+
+        $nombreformula = $data_formula->nombre_formula;
+
+
+
+		$produccion = array(
+	        'id_pedido' => 0,
+	        'id_formula_pedido' => $idformula,
+	        'id_cliente' => 0,
+	        'num_produccion' => $numproduccion,
+	        'fecha_produccion' => $fechaproduccion,
+	        'nom_formula' => $nombreformula,
+	        'nom_producto' => '',
+	        'id_producto' => 0,
+	        'cantidad' => 0,
+	        'lote' => $lote,
+	        'hora_inicio' => $horainicio,
+	        'encargado' => $encargado,
+	        'estado' => 4
+		);
+
+
+
+
+
+
+		$this->db->insert('produccion', $produccion); 
+		$idproduccion = $this->db->insert_id();
+
+
+		$cantidad_total = 0;
+		foreach($productos as $p){
+
+
+
+	        $this->db->select('d.id, d.id_pedido, d.id_producto, p.id_cliente, prod.nombre as nomproducto, d.cantidad')
+	          ->from('pedidos_detalle d')
+	          ->join('pedidos p','d.id_pedido = p.id')
+	          ->join('productos prod','d.id_producto = prod.id')
+	          ->where('d.id',$p->id);
+	        $query = $this->db->get();
+	        $data_detalle_pedido = $query->row();			
+
+
+			$produccion_detalle_pedidos = array(
+				'id_produccion' => $idproduccion,
+				'id_cliente' => $data_detalle_pedido->id_cliente,
+		        'id_pedido' => $data_detalle_pedido->id_pedido,
+		        'id_detalle_pedido' => $data_detalle_pedido->id,
+		        'nom_producto' => $data_detalle_pedido->nomproducto,
+		        'id_producto' => $data_detalle_pedido->id_producto,
+		        'cantidad' =>  $data_detalle_pedido->cantidad,
+		        'cantidad_prod' => 0,
+		        'cant_real' => 0,
+		        'valor_prod' => 0
+			);
+
+			$cantidad_total += $data_detalle_pedido->cantidad;
+			$this->db->insert('produccion_detalle_pedidos', $produccion_detalle_pedidos); 
+			$iddetallepedidos = $this->db->insert_id();
+
+
+
+			$pedidos_detalle_log = array(
+										'idproductodetalle' => $data_detalle_pedido->id,
+										'idestado' => 3,
+										'fecha' => date('Y-m-d H:i:s')
+									);
+			$this->db->insert('pedidos_detalle_log_estados', $pedidos_detalle_log); 	
+
+				
+			$this->db->where('id', $data_detalle_pedido->id);
+			$this->db->update('pedidos_detalle', array('idestadoproducto' => 3));					
+
+
+				
+				
+
+
+		}
+
+
+		$this->db->where('id', $idproduccion);
+		$this->db->update('produccion', array('cantidad' => $cantidad_total));	
+
+
+		foreach($items as $v){
+			$produccion_detalle = array(
+		        'id_produccion' => $idproduccion,
+		        'id_producto' => $v->id_producto,
+		        'nom_producto' => $v->nombre_producto,
+		        'valor_compra' => $v->valor_compra,
+		        'cantidad' => $v->cantidad,
+		        //'cantidad_real' => 0,
+		        'valor_produccion' => $v->valor_produccion,
+		        'porcentaje' => $v->porcentaje
+			);
+
+		
+		$this->db->insert('produccion_detalle', $produccion_detalle);
+	   	
+		};
+
+
+        $resp['idproduccion'] = $idproduccion;		
+        $resp['success'] = true;
+       
+		$this->Bitacora->logger("I", 'produccion', $idproduccion);
+		$this->Bitacora->logger("I", 'produccion_detalle', $idproduccion);        
+
+        echo json_encode($resp);
+	}
+
+
 
 	public function save4(){
 		
@@ -834,6 +1385,339 @@ class Produccion extends CI_Controller {
 
         echo json_encode($resp);
 	}
+
+
+
+
+	public function save5(){
+
+		/*
+
+		array(11) {
+		  ["fechaproduccion"]=>
+		  string(10) "2024-03-26"
+		  ["cantidadproduccion"]=>
+		  string(8) "12312321"
+		  ["cantidadproduccioncal"]=>
+		  string(5) "14997"
+		  ["idbodega"]=>
+		  string(1) "1"
+		  ["numproduccion"]=>
+		  string(4) "8893"
+		  ["idproduccion"]=>
+		  string(4) "7752"
+		  ["lote"]=>
+		  string(1) "2"
+		  ["fechavenc"]=>
+		  string(0) ""
+		  ["horatermino"]=>
+		  string(5) "02:00"
+		  ["horainicio"]=>
+		  string(0) ""
+		  ["items"]=>
+		  string(2476) "[{"id":1,"id_producto":"480","id_existencia":"0","id_tipom":"","id_tipomd":"","id_bodegaent":"","cantidad":3705,"cantidad_real":3705,"id_bodega":1,"precio":"","valor_compra":227.74,"valor":"","codigo":"30102002","nom_producto":"AFRECHILLO M. PRIMA","lote":"","fecha":null,"fecha_vencimiento":"2024-03-26T00:00:00"},{"id":2,"id_producto":"841","id_existencia":"0","id_tipom":"","id_tipomd":"","id_bodegaent":"","cantidad":1923,"cantidad_real":1923,"id_bodega":1,"precio":"","valor_compra":103.87,"valor":"","codigo":"30102452","nom_producto":"GRANZA DE TRIGO","lote":"","fecha":null,"fecha_vencimiento":"2024-03-26T00:00:00"},{"id":3,"id_producto":"483","id_existencia":"0","id_tipom":"","id_tipomd":"","id_bodegaent":"","cantidad":712,"cantidad_real":712,"id_bodega":1,"precio":"","valor_compra":188.4,"valor":"","codigo":"30102023","nom_producto":"AVENA M. PRIMA","lote":"","fecha":null,"fecha_vencimiento":"2024-03-26T00:00:00"},{"id":4,"id_producto":"482","id_existencia":"0","id_tipom":"","id_tipomd":"","id_bodegaent":"","cantidad":7267,"cantidad_real":7267,"id_bodega":1,"precio":"","valor_compra":632.34,"valor":"","codigo":"30102008","nom_producto":"MAIZ M.PRIMA","lote":"","fecha":null,"fecha_vencimiento":"2024-03-26T00:00:00"},{"id":5,"id_producto":"501","id_existencia":"0","id_tipom":"","id_tipomd":"","id_bodegaent":"","cantidad":150,"cantidad_real":150,"id_bodega":1,"precio":"","valor_compra":651.91,"valor":"","codigo":"30102300","nom_producto":"ACIDBUF MAT. PRIMA","lote":"","fecha":null,"fecha_vencimiento":"2024-03-26T00:00:00"},{"id":6,"id_producto":"1050","id_existencia":"0","id_tipom":"","id_tipomd":"","id_bodegaent":"","cantidad":600,"cantidad_real":600,"id_bodega":1,"precio":"","valor_compra":502,"valor":"","codigo":"30102482","nom_producto":"INTELISAL LIRCAY","lote":"","fecha":null,"fecha_vencimiento":"2024-03-26T00:00:00"},{"id":7,"id_producto":"1084","id_existencia":"0","id_tipom":"","id_tipomd":"","id_bodegaent":"","cantidad":19,"cantidad_real":19,"id_bodega":1,"precio":"","valor_compra":8506,"valor":"","codigo":"30102492","nom_producto":"MAXFIBER MP","lote":"","fecha":null,"fecha_vencimiento":"2024-03-26T00:00:00"},{"id":8,"id_producto":"972","id_existencia":"0","id_tipom":"","id_tipomd":"","id_bodegaent":"","cantidad":621,"cantidad_real":621,"id_bodega":1,"precio":"","valor_compra":105.59,"valor":"","codigo":"30102471","nom_producto":"NUTRACHIC PROTEINA- VINAZA","lote":"","fecha":null,"fecha_vencimiento":"2024-03-26T00:00:00"}]"
+		}	
+
+		*/
+		//var_dump($_POST); exit;
+		
+		$resp = array();
+		$fechaproduccion = $this->input->post('fechaproduccion');
+		$fechavenc = $this->input->post('fechavenc');
+		$numproduccion = $this->input->post('numproduccion');
+		$cantidadproduccion = $this->input->post('cantidadproduccion');
+		$cantidadproduccioncal = $this->input->post('cantidadproduccioncal');
+		$idproduccion = $this->input->post('idproduccion');
+		$idbodega = $this->input->post('idbodega');
+		$lote = $this->input->post('lote');
+		$items = json_decode($this->input->post('items'));
+		$horatermino = $this->input->post('horatermino');
+		$horainicio = $this->input->post('horainicio');
+		$cero=0;
+
+
+		$query = $this->db->query('DELETE FROM produccion_detalle WHERE id_produccion = "'.$idproduccion.'" ');
+		
+		$valorprod = 0;
+		$cant_prod = 0;
+		$valorprodMP = 0;	
+		foreach($items as $v){
+			$valorprodMP = ($v->valor_compra*$v->cantidad_real);
+			$valorprod = ($valorprod+$valorprodMP);
+			$cant_prod = ($cant_prod + $v->cantidad_real);
+			if(!$v->lote){
+				$lote1=0;
+			}else{
+				$lote1=$v->lote;
+			}
+
+
+			//{"id":1,"id_producto":"480","id_existencia":"0","id_tipom":"","id_tipomd":"","id_bodegaent":"","cantidad":3705,"cantidad_real":3705,"id_bodega":1,"precio":"","valor_compra":227.74,"valor":"","codigo":"30102002","nom_producto":"AFRECHILLO M. PRIMA","lote":"","fecha":null,"fecha_vencimiento":"2024-03-26T00:00:00"}
+			$produccion_detalle = array(
+			'id_produccion' => $idproduccion,
+			'id_producto' => $v->id_producto,
+			'id_existencia' => $v->id_existencia,
+			'nom_producto' => $v->nom_producto,
+			'valor_compra' => $v->valor_compra,
+			'lote' => $lote1,
+			'cantidad' => $v->cantidad,
+			'id_bodega' => 1,
+			'cantidad_pro' => $v->cantidad_real,
+			'valor_produccion' => ($v->valor_compra* $v->cantidad_real),			
+			);		
+		$this->db->insert('produccion_detalle', $produccion_detalle);
+		
+		$datos2 = array(
+			'num_movimiento' => $numproduccion,
+		    'id_producto' => $v->id_producto,
+		    'id_tipo_movimiento' => 23,
+		    'valor_producto' =>  $v->valor_compra,
+		    'cantidad_salida' => $v->cantidad_real,
+		    'fecha_movimiento' => $fechaproduccion,
+		    'id_bodega' => 1,
+		    'lote' => $lote1,
+		    'id_cliente' => 0
+		);
+		$this->db->insert('existencia_detalle', $datos2);	   	
+		};
+
+		$puc = ($valorprod/$cantidadproduccion);
+
+
+
+		$this->db->select('id_producto, id_detalle_pedido, id_pedido',false)
+						  ->from('produccion_detalle_pedidos d')
+						  ->where('d.id_produccion',$idproduccion); 	                  
+		$query = $this->db->get();		
+		$prod_pedido = $query->result();
+
+		foreach ($prod_pedido as $pedido_detalle) {
+				$idproducto = $pedido_detalle->id_producto;
+
+				$query = $this->db->query('SELECT * FROM productos WHERE id="'.$idproducto.'"');
+				if($query->num_rows()>0){
+				$row = $query->first_row();
+				$query2 = $this->db->query('SELECT * FROM existencia_detalle WHERE id_producto='.$idproducto.' and cantidad_entrada > '.$cero.'');	    	 
+				$ppm=0;
+				$cal = 1;
+				if ($query2->num_rows()>0){
+				foreach ($query2->result() as $r){			 	
+					$ppm = $ppm + ($r->valor_producto);
+					$cal = $cal +1;
+				};
+				$ppm = $ppm + $puc;
+				$ppm = ($ppm / $cal);
+				$saldo = ($row->stock)+($cantidadproduccion);
+				$pmc = ($row->p_may_compra);
+				if ($pmc < $puc){			 		
+					$pmc = $puc;
+				};			 
+				}else{
+					$pmc = $puc;
+					$saldo = $cantidadproduccion;
+					$ppm = $puc; 
+				};                
+				};
+
+				$prod = array(
+				 'p_ult_compra' => $puc,
+				 'p_may_compra' => $pmc,
+				 'p_promedio' => $ppm,
+				 'fecha_ult_compra' => $fechaproduccion,
+				 'stock' => $saldo,
+				 'fecha_vencimiento' => $fechavenc,
+				 'u_lote' => $lote		 
+				);
+				$this->db->where('id', $idproducto);
+				$this->db->update('productos', $prod);
+
+				$producto=$idproducto;
+
+				$query = $this->db->query('SELECT * FROM existencia WHERE id_producto='.$idproducto.' and id_bodega='.$idbodega.'');
+		    	 $row = $query->result();
+		    	 if ($query->num_rows()>0){
+				 $row = $row[0];	 
+				 if ($producto==($row->id_producto)){
+				 	$saldo = ($row->stock)+($cantidadproduccion);
+				    $datos3 = array(
+					'stock' => $saldo,
+				    'fecha_ultimo_movimiento' => $fechaproduccion
+					);
+					$this->db->where('id_producto', $idproducto);
+				    $this->db->update('existencia', $datos3);
+				 }
+				}else{
+					$saldo = $cant_prod;
+					$datos3 = array(
+					'id_producto' => $idproducto,
+			        'stock' =>  $saldo,
+			        'fecha_ultimo_movimiento' => $fechaproduccion,
+			        'id_bodega' => $idbodega			
+					);
+					$this->db->insert('existencia', $datos3);
+				};
+
+				$datos2 = array(
+						'num_movimiento' => $numproduccion,
+				        'id_producto' => $idproducto,
+				        'id_tipo_movimiento' => 23,
+				        'cantidad_entrada' => $cantidadproduccion,
+				        'fecha_movimiento' => $fechaproduccion,
+				        'id_bodega' => $idbodega,
+				        'id_cliente' => 0,
+				        'lote' => $lote,
+				        'valor_producto' => ($valorprod/$cantidadproduccion),
+				        'saldo' => $cantidadproduccion,
+				        'fecha_vencimiento' => $fechavenc
+				);
+
+				$this->db->insert('existencia_detalle', $datos2);	   
+
+
+		}	
+
+	
+									
+		$produccion = array(
+	        'fecha_termino' => $fechaproduccion,
+	        'cantidad_prod' => $cant_prod,
+	        'cant_real' => $cantidadproduccion,
+	        'hora_termino' => $horatermino,
+	        'hora_inicio' => $horainicio,
+	        'lote' => $lote,
+	        'valor_prod' => ($valorprod/$cantidadproduccion),
+	        'fecha_vencimiento' => $fechavenc,
+	        'estado' => 2
+		);
+		$this->db->where('id', $idproduccion);		  
+		$this->db->update('produccion', $produccion);
+
+
+
+
+		foreach ($prod_pedido as $pedido_detalle) {
+	
+			$query = $this->db->query('SELECT * FROM productos WHERE id="'.$pedido_detalle->id_producto.'"');
+			if($query->num_rows()>0){
+			$row = $query->first_row();
+			$query2 = $this->db->query('SELECT * FROM existencia_detalle WHERE id_producto='.$pedido_detalle->id_producto.' and cantidad_entrada > '.$cero.'');	    	 
+			$ppm=0;
+			$cal = 1;
+			if ($query2->num_rows()>0){
+			foreach ($query2->result() as $r){			 	
+				$ppm = $ppm + ($r->valor_producto);
+				$cal = $cal +1;
+			};
+			$ppm = $ppm + $puc;
+			$ppm = ($ppm / $cal);
+			$saldo = ($row->stock)+($cantidadproduccion);
+			$pmc = ($row->p_may_compra);
+			if ($pmc < $puc){			 		
+				$pmc = $puc;
+			};			 
+			};                
+			};
+
+			$prod = array(
+			 'p_promedio' => $ppm,
+			 );
+			$this->db->where('id', $pedido_detalle->id_producto);
+			$this->db->update('productos', $prod);	
+
+		}
+
+		
+
+
+
+
+
+		// marca el estado de los productos  de un pedido
+		foreach ($prod_pedido as $pedido_detalle) {
+
+
+			$pedidos_detalle_log = array(
+										'idproductodetalle' => $pedido_detalle->id_detalle_pedido,
+										'idestado' => 4,
+										'fecha' => date('Y-m-d H:i:s')
+									);
+			$this->db->insert('pedidos_detalle_log_estados', $pedidos_detalle_log); 						
+
+			$pedidos_detalle_log = array(
+										'idproductodetalle' => $pedido_detalle->id_detalle_pedido,
+										'idestado' => 5,
+										'fecha' => date('Y-m-d H:i:s')
+									);
+			$this->db->insert('pedidos_detalle_log_estados', $pedidos_detalle_log); 	
+		
+			$this->db->where('id', $pedido_detalle->id_detalle_pedido);
+			$this->db->update('pedidos_detalle', array('idestadoproducto' => 5));		
+
+
+		}
+
+
+	
+		// define si el pedido está listo según tenga todos los productos listos
+		foreach ($prod_pedido as $pedido_detalle) {
+
+
+				$this->db->select('id, id_producto, cantidad')
+						 ->from('pedidos_detalle')
+						 ->where('id',$pedido_detalle->id_detalle_pedido)
+						 ->where('idestadoproducto not in (4,5)');
+
+
+			   $query = $this->db->get();
+			   $cantidad_pendiente = $query->num_rows(); //si existe alguno que no este listo, no hacer nada.  Si no hay ninguno pendiente, finalizar el pedido		
+			   //$detalle_pedido = $query->result();
+
+
+			   $pedidocompleto = $cantidad_pendiente == 0 ? true : false;
+
+
+			   if($pedidocompleto){
+
+					$pedidos = array(
+					'idestadopedido' => 8
+					);			
+					$this->db->where('id', $pedido_detalle->id_pedido);
+					$this->db->update('pedidos', $pedidos);
+
+
+
+					$pedidos_log = array(
+											'idpedido' => $pedido_detalle->id_pedido,
+											'idestado' => 8,
+											'fecha' => date('Y-m-d H:i:s')
+										);
+					$this->db->insert('pedidos_log_estados', $pedidos_log); 
+
+
+
+
+			   }
+
+		}
+
+
+
+
+
+
+		$this->Bitacora->logger("M", 'produccion', $idproduccion);
+		$this->Bitacora->logger("M", 'produccion_detalle', $idproduccion);    
+
+
+			
+        $resp['idproduccion'] = $idproduccion;		
+        $resp['success'] = true;
+
+
+        echo json_encode($resp);
+	}
+
+
 
 
 	public function save2(){
@@ -2590,6 +3474,313 @@ class Produccion extends CI_Controller {
 		exit;
 	}
 
+
+	public function exportPDFSolicitud(){
+		$idproduccion = $this->input->get('idproduccion');
+		$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, p.fecha_pedido as fecha_pedido, p.num_pedido as num_pedido, v.nombre as nom_vendedor, pr.nombre as nom_productos, pr.codigo as codigopro, f.nombre_formula FROM produccion acc
+		left join clientes c on (acc.id_cliente = c.id)
+		left join formula f on (acc.id_formula_pedido = f.id)
+		left join pedidos p on (acc.id_pedido = p.id)
+		left join vendedores v on (p.id_vendedor = v.id)
+		left join productos pr on (acc.id_producto = pr.id)
+		WHERE acc.id = "'.$idproduccion.'"');
+
+		//cotizacion header
+		$row = $query->result();
+		$row = $row[0];
+		//items
+		//$items = $this->db->get_where('formula_detalle', array('id_formula' => $idformula));
+		
+		$items = $this->db->get_where('produccion_detalle', array('id_produccion' => $idproduccion));
+		//variables generales
+		$numpro = $row->num_produccion;
+		$codigo = $row->codigopro;
+		$nombre_contacto = $row->nom_cliente;
+		$vendedor = $row->nom_vendedor;
+		$nombreproducto = $row->nom_productos;
+		$cantreal = $row->cant_real;
+		$cantidad = $row->cantidad;
+		$lote = $row->lote;
+		$encargado = $row->encargado;
+		$canproduc=0;
+
+		foreach($items->result() as $v){
+			$canproduc = $canproduc + $v->cantidad;
+		};
+
+
+		$this->db->select('ped.num_pedido, ped.nombre_cliente, d.nom_producto, d.cantidad',false)
+						  ->from('produccion_detalle_pedidos d')
+						  ->join('pedidos_detalle p','d.id_detalle_pedido = p.id')
+						  ->join('pedidos ped','d.id_pedido = ped.id')
+						  ->where('d.id_produccion',$idproduccion); 	                  
+		$query = $this->db->get();		
+		$productos = $query->result();
+
+		//echo '<pre>';
+		//var_dump($productos); exit;
+		//print_r($row);
+		//exit;
+
+		//$observacion = $row->observa;
+		$fecha = $row->fecha_produccion;
+		$fechatermino = $row->fecha_termino;		
+		$hora = $row->hora_inicio;
+		$horatermino= $row->hora_termino;
+		
+		$this->load->model('facturaelectronica');
+      $empresa = $this->facturaelectronica->get_empresa();
+
+      $logo =  PATH_FILES."facturacion_electronica/images/".$empresa->logo;
+
+		$html = '
+		<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+		<html xmlns="http://www.w3.org/1999/xhtml">
+		<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<title>PRODUCCION</title>
+		<style type="text/css">
+		td {
+			font-size: 16px;
+		}
+		p {
+		}
+		</style>
+		</head>
+
+		<body>
+		<table width="987px" height="400" border="0">
+		  <tr>
+		   <td width="197px"><img src="' . $logo . '" width="150" height="136" /></td>
+		    <td width="493px" style="font-size: 14px;text-align:center;vertical-align:text-top"	>
+		     <p>' . $empresa->razon_social .'</p>
+        <p>RUT:' . number_format($empresa->rut,0,".",".").'-' . $empresa->dv . '</p>
+        <p>' . $empresa->dir_origen . ' - ' . $empresa->comuna_origen . ' - Chile</p>
+        <p>Fonos: </p>
+		    <p>http://www.lircay.cl</p>
+		    </td>
+	    <td width="296px" style="font-size: 16px;text-align:left;vertical-align:text-top"	>
+	          <p><h3>Produccion N°: '.$numpro.'</h3></p>
+	          <!--p>&nbsp;</p-->
+	          <p><h3>Fecha Inicio: '.$fecha.'</h3></p>
+	          <!--p>&nbsp;</p-->
+	          <p><h3>Fecha Termino: '.$fechatermino.'</h3></p>
+	          <!--p>&nbsp;</p-->
+	          <p><h3>Hora Inicio: '.$row->hora_inicio.'</h3></p>
+	          <!--p>&nbsp;</p-->
+	          <p><h3>Hora Termino: '.$horatermino.'</h3></p>
+	          <!--p>&nbsp;</p-->		         
+			</td>
+		  </tr>
+		  <tr>
+			<td style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:center;" colspan="3"><h1>PROCESO PRODUCCION</h1></td>
+		  </tr>
+		  <tr>
+		    <td colspan="3" width="687px" >
+					<table width="6887px" border="0">
+		    		<tr>		    		
+		    		<td width="127px">ENCARGADO:</td>
+		    		<td width="240px">'.$row->encargado.'</td>
+		    		</tr>
+		    		</table>
+		    		<table width="787px" border="0">
+		    		<tr>
+		    		<td width="100px">FORMULA</td>
+		    		<td width="403"><h3>'.$row->nombre_formula.'</h3></td>
+		    		<td width="60px"><h3>LOTE</h3></td>
+		    		<td width="120px"><h3>' . $row->lote . '</h3></td>	  	
+		    		</tr>		    		
+		    	</table>
+		    	<table width="987px" border="0">
+		    	<tr>
+		    		<td></td>
+		    	</tr>
+		    	</table>
+		    	<table width="987px" border="0">
+		    		<tr>
+		    		<td width="100px">CANTIDAD:</td>
+		    		<td width="100px"><h3>'.number_format($row->cantidad, 2, ',', '.').'</h3></td>
+		    		<td width="287px">CANTIDAD PRODUCCION:</td>
+		    		<td width="107px"><h3>'.number_format($canproduc, 2, ',', '.').'</h3></td>
+		    		<td width="187px"><h3>CANTIDAD REAL:</h3></td>
+		    		<td width="107px"><h3>______________</h3></td>		    		
+		    	</table>
+		    	<table width="987px" border="0">
+		    	<tr>
+		    		<td></td>
+		    	</tr>
+		    	</table>
+		    	<table width="987px" border="0">
+		    		<tr>			    		
+		    		<td width="117px">HORA INICIO:</td>
+		    		<td width="127px"><h3>' . $row->hora_inicio . '<h3></td>
+		    		<td width="100px">HORA FIN:</td>
+		    		<td width="127px"><h3>______________</h3></td>
+		    		<td width="100px">FECHA FIN:</td>
+		    		<td width="127px"><h3>______________</h3></td>
+		    		</tr>		    		
+		    	</table>
+
+			</td>
+		  </tr>
+
+ 			<tr>
+		    <td colspan="3" >
+			<table width="1936px" cellspacing="0" cellpadding="0" >
+		      <tr>
+		        <td width="200px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:left;" ><h3>Num. Pedido</h3></td>
+		        <td width="300px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:left;" ><h3>Cliente</h3></td>
+		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" ></td>
+		        <td width="300px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:left;" >Producto</td>
+		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Cantidad</td>
+				</tr>';
+
+			foreach($productos as $prod){
+
+				$html .= '
+				<tr>
+				<td style="text-align:left">&nbsp;</td>
+				</tr>
+				<tr>
+				<td width="200px" style="text-align:left"><h3>'.$prod->num_pedido.'</h3></td>
+				<td width="300px" style="text-align:left"><h3>'.$prod->nombre_cliente.'<h3></td>
+				<td width="148px" style="text-align:left"></td>
+				<td width="300px" style="text-align:left"><h3>'.$prod->nom_producto.'</h3></td>	
+				<td width="148px" align="right"><h3> '.number_format($prod->cantidad, 2, '.', ',').'</h3></td>		
+				</tr>';
+			}
+
+
+
+			$html .= '<tr><td colspan="5">&nbsp;</td></tr></table></td>
+				</tr>
+
+
+		  <tr>
+		    <td colspan="3" >
+			<table width="1936px" cellspacing="0" cellpadding="0" >
+		      <tr>
+		        <td width="100px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:center;" ><h3>Codigo</h3></td>
+		        <td width="800px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" ><h3>Descripcion</h3></td>
+		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" ></td>
+		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Valor Compra</td>
+		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Cantidad</td>
+		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >% Formula</td>
+		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Cantidad Pro</td>
+				</tr>';
+		$descripciones = '';
+		$i = 0;
+		$porcentaje_pro =0;
+		
+		foreach($items->result() as $v){
+			//$i = 0;
+			//while($i < 30){
+			$this->db->where('id', $v->id_producto);
+			$producto = $this->db->get("productos");	
+			$producto = $producto->result();
+			$producto = $producto[0];
+
+			$porcentaje_pro = (($v->cantidad / $canproduc )*100);
+			
+			$html .= '
+			<tr>
+			<td style="text-align:left">&nbsp;</td>
+			</tr>
+			<tr>
+			<td style="text-align:left"><h3>'.$producto->codigo.'</h3></td>
+			<td width="449px" style="text-align:left"><h3>'.$producto->nombre.'<h3></td>
+			<td style="text-align:left"></td>
+			<td style="text-align:right"><h3>'.number_format($v->valor_compra, 2, '.', ',').'</h3></td>	
+			<td align="right"><h3> '.number_format($v->cantidad, 2, '.', ',').'</h3></td>
+			<td align="right"><h3>% '.number_format($porcentaje_pro, 2, '.', ',').'</h3></td>
+			<td align="right"> ______________</td>			
+			</tr>';
+			//print_r($items);
+		    //exit;
+
+			
+			//}
+			$i++;
+		}
+
+		$html .= '<tr><td colspan="5">&nbsp;</td></tr></table></td>
+		  </tr>
+		   
+		  <tr>
+		  	<td colspan="2" rowspan="6" style="font-size: 12px;border-bottom:1pt solid black;border-top:1pt solid black;border-left:1pt solid black;border-right:1pt solid black;text-align:left;">'.$observacion.'</td>
+		  	<td>
+				<table width="296px" border="0">
+					
+				</table>
+		  	</td>
+		  </tr>
+		  <tr>
+		  	<td>
+				<table width="296px" border="0">
+					<tr>
+						
+					</tr>
+				</table>
+		  	</td>		  
+		  </tr>	
+		  <tr>
+		  	<td>
+				<table width="296px" border="0">
+					
+				</table>
+		  	</td>		  
+		  </tr>	
+		  <tr>
+		  	<td>
+				<table width="296px" border="0">
+					
+				</table>
+		  	</td>		  
+		  </tr>
+		  <tr>
+		  	<td>
+				<table width="296px" border="0">
+					
+				</table>
+		  	</td>		  
+		  </tr>
+		  <tr>
+		  	<td>&nbsp;</td>		  
+		  </tr>
+		  <tr>
+		  	<td>&nbsp;</td>		  
+		  </tr>		  		  		  	  
+		 
+		  
+		</table>
+		</body>
+		</html>
+		';
+		//==============================================================
+		//==============================================================
+		//==============================================================
+
+		include(dirname(__FILE__)."/../libraries/mpdf60/mpdf.php");
+
+		$mpdf= new mPDF(
+			'',    // mode - default ''
+			'',    // format - A4, for example, default ''
+			0,     // font size - default 0
+			'',    // default font family
+			15,    // margin_left
+			15,    // margin right
+			16,    // margin top
+			16,    // margin bottom
+			9,     // margin header
+			9,     // margin footer
+			'L'    // L - landscape, P - portrait
+			);  
+
+		$mpdf->WriteHTML($html);
+		$mpdf->Output("CF_{$codigo}.pdf", "I");
+		
+		exit;
+	}
 
 
 

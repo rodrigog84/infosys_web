@@ -32,6 +32,7 @@ Ext.define('Infosys_web.controller.Produccion', {
             'Produccion.BuscarPedidos',
             'Produccion.ValidaStock',
             'Produccion.ProduccionTermino',
+            'Produccion.ProduccionTermino2',
             'Produccion.BuscarProductos',
             'Produccion.detalle_stock',
             'Produccion.Exportar',
@@ -40,7 +41,8 @@ Ext.define('Infosys_web.controller.Produccion', {
             'Produccion.detalle_stock2',
             'Produccion.ProduccionFormula',
             'Produccion.Solicitaproduccion',
-            'Produccion.BuscarPedidos2'
+            'Produccion.BuscarPedidos2',
+            'Produccion.Solicitaproduccion'
             ],
    
     refs: [{    
@@ -74,6 +76,9 @@ Ext.define('Infosys_web.controller.Produccion', {
         ref: 'buscarproductosconsumoproduccion',
         selector: 'buscarproductosconsumoproduccion'
     },{    
+        ref: 'producciontermino2',
+        selector: 'producciontermino2'
+    },{    
         ref: 'detallestock4',
         selector: 'detallestock4'
     },{    
@@ -91,6 +96,9 @@ Ext.define('Infosys_web.controller.Produccion', {
     },{    
         ref: 'produccioningresarformula',
         selector: 'produccioningresarformula'
+    },{    
+        ref: 'solicitaproduccionformula',
+        selector: 'solicitaproduccionformula'
     }
 
     ],    
@@ -109,6 +117,9 @@ Ext.define('Infosys_web.controller.Produccion', {
             'produccionprincipal button[action=terminoproduccion]': {
                 click: this.terminoproduccion
             },
+            'produccionprincipalprod button[action=terminoproduccion]': {
+                click: this.terminoproduccion2
+            },            
             'produccionprincipal button[action=generaproduccion]': {
                 click: this.generaproduccion
             },
@@ -145,6 +156,9 @@ Ext.define('Infosys_web.controller.Produccion', {
              'produccioningresarformula button[action=grabarproduccion5]': {
                 click: this.grabarproduccion5
             },
+             'solicitaproduccionformula button[action=grabarsolicitaproduccion]': {
+                click: this.grabarsolicitaproduccion
+            },            
             'validastock button[action=Salir]': {
                 click: this.Salir
             },  
@@ -154,18 +168,29 @@ Ext.define('Infosys_web.controller.Produccion', {
             'producciontermino button[action=editaritem]': {
                 click: this.editaritem
             },
+            'producciontermino2 button[action=editaritem]': {
+                click: this.editaritem3
+            },    
             'producciontermino button[action=agregarItem]': {
                 click: this.agregarItem
             },
             'producciontermino button[action=grabarproduccion2]': {
                 click: this.grabarproduccion2
             },
+
+            'producciontermino2 button[action=grabarproduccion2]': {
+                click: this.grabarproduccion4
+            },
+
             'editaproducciontermino button[action=grabarproduccion3]': {
                 click: this.grabarproduccion3
             },
             'produccionprincipal button[action=exportarproduccion]': {
                 click: this.exportarproduccion
             },
+            'produccionprincipalprod button[action=exportarproduccionsolicitud]': {
+                click: this.exportarproduccionsolicitud
+            },            
             'produccionprincipal button[action=exportarexcelproduccion]': {
                 click: this.exportarexcelproduccion
             },
@@ -175,6 +200,12 @@ Ext.define('Infosys_web.controller.Produccion', {
             'producciontermino button[action=buscarproductosconsumopro]': {
                 click: this.buscarproductos4
             },
+            'producciontermino2 button[action=buscarproductosconsumopro]': {
+                click: this.buscarproductos6
+            },     
+            'producciontermino2 button[action=agregarItem]': {
+                click: this.agregarItem3
+            },                   
             'editaproducciontermino button[action=buscarproductosconsumopro2]': {
                 click: this.buscarproductos5
             },
@@ -205,6 +236,9 @@ Ext.define('Infosys_web.controller.Produccion', {
             'producciontermino button[action=cancelar]': {
                 click: this.cancelar
             },
+            'producciontermino2 button[action=cancelar]': {
+                click: this.cancelar2
+            },            
             'formularioexportarproduccion button[action=exportarformularioproduccionexcel]': {
                 click: this.exportarformularioproduccionexcel
             },
@@ -549,6 +583,37 @@ Ext.define('Infosys_web.controller.Produccion', {
         viewIngresa.close();        
     },
 
+
+    cancelar2: function(){
+
+        var viewIngresa = this.getProducciontermino2();
+        var view = this.getProduccionprincipal();
+        var idbodega = 1;
+        var stItem = this.getProduccionTerminoStore();
+        
+        if(stItem){
+
+         var dataItems = new Array();
+        stItem.each(function(r){
+            dataItems.push(r.data)
+        });
+
+        Ext.Ajax.request({
+            url: preurl + 'facturas/stock5',
+            params: {               
+                items: Ext.JSON.encode(dataItems),
+                idbodega: idbodega                
+            },
+             success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+               
+            }
+           
+        });
+        };     
+
+        viewIngresa.close();        
+    },
     editaritem: function() {
 
         var view = this.getProducciontermino();
@@ -612,6 +677,92 @@ Ext.define('Infosys_web.controller.Produccion', {
             return;
         }       
     },
+
+
+    editaritem3: function() {
+
+        var view = this.getProducciontermino2();
+        var grid  = view.down('#itemsgridId');
+        var idbodega = view.down('#bodegaId').getValue();
+        var fechafactura = view.down('#fechadocumId').getValue();
+        var cantidadproducida = view.down('#cantidadproduccalId').getValue();        
+        var cero = "";
+        
+        if (grid.getSelectionModel().hasSelection()) {
+            var row = grid.getSelectionModel().getSelection()[0];
+            var id_producto = row.data.id_producto;
+            var precio = row.data.id_producto;
+
+            Ext.Ajax.request({
+            url: preurl + 'facturas/stock2',
+            params: {
+                idbodega: idbodega,
+                id: row.data.id_existencia,
+                cantidad: row.data.cantidad_real,
+                producto: row.data.id_producto,
+                fechafactura: fechafactura
+               },
+             success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                var cantidad_real=0;
+                 if(resp.cliente){
+                    var cliente = resp.cliente;
+                    var stock = resp.saldo;
+
+                    console.log(cliente.fecha_vencimiento);
+
+                    if(cliente.fecha_vencimiento === undefined){
+                        fecvencimiento = new Date();
+                    }else{
+                        fecvencimiento = cliente.fecha_vencimiento;
+                    }
+                    
+                    //var cantidadproducida = cantidadproducida - row.data.cantidad_real;                    
+                   
+                    view.down('#productoId').setValue(row.data.id_producto);
+                    view.down('#idpId').setValue(row.data.id_existencia);
+                    view.down('#nombreproductoforId').setValue(row.data.nom_producto);
+                    view.down('#codigoId').setValue(row.data.codigo);
+                    view.down('#precioId').setValue(row.data.valor_compra);
+                    view.down('#cantidadoproId').setValue(row.data.cantidad_real);
+                    view.down('#cantidadforId').setValue(row.data.cantidad);
+                    view.down('#cantidadoriId').setValue(resp.saldo);
+                    view.down('#stockTotalId').setValue(resp.saldo);
+                    view.down('#loteId').setValue(row.data.lote);
+                    view.down('#fechavencimientoId').setValue(fecvencimiento);
+                    //view.down('#cantidadproduccalId').setValue(cantidadproducida);
+                    view.down('#stockcriticoId').setValue(cliente.stock_critico);
+                }                                        
+            }           
+            });
+        grid.getStore().remove(row);
+        this.recalcularFinal2();
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }       
+    },    
+
+
+    recalcularFinal2: function(){
+
+        var view = this.getProducciontermino2();
+        var stItem = this.getProduccionTerminoStore();
+        var pretotal = 0;
+        var total = 0;
+        
+        stItem.each(function(r){
+            pretotal = (pretotal + parseInt(r.data.cantidad_real))
+            
+        });
+        total = pretotal;
+
+        console.log(total);
+             
+        view.down('#cantidadproduccalId').setValue(total);
+
+    },
+
 
     recalcularFinal: function(){
 
@@ -805,6 +956,58 @@ Ext.define('Infosys_web.controller.Produccion', {
         }
     },
 
+      buscarproductos6: function(){       
+
+        var viewIngresa = this.getProducciontermino2();
+        var codigo = viewIngresa.down('#codigoId').getValue();
+        var id = viewIngresa.down('#productoId').getValue();
+        if(!codigo){
+            var st = this.getProductosfStore();
+            Ext.create('Infosys_web.view.Produccion.BuscarProductos').show();
+            st.load();
+        };
+        if(codigo){
+            var st = this.getExistencias4Store();
+            Ext.Ajax.request({
+            url: preurl + 'productos/buscacodigo?codigo='+codigo,
+            params: {
+                id: 1
+            },
+            success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                var cero = "";
+                var bodega = 1;
+                if (resp.success == true){                    
+                    if(resp.cliente){
+                        var cliente = resp.cliente;                        
+                        var id = (cliente.id);
+                        viewIngresa.down('#productoId').setValue(cliente.id);
+                        viewIngresa.down('#precioId').setValue(cliente.p_promedio);
+                        viewIngresa.down('#cantidadoriId').setValue(cliente.stock);
+                        viewIngresa.down('#stockcriticoId').setValue(cliente.stock_critico);
+                        viewIngresa.down('#nombreproductoforId').setValue(cliente.nombre); 
+                    }
+                        st.proxy.extraParams = {id : id,
+                                                bodega : bodega}
+                        st.load();
+                        if(id){
+                        viewIngresa = Ext.create('Infosys_web.view.Produccion.detalle_stock').show();
+                        viewIngresa.down('#stockId').setValue(cliente.stock);
+                        viewIngresa.down('#stockcriticoId').setValue(cliente.stock_critico);
+                        viewIngresa.down('#pventaId').setValue(cliente.p_promedio);
+                        };                    
+                }else{
+                      var view = Ext.create('Infosys_web.view.productos.Ingresar').show();
+                      view.down("#codigoId").setValue(codigo);                      
+                }              
+            }
+        });
+        }
+
+
+
+    },
+
     special8: function(f,e){
         if (e.getKey() == e.ENTER) {
             this.buscarproductos4()
@@ -879,6 +1082,34 @@ Ext.define('Infosys_web.controller.Produccion', {
         }
         
     },
+
+
+
+    exportarproduccionsolicitud: function(){
+
+        var view = this.getProduccionprincipalprod();
+        if (view.getSelectionModel().hasSelection()) {
+            var row = view.getSelectionModel().getSelection()[0];
+            var estado = row.data.estado;
+            console.log(estado);
+            if (estado == 2){
+                window.open(preurl +'produccion/exportPDF2/?idproduccion=' + row.data.id)
+            }
+            if (estado == 4 ){
+                window.open(preurl +'produccion/exportPDFSolicitud/?idproduccion=' + row.data.id)
+            }
+            if (estado == 1 ){
+                window.open(preurl +'produccion/exportPDF3/?idproduccion=' + row.data.id)
+            }
+            
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }
+        
+    },
+
+
 
     grabarproduccion3: function(){
 
@@ -1028,6 +1259,99 @@ Ext.define('Infosys_web.controller.Produccion', {
                 idbodega: bodega,
                 idpedido: idpedido,
                 idcliente: idcliente,
+                numproduccion: numproduccion,
+                idproduccion: idproduccion,
+                lote: lote,
+                fechavenc: Ext.Date.format(fechavenc,'Y-m-d'),
+                horatermino: Ext.Date.format(horatermino,'H:i'),
+                horainicio: Ext.Date.format(horainicio,'H:i'),
+
+                items: Ext.JSON.encode(dataItems),
+            },
+            success: function(response){
+                 var resp = Ext.JSON.decode(response.responseText);
+                 var idproduccion= resp.idproduccion;
+                 view.close();
+                 stProduccion.reload();
+                 window.open(preurl + 'produccion/exportPDF2/?idproduccion='+idproduccion);
+            }           
+                });
+
+
+        }
+        
+
+            
+    },
+
+
+
+    grabarproduccion4: function(){
+
+        var view = this.getProducciontermino2();
+        var fechaproduccion = view.down('#fechadocumId').getValue();
+        var cantidadproduccion = view.down('#cantidadproducId').getValue();
+        var cantidadproduccioncal = view.down('#cantidadproduccalId').getValue();
+        var numproduccion = view.down('#ticketId').getValue();
+        var idproduccion = view.down('#idId').getValue();
+        var horatermino = view.down('#horaterminoId').getValue();
+        var horainicio = view.down('#horainicioId').getValue();
+        var fechavenc = view.down('#fechavencId').getValue();
+        var lote = view.down('#numLoteId').getValue();
+        var bodega = view.down('#bodegaId').getValue();
+        var stItem = this.getProduccionTerminoStore();
+        var stProduccion = this.getProduccionStore();
+        //view.down("#grabarproduccion2").setDisabled(true);
+
+        if(!cantidadproduccion){
+            view.down("#grabarproduccion2").setDisabled(false);
+            Ext.Msg.alert('Debe Ingresar Cantidad de produccion Real');
+            return;
+        };
+
+        if(!lote){
+            view.down("#grabarproduccion2").setDisabled(false);
+             Ext.Msg.alert('Debe Ingresar Lote');
+            return;            
+        };
+
+        if(!horatermino){
+            view.down("#grabarproduccion2").setDisabled(false);
+             Ext.Msg.alert('Debe Ingresar Hora Termino');
+            return;            
+        };
+        if(!bodega){
+             view.down("#grabarproduccion2").setDisabled(false);
+             Ext.Msg.alert('Debe Asignar Bodega');
+            return;            
+        };
+        cantreal=0;
+        var dataItems = new Array();
+        var permite_guardado = true;
+        stItem.each(function(r){
+            //console.log(r)
+            dataItems.push(r.data)
+
+            cantreal=r.data.cantidad_real
+            if(cantreal==0){
+                view.down("#grabarproduccion2").setDisabled(false);
+                 Ext.Msg.alert('Debe Ingresar Toda la Produccion');
+                 permite_guardado = false;
+                 return false;
+                
+            }
+        });
+        //console.log(permite_guardado)
+        
+        if(permite_guardado){
+
+                Ext.Ajax.request({
+            url: preurl + 'produccion/save5',
+            params: {
+                fechaproduccion: Ext.Date.format(fechaproduccion,'Y-m-d'),
+                cantidadproduccion: cantidadproduccion,
+                cantidadproduccioncal : cantidadproduccioncal, 
+                idbodega: bodega,
                 numproduccion: numproduccion,
                 idproduccion: idproduccion,
                 lote: lote,
@@ -1216,6 +1540,171 @@ Ext.define('Infosys_web.controller.Produccion', {
         view.down('#cantidadproduccalId').setValue(cantidadpro);
     },
 
+
+
+    agregarItem3: function() {
+
+        var view = this.getProducciontermino2();
+        var stItem = this.getProduccionTerminoStore();
+        var producto = view.down('#productoId').getValue();
+        var nombre = view.down('#nombreproductoforId').getValue();
+        var codigo = view.down('#codigoId').getValue();
+        var cantidad = view.down('#cantidadoproId').getValue();
+        var cantidadfor = view.down('#cantidadforId').getValue();
+        var cantidadpro = view.down('#cantidadproduccalId').getValue();
+        var precio = ((view.down('#precioId').getValue()));
+        var stockcritico = view.down('#stockcriticoId').getValue();
+        var stocktotal = view.down('#stockTotalId').getValue();
+        var stock = view.down('#cantidadoriId').getValue();
+        var cantidadori = view.down('#cantidadoriId').getValue();
+        var fechamov = view.down('#fechadocumId').getValue();
+        var fechavenc = view.down('#fechavencimientoId').getValue();
+        //var fechavenc = view.down('#fechavencId').getValue();
+
+        
+        var lote = view.down('#loteId').getValue();
+        var idexistencia = view.down('#idpId').getValue();
+        var id = view.down('#corrId').getValue();
+        var idbodega = 1;
+        var cero="";
+        var stockt=0;
+        var cero2=0;
+        var id = id +1;
+        var cantidadpro = cantidadpro + cantidad
+
+        if(!fechamov){
+            Ext.Msg.alert('Alerta', 'Debe Ingresar Fecha Movimiento');
+            return false;            
+        }
+
+        if(!fechavenc){
+            Ext.Msg.alert('Alerta', 'Debe Ingresar Fecha Vencimient');
+            return false;            
+        }
+
+        var stockt = stocktotal - cantidad;
+
+        if(fechavenc){
+           Ext.Ajax.request({
+             url: preurl + 'productos/enviarMail',
+                  params: {
+                      id:1,
+                      nombre: nombre,
+                      producto: producto,
+                      fecha: fechavenc 
+                  },
+             success: function(response, opts) {             
+               
+             }
+          });              
+            //return false;
+        };
+
+      
+       
+                 
+        if(!producto){            
+            Ext.Msg.alert('Alerta', 'Debe Seleccionar un Producto');
+            return false;
+        };
+
+        if(precio==0){
+            Ext.Msg.alert('Alerta', 'Debe Ingresar Precio Producto');
+            return false;
+        };
+
+        if(cantidad>cantidadori){
+            Ext.Msg.alert('Alerta', 'Cantidad Ingresada de Productos Supera El Stock');
+            return false;
+        };
+
+        if(!cantidad){
+            Ext.Msg.alert('Alerta', 'Debe Ingresar Cantidad.');
+            return false;
+        };       
+       
+        Ext.Ajax.request({
+            url: preurl + 'facturas/stock',
+            params: {
+                idbodega: idbodega,
+                id: idexistencia,
+                cantidad: cantidad,
+                producto: producto,
+                fechafactura: fechamov
+            },
+             success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                var stockt = resp.saldoext;
+                if(stockcritico > 0){
+                if(stockcritico > stockt ){
+                Ext.Msg.alert('Alerta', 'Producto Con Stock Critico Informar ');        
+                Ext.Ajax.request({
+                url: preurl + 'produccion/enviarMail',
+                  params: {
+                      id:1,
+                      nombre: nombre,
+                      producto: producto
+                  },
+                success: function(response, opts) {             
+
+                }
+                });              
+                //return false;
+                };            
+                };                       
+            }           
+        });
+
+        if(!cantidadfor){
+            var cantidadfor = view.down('#cantidadoproId').getValue();            
+        }; 
+        
+        if(!cantidadfor){
+            var cantidadfor = view.down('#cantidadoproId').getValue();            
+        };
+        var cantidadf=1;
+
+        var dataItems = new Array();
+        stItem.each(function(r){
+        dataItems.push(r.data)
+        idver=r.id_producto
+        if (idver==producto){
+            var cantidadf = 0;            
+        }
+        });
+
+        if (cantidadf==0){
+            var cantidadfor=0;
+            
+        };
+        
+         stItem.add(new Infosys_web.model.Consumo_diario({
+                id:id,
+                id_existencia: idexistencia,
+                id_producto: producto,
+                id_bodega : idbodega,
+                codigo: codigo,
+                fecha_vencimiento: fechavenc,
+                nom_producto: nombre,
+                valor_compra: precio,
+                cantidad: cantidadfor,
+                cantidad_real: cantidad,
+                lote: lote,
+            }));             
+
+        view.down('#codigoId').setValue(cero);
+        view.down('#productoId').setValue(cero);
+        view.down('#idpId').setValue(cero);
+        view.down('#nombreproductoforId').setValue(cero);
+        view.down('#cantidadoproId').setValue(cero2);
+        view.down('#stockcriticoId').setValue(cero2);
+        view.down('#cantidadoriId').setValue(cero2);        
+        view.down('#cantidadforId').setValue(cero2);        
+        view.down('#precioId').setValue(cero);
+        view.down('#corrId').setValue(id);
+        view.down('#cantidadproduccalId').setValue(cantidadpro);
+    },    
+
     recalcular: function() {
 
         var view = this.getProducciontermino();
@@ -1355,6 +1844,75 @@ Ext.define('Infosys_web.controller.Produccion', {
         
     },
 
+
+
+    terminoproduccion2: function(){
+       
+        //var view = this.getProduccionprincipal();
+        var view = this.getProduccionprincipalprod();
+        if (view.getSelectionModel().hasSelection()) {
+            var row = view.getSelectionModel().getSelection()[0];
+            var stItem = this.getProduccionTerminoStore();
+            var idproduccion = row.data.id;
+            var estado = row.data.estado;
+            if (estado=="1"){
+                        var stItms = Ext.getStore('ProduccionTermino');
+                        stItms.removeAll();
+            };
+            if(estado=="2"){
+                Ext.Msg.alert('Produccion Realizada');
+            return;               
+
+            }else{
+            stItem.proxy.extraParams = {idproduccion : idproduccion};
+            stItem.load();            
+            Ext.Ajax.request({
+            url: preurl +'produccion/termino2/?idproduccion=' + row.data.id,
+            params: {
+                id: 1
+            },
+            success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+                if (resp.success == true) {                    
+                    var cliente = resp.cliente;
+                    console.log(cliente)
+                    if (cliente.estado=="2"){
+                        Ext.Msg.alert('Produccion Realizada');
+                        return;                           
+                    }else{ 
+                    var view = Ext.create('Infosys_web.view.Produccion.ProduccionTermino2').show();                   
+                    view.down("#ticketId").setValue(cliente.num_produccion);
+                    view.down("#idId").setValue(idproduccion);                    
+                    view.down("#horainicioId").setValue(cliente.hora_inicio);
+                    view.down("#fechainicioId").setValue(cliente.fecha_produccion);
+                    view.down("#numLoteId").setValue(cliente.lote);                                   
+                    view.down("#nombreformulaId").setValue(cliente.nom_formula);
+                    view.down("#cantidadId").setValue(cliente.cantidad);
+                    view.down("#formulaId").setValue(cliente.id_formula_pedido);
+                    view.down("#encargadoId").setValue(cliente.encargado);
+                    view.down("#diasvencId").setValue(cliente.dias);
+                    
+                    };                    
+                }else{
+                    Ext.Msg.alert('Correlativo no Existe');
+                    return;
+                }
+
+            }
+            
+        });
+        };
+
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }
+
+        var stProduccion = this.getProduccionStore();
+        stProduccion.load();
+        
+    },    
+
     Salir : function(){
         var view = this.getValidastock();
         var viewnew = this.getProduccioningresar();
@@ -1439,6 +1997,82 @@ Ext.define('Infosys_web.controller.Produccion', {
         
                
     },
+
+
+    grabarsolicitaproduccion: function(){
+
+        var view = this.getSolicitaproduccionformula();
+
+        var fechaproduccion = view.down('#fechadocumId').getValue();
+
+
+        //var cantidadproduccion = view.down('#cantidadId').getValue();
+        var numproduccion = view.down('#ticketId').getValue();
+        var idformula = view.down('#formulaid').getValue();
+        var idpedido = view.down('#pedidoId').getValue();
+        var horainicio = view.down('#horainicioId').getValue();
+        var lote = view.down('#numLoteId').getValue();
+        var bodega = 1;
+        var encargado = view.down('#encargadoId').getValue();
+        
+        var stItem = this.getPedidosFormulaStore();
+        var stProduccion = this.getProduccionprodStore();
+       
+       // Produccionprod
+        var grid = view.down('#detalleProductosId');
+        stItem = grid.getStore();
+        var dataProductos = new Array();
+        stItem.each(function(r){
+            dataProductos.push(r.data);       
+        });        
+
+
+
+        var griddetalle = view.down('#itemsgridId');
+        stItemDetalle = griddetalle.getStore();
+        var dataDetalle = new Array();
+        stItemDetalle.each(function(r){
+            dataDetalle.push(r.data);       
+        });    
+
+
+
+        view.down("#grabarproduccion5").setDisabled(true);
+
+        if(!encargado){
+            view.down("#grabarproduccion5").setDisabled(false);
+             Ext.Msg.alert('Atencion','Debe Asignar Encargado');
+            return; 
+            
+        }
+
+        
+        Ext.Ajax.request({
+            url: preurl + 'produccion/savesolicita',
+            params: {
+                numproduccion: numproduccion,
+                fechaproduccion: Ext.Date.format(fechaproduccion,'Y-m-d'),
+                numproduccion: numproduccion,           
+                idformula: idformula,
+                lote: lote,
+                horainicio: Ext.Date.format(horainicio,'H:i'),
+                encargado: encargado,                
+                items: Ext.JSON.encode(dataDetalle),
+                productos: Ext.JSON.encode(dataProductos),
+            },
+             success: function(response){
+                 var resp = Ext.JSON.decode(response.responseText);
+                 var idproduccion= resp.idproduccion;
+                 view.close();
+                 stProduccion.reload();
+                 window.open(preurl + 'produccion/exportPDFSolicitud/?idproduccion='+idproduccion);
+            }
+           
+        });        
+              
+    },
+
+
 
     grabarproduccion5: function(){
 

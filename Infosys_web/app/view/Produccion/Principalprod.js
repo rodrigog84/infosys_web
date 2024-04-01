@@ -27,7 +27,8 @@ Ext.define('Infosys_web.view.Produccion.Principalprod' ,{
         header: "Fecha Pedido",
         flex: 1,
         dataIndex: 'fecha_pedido',
-        type: 'date'
+        type: 'date',
+        hidden: true
     },{
         header: "Fecha Producc.",
         flex: 1,
@@ -35,6 +36,10 @@ Ext.define('Infosys_web.view.Produccion.Principalprod' ,{
         type: 'date',
         //renderer: Ext.util.Format.dateRenderer('d/m/Y'),
         align: 'center'
+    },{
+        header: "Hora Inicio",
+        flex: 1,
+        dataIndex: 'hora_inicio'
     },{
         header: "Rut",
         flex: 1,
@@ -50,11 +55,21 @@ Ext.define('Infosys_web.view.Produccion.Principalprod' ,{
     },{
         header: "Razon Social",
          width: 390,
-        dataIndex: 'nom_cliente'
+        dataIndex: 'nom_cliente',
+        hidden: true
+    },{
+        header: "Formula",
+        flex: 1,
+        dataIndex: 'nom_formula'
+    },{
+        header: "Lote",
+        flex: 1,
+        dataIndex: 'lote'
     },{
         header: "Producto",
         flex: 1,
-        dataIndex: 'nom_producto'
+        dataIndex: 'nom_producto',
+        hidden: true
     },{
         header: "Id_producto",
         flex: 1,
@@ -128,7 +143,7 @@ Ext.define('Infosys_web.view.Produccion.Principalprod' ,{
                 xtype: 'button',
                 iconCls : 'icon-pdf',
                 text: 'Imprimir PDF',
-                action:'exportarproduccion'
+                action:'exportarproduccionsolicitud'
             },{
                 xtype: 'button',
                 width: 120,

@@ -1112,6 +1112,7 @@ class Pedidos2 extends CI_Controller {
 
 		$secuencia = 0;
 		$cantidadform = 0;
+		$pedidocompleto = true;
 
 		foreach($items as $v){
 
@@ -1174,7 +1175,7 @@ class Pedidos2 extends CI_Controller {
 					$estado_nuevo_detalle = 5;
 
 			}else{
-
+					$pedidocompleto = false;
 					$estado_nuevo_detalle = 2;
 			}
 
@@ -1192,9 +1193,8 @@ class Pedidos2 extends CI_Controller {
 			$this->db->where('id', $iddtallepedidos);
 			$this->db->update('pedidos_detalle', array('idestadoproducto' => $estado_nuevo_detalle));			
 
-
-
 		}	
+
 
 
 
@@ -1280,6 +1280,28 @@ class Pedidos2 extends CI_Controller {
     	
 		};
 		
+
+
+		if($pedidocompleto && !$requiere_autorizacion){
+
+				$pedidos = array(
+			        'idestadopedido' => 8
+					);			
+
+					
+				$this->db->where('id', $idpedidos);
+				$this->db->update('pedidos', $pedidos);			
+
+				$pedidos_log = array(
+											'idpedido' => $idpedidos,
+											'idestado' => 8,
+											'fecha' => date('Y-m-d H:i:s')
+										);
+				$this->db->insert('pedidos_log_estados', $pedidos_log); 
+
+		}
+
+
 		$data2 = array(
 	        'cantidad' => $cantidadform,
 

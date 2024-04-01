@@ -24,6 +24,7 @@ class Pedidos extends CI_Controller {
 
 			   $cantidad_producto = 0;
 			   $idproducto = 0;
+			   $pedidocompleto = true;
 			   foreach ($detalle_pedido as $detalle) {
 
 					$cantidad_producto = $detalle->cantidad;
@@ -36,6 +37,8 @@ class Pedidos extends CI_Controller {
 
 
 					$existe_stock = true;
+					//var_dump($cantidad_producto);
+					//var_dump($producto->stock);
 					if($cantidad_producto > $producto->stock){
 						$existe_stock = false;
 					}
@@ -45,7 +48,7 @@ class Pedidos extends CI_Controller {
 							$estado_nuevo_detalle = 5;
 
 					}else{
-
+							$pedidocompleto = false;
 							$estado_nuevo_detalle = 2;
 					}
 
@@ -97,6 +100,33 @@ class Pedidos extends CI_Controller {
 											'fecha' => date('Y-m-d H:i:s')
 										);
 				$this->db->insert('pedidos_log_estados', $pedidos_log); 
+
+
+				//var_dump($pedidocompleto); 
+
+				if($pedidocompleto){
+
+						$pedidos = array(
+					        'idestadopedido' => 8
+							);			
+
+							
+						$this->db->where('id', $idpedido);
+						$this->db->update('pedidos', $pedidos);			
+
+						$pedidos_log = array(
+													'idpedido' => $idpedido,
+													'idestado' => 8,
+													'fecha' => date('Y-m-d H:i:s')
+												);
+						$this->db->insert('pedidos_log_estados', $pedidos_log); 
+
+				}
+
+
+
+
+
 		$result['success'] = true;
 		$result['message'] = "Pedido Autorizado";
 		echo json_encode($result);
