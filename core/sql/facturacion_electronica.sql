@@ -689,5 +689,12 @@ ROW_FORMAT=COMPACT
 
 INSERT INTO `pedidos_estados` (`id`, `nombre`) VALUES ('8', 'Pedido Finalizado');
 
-UPDATE `infosys_web2`.`pedidos_detalle_estados` SET `nombre`='Producto con Stock Disponible' WHERE  `id`=5;
+UPDATE `pedidos_detalle_estados` SET `nombre`='Producto con Stock Disponible' WHERE  `id`=5;
 
+
+/************************************************************************************************************/
+
+ALTER TABLE `pedidos_detalle`
+	ADD INDEX `id_pedido` (`id_pedido`);
+
+	

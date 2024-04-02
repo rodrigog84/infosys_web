@@ -33,6 +33,7 @@ Ext.define('Infosys_web.model.Pedidos', {
         {name: 'total'},
         {name: 'id_tipopedido'},
         {name: 'estado'},
+        {name: 'situacionpedido'},
         {name: 'nom_bodega'},
         {name: 'id_bodega'},
         {name: 'id_producto'}

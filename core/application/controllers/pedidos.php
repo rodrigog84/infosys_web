@@ -1930,8 +1930,8 @@ class Pedidos extends CI_Controller {
         $tipopedido = $this->input->post('tipopedido');
         $idestadopedido = $this->input->post('idestadopedido');
 
+        $estadonuevo = $estado;
 
-        //var_dump($_POST); exit;
         if (!$bodega){
 	       $bodega = 0;
 	    }
@@ -1955,6 +1955,9 @@ class Pedidos extends CI_Controller {
         	$sql_estado_pedido = " AND acc.idestadopedido = '" . $idestadopedido . "' ";
         }
 
+
+
+
         //echo '<pre>';
         //var_dump($_POST);
        	//var_dump($sql_estado_pedido); exit;
@@ -1965,7 +1968,8 @@ class Pedidos extends CI_Controller {
 			if ($estado == 1){
 
 			$data = array();		
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -1983,7 +1987,8 @@ class Pedidos extends CI_Controller {
 
 				$countAll = $total;
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -1994,12 +1999,35 @@ class Pedidos extends CI_Controller {
 		}else{
 
 			$data = array();		
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+
+
+			if($estadonuevo == 2){// pendiente autorizacion
+				$sql_estado_pedido = " AND acc.idestadopedido = '6' ";
+				$sql_estado = '';
+			}else if($estadonuevo == 3){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_pendiente > 0';
+			}else if($estadonuevo == 4){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_produccion > 0';
+			}else if($estadonuevo == 5){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_listos > 0 and cantidad_listos < cantidad_productos';
+			}else if($estadonuevo == 6){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_listos = cantidad_productos';
+			}
+
+
+
+			$query = $this->db->query('SELECT * FROM (SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (3)) as cantidad_produccion,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (2)) as cantidad_pendiente  FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND c.rut = "'.$nombres.'" and acc.estado = "'.$estado.'" ' . $sql_tipo_pedido . ' ' . $sql_estado_pedido . ' 
+			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND c.rut = "'.$nombres.'"  ' . $sql_tipo_pedido . ' ' . $sql_estado_pedido . ')a 
+			WHERE 1 = 1 ' . $sql_estado . '
 			order by acc.id desc');
 
 		    $total = 0;
@@ -2012,13 +2040,16 @@ class Pedidos extends CI_Controller {
 
 				$countAll = $total;
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			$query = $this->db->query('SELECT * FROM (SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (3)) as cantidad_produccion,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (2)) as cantidad_pendiente  FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND c.rut = "'.$nombres.'" and acc.estado = "'.$estado.'"  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' order by acc.id desc			
+			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND c.rut = "'.$nombres.'"  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ')a WHERE 1 = 1 ' . $sql_estado . ' order by acc.id desc			
 			limit '.$start.', '.$limit.'');
+
+			echo $this->db->last_query();
 
 		};
 
@@ -2034,7 +2065,8 @@ class Pedidos extends CI_Controller {
 	        }
 
 	        $data = array();	        	    	
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -2051,7 +2083,8 @@ class Pedidos extends CI_Controller {
 
 			$countAll = $total;
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -2063,6 +2096,24 @@ class Pedidos extends CI_Controller {
 
 	    	}else{
 
+
+			if($estadonuevo == 2){// pendiente autorizacion
+				$sql_estado_pedido = " AND acc.idestadopedido = '6' ";
+				$sql_estado = '';
+			}else if($estadonuevo == 3){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_pendiente > 0';
+			}else if($estadonuevo == 4){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_produccion > 0';
+			}else if($estadonuevo == 5){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_listos > 0 and cantidad_listos < cantidad_productos';
+			}else if($estadonuevo == 6){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_listos = cantidad_productos';
+			}
+
 	    	
 			$sql_nombre = "";
 	        $arrayNombre =  explode(" ",$nombres);
@@ -2072,13 +2123,15 @@ class Pedidos extends CI_Controller {
 	        }
 
 	        $data = array();	        	    	
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			$query = $this->db->query('SELECT * FROM (SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (3)) as cantidad_produccion,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (2)) as cantidad_pendiente  FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND acc.estado = "'.$estado.'" ' . $sql_nombre . '  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
-			order by acc.id desc'
+			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.'  ' . $sql_nombre . '  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' )a
+			WHERE 1 = 1 ' . $sql_estado . '
+			order by a.id desc'
 						
 			);
 
@@ -2092,21 +2145,24 @@ class Pedidos extends CI_Controller {
 
 			$countAll = $total;
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			$query = $this->db->query('SELECT * FROM (SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (3)) as cantidad_produccion,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (2)) as cantidad_pendiente  FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND acc.estado = "'.$estado.'" ' . $sql_nombre . '  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' order by acc.id desc
+			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.'  ' . $sql_nombre . '  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ')a
+			WHERE 1 = 1 ' . $sql_estado . '
+			order by a.id desc
 			limit '.$start.', '.$limit.'');
 
 		    };
 	 
 		}else if($opcion == "Todos"){
-
-			if ($estado == 1){			
+			if ($estado == 1){				
 			$data = array();
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -2124,7 +2180,8 @@ class Pedidos extends CI_Controller {
 
 			$countAll = $total;
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -2137,13 +2194,35 @@ class Pedidos extends CI_Controller {
 
 			}else{
 			$data = array();
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+
+			if($estadonuevo == 2){// pendiente autorizacion
+				$sql_estado_pedido = " AND acc.idestadopedido = '6' ";
+				$sql_estado = '';
+			}else if($estadonuevo == 3){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_pendiente > 0';
+			}else if($estadonuevo == 4){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_produccion > 0';
+			}else if($estadonuevo == 5){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_listos > 0 and cantidad_listos < cantidad_productos';
+			}else if($estadonuevo == 6){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_listos = cantidad_productos';
+			}
+
+
+			$query = $this->db->query('SELECT * FROM (SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (3)) as cantidad_produccion,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (2)) as cantidad_pendiente  FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND (acc.estado = "'.$estado.'" OR acc.estado = 1) 
-			 ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' order by acc.id desc');
+			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.'  
+			 ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ')a
+			WHERE 1 = 1 ' . $sql_estado . '
+			order by a.id desc');
 
 			$total = 0;
 
@@ -2155,13 +2234,15 @@ class Pedidos extends CI_Controller {
 
 			$countAll = $total;
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			$query = $this->db->query('SELECT * FROM (SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (3)) as cantidad_produccion,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (2)) as cantidad_pendiente  FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND acc.estado = "'.$estado.'"  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
-			order by acc.id desc
+			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ')a
+			WHERE 1 = 1 ' . $sql_estado . '
+			order by a.id desc
 			limit '.$start.', '.$limit.''	
 			
 			);
@@ -2173,7 +2254,8 @@ class Pedidos extends CI_Controller {
 			
 			$data = array();
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -2191,7 +2273,8 @@ class Pedidos extends CI_Controller {
 
 			$countAll = $total;
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -2203,13 +2286,34 @@ class Pedidos extends CI_Controller {
 
 				$data = array();
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+
+			if($estadonuevo == 2){// pendiente autorizacion
+				$sql_estado_pedido = " AND acc.idestadopedido = '6' ";
+				$sql_estado = '';
+			}else if($estadonuevo == 3){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_pendiente > 0';
+			}else if($estadonuevo == 4){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_produccion > 0';
+			}else if($estadonuevo == 5){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_listos > 0 and cantidad_listos < cantidad_productos';
+			}else if($estadonuevo == 6){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_listos = cantidad_productos';
+			}
+
+
+			$query = $this->db->query('SELECT * FROM (SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (3)) as cantidad_produccion,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (2)) as cantidad_pendiente  FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND acc.num_pedido =  "'.$nombres.'" and acc.estado = "'.$estado.'" ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
-			order by acc.id desc');
+			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND acc.num_pedido =  "'.$nombres.'"  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ')a
+			WHERE 1 = 1 ' . $sql_estado . '
+			order by a.id desc');
 
 			$total = 0;
 
@@ -2221,13 +2325,15 @@ class Pedidos extends CI_Controller {
 
 			$countAll = $total;
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			$query = $this->db->query('SELECT * FROM (SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (3)) as cantidad_produccion,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (2)) as cantidad_pendiente  FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND acc.num_pedido =  "'.$nombres.'" and acc.estado = "'.$estado.'" ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
-			order by acc.id desc');
+			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND acc.num_pedido =  "'.$nombres.'" ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ')a
+			WHERE 1 = 1 ' . $sql_estado . '
+			order by a.id desc');
 				
 			}
 
@@ -2241,7 +2347,8 @@ class Pedidos extends CI_Controller {
 			if ($estado == 1){
 
 			$data = array();		
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -2259,7 +2366,8 @@ class Pedidos extends CI_Controller {
 
 				$countAll = $total;
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -2270,13 +2378,35 @@ class Pedidos extends CI_Controller {
 		}else{
 
 			$data = array();		
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+
+
+			if($estadonuevo == 2){// pendiente autorizacion
+				$sql_estado_pedido = " AND acc.idestadopedido = '6' ";
+				$sql_estado = '';
+			}else if($estadonuevo == 3){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_pendiente > 0';
+			}else if($estadonuevo == 4){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_produccion > 0';
+			}else if($estadonuevo == 5){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_listos > 0 and cantidad_listos < cantidad_productos';
+			}else if($estadonuevo == 6){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_listos = cantidad_productos';
+			}
+
+
+			$query = $this->db->query('SELECT * FROM (SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (3)) as cantidad_produccion,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (2)) as cantidad_pendiente  FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_bodega='.$bodega.' AND c.rut = "'.$nombres.'" and acc.estado = "'.$estado.'" ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
-			order by acc.id desc');
+			WHERE acc.id_bodega='.$bodega.' AND c.rut = "'.$nombres.'"  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ')a
+			WHERE 1 = 1 ' . $sql_estado . '
+			order by a.id desc');
 
 		    $total = 0;
 
@@ -2288,12 +2418,15 @@ class Pedidos extends CI_Controller {
 
 				$countAll = $total;
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			$query = $this->db->query('SELECT * FROM (SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (3)) as cantidad_produccion,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (2)) as cantidad_pendiente  FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_bodega='.$bodega.' AND c.rut = "'.$nombres.'" and acc.estado = "'.$estado.'" ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' order by acc.id desc			
+			WHERE acc.id_bodega='.$bodega.' AND c.rut = "'.$nombres.'"  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ')a
+			WHERE 1 = 1 ' . $sql_estado . '
+			order by a.id desc			
 			limit '.$start.', '.$limit.'');
 
 		};
@@ -2310,7 +2443,8 @@ class Pedidos extends CI_Controller {
 	        }
 
 	        $data = array();	        	    	
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -2327,7 +2461,8 @@ class Pedidos extends CI_Controller {
 
 			$countAll = $total;
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -2348,13 +2483,34 @@ class Pedidos extends CI_Controller {
 	        }
 
 	        $data = array();	        	    	
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+
+			if($estadonuevo == 2){// pendiente autorizacion
+				$sql_estado_pedido = " AND acc.idestadopedido = '6' ";
+				$sql_estado = '';
+			}else if($estadonuevo == 3){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_pendiente > 0';
+			}else if($estadonuevo == 4){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_produccion > 0';
+			}else if($estadonuevo == 5){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_listos > 0 and cantidad_listos < cantidad_productos';
+			}else if($estadonuevo == 6){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_listos = cantidad_productos';
+			}
+
+
+			$query = $this->db->query('SELECT * FROM (SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (3)) as cantidad_produccion,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (2)) as cantidad_pendiente  FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_bodega='.$bodega.' AND acc.estado = "'.$estado.'" ' . $sql_nombre . '  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
-			order by acc.id desc'
+			WHERE acc.id_bodega='.$bodega.' ' . $sql_nombre . '  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ')a
+			WHERE 1 = 1 ' . $sql_estado . '
+			order by a.id desc'
 						
 			);
 
@@ -2368,12 +2524,15 @@ class Pedidos extends CI_Controller {
 
 			$countAll = $total;
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			$query = $this->db->query('SELECT * FROM (SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (3)) as cantidad_produccion,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (2)) as cantidad_pendiente  FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_bodega='.$bodega.' AND acc.estado = "'.$estado.'" ' . $sql_nombre . '  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' order by acc.id desc
+			WHERE acc.id_bodega='.$bodega.' ' . $sql_nombre . '  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ')a
+			WHERE 1 = 1 ' . $sql_estado . '
+			order by a.id desc
 			limit '.$start.', '.$limit.'');
 
 		    };
@@ -2382,7 +2541,8 @@ class Pedidos extends CI_Controller {
 
 			if ($estado == 1){			
 			$data = array();
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -2400,7 +2560,8 @@ class Pedidos extends CI_Controller {
 
 			$countAll = $total;
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -2413,13 +2574,35 @@ class Pedidos extends CI_Controller {
 
 			}else{
 			$data = array();
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+
+			if($estadonuevo == 2){// pendiente autorizacion
+				$sql_estado_pedido = " AND acc.idestadopedido = '6' ";
+				$sql_estado = '';
+			}else if($estadonuevo == 3){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_pendiente > 0';
+			}else if($estadonuevo == 4){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_produccion > 0';
+			}else if($estadonuevo == 5){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_listos > 0 and cantidad_listos < cantidad_productos';
+			}else if($estadonuevo == 6){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_listos = cantidad_productos';
+			}
+
+
+
+			$query = $this->db->query('SELECT * FROM (SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (3)) as cantidad_produccion,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (2)) as cantidad_pendiente  FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_bodega='.$bodega.' AND (acc.estado = "'.$estado.'" or acc.estado = 1 )  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
-			order by acc.id desc');
+			WHERE acc.id_bodega='.$bodega.'  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' )a
+			WHERE 1 = 1 ' . $sql_estado . '
+			order by a.id desc');
 
 			$total = 0;
 
@@ -2431,16 +2614,21 @@ class Pedidos extends CI_Controller {
 
 			$countAll = $total;
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			$query = $this->db->query('SELECT * FROM (SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (3)) as cantidad_produccion,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (2)) as cantidad_pendiente FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_bodega='.$bodega.' AND (acc.estado = "'.$estado.'" or acc.estado = 1 )  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
-			order by acc.id desc
+			WHERE acc.id_bodega='.$bodega.' ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . '  )a
+			WHERE 1 = 1 ' . $sql_estado . '
+			order by a.id desc
 			limit '.$start.', '.$limit.''	
 			
 			);
+
+
+			//echo $this->db->last_query();
 		};
 		}else if($opcion == "Numero"){
 
@@ -2449,7 +2637,9 @@ class Pedidos extends CI_Controller {
 			
 			$data = array();
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos
+			FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -2467,7 +2657,8 @@ class Pedidos extends CI_Controller {
 
 			$countAll = $total;
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
@@ -2479,13 +2670,33 @@ class Pedidos extends CI_Controller {
 
 				$data = array();
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			if($estadonuevo == 2){// pendiente autorizacion
+				$sql_estado_pedido = " AND acc.idestadopedido = '6' ";
+				$sql_estado = '';
+			}else if($estadonuevo == 3){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_pendiente > 0';
+			}else if($estadonuevo == 4){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_produccion > 0';
+			}else if($estadonuevo == 5){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_listos > 0 and cantidad_listos < cantidad_productos';
+			}else if($estadonuevo == 6){
+				$sql_estado_pedido = '';
+				$sql_estado = 'AND idestadopedido != 6 AND cantidad_listos = cantidad_productos';
+			}
+
+
+			$query = $this->db->query('SELECT * FROM (SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (3)) as cantidad_produccion,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (2)) as cantidad_pendiente  FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_bodega='.$bodega.' AND acc.num_pedido =  "'.$nombres.'" and acc.estado = "'.$estado.'" ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
-			order by acc.id desc');
+			WHERE acc.id_bodega='.$bodega.' AND acc.num_pedido =  "'.$nombres.'"  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ')a
+			WHERE 1 = 1 ' . $sql_estado . '
+			order by a.id desc');
 
 			$total = 0;
 
@@ -2497,13 +2708,15 @@ class Pedidos extends CI_Controller {
 
 			$countAll = $total;
 
-			$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega FROM pedidos acc
+			$query = $this->db->query('SELECT * FROM (SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, co.nombre as nom_documento, v.nombre as nom_vendedor, co.id as id_tip_docu, b.nombre as nom_bodega,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+			,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (3)) as cantidad_produccion,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (2)) as cantidad_pendiente  FROM pedidos acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			left join bodegas b on (acc.id_bodega = b.id)
 			left join correlativos co on (acc.tip_documento = co.id)
-			WHERE acc.id_bodega='.$bodega.' AND acc.num_pedido =  "'.$nombres.'" and acc.estado = "'.$estado.'" ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ' 
-			order by acc.id desc');
+			WHERE acc.id_bodega='.$bodega.' AND acc.num_pedido =  "'.$nombres.'"  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ')a
+			WHERE 1 = 1 ' . $sql_estado . '
+			order by a.id desc');
 				
 			}
 
@@ -2562,8 +2775,21 @@ class Pedidos extends CI_Controller {
 		    };
 
 		    
+		    if($row->idestadopedido == 6){
+		    		$row->situacionpedido = '<a style="background-color: red; color: white;"><b>Pendiente Autorización Cliente</b></a>';
+		    }else{
+		    		$color_background = $row->cantidad_listos == $row->cantidad_productos ? 'green' : 'yellow';
+		    		$color_text = $row->cantidad_listos == $row->cantidad_productos ? 'white' : 'blue';
+
+		    		$row->situacionpedido = '<a style="background-color: ' . $color_background . '; color: ' . $color_text . ';"><b>Listos ( ' . $row->cantidad_listos . ' / ' . $row->cantidad_productos . ' )</b></a>';
+
+		    }
 			$data[] = $row;
+
+
+
 		}
+
         $resp['success'] = true;
         $resp['total'] = $countAll;
         $resp['data'] = $data;

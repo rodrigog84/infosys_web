@@ -10,6 +10,7 @@ Ext.define('Infosys_web.controller.Pedidos2', {
     stores: ['Pedidos.Editar',
             'Pedidos.Items',
             'Pedidos.Selector4',
+            'Pedidos.Selector5',
             'Productosf',
             'Productosf',
             'Pedidos',

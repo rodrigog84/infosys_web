@@ -80,6 +80,10 @@ Ext.define('Infosys_web.view.Pedidos2.Principal' ,{
         renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00")}
         
     },{
+        header: "Situacion Produccion",
+        flex: 1,
+        dataIndex: 'situacionpedido',
+    },{
         header: "Ver",
         xtype:'actioncolumn',
         align: 'center',
@@ -229,7 +233,7 @@ Ext.define('Infosys_web.view.Pedidos2.Principal' ,{
                 value: "1",
                 displayField : 'nombre',
                 emptyText : "Seleccione",
-                store : 'Pedidos.Selector4'
+                store : 'Pedidos.Selector5'
             },'-',{
                 xtype: 'button',
                 iconCls: 'icon-search',
