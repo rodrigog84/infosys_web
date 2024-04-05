@@ -212,6 +212,9 @@ Ext.define('Infosys_web.controller.Pedidos2', {
             'formularioexportarpedidos button[action=exportarExcelFormulario]': {
                 click: this.exportarExcelFormulario
             },
+            'formularioexportarpedidos2 button[action=exportarExcelFormulario]': {
+                click: this.exportarExcelFormulario2
+            },            
             'pedidosprincipalformula button[action=exportarexcelpedidos]': {
                 click: this.exportarexcelpedidos
             },
@@ -729,6 +732,45 @@ Ext.define('Infosys_web.controller.Pedidos2', {
  
     }, 
    
+
+
+    exportarExcelFormulario2: function(){
+        
+        var jsonCol = new Array()
+        var i = 0;
+        var grid =this.getPedidosprincipalformula()
+        Ext.each(grid.columns, function(col, index){
+          if(!col.hidden){
+              jsonCol[i] = col.dataIndex;
+          }
+          
+          i++;
+        })
+
+        var view =this.getFormularioexportarpedidos2()
+        var viewnew =this.getPedidosprincipalformula()
+
+        var fecha = view.down('#fechaId').getSubmitValue();
+        
+        var fecha2 = view.down('#fecha2Id').getSubmitValue();
+
+        var fechaformat = fecha.substring(6)+fecha.substring(3,5)+fecha.substring(0,2);
+        var fecha2format = fecha2.substring(6)+fecha2.substring(3,5)+fecha2.substring(0,2);
+
+        if (fechaformat > fecha2format) {
+        
+               Ext.Msg.alert('Alerta', 'Fechas Incorrectas');
+            return;          
+
+        };     
+
+        window.open(preurl + 'adminServicesExcel/exportarExcelPedidos?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2);
+        view.close();    
+
+     
+ 
+    }, 
+
     changedctofinal8: function(){
         this.buscarpedidos2();
     },
