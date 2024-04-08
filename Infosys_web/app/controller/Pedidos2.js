@@ -764,7 +764,7 @@ Ext.define('Infosys_web.controller.Pedidos2', {
 
         };     
 
-        window.open(preurl + 'adminServicesExcel/exportarExcelPedidos?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2);
+        window.open(preurl + 'adminServicesExcel/exportarExcelPedidos2?cols='+Ext.JSON.encode(jsonCol)+'&fecha='+fecha+'&fecha2='+fecha2);
         view.close();    
 
      

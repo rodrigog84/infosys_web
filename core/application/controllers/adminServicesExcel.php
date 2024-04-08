@@ -393,6 +393,80 @@ public function exportarExcelPedidos(){
     }
 
 
+
+   public function exportarExcelPedidos2(){
+
+
+          header("Content-type: application/vnd.ms-excel");
+          header("Content-disposition: attachment; filename=Pedidos.xls"); 
+      
+          
+          $columnas = json_decode($this->input->get('cols'));
+          
+          $fecha = $this->input->get('fecha');
+          list($dia, $mes, $anio) = explode("/",$fecha);
+          $fecha3 = $anio ."-". $mes ."-". $dia;
+          $fecha2 = $this->input->get('fecha2');
+          list($dia, $mes, $anio) = explode("/",$fecha2);
+          $fecha4 = $anio ."-". $mes ."-". $dia;
+          $tipo = $this->input->get('opcion');
+
+          $this->load->database();
+
+          $query = $this->db->query("SELECT acc.num_pedido
+                                            ,0 AS orden_compra
+                                            ,c.nombres as nom_cliente
+                                            ,p.nombre AS nomproducto
+                                            ,d.cantidad
+                                            ,'00/00/0000' AS fecentrega
+                                            ,v.nombre as nom_vendedor
+                                            ,'' AS receta
+                                      FROM pedidos acc
+                                      INNER JOIN pedidos_detalle d ON acc.id = d.id_pedido
+                                      INNER JOIN productos p ON d.id_producto = p.id
+                                      left join clientes c on (acc.id_cliente = c.id)
+                                      left join vendedores v on (acc.id_vendedor = v.id)
+                                      left join correlativos co on (acc.tip_documento = co.id) 
+                                      WHERE acc.fecha_doc between '".$fecha3."'  AND '".$fecha4."'");
+          $users = $query->result_array();
+
+            echo '<table>';
+            echo "<td></td>";
+            echo "<td>INFORME PEDIDOS POR FECHA</td>";
+            echo "<tr>";
+            echo "<td>DESDE : ".$fecha."</td>";
+            echo "</tr>";
+            echo "<tr>";
+            echo "<td>HASTA : ".$fecha2."</td>";
+            echo "</tr>";                  
+            echo "<tr>";
+            echo "<td>NRO PEDIDO</td>";
+            echo "<td>ORDEN COMPRA</td>";
+            echo "<td>CLIENTE</td>";
+            echo "<td>PRODUCTO</td>";
+            echo "<td>CANTIDAD</td>";
+            echo "<td>FECHA ENTREGA</td>";
+            echo "<td>VENDEDOR</td>";
+            echo "<td>RECETA</td>";
+                         
+            foreach($users as $v){
+
+              echo "<tr>";
+              echo "<td>".$v['num_pedido']."</td>";
+              echo "<td>".$v['orden_compra']."</td>";
+              echo "<td>".$v['nom_cliente']."</td>";
+              echo "<td>".$v['nomproducto']."</td>";
+              echo "<td>".number_format($v['cantidad'],0,'.','.')."</td>";
+              echo "<td>".$v['fecentrega']."</td>";
+              echo "<td>".$v['nom_vendedor']."</td>";
+              echo "<td>".$v['receta']."</td></tr>";
+            
+              }
+              echo '</table>';
+         
+    } 
+
+
 public function reporte_stock($familia,$subfamilia,$agrupacion,$marca,$producto)
          {
             header("Content-type: application/vnd.ms-excel"); 
@@ -562,8 +636,8 @@ public function reporte_detalle_productos_stock($idproducto,$mes,$anno)
 
 public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
          {
-            header("Content-type: application/vnd.ms-excel"); 
-            header("Content-disposition: attachment; filename=reporte_estadisticas_ventas.xls"); 
+           // header("Content-type: application/vnd.ms-excel"); 
+           // header("Content-disposition: attachment; filename=reporte_estadisticas_ventas.xls"); 
             
 
 
