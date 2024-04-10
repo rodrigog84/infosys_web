@@ -48,7 +48,7 @@ Ext.define('Infosys_web.view.Pedidos2.Principal' ,{
         hidden: true
     },{
         header: "Razon Social",
-         width: 390,
+         width: 300,
         dataIndex: 'nombre_cliente'
     },{
         header: "Vendedor",
@@ -83,6 +83,31 @@ Ext.define('Infosys_web.view.Pedidos2.Principal' ,{
         header: "Situacion Produccion",
         flex: 1,
         dataIndex: 'situacionpedido',
+    },{
+            header: "Adjuntar Receta",
+            xtype:'actioncolumn',
+            width:150,
+            align: 'center',
+            items: [{
+                iconCls: 'icon-upload',  // Use a URL in the icon config
+                tooltip: 'Adjuntar Receta',
+                handler: function(grid, rowIndex, colIndex) {
+                    var rec = grid.getStore().getAt(rowIndex);
+                    //salert("Edit " + rec.get('firstname'));
+                    var vista = this.up('facturasprincipal');
+                    vista.fireEvent('verEstadoDte',rec,3)
+                },
+                isDisabled: function(view, rowIndex, colIndex, item, record) {
+                    // Returns true if 'editable' is false (, null, or undefined)
+                    console.log(record.get('cantidad_requiere_receta'))
+                    if(record.get('cantidad_requiere_receta') > 0){
+                        return false;
+                    }else{
+                        return true;
+                    }
+                }                
+            }]     
+        
     },{
         header: "Ver",
         xtype:'actioncolumn',

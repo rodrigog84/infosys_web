@@ -698,3 +698,11 @@ ALTER TABLE `pedidos_detalle`
 	ADD INDEX `id_pedido` (`id_pedido`);
 
 	
+
+/********************************************************************************************************/
+ALTER TABLE `pedidos_detalle`
+	ADD COLUMN `requierereceta` TINYINT NOT NULL DEFAULT 0 AFTER `idestadoproducto`,
+	ADD COLUMN `subereceta` TINYINT NOT NULL DEFAULT 0 AFTER `requierereceta`;
+
+
+	

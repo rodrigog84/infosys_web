@@ -1118,6 +1118,18 @@ class Pedidos2 extends CI_Controller {
 
 			$cantidadform = $cantidadform + $v->cantidad;
 
+
+
+		   	$this->db->where('id', $v->id_producto);
+			$producto_result = $this->db->get("productos");	
+			$producto_res = $producto_result->result();
+			$producto_row = $producto_res[0];
+			$requiere_receta = $producto_row->requiere_receta == 'SI' ? 1 : 0;
+
+
+
+
+
 			$secuencia = $secuencia + 1;
 			$pedidos_detalle = array(
 		        'id_producto' => $v->id_producto,
@@ -1133,7 +1145,8 @@ class Pedidos2 extends CI_Controller {
 		        'total' => $v->total,
 		        'secuencia' => $secuencia,
 		        'fecha' => $fechapedidos,
-		        'idestadoproducto' => 1
+		        'idestadoproducto' => 1,
+		        'requierereceta' => $requiere_receta
  			);
 
 
@@ -1167,6 +1180,8 @@ class Pedidos2 extends CI_Controller {
 			if($v->cantidad > $producto_row->stock){
 				$existe_stock = false;
 			}
+
+
 
 
 			
