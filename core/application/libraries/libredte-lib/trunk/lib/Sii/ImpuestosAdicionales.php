@@ -44,8 +44,7 @@ class ImpuestosAdicionales
         ],
         18 => [
             'tipo' => 'A',
-            //'glosa' => 'IVA anticipado carne',
-            'glosa' => 'Impto',
+            'glosa' => 'IVA anticiado carne',
             'tasa' => 5,
         ],
         19 => [
