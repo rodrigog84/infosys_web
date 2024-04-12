@@ -66,7 +66,7 @@ Ext.define('Infosys_web.view.facturaglosa.BuscarSucursales' ,{
         },{
             xtype: 'button',
             margin: 5,
-            action: 'seleccionarsucursalnotacredito',
+            action: 'seleccionarsucursalcliente',
             dock: 'bottom',
             text : 'Seleccionar'
         },
