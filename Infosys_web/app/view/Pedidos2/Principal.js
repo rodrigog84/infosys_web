@@ -94,8 +94,8 @@ Ext.define('Infosys_web.view.Pedidos2.Principal' ,{
                 handler: function(grid, rowIndex, colIndex) {
                     var rec = grid.getStore().getAt(rowIndex);
                     //salert("Edit " + rec.get('firstname'));
-                    var vista = this.up('facturasprincipal');
-                    vista.fireEvent('verEstadoDte',rec,3)
+                    var vista = this.up('pedidosprincipalformula');
+                    vista.fireEvent('adjuntarReceta',rec)
                 },
                 isDisabled: function(view, rowIndex, colIndex, item, record) {
                     // Returns true if 'editable' is false (, null, or undefined)

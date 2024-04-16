@@ -706,3 +706,14 @@ ALTER TABLE `pedidos_detalle`
 
 
 	
+	/************************************************************************************************/
+
+	ALTER TABLE `pedidos_detalle`
+	ADD COLUMN `nomarchivoreceta` VARCHAR(100) NOT NULL DEFAULT '0' AFTER `subereceta`;
+
+	ALTER TABLE `pedidos_detalle`
+	ADD COLUMN `nomarchivorecetareal` VARCHAR(100) NOT NULL DEFAULT '0' AFTER `nomarchivoreceta`;
+
+	ALTER TABLE `pedidos_detalle`
+	CHANGE COLUMN `nomarchivoreceta` `nomarchivoreceta` VARCHAR(100) NOT NULL COLLATE 'latin1_swedish_ci' AFTER `subereceta`,
+	CHANGE COLUMN `nomarchivorecetareal` `nomarchivorecetareal` VARCHAR(100) NOT NULL COLLATE 'latin1_swedish_ci' AFTER `nomarchivoreceta`;
