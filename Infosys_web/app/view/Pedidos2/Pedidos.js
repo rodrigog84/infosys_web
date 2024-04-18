@@ -189,7 +189,7 @@ Ext.define('Infosys_web.view.Pedidos2.Pedidos', {
                                     msgTarget: 'side',
                                     labelWidth: 155,
                                     maxHeight: 25,
-                                    width: 520,
+                                    width: 400,
                                     fieldLabel: '<b>NOMBRE FORMULA</b>',
                                     itemId: 'nombreformulaId',
                                     name : 'nombre'                                         
@@ -229,6 +229,19 @@ Ext.define('Infosys_web.view.Pedidos2.Pedidos', {
                                 itemId: 'fechadespachoId',
                                 name: 'fecha_despacho'
                             },{
+                                    xtype: 'displayfield',
+                                    width: 10                                   
+                                },{
+                                    xtype: 'textfield',
+                                    fieldCls: 'required',
+                                    msgTarget: 'side',
+                                    labelWidth: 130,
+                                    maxHeight: 25,
+                                    width: 240,
+                                    fieldLabel: '<b>O.COMPRA</b>',
+                                    itemId: 'ordencompraId',
+                                    name : 'ordencompra'                                         
+                                },{
                                     xtype: 'textfield',
                                     itemId: 'formulaId',
                                     name : 'id_formula',

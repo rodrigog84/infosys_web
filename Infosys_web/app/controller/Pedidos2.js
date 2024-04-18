@@ -2099,6 +2099,7 @@ Ext.define('Infosys_web.controller.Pedidos2', {
         var stCombo = vendedor.getStore();
         var record = stCombo.findRecord('id', vendedor.getValue()).data;
         var finalafectoId = viewIngresa.down('#finaltotalnetoId').getValue();
+        var ordencompraId = viewIngresa.down('#ordencompraId').getValue();
         var vendedor = record.id;
         var stItem = this.getPedidosItemsStore();
         var stpedidos = this.getPedidosStore();
@@ -2146,6 +2147,7 @@ Ext.define('Infosys_web.controller.Pedidos2', {
                 id_observa: id_observa,
                 idbodega: idbodega,
                 numeropedido : numeropedido,
+                ordencompra : ordencompraId,
                 fechadocum: Ext.Date.format(fechadocum,'Y-m-d'),
                 fechapedido: Ext.Date.format(fechapedidos,'Y-m-d'),
                 fechadespacho: Ext.Date.format(fechadespacho,'Y-m-d'),

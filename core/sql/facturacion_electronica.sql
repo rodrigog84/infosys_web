@@ -717,3 +717,13 @@ ALTER TABLE `pedidos_detalle`
 	ALTER TABLE `pedidos_detalle`
 	CHANGE COLUMN `nomarchivoreceta` `nomarchivoreceta` VARCHAR(100) NOT NULL COLLATE 'latin1_swedish_ci' AFTER `subereceta`,
 	CHANGE COLUMN `nomarchivorecetareal` `nomarchivorecetareal` VARCHAR(100) NOT NULL COLLATE 'latin1_swedish_ci' AFTER `nomarchivoreceta`;
+
+
+
+	/**************************************************************************************************/
+
+	ALTER TABLE `pedidos`
+	ADD COLUMN `ordencompra` VARCHAR(50) NOT NULL DEFAULT '1' AFTER `idestadopedido`;
+
+
+	
