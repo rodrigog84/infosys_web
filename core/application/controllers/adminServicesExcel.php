@@ -418,7 +418,8 @@ public function exportarExcelPedidos(){
                                             ,c.nombres as nom_cliente
                                             ,p.nombre AS nomproducto
                                             ,d.cantidad
-                                            ,'00/00/0000' AS fecentrega
+                                            ,DATE_FORMAT(acc.fecha_despacho, '%d/%m/%Y') AS fecentrega
+                                            ,acc.ubicacion AS ubicacion
                                             ,v.nombre as nom_vendedor
                                             ,'' AS receta
                                       FROM pedidos acc
@@ -441,10 +442,11 @@ public function exportarExcelPedidos(){
             echo "</tr>";                  
             echo "<tr>";
             echo "<td>NRO PEDIDO</td>";
-            echo "<td>ORDEN COMPRA</td>";
+            echo "<td align='right'>ORDEN COMPRA</td>";
             echo "<td>CLIENTE</td>";
             echo "<td>PRODUCTO</td>";
             echo "<td>CANTIDAD</td>";
+            echo "<td>UBICACION</td>";
             echo "<td>FECHA ENTREGA</td>";
             echo "<td>VENDEDOR</td>";
             echo "<td>RECETA</td>";
@@ -457,6 +459,7 @@ public function exportarExcelPedidos(){
               echo "<td>".$v['nom_cliente']."</td>";
               echo "<td>".$v['nomproducto']."</td>";
               echo "<td>".number_format($v['cantidad'],0,'.','.')."</td>";
+              echo "<td>".$v['ubicacion']."</td>";
               echo "<td>".$v['fecentrega']."</td>";
               echo "<td>".$v['nom_vendedor']."</td>";
               echo "<td>".$v['receta']."</td></tr>";

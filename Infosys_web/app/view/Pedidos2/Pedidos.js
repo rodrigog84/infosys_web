@@ -19,7 +19,7 @@ Ext.define('Infosys_web.view.Pedidos2.Pedidos', {
     ],
 
     autoShow: true,
-    height: 620,
+    height: 720,
     width: 1300,
     layout: 'fit',
     title: 'Pedido',
@@ -39,7 +39,7 @@ Ext.define('Infosys_web.view.Pedidos2.Pedidos', {
                 },
                 items: [{
                     xtype: 'container',
-                    height: 180,
+                    height: 250,
                     layout: {
                         type: 'vbox',
                         align: 'stretch'
@@ -251,7 +251,28 @@ Ext.define('Infosys_web.view.Pedidos2.Pedidos', {
                             ]
                         },{
                             xtype: 'fieldcontainer',
-                            height: 20,
+                            height: 30,
+                            width: 462,
+                            fieldLabel: '',
+                            layout: {
+                                type: 'hbox',
+                                align: 'stretch'
+                            },
+                            items: [{
+                                    xtype: 'textfield',
+                                    fieldCls: 'required',
+                                    msgTarget: 'side',
+                                    labelWidth: 155,
+                                    maxHeight: 25,
+                                    width: 600,
+                                    fieldLabel: '<b>UBICACION</b>',
+                                    itemId: 'ubicacionId',
+                                    name : 'ubicacion'                                         
+                                }
+                            ]
+                        },{
+                            xtype: 'fieldcontainer',
+                            height: 30,
                             width: 462,
                             fieldLabel: '',
                             layout: {

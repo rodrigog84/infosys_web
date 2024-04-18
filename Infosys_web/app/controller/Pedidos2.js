@@ -2100,6 +2100,7 @@ Ext.define('Infosys_web.controller.Pedidos2', {
         var record = stCombo.findRecord('id', vendedor.getValue()).data;
         var finalafectoId = viewIngresa.down('#finaltotalnetoId').getValue();
         var ordencompraId = viewIngresa.down('#ordencompraId').getValue();
+        var ubicacionId = viewIngresa.down('#ubicacionId').getValue();
         var vendedor = record.id;
         var stItem = this.getPedidosItemsStore();
         var stpedidos = this.getPedidosStore();
@@ -2107,25 +2108,32 @@ Ext.define('Infosys_web.controller.Pedidos2', {
 
         if(!idFormula){
             viewIngresa.down("#grabarpedidos").setDisabled(false);
-            Ext.Msg.alert('Debe Asignar Formula');
+            Ext.Msg.alert('Atención','Debe Asignar Formula');
             return;            
         }
 
         if(!fechadespacho){
             viewIngresa.down("#grabarpedidos").setDisabled(false);
-            Ext.Msg.alert('Debe Asignar Fecha de Despacho a Solicitada');
+            Ext.Msg.alert('Atención','Debe Asignar Fecha de Despacho a Solicitada');
             return;            
         }
 
         if(vendedor==0){
             viewIngresa.down("#grabarpedidos").setDisabled(false);
-            Ext.Msg.alert('Ingrese Datos del Vendedor');
+            Ext.Msg.alert('Atención','Ingrese Datos del Vendedor');
             return;   
         }
 
         if(finalafectoId==0){
             viewIngresa.down("#grabarpedidos").setDisabled(false);
-            Ext.Msg.alert('Ingrese Productos al Pedido');
+            Ext.Msg.alert('Atención','Ingrese Productos al Pedido');
+            return;   
+        }
+
+
+        if(ubicacionId==0){
+            viewIngresa.down("#grabarpedidos").setDisabled(false);
+            Ext.Msg.alert('Atención','Debe ingresar ubicación del cliente');
             return;   
         }
         
@@ -2148,6 +2156,7 @@ Ext.define('Infosys_web.controller.Pedidos2', {
                 idbodega: idbodega,
                 numeropedido : numeropedido,
                 ordencompra : ordencompraId,
+                ubicacion : ubicacionId,
                 fechadocum: Ext.Date.format(fechadocum,'Y-m-d'),
                 fechapedido: Ext.Date.format(fechapedidos,'Y-m-d'),
                 fechadespacho: Ext.Date.format(fechadespacho,'Y-m-d'),

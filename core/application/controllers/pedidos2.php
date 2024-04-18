@@ -1189,6 +1189,7 @@ class Pedidos2 extends CI_Controller {
 		$ftotal = $this->input->post('total');
 		$idobserva = $this->input->post('idobserva');
 		$ordencompra = $this->input->post('ordencompra');
+		$ubicacion = $this->input->post('ubicacion');
 						
 			
 		$pedidos = array(
@@ -1208,7 +1209,8 @@ class Pedidos2 extends CI_Controller {
 	        'id_observa' => $idobserva,
 	        'estado' => 4,
 	        'idestadopedido' => 1,
-	        'ordencompra' => $ordencompra
+	        'ordencompra' => $ordencompra,
+	        'ubicacion' => $ubicacion,
 		);
 
 		$this->db->insert('pedidos', $pedidos); 

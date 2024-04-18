@@ -726,4 +726,11 @@ ALTER TABLE `pedidos_detalle`
 	ADD COLUMN `ordencompra` VARCHAR(50) NOT NULL DEFAULT '1' AFTER `idestadopedido`;
 
 
+	/***************************************************************************************************/
+
+	ALTER TABLE `pedidos`
+	CHANGE COLUMN `iva` `iva` INT(10) NOT NULL AFTER `neto`,
+	ADD COLUMN `ubicacion` VARCHAR(250) NOT NULL AFTER `ordencompra`;
 	
+
+
