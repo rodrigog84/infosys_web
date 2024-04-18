@@ -414,7 +414,7 @@ public function exportarExcelPedidos(){
           $this->load->database();
 
           $query = $this->db->query("SELECT acc.num_pedido
-                                            ,0 AS orden_compra
+                                            ,acc.ordencompra AS orden_compra
                                             ,c.nombres as nom_cliente
                                             ,p.nombre AS nomproducto
                                             ,d.cantidad
