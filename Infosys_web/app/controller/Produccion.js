@@ -39,6 +39,7 @@ Ext.define('Infosys_web.controller.Produccion', {
             'Produccion.EditaProduccionTermino',
             'Produccion.BuscarProductos2',
             'Produccion.detalle_stock2',
+            'Produccion.detalle_stock3',
             'Produccion.ProduccionFormula',
             'Produccion.Solicitaproduccion',
             'Produccion.BuscarPedidos2',
@@ -82,6 +83,9 @@ Ext.define('Infosys_web.controller.Produccion', {
         ref: 'detallestock4',
         selector: 'detallestock4'
     },{    
+        ref: 'detallestock3',
+        selector: 'detallestock3'
+    },{    
         ref: 'formularioexportarproduccion',
         selector: 'formularioexportarproduccion'
     },{    
@@ -93,6 +97,9 @@ Ext.define('Infosys_web.controller.Produccion', {
     },{    
         ref: 'detallestock5',
         selector: 'detallestock5'
+    },{    
+        ref: 'detallestock6',
+        selector: 'detallestock6'
     },{    
         ref: 'produccioningresarformula',
         selector: 'produccioningresarformula'
@@ -227,6 +234,9 @@ Ext.define('Infosys_web.controller.Produccion', {
             'detallestock5 button[action=seleccionarproductosstock5]': {
                 click: this.seleccionarproductosstock2
             },
+            'detallestock6 button[action=seleccionarproductosstock6]': {
+                click: this.seleccionarproductosstock3
+            },            
             'buscarproductosconsumoproduccion button[action=buscarconsumopro]': {
                 click: this.buscarconsumopro
             },
@@ -835,6 +845,38 @@ Ext.define('Infosys_web.controller.Produccion', {
         }
     },
 
+
+
+    seleccionarproductosstock3: function(){
+
+        var view = this.getDetallestock6();
+        var viewIngresa = this.getProducciontermino2();
+        var stockcriticoid = view.down('#stockcriticoId').getValue();
+        var stocktotal = view.down('#stockId').getValue();
+        var grid  = view.down('grid');        
+        if (grid.getSelectionModel().hasSelection()) {          
+            var row = grid.getSelectionModel().getSelection()[0];
+            viewIngresa.down('#productoId').setValue(row.data.id_producto);
+            viewIngresa.down('#idpId').setValue(row.data.id);
+            viewIngresa.down('#nombreproductoforId').setValue(row.data.nom_producto);
+            viewIngresa.down('#codigoId').setValue(row.data.codigo);  
+            viewIngresa.down('#cantidadoriId').setValue(row.data.saldo);        
+            viewIngresa.down('#precioId').setValue(row.data.p_promedio);
+            //console.log(row.data.lote);
+            viewIngresa.down('#loteId').setValue(row.data.lote);
+            viewIngresa.down('#stockcriticoId').setValue(stockcriticoid);
+            viewIngresa.down('#fechavencimientoId').setValue(row.data.fecha_vencimiento);
+            viewIngresa.down('#stockTotalId').setValue(row.data.stocktotal);            
+            view.close();
+           
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }
+    },
+
+
+
     seleccionarproductosstock2: function(){
 
         var view = this.getDetallestock5();
@@ -861,7 +903,6 @@ Ext.define('Infosys_web.controller.Produccion', {
     },
 
      seleccionarproductos7 : function(){
-
         var view = this.getBuscarproductosconsumoproduccion();
         var viewIngresa = this.getProducciontermino();
         var bodega = 1;
@@ -957,7 +998,6 @@ Ext.define('Infosys_web.controller.Produccion', {
     },
 
       buscarproductos6: function(){       
-
         var viewIngresa = this.getProducciontermino2();
         var codigo = viewIngresa.down('#codigoId').getValue();
         var id = viewIngresa.down('#productoId').getValue();
@@ -991,7 +1031,7 @@ Ext.define('Infosys_web.controller.Produccion', {
                                                 bodega : bodega}
                         st.load();
                         if(id){
-                        viewIngresa = Ext.create('Infosys_web.view.Produccion.detalle_stock').show();
+                        viewIngresa = Ext.create('Infosys_web.view.Produccion.detalle_stock3').show();
                         viewIngresa.down('#stockId').setValue(cliente.stock);
                         viewIngresa.down('#stockcriticoId').setValue(cliente.stock_critico);
                         viewIngresa.down('#pventaId').setValue(cliente.p_promedio);
