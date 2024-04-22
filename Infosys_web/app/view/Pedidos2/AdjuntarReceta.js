@@ -6,7 +6,7 @@ Ext.define('Infosys_web.view.Pedidos2.AdjuntarReceta' ,{
     title : 'Cargar Recetas Pedido',
     layout: 'fit',
     autoShow: true,
-    width: 1200,
+    width: 1430,
     height: 450,
     modal: true,
     iconCls: 'icon-sheet',
@@ -57,7 +57,7 @@ Ext.define('Infosys_web.view.Pedidos2.AdjuntarReceta' ,{
         this.items = {
             xtype: 'grid',
             store:Ext.create('Ext.data.Store', {
-            fields: ['id','codigo','nombre', 'requiererecetasino','recetacargada','permitecargar','subereceta','omarchivoreceta'],
+            fields: ['id','codigo','nombre', 'requiererecetasino','recetacargada','permitecargar','subereceta','nomarchivoreceta','nroreceta'],
             proxy: {
               type: 'ajax',
                 actionMethods:  {
@@ -77,7 +77,7 @@ Ext.define('Infosys_web.view.Pedidos2.AdjuntarReceta' ,{
             },
         columns: [{
         header: "Cod Producto",
-        width: 150,
+        width: 130,
         dataIndex: 'codigo'
         
     },{
@@ -87,39 +87,56 @@ Ext.define('Infosys_web.view.Pedidos2.AdjuntarReceta' ,{
         
     },{
         header: "Requiere Receta",
-        width: 160,
+        width: 150,
         dataIndex: 'requiererecetasino'
         
     },{
         header: "Receta Cargada",
-        width: 160,
+        width: 150,
         dataIndex: 'recetacargada'
         
     },{
         header: "Carga",
         width: 350,
         renderer: function(value, metaData, record, rowIndex, colIndex, store, view) {
-                    console.log(record.data)
                     var disabled_file = record.data.permitecargar == 1 ? '' : 'disabled';
                     return Ext.String.format(
-                        '<input type="file" id="fileInput_{0}" name="fileInput_{0}" style="width: 95%" ' + disabled_file + ' onchange="handleFileSelect(this, {0})">',
+                        '<input type="file" id="fileInput_{0}" name="fileInput_{0}" style="width: 95%" ' + disabled_file + ' >',
                         record.data.id
                     );
                 },
-        /*items: [{
-            isDisabled: function(view, rowIndex, colIndex, item, record) {
-                // Returns true if 'editable' is false (, null, or undefined)
-                //console.log(record.get('idcomprobante'));
-                if(record.get('permitecargar') == 1){
-                    return false;
-                }else{
-                    return true;
+    },{
+        header: "Nro. Receta",
+        width: 160,
+        renderer: function(value, metaData, record, rowIndex, colIndex, store, view) {
+                    var disabled_file = record.data.permitecargar == 1 ? '' : 'readonly';
+                    var nroreceta = record.data.nroreceta;
+                    return Ext.String.format(
+                        '<input type="text" id="nroreceta_{0}" name="nroreceta_{0}" style="width: 60%" ' + disabled_file + ' value="' + nroreceta + '">',
+                        record.data.id
+                    );
+                },
+    },{
+            header: "Guardar",
+            xtype:'actioncolumn',
+            width:110,
+            items: [{
+                iconCls: 'icon-save', // Use a URL in the icon config
+                tooltip: 'Guardar Receta',
+                handler: function(grid, rowIndex, colIndex) {
+
+                    var record = grid.getStore().getAt(rowIndex);
+                    var iddetallepedido = record.data.id
+    
+                    var input_file = Ext.get('fileInput_'+iddetallepedido);
+                    var input_nro = Ext.get('nroreceta_'+iddetallepedido);
+
+                    handleFileSelect(input_file.dom,input_nro.getValue(),iddetallepedido)
+                    
                 }
-            }
 
 
-        }]   */             
-        
+            }]
     },{
             header: "Descargar",
             xtype:'actioncolumn',
@@ -134,8 +151,6 @@ Ext.define('Infosys_web.view.Pedidos2.AdjuntarReceta' ,{
                 },
                 isDisabled: function(view, rowIndex, colIndex, item, record) {
                     // Returns true if 'editable' is false (, null, or undefined)
-                    console.log(record.data)
-                    console.log('sube receta' + record.data.subereceta);
                     if(record.data.subereceta == 1){
                         return false;
                     }else{
@@ -154,7 +169,12 @@ Ext.define('Infosys_web.view.Pedidos2.AdjuntarReceta' ,{
         };
 
         // Función para manejar la selección de archivos
-        window.handleFileSelect = function(input, rowIndex) {
+        window.handleFileSelect = function(input, input_nro, rowIndex) {
+
+            console.log(input)
+            console.log(input.files)
+
+
             if (input.files && input.files[0]) {
 
                 var file = input.files[0];
@@ -180,6 +200,7 @@ Ext.define('Infosys_web.view.Pedidos2.AdjuntarReceta' ,{
                        params: {
                             file: dataURL,
                             name: file.name,
+                            nroreceta: input_nro,
                             iddetallepedido: rowIndex
                         },
                         success: function(response) {

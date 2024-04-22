@@ -421,7 +421,7 @@ public function exportarExcelPedidos(){
                                             ,DATE_FORMAT(acc.fecha_despacho, '%d/%m/%Y') AS fecentrega
                                             ,acc.ubicacion AS ubicacion
                                             ,v.nombre as nom_vendedor
-                                            ,'' AS receta
+                                            ,d.nroreceta AS receta
                                       FROM pedidos acc
                                       INNER JOIN pedidos_detalle d ON acc.id = d.id_pedido
                                       INNER JOIN productos p ON d.id_producto = p.id

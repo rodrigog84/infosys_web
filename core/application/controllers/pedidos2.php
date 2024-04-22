@@ -182,7 +182,8 @@ class Pedidos2 extends CI_Controller {
 							,d.subereceta
 							,case when d.subereceta = 1 then 'SI' else 'NO' end as recetacargada
 							,case when d.requierereceta = 1 and d.subereceta = 0 then 1 else 0 end as permitecargar
-							,d.nomarchivoreceta",false)
+							,d.nomarchivoreceta
+							,d.nroreceta",false)
 						  ->from('pedidos_detalle d')
 						  ->join('productos p','d.id_producto = p.id')
 						  ->where('d.id_pedido',$pedido); 	                  
@@ -206,6 +207,7 @@ class Pedidos2 extends CI_Controller {
 		    // Obtiene la cadena base64 del archivo desde la solicitud
 		    $dataURL = $_POST['file'];
 		    $name = $_POST['name'];
+		    $nroreceta = $_POST['nroreceta'];
 		    $iddetallepedido = $_POST['iddetallepedido'];
 
 		    $array_name = explode('.',$name);
@@ -256,7 +258,8 @@ class Pedidos2 extends CI_Controller {
 		    	$array_actualiza = array(
 		    								'subereceta' => 1,
 		    								'nomarchivoreceta' => $nombreArchivo,
-		    								'nomarchivorecetareal' => $name
+		    								'nomarchivorecetareal' => $name,
+		    								'nroreceta' => $nroreceta
 		    						);
 
 				$this->db->where('id',$iddetallepedido);
