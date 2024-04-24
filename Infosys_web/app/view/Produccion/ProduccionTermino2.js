@@ -189,7 +189,7 @@ Ext.define('Infosys_web.view.Produccion.ProduccionTermino2', {
                                     fieldCls: 'required',
                                     maxHeight: 25,
                                     labelWidth: 100,
-                                    width: 200,
+                                    width: 210,
                                     fieldLabel: '<b>FECHA VENC.</b>',
                                     itemId: 'fechavencId',
                                     name: 'fecha_vencimiento'

@@ -1001,11 +1001,12 @@ class Produccion extends CI_Controller {
 
 
 		$cantidad_total = 0;
+		$fecha_venc = '';
 		foreach($productos as $p){
 
 
 
-	        $this->db->select('d.id, d.id_pedido, d.id_producto, p.id_cliente, prod.nombre as nomproducto, d.cantidad')
+	        $this->db->select('d.id, d.id_pedido, d.id_producto, p.id_cliente, prod.nombre as nomproducto, d.cantidad, p.fecha_pedido, DATE_ADD(p.fecha_pedido, INTERVAL 360 DAY) AS fecha_vencimiento',false)
 	          ->from('pedidos_detalle d')
 	          ->join('pedidos p','d.id_pedido = p.id')
 	          ->join('productos prod','d.id_producto = prod.id')
@@ -1026,6 +1027,8 @@ class Produccion extends CI_Controller {
 		        'cant_real' => 0,
 		        'valor_prod' => 0
 			);
+
+			$fecha_venc = $data_detalle_pedido->fecha_vencimiento;
 
 			$cantidad_total += $data_detalle_pedido->cantidad;
 			$this->db->insert('produccion_detalle_pedidos', $produccion_detalle_pedidos); 
@@ -1053,7 +1056,7 @@ class Produccion extends CI_Controller {
 
 
 		$this->db->where('id', $idproduccion);
-		$this->db->update('produccion', array('cantidad' => $cantidad_total));	
+		$this->db->update('produccion', array('cantidad' => $cantidad_total,'fecha_vencimiento' => $fecha_venc));	
 
 
 		foreach($items as $v){

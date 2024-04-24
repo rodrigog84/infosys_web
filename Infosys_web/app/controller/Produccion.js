@@ -1931,6 +1931,8 @@ Ext.define('Infosys_web.controller.Produccion', {
                     view.down("#formulaId").setValue(cliente.id_formula_pedido);
                     view.down("#encargadoId").setValue(cliente.encargado);
                     view.down("#diasvencId").setValue(cliente.dias);
+                    view.down("#fechavencId").setValue(cliente.fecha_vencimiento);
+                    
                     
                     };                    
                 }else{
