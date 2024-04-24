@@ -1195,6 +1195,8 @@ class Pedidos2 extends CI_Controller {
 		$ubicacion = $this->input->post('ubicacion');
 						
 			
+
+
 		$pedidos = array(
 	        'num_pedido' => $numeropedido,
 	        'fecha_doc' => $fechadoc ,
@@ -1307,14 +1309,14 @@ class Pedidos2 extends CI_Controller {
 			$requiere_receta = $producto_row->requiere_receta == 'SI' ? 1 : 0;
 
 
-
+			$formulaid = isset($v->id_formula) ? $v->id_formula : $idformula;
 
 
 			$secuencia = $secuencia + 1;
 			$pedidos_detalle = array(
 		        'id_producto' => $v->id_producto,
 		        'id_pedido' => $idpedidos,
-		        'id_formula' => $idformula,
+		        'id_formula' => $formulaid,
 		        'id_bodega' => $v->id_bodega,
 		        'num_pedido' => $numeropedido,
 		        'precio' => $v->precio,
@@ -1330,150 +1332,142 @@ class Pedidos2 extends CI_Controller {
  			);
 
 
-		$producto = $v->id;
+			$producto = $v->id;
 
-		$this->db->insert('pedidos_detalle', $pedidos_detalle);
-
-
-
-		$iddtallepedidos = $this->db->insert_id(); 			
-
-		$pedidos_detalle_log = array(
-									'idproductodetalle' => $iddtallepedidos,
-									'idestado' => 1,
-									'fecha' => date('Y-m-d H:i:s')
-								);
-		$this->db->insert('pedidos_detalle_log_estados', $pedidos_detalle_log); 	
-
-
-		// agrega detalle del producto si no tiene stock
-		if(!$requiere_autorizacion){
-
-
-		   	$this->db->where('id', $v->id_producto);
-			$producto_result = $this->db->get("productos");	
-			$producto_res = $producto_result->result();
-			$producto_row = $producto_res[0];
-
-
-			$existe_stock = true;
-			if($v->cantidad > $producto_row->stock){
-				$existe_stock = false;
-			}
+			$this->db->insert('pedidos_detalle', $pedidos_detalle);
 
 
 
-
-			
-			if($existe_stock){
-
-					$estado_nuevo_detalle = 5;
-
-			}else{
-					$pedidocompleto = false;
-					$estado_nuevo_detalle = 2;
-			}
-
-
-
+			$iddtallepedidos = $this->db->insert_id(); 			
 
 			$pedidos_detalle_log = array(
 										'idproductodetalle' => $iddtallepedidos,
-										'idestado' => $estado_nuevo_detalle,
+										'idestado' => 1,
 										'fecha' => date('Y-m-d H:i:s')
 									);
 			$this->db->insert('pedidos_detalle_log_estados', $pedidos_detalle_log); 	
 
+
+			// agrega detalle del producto si no tiene stock
+			if(!$requiere_autorizacion){
+
+
+			   	$this->db->where('id', $v->id_producto);
+				$producto_result = $this->db->get("productos");	
+				$producto_res = $producto_result->result();
+				$producto_row = $producto_res[0];
+
+
+				$existe_stock = true;
+				if($v->cantidad > $producto_row->stock){
+					$existe_stock = false;
+				}
+
+
+
+
 				
-			$this->db->where('id', $iddtallepedidos);
-			$this->db->update('pedidos_detalle', array('idestadoproducto' => $estado_nuevo_detalle));			
+				if($existe_stock){
 
-		}	
+						$estado_nuevo_detalle = 5;
 
-
-
-
-		$formula_data = $this->db->query('SELECT * FROM formula 
-	   	    WHERE id = "'.$idformula.'"');		
-		$formula_result = $formula_data->row();
-	    $cantidad_formula = $formula_result->cantidad;
-	    //$cantidadform
+				}else{
+						$pedidocompleto = false;
+						$estado_nuevo_detalle = 2;
+				}
 
 
 
-		$itemsf = $this->db->query('SELECT * FROM formula_detalle 
-	   	    WHERE id_formula like "'.$idformula.'"');
 
-		foreach($itemsf->result() as $item){
+				$pedidos_detalle_log = array(
+											'idproductodetalle' => $iddtallepedidos,
+											'idestado' => $estado_nuevo_detalle,
+											'fecha' => date('Y-m-d H:i:s')
+										);
+				$this->db->insert('pedidos_detalle_log_estados', $pedidos_detalle_log); 	
 
-			// si la cantidad solicitada es mayor a la formula, aumentar la cantidad de materia prima de forma proporcional
-			// si la cantidad es menor o igual, siempre se debe producir segun la formula
-			$cantidad_linea = 	$v->cantidad > $cantidad_formula ? round(($cantidadform*($item->porcentaje/100)),4) : $item->cantidad;
+					
+				$this->db->where('id', $iddtallepedidos);
+				$this->db->update('pedidos_detalle', array('idestadoproducto' => $estado_nuevo_detalle));			
 
-			
-			$formula_detalle2 = array(
-		        'id_producto' => $item->id_producto,
-		        'id_pedido' => $idpedidos,
-		        'id_detalle_pedido' => $iddtallepedidos,
-		        'nom_formula' => $nomformula,
-		        'id_bodega' => $idbodega,
-		        'porcentaje' => $item->porcentaje,
-		        'cantidad' => $cantidad_linea,
-		        'valor_compra' => $item->valor_compra,
-		        'valor_produccion' => $item->valor_produccion,
-		        );
-
-			$this->db->insert('formula_pedido', $formula_detalle2);	
-		}	 
+			}	
 
 
-		$general = $this->db->query('SELECT * FROM pedidos_general WHERE id_producto="'.$producto.'"
-    	AND fecha_produccion = "'.$fechapedidos.'"');	
 
-		if($general->num_rows()>0){
-		 		$row = $general->first_row();
-		 	    $id = ($row->id);
-		 	    $cantidad = ($row->cantidad + ($v->cantidad) );
 
-		 	    $this->db->where('id', $v->id_producto);
-				$producto = $this->db->get("productos");	
-				$producto = $producto->result();
-				$producto = $producto[0];
+			$formula_data = $this->db->query('SELECT * FROM formula 
+		   	    WHERE id = "'.$idformula.'"');		
+			$formula_result = $formula_data->row();
+		    $cantidad_formula = $formula_result->cantidad;
+		    //$cantidadform
+
+
+
+			$itemsf = $this->db->query('SELECT * FROM formula_detalle 
+	   	    WHERE id_formula like "'.$formulaid.'"');
+
+			foreach($itemsf->result() as $item){
+
+				// si la cantidad solicitada es mayor a la formula, aumentar la cantidad de materia prima de forma proporcional
+				// si la cantidad es menor o igual, siempre se debe producir segun la formula
+				$cantidad_linea = 	$v->cantidad > $cantidad_formula ? round(($cantidadform*($item->porcentaje/100)),4) : $item->cantidad;
+
 				
-			    $pedidos_update = array(
-		        'cantidad' => $cantidad,
-		        );
+				$formula_detalle2 = array(
+			        'id_producto' => $item->id_producto,
+			        'id_pedido' => $idpedidos,
+			        'id_detalle_pedido' => $iddtallepedidos,
+			        'nom_formula' => $nomformula,
+			        'id_bodega' => $idbodega,
+			        'porcentaje' => $item->porcentaje,
+			        'cantidad' => $cantidad_linea,
+			        'valor_compra' => $item->valor_compra,
+			        'valor_produccion' => $item->valor_produccion,
+			        );
 
-				$this->db->where('id', $id);
-				$this->db->update('pedidos_general', $pedidos_update);
-	    }else{
-
-				$cantidad = ($v->cantidad);
-				$this->db->where('id', $v->id_producto);
-				$producto = $this->db->get("productos");	
-				$producto = $producto->result();
-				$producto = $producto[0];
-				
-				$pedidos_general = array(
-				'id_producto' => $v->id_producto,
-				'cantidad' => $v->cantidad,
-				'fecha_produccion' => $fechapedidos,
-				'fecha' => $fechapedidos,
-				);
-
-				$this->db->insert('pedidos_general', $pedidos_general);
-
-	    };
+				$this->db->insert('formula_pedido', $formula_detalle2);	
+			}	 
 
 
+			$general = $this->db->query('SELECT * FROM pedidos_general WHERE id_producto="'.$producto.'"
+	    	AND fecha_produccion = "'.$fechapedidos.'"');	
 
+			if($general->num_rows()>0){
+			 		$row = $general->first_row();
+			 	    $id = ($row->id);
+			 	    $cantidad = ($row->cantidad + ($v->cantidad) );
 
+			 	    $this->db->where('id', $v->id_producto);
+					$producto = $this->db->get("productos");	
+					$producto = $producto->result();
+					$producto = $producto[0];
+					
+				    $pedidos_update = array(
+			        'cantidad' => $cantidad,
+			        );
 
+					$this->db->where('id', $id);
+					$this->db->update('pedidos_general', $pedidos_update);
+		    }else{
 
+					$cantidad = ($v->cantidad);
+					$this->db->where('id', $v->id_producto);
+					$producto = $this->db->get("productos");	
+					$producto = $producto->result();
+					$producto = $producto[0];
+					
+					$pedidos_general = array(
+					'id_producto' => $v->id_producto,
+					'cantidad' => $v->cantidad,
+					'fecha_produccion' => $fechapedidos,
+					'fecha' => $fechapedidos,
+					);
 
+					$this->db->insert('pedidos_general', $pedidos_general);
 
-    	
-		};
+		    };
+	
+		}; // foreach($items as $v){
 		
 
 

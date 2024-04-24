@@ -963,6 +963,8 @@ Ext.define('Infosys_web.controller.Pedidos2', {
         var producto = view.down('#productoId').getValue();
         var idbodega = view.down('#bodegaId').getValue();
         var nombre = view.down('#nombreproductoId').getValue();
+        var nombreformula = view.down('#nombreformulaId').getValue();
+        var formulaId = view.down('#formulaId').getValue();
         var cantidad = view.down('#cantidadId').getValue();
         var cantidadori = view.down('#cantidadOriginalId').getValue();
         var precio = ((view.down('#precioId').getValue()));
@@ -1009,12 +1011,14 @@ Ext.define('Infosys_web.controller.Pedidos2', {
         });
         if(exists == 1)
             return;
-                
+        console.log(nombreformula)         
         stItem.add(new Infosys_web.model.pedidos.Item({
             id: producto,
             id_producto: producto,
             id_bodega: idbodega,
+            id_formula: formulaId,
             nom_producto: nombre,
+            nombreformula : nombreformula,
             precio: precio,
             cantidad: cantidad,
             neto: neto,

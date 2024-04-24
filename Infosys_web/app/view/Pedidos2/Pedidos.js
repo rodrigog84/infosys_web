@@ -192,7 +192,8 @@ Ext.define('Infosys_web.view.Pedidos2.Pedidos', {
                                     width: 400,
                                     fieldLabel: '<b>NOMBRE FORMULA</b>',
                                     itemId: 'nombreformulaId',
-                                    name : 'nombre'                                         
+                                    name : 'nombre',
+                                    readOnly: true                                       
                                 },{
                                     xtype: 'displayfield',
                                     width: 10                                   
@@ -420,7 +421,9 @@ Ext.define('Infosys_web.view.Pedidos2.Pedidos', {
                                 { text: 'Id',  dataIndex: 'id', width: 250, hidden : true },
                                 { text: 'Id producto',  dataIndex: 'id_producto', width: 250, hidden : true },
                                 { text: 'Id descuento',  dataIndex: 'id_descuento', width: 250, hidden : true },
+                                { text: 'Id formula',  dataIndex: 'id_formula', width: 250, hidden : true },
                                 { text: 'codigo',  dataIndex: 'codigo', width: 250, hidden : true },
+                                { text: 'Formula',  dataIndex: 'nombreformula', width: 250 },
                                 { text: 'Producto',  dataIndex: 'nom_producto', width: 250 },
                                 { text: 'Bodega',  dataIndex: 'id_bodega', width: 250, hidden:true},
                                 { text: 'Precio Unitario',  dataIndex: 'precio', align: 'right',flex:1, decimalPrecision:3},
