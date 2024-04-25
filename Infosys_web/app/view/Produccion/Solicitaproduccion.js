@@ -411,6 +411,9 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
                                     itemId: 'encargadoId',
                                     name : 'nombre_encargado'                                         
                                 },{
+                                    xtype: 'displayfield',
+                                    width: 10                                   
+                                },{
                                     xtype: 'textfield',
                                     fieldCls: 'required',
                                     msgTarget: 'side',
@@ -420,6 +423,19 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
                                     fieldLabel: '<b>LOTE</b>',
                                     itemId: 'numLoteId',
                                     name : 'num_lote'                                         
+                                },{
+                                    xtype: 'displayfield',
+                                    width: 10                                   
+                                },{
+                                    xtype: 'textfield',
+                                    fieldCls: 'required',
+                                    msgTarget: 'side',
+                                    labelWidth: 60,
+                                    maxHeight: 25,
+                                    width: 180,
+                                    fieldLabel: '<b>CICLOS</b>',
+                                    itemId: 'ciclosId',
+                                    name : 'ciclos'                                         
                                 }
                             ]
                         },                        

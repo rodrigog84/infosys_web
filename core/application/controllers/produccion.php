@@ -958,6 +958,7 @@ class Produccion extends CI_Controller {
 		$fechaproduccion = $this->input->post('fechaproduccion');
 		$idformula = $this->input->post('idformula');
 		$lote = $this->input->post('lote');
+		$ciclos = $this->input->post('ciclos');
 		$items = json_decode($this->input->post('items'));
 		$productos = json_decode($this->input->post('productos'));	
 		$horainicio = $this->input->post('horainicio');
@@ -986,6 +987,7 @@ class Produccion extends CI_Controller {
 	        'id_producto' => 0,
 	        'cantidad' => 0,
 	        'lote' => $lote,
+	        'ciclos' => $ciclos,
 	        'hora_inicio' => $horainicio,
 	        'encargado' => $encargado,
 	        'estado' => 4
@@ -3504,6 +3506,7 @@ class Produccion extends CI_Controller {
 		$cantreal = $row->cant_real;
 		$cantidad = $row->cantidad;
 		$lote = $row->lote;
+		$ciclos = $row->ciclos;
 		$encargado = $row->encargado;
 		$canproduc=0;
 
@@ -3590,8 +3593,10 @@ class Produccion extends CI_Controller {
 		    		<tr>
 		    		<td width="100px">FORMULA</td>
 		    		<td width="403"><h3>'.$row->nombre_formula.'</h3></td>
-		    		<td width="60px"><h3>LOTE</h3></td>
+		    		<td width="60px"><h3>LOTE:</h3></td>
 		    		<td width="120px"><h3>' . $row->lote . '</h3></td>	  	
+		    		<td width="60px"><h3>CICLOS:</h3></td>
+		    		<td width="120px"><h3>' . $row->ciclos . '</h3></td>	  			    		
 		    		</tr>		    		
 		    	</table>
 		    	<table width="987px" border="0">

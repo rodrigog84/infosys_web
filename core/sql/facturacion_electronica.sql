@@ -734,3 +734,10 @@ ALTER TABLE `pedidos_detalle`
 	
 
 
+/********************************************************************************************************/
+
+
+ALTER TABLE `produccion`
+	ADD COLUMN `ciclos` VARCHAR(10) NOT NULL AFTER `lote`;
+
+	

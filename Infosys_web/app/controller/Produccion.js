@@ -2054,6 +2054,7 @@ Ext.define('Infosys_web.controller.Produccion', {
         var idpedido = view.down('#pedidoId').getValue();
         var horainicio = view.down('#horainicioId').getValue();
         var lote = view.down('#numLoteId').getValue();
+        var ciclos = view.down('#ciclosId').getValue();
         var bodega = 1;
         var encargado = view.down('#encargadoId').getValue();
         
@@ -2088,6 +2089,21 @@ Ext.define('Infosys_web.controller.Produccion', {
             
         }
 
+        if(!lote){
+            view.down("#grabarproduccion5").setDisabled(false);
+             Ext.Msg.alert('Atencion','Debe Indicar Lote');
+            return; 
+            
+        }
+
+
+        if(!ciclos){
+            view.down("#grabarproduccion5").setDisabled(false);
+             Ext.Msg.alert('Atencion','Debe Indicar los Ciclos');
+            return; 
+            
+        }
+
         
         Ext.Ajax.request({
             url: preurl + 'produccion/savesolicita',
@@ -2097,6 +2113,7 @@ Ext.define('Infosys_web.controller.Produccion', {
                 numproduccion: numproduccion,           
                 idformula: idformula,
                 lote: lote,
+                ciclos: ciclos,
                 horainicio: Ext.Date.format(horainicio,'H:i'),
                 encargado: encargado,                
                 items: Ext.JSON.encode(dataDetalle),
