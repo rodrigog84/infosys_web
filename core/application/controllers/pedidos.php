@@ -1527,6 +1527,9 @@ class Pedidos extends CI_Controller {
         $estado = $this->input->post('estado');
         $tipopedido = $this->input->post('tipopedido');
 
+        $start = $start == '' ? 0: $start;
+        $limit = $limit == '' ? 1000: $limit;
+
 
 
         if(!$estado){

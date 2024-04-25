@@ -75,7 +75,9 @@ class Produccion extends CI_Controller {
 													,f.cantidad
 									FROM 			pedidos_detalle d
 									INNER JOIN	formula f ON d.id_formula =  f.id
-									WHERE 		d.idestadoproducto = 2");
+									INNER JOIN 	pedidos p ON d.id_pedido = p.id
+									WHERE 		d.idestadoproducto = 2
+									AND 			p.estado not in  (2,3)");
 
 
 		$data = array();
@@ -160,6 +162,7 @@ class Produccion extends CI_Controller {
 									INNER JOIN 	pedidos p ON d.id_pedido = p.id
 									INNER JOIN 	productos pro ON d.id_producto = pro.id
 									WHERE 		d.idestadoproducto = 2
+									AND  		p.estado not in  (2,3)
 									" . $sql_formula . " " . $sql_detalle);
 
 
