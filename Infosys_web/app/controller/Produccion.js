@@ -38,6 +38,7 @@ Ext.define('Infosys_web.controller.Produccion', {
             'Produccion.Exportar',
             'Produccion.EditaProduccionTermino',
             'Produccion.BuscarProductos2',
+            'Produccion.BuscarProductos3',
             'Produccion.detalle_stock2',
             'Produccion.detalle_stock3',
             'Produccion.ProduccionFormula',
@@ -94,6 +95,9 @@ Ext.define('Infosys_web.controller.Produccion', {
     },{    
         ref: 'buscarproductosconsumoproduccion2',
         selector: 'buscarproductosconsumoproduccion2'
+    },{    
+        ref: 'buscarproductosconsumoproduccion3',
+        selector: 'buscarproductosconsumoproduccion3'
     },{    
         ref: 'detallestock5',
         selector: 'detallestock5'
@@ -228,6 +232,9 @@ Ext.define('Infosys_web.controller.Produccion', {
             'buscarproductosconsumoproduccion2 button[action=seleccionarproductosproduccion2]': {
                 click: this.seleccionarproductos8
             },
+            'buscarproductosconsumoproduccion3 button[action=seleccionarproductosproduccion3]': {
+                click: this.seleccionarproductos9
+            },            
             'detallestock4 button[action=seleccionarproductosstock4]': {
                 click: this.seleccionarproductosstock
             },
@@ -243,6 +250,9 @@ Ext.define('Infosys_web.controller.Produccion', {
             'buscarproductosconsumoproduccion2 button[action=buscarconsumopro2]': {
                 click: this.buscarconsumopro2
             },
+            'buscarproductosconsumoproduccion3 button[action=buscarconsumopro3]': {
+                click: this.buscarconsumopro3
+            },            
             'producciontermino button[action=cancelar]': {
                 click: this.cancelar
             },
@@ -817,6 +827,18 @@ Ext.define('Infosys_web.controller.Produccion', {
         
     },
 
+
+     buscarconsumopro3: function(){
+
+        var view = this.getBuscarproductosconsumoproduccion3();
+        var st = this.getConsumosStore()
+        var nombre = view.down('#nombreId').getValue()
+        st.proxy.extraParams = {nombre : nombre,
+                                opcion : "Nombre"}
+        st.load();
+        
+    },
+
     seleccionarproductosstock: function(){
 
         var view = this.getDetallestock4();
@@ -925,6 +947,33 @@ Ext.define('Infosys_web.controller.Produccion', {
         }
     },
 
+
+    seleccionarproductos9 : function(){
+
+        var view = this.getBuscarproductosconsumoproduccion3();
+        var viewIngresa = this.getEditaproducciontermino();
+        var bodega = 1;
+        var grid  = view.down('grid');
+        if (grid.getSelectionModel().hasSelection()) {
+            var row = grid.getSelectionModel().getSelection()[0];
+            var id = (row.data.id);
+            var st = this.getExistencias4Store();
+            st.proxy.extraParams = {id : id,
+                                    bodega : bodega}
+            st.load();
+            viewIngresa = Ext.create('Infosys_web.view.Produccion.detalle_stock3').show();
+            viewIngresa.down('#stockId').setValue(row.data.stock);
+            viewIngresa.down('#stockcriticoId').setValue(row.data.stock_critico);
+            viewIngresa.down('#pventaId').setValue(row.data.p_neto);
+            view.close();
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }
+    },
+
+
+
     seleccionarproductos8 : function(){
 
         var view = this.getBuscarproductosconsumoproduccion2();
@@ -1003,7 +1052,7 @@ Ext.define('Infosys_web.controller.Produccion', {
         var id = viewIngresa.down('#productoId').getValue();
         if(!codigo){
             var st = this.getProductosfStore();
-            Ext.create('Infosys_web.view.Produccion.BuscarProductos').show();
+            Ext.create('Infosys_web.view.Produccion.BuscarProductos3').show();
             st.load();
         };
         if(codigo){
