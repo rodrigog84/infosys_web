@@ -45,7 +45,7 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
 
 
          var pedidosformula = Ext.create('Ext.data.Store', {
-            fields: ['id', 'codigo', 'producto', 'num_pedido', 'nombre_cliente' ,'texto'],
+            fields: ['id', 'codigo', 'producto', 'num_pedido', 'nombre_cliente' ,'texto','cantidad_disponible'],
             proxy: {
               type: 'ajax',
                 actionMethods:  {
@@ -183,7 +183,6 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
                                                 console.log(records)
                                                 var selectedRecord = records[0];
                                                 var formula = selectedRecord.get('id')
-                                                console.log(formula) 
 
 
                                                 pedidosformula.proxy.extraParams = {
@@ -236,11 +235,27 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
                                         },
                                         listeners: {
                                             select: function (combo, records) {
-                                                
+                                                console.log(records[0].data)
+
+                                                me.down('#cantpendienteId').setValue(records[0].data.cantidad_disponible)
+                                                me.down('#cantpendienteId').setMaxValue(records[0].data.cantidad_disponible)
+
 
                                             }
                                         },                                          
                                     },{
+                                        xtype: 'splitter'
+                                        },{
+                                    xtype: 'numberfield',
+                                    fieldCls: 'required',
+                                    msgTarget: 'side',
+                                    labelWidth: 90,
+                                    maxHeight: 25,
+                                    width: 210,
+                                    fieldLabel: '<b>CANTIDAD</b>',
+                                    itemId: 'cantpendienteId',
+                                    name : 'cantpendiente'                                         
+                                },{
                                         xtype: 'splitter'
                                         },{
                                                 xtype: 'button',
@@ -253,6 +268,7 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
                                                     click: function (button, event, eOpts) {
                                                             var iddetalle = me.down('#productoid').getValue()
                                                             var idformula = me.down('#formulaid').getValue()
+
                                                             console.log(iddetalle)
 
                                                               Ext.Ajax.request({
@@ -266,15 +282,16 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
                                                                  success: function(response, opts) {             
                                                                     
                                                                     var obj = Ext.decode(response.responseText);
-                                                                    console.log(obj)
+                                                                    
                                                                     var iddetalle = obj.data[0].id;
                                                                     var codigodetalle = obj.data[0].codigo;
                                                                     var productodetalle = obj.data[0].producto;
                                                                     var num_pedidodetalle = obj.data[0].num_pedido;
                                                                     var nombre_clientedetalle = obj.data[0].nombre_cliente;
-                                                             
+                                                                    var cantidad_disponibledetalle = obj.data[0].cantidad_disponible;
+                                                                    var cantidad_totaldetalle = obj.data[0].cantidad_total;
 
-
+                                                                    var cantproduccion = me.down('#cantpendienteId').getValue()
                                                                     var grid = me.down('#detalleProductosId');
                                                                     stItem = grid.getStore();
                                                                     var store = grid.getStore();
@@ -282,75 +299,93 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
 
                                                                     var repetido = false
 
-                                                                    stItem.each(function(r){
-                                                                        //if(r.data.id_ctacte == ctacteid && r.data.id_documento == documentid && r.data.numcheque == numcheque){
-                                                                        if(r.data.id == iddetalle){
-                                                                            repetido = true
+
+                                                                    if(cantproduccion > cantidad_disponibledetalle){
+
+                                                                         Ext.Msg.alert('Alerta', 'Solicitud supera el máximo permitido');
+                                                                    }else{
+
+                                                                        stItem.each(function(r){
+                                                                            //if(r.data.id_ctacte == ctacteid && r.data.id_documento == documentid && r.data.numcheque == numcheque){
+                                                                            if(r.data.id == iddetalle){
+                                                                                repetido = true
+                                                                            }
+
+                                                                            //console.log(r)
+                                                                        });
+
+
+
+                                                                        if(repetido){
+
+                                                                            Ext.Msg.alert('Alerta', 'Producto ya ingresado');   
+                                                                        }else{
+                                                                            store.insert(store.count(), {id:iddetalle, codigo: codigodetalle, producto:productodetalle, num_pedido : num_pedidodetalle,nombre_cliente: nombre_clientedetalle, cantidad_disponible: cantproduccion, cantidad_total : cantidad_totaldetalle});
                                                                         }
 
-                                                                        //console.log(r)
-                                                                    });
+                                                                        var griddetalle = me.down('#itemsgridId');
+                                                                        stItemDetalle = griddetalle.getStore();
+                                                                        var storeDetalle = griddetalle.getStore();   
+                                                                        storeDetalle.removeAll()    
 
 
+                                                                        var porct_solicitud = (cantproduccion/cantidad_totaldetalle).toFixed(2); // Esto te dará el resultado con máximo 2 decimales
 
-                                                                    if(repetido){
+                                                                        console.log(porct_solicitud)
+                                                                        stItem.each(function(r){
 
-                                                                        Ext.Msg.alert('Alerta', 'Producto ya ingresado');   
-                                                                    }else{
-                                                                        store.insert(store.count(), {id:iddetalle, codigo: codigodetalle, producto:productodetalle, num_pedido : num_pedidodetalle,nombre_cliente: nombre_clientedetalle});
-                                                                    }
+                                                                                iddetallelinea = r.data.id;
 
-                                                                    var griddetalle = me.down('#itemsgridId');
-                                                                    stItemDetalle = griddetalle.getStore();
-                                                                    var storeDetalle = griddetalle.getStore();   
-                                                                    storeDetalle.removeAll()    
+                                                                              Ext.Ajax.request({
+                                                                                 url: preurl + 'produccion/getProductosFormulabyiddetalle',
+                                                                                      params: {
+                                                                                          iddetallelinea: iddetallelinea,
+                                                                                          porct_solicitud : porct_solicitud
+                                                                                      },
+                                                                                 async: false,
+                                                                                 success: function(response, opts) {
+                                                                                        var objdetalle = Ext.decode(response.responseText);
+                                                                                        //console.log(objdetalle.data)
 
-                                                                    stItem.each(function(r){
+                                                                                                                                                                     
+                                                                                        objdetalle.data.forEach(function(r) {
+                                                                                            //console.log(r);
+                                                                                            var existereg = false;
+                                                                                            storeDetalle.each(function(reg){
+                                                                                                if(r.id_producto == reg.data.id_producto){
+                                                                                                        existereg = true;
+                                                                                                        r.cantidad += reg.data.cantidad;
+                                                                                                        reg.set('cantidad', parseInt(reg.data.cantidad) + parseInt(r.cantidad)); 
+                                                                                                        reg.commit();                                                                                                     
 
-                                                                            iddetallelinea = r.data.id;
-
-                                                                          Ext.Ajax.request({
-                                                                             url: preurl + 'produccion/getProductosFormulabyiddetalle',
-                                                                                  params: {
-                                                                                      iddetallelinea: iddetallelinea,
-                                                                                  },
-                                                                             async: false,
-                                                                             success: function(response, opts) {
-                                                                                    var objdetalle = Ext.decode(response.responseText);
-                                                                                    //console.log(objdetalle.data)
-
-                                                                                                                                                                 
-                                                                                    objdetalle.data.forEach(function(r) {
-                                                                                        //console.log(r);
-                                                                                        var existereg = false;
-                                                                                        storeDetalle.each(function(reg){
-                                                                                            if(r.id_producto == reg.data.id_producto){
-                                                                                                    existereg = true;
-                                                                                                    r.cantidad += reg.data.cantidad;
-                                                                                                    reg.set('cantidad', parseInt(reg.data.cantidad) + parseInt(r.cantidad)); 
-                                                                                                    reg.commit();                                                                                                     
-
+                                                                                                }
+                                                                                                
+                                                                                            });      
+                                                                             
+                                                                                            if(!existereg){
+                                                                                                storeDetalle.insert(storeDetalle.count(), {id_producto:r.id_producto, codigo: r.codigo, nombre_producto:r.nombre_producto, id_bodega : r.id_bodega,valor_compra: r.valor_compra,cantidad: parseInt(r.cantidad),valor_produccion: r.valor_produccion, porcentaje: r.porcentaje});    
                                                                                             }
                                                                                             
-                                                                                        });      
-                                                                         
-                                                                                        if(!existereg){
-                                                                                            storeDetalle.insert(storeDetalle.count(), {id_producto:r.id_producto, codigo: r.codigo, nombre_producto:r.nombre_producto, id_bodega : r.id_bodega,valor_compra: r.valor_compra,cantidad: parseInt(r.cantidad),valor_produccion: r.valor_produccion, porcentaje: r.porcentaje});    
-                                                                                        }
-                                                                                        
-                                                                                    });
-                                                                                    //objdetalle.each(function(r){
+                                                                                        });
+                                                                                        //objdetalle.each(function(r){
 
-                                                                                        //console.log(r)
-                                                                                    //});
+                                                                                            //console.log(r)
+                                                                                        //});
 
-                                                                             }
-                                                                            })  
+                                                                                 }
+                                                                                })  
 
 
 
-                                                                        
-                                                                    });
+                                                                            
+                                                                        });
+
+
+
+
+                                                                    }
+
+
 
 
 
@@ -464,21 +499,36 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
                                     height: 400,
                                     store: Ext.create('Ext.data.Store', {
                                                             autoDestroy: true,
-                                                            fields: ['id', 'codigo', 'producto', 'num_pedido', 'nombre_cliente'],
+                                                            fields: ['id', 'codigo', 'producto', 'num_pedido', 'nombre_cliente','cantidad_disponible','cantidad_total'],
                                                             }),                                          
                                     columns: [
 
                                         { text: 'Id Detalle Producto',  dataIndex: 'id', width: 100, headerCfg: { style: 'font-size: 9px;' }, hidden : true },
                                         { text: 'Cod. Prod',  dataIndex: 'codigo', headerCfg: { style: 'font-size: 8px;' }, width: 120, hidden : true},
-                                        { text: 'Prod',  dataIndex: 'producto', headerCfg: { style: 'font-size: 8px;' }, width: 270, renderer: function(value) {
+                                        { text: 'Prod',  dataIndex: 'producto', headerCfg: { style: 'font-size: 8px;' }, width: 200, renderer: function(value) {
                                                         return '<div style="font-size: 9px;">' + value + '</div>';
                                                     }},
-                                        { text: '#. Pedido',  dataIndex: 'num_pedido', headerCfg: { style: 'font-size: 9px;' }, width: 110, renderer: function(value) {
+                                        { text: '#. Pedido',  dataIndex: 'num_pedido', headerCfg: { style: 'font-size: 9px;' }, width: 90, renderer: function(value) {
                                                         return '<div style="font-size: 9px;">' + value + '</div>';
                                                     }},
-                                        { text: 'Cliente',  dataIndex: 'nombre_cliente', headerCfg: { style: 'font-size: 8px;' }, width: 260, renderer: function(value) {
+                                        { text: 'Cliente',  dataIndex: 'nombre_cliente', headerCfg: { style: 'font-size: 8px;' }, width: 200, renderer: function(value) {
                                                         return '<div style="font-size: 9px;">' + value + '</div>';
                                                     }},
+                                        { text: 'Cantidad',  dataIndex: 'cantidad_disponible', headerCfg: { style: 'font-size: 8px;' }, width: 150, renderer: function(value) {
+                                                        return '<div style="font-size: 9px;">' + value + '</div>';
+                                                    }},
+                                        /*{
+                                            header: "Cantidad Prod.",
+                                            width: 150,
+                                            renderer: function(value, metaData, record, rowIndex, colIndex, store, view) {
+
+                                                        var cantidad_disponible = record.data.cantidad_disponible;
+                                                        return Ext.String.format(
+                                                            '<input type="number" id="cantprod_{0}" name="cantprod_{0}" style="width: 60%"  value="' + cantidad_disponible + '">',
+                                                            record.data.id
+                                                        );
+                                                    },
+                                            },*/
                                     {
                                         xtype: 'actioncolumn',
                                         width: 60,

@@ -740,4 +740,9 @@ ALTER TABLE `pedidos_detalle`
 ALTER TABLE `produccion`
 	ADD COLUMN `ciclos` VARCHAR(10) NOT NULL AFTER `lote`;
 
+/**********************************************************************************************************/
+
+ALTER TABLE `pedidos_detalle`
+	ADD COLUMN `cantidad_solicitada` DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER `nroreceta`;
+
 	

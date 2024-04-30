@@ -107,6 +107,11 @@ class Produccion extends CI_Controller {
 
 
 		$iddetallelinea = $this->input->post('iddetallelinea');
+		$porct_solicitud = $this->input->post('porct_solicitud');
+
+		$porct_solicitud = $porct_solicitud != '' ? $porct_solicitud : 1;
+
+
 		$sql_formula = $iddetallelinea != '' ? " and d.id_detalle_pedido = '" . $iddetallelinea . "'": "and 3=4";
 	
 		$query = $this->db->query("SELECT 			d.id_producto
@@ -114,7 +119,7 @@ class Produccion extends CI_Controller {
 													,pro.nombre as nombre_producto
 													,d.id_bodega
 													,d.valor_compra
-													,d.cantidad
+													,ROUND(d.cantidad*" . $porct_solicitud . ",1) AS cantidad
 													,d.valor_produccion
 													,d.porcentaje
 									FROM 			formula_pedido d
@@ -158,6 +163,8 @@ class Produccion extends CI_Controller {
 													,pro.nombre as producto
 													,d.num_pedido
 													,p.nombre_cliente
+													,(d.cantidad - d.cantidad_solicitada) as cantidad_disponible
+													,d.cantidad as cantidad_total
 									FROM 			pedidos_detalle d
 									INNER JOIN 	pedidos p ON d.id_pedido = p.id
 									INNER JOIN 	productos pro ON d.id_producto = pro.id
@@ -170,12 +177,12 @@ class Produccion extends CI_Controller {
 		if(count($query->result()) > 0){
 			foreach ($query->result() as $row)
 			{
-				$row->texto = $row->codigo . ' | ' . $row->producto . ' | # PEDIDO: ' . $row->num_pedido . ' | ' . $row->nombre_cliente;
+				$row->texto = $row->codigo . ' | ' . $row->producto . ' | # PEDIDO: ' . $row->num_pedido . ' | ' . $row->nombre_cliente. ' | PENDIENTE ' . $row->cantidad_disponible;
 				$data[] = $row;
 			}
 			
 		}else{
-			$data[] = array('id' => '','codigo' => '','producto' => '','num_pedido' =>  0,'cliente' =>  '','texto' => '');
+			$data[] = array('id' => '','codigo' => '','producto' => '','num_pedido' =>  0,'cliente' =>  '','cantidad_disponible' =>  0,'cantidad_total' =>  0,'texto' => '');
 		}
 
         $resp['success'] = true;
@@ -953,7 +960,7 @@ class Produccion extends CI_Controller {
 
 	public function savesolicita(){
 		
-
+		//echo '<pre>';
 		//var_dump($_POST); exit;
 		//exit;
 		$resp = array();
@@ -1027,7 +1034,7 @@ class Produccion extends CI_Controller {
 		        'id_detalle_pedido' => $data_detalle_pedido->id,
 		        'nom_producto' => $data_detalle_pedido->nomproducto,
 		        'id_producto' => $data_detalle_pedido->id_producto,
-		        'cantidad' =>  $data_detalle_pedido->cantidad,
+		        'cantidad' =>  $p->cantidad_disponible,
 		        'cantidad_prod' => 0,
 		        'cant_real' => 0,
 		        'valor_prod' => 0
@@ -1035,7 +1042,7 @@ class Produccion extends CI_Controller {
 
 			$fecha_venc = $data_detalle_pedido->fecha_vencimiento;
 
-			$cantidad_total += $data_detalle_pedido->cantidad;
+			$cantidad_total += $p->cantidad_disponible;
 			$this->db->insert('produccion_detalle_pedidos', $produccion_detalle_pedidos); 
 			$iddetallepedidos = $this->db->insert_id();
 
@@ -1049,12 +1056,15 @@ class Produccion extends CI_Controller {
 			$this->db->insert('pedidos_detalle_log_estados', $pedidos_detalle_log); 	
 
 				
+				
+
+			$this->db->query("UPDATE pedidos_detalle SET cantidad_solicitada = cantidad_solicitada + " . $p->cantidad_disponible . " where id = " . $data_detalle_pedido->id);
+
+
+			// cambia de estado solo cuando ya se completo todo
 			$this->db->where('id', $data_detalle_pedido->id);
-			$this->db->update('pedidos_detalle', array('idestadoproducto' => 3));					
-
-
-				
-				
+			$this->db->where('cantidad_solicitada = cantidad');
+			$this->db->update('pedidos_detalle', array('idestadoproducto' => 3));	
 
 
 		}
