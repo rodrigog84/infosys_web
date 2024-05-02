@@ -40,6 +40,7 @@ Ext.define('Infosys_web.controller.Pedidos2', {
             'Pedidos2.EstadoPedido',
             'Pedidos2.Elimina',
             'Pedidos2.AdjuntarReceta',
+            'Pedidos2.AdjuntarOc',
             ],
 
     //referencias, es un alias interno para el controller
@@ -96,6 +97,9 @@ Ext.define('Infosys_web.controller.Pedidos2', {
     },{
         ref: 'AdjuntarReceta',
         selector: 'AdjuntarReceta'
+    },{
+        ref: 'AdjuntarOc',
+        selector: 'AdjuntarOc'
     }
   
     ],
@@ -120,7 +124,10 @@ Ext.define('Infosys_web.controller.Pedidos2', {
             },
             'pedidosprincipalformula': {
                 adjuntarReceta: this.adjuntarReceta
-            },            
+            },     
+            'pedidosprincipalformula': {
+                adjuntarOc: this.adjuntarOc
+            },                    
             'pedidosprincipalformula button[action=estadopedidos]': {
                 click: this.estadopedidos
             },
@@ -311,6 +318,35 @@ Ext.define('Infosys_web.controller.Pedidos2', {
               
 
                 Ext.create('Infosys_web.view.Pedidos2.AdjuntarReceta', {  idpedido: r.data.id,
+                                                                            cliente: obj.data.nombre_cliente,
+                                                                            rut : obj.data.rut,
+                                                                            num_pedido: obj.data.num_pedido});    
+
+           },
+           failure: function(response, opts) {
+              console.log('server-side failure with status code ' + response.status);
+           }
+        });  
+
+
+       
+    },
+
+
+    adjuntarOc: function(r){
+            console.log(r.data.id)
+
+
+       Ext.Ajax.request({
+           //url: preurl + 'cuentacorriente/getCuentaCorriente/' + record.get('cuenta') + '/' + editor.value ,
+           url: preurl + 'pedidos2/getPedido?idpedido='+r.data.id,
+           success: function(response, opts) {                         
+                console.log(response)
+              var obj = Ext.decode(response.responseText);
+            console.log(obj)
+              
+
+                Ext.create('Infosys_web.view.Pedidos2.AdjuntarOc', {  idpedido: r.data.id,
                                                                             cliente: obj.data.nombre_cliente,
                                                                             rut : obj.data.rut,
                                                                             num_pedido: obj.data.num_pedido});    

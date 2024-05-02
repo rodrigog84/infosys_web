@@ -110,7 +110,14 @@ class Pedidos2 extends CI_Controller {
 
 
 
-		$this->db->select('p.num_pedido, p.nombre_cliente, c.rut',false)
+		$this->db->select("p.id
+						,p.num_pedido
+						, p.nombre_cliente
+						,case when p.subeoc = 1 then 'SI' else 'NO' end as occargada
+						,case when p.subeoc = 0 then 1 else 0 end as permitecargaroc
+						,p.ordencompra
+						,p.subeoc
+						, c.rut",false)
 						  ->from('pedidos p')
 						  ->join('clientes c','p.id_cliente = c.id')
 						  ->where('p.id',$pedido); 	                  
@@ -153,6 +160,39 @@ class Pedidos2 extends CI_Controller {
 		$path_archivo = './produccion/recetas/'.$pedido.'/';
 		$nombre_archivo = $detallepedido->nomarchivoreceta;
 		$nombre_archivo_real = $detallepedido->nomarchivorecetareal;
+	    $data_archivo = basename($path_archivo.$nombre_archivo_real);
+	    header('Content-Type: text/plain');
+	    header('Content-Disposition: attachment; filename=' . $data_archivo);
+	    header('Content-Length: ' . filesize($path_archivo.$nombre_archivo));
+	    readfile($path_archivo.$nombre_archivo);     		
+
+
+        }
+
+	}
+
+
+
+	public function verordencompra(){
+
+		$resp = array();
+		$pedido = $this->input->get('idpedido');
+		if ($pedido){
+
+
+
+		$this->db->select("	p.id
+							,p.num_pedido
+							,p.nomarchivooc
+							,p.nomarchivoocreal",false)
+						  ->from('pedidos p')
+						  ->where('p.id',$pedido); 	                  
+		$query = $this->db->get();		
+		$detallepedido = $query->row();			
+
+		$path_archivo = './produccion/ordencompra/'.$pedido.'/';
+		$nombre_archivo = $detallepedido->nomarchivooc;
+		$nombre_archivo_real = $detallepedido->nomarchivoocreal;
 	    $data_archivo = basename($path_archivo.$nombre_archivo_real);
 	    header('Content-Type: text/plain');
 	    header('Content-Disposition: attachment; filename=' . $data_archivo);
@@ -279,6 +319,92 @@ class Pedidos2 extends CI_Controller {
 		}
 
 	}
+
+
+
+	public function saveOcPedido(){
+
+		// Verifica si se ha recibido un archivo
+
+
+		if(isset($_POST['file'])) {
+		    // Obtiene la cadena base64 del archivo desde la solicitud
+		    $dataURL = $_POST['file'];
+		    $name = $_POST['name'];
+		    $ordencompra = $_POST['ordencompra'];
+		    $idpedido = $_POST['idpedido'];
+
+		    $array_name = explode('.',$name);
+		    $extension = $array_name[count($array_name)-1];
+
+
+		    // Decodifica la cadena base64 para obtener los datos binarios del archivo
+		    $dataURL = preg_replace('#^data:image/\w+;base64,#i', '', $dataURL);
+		    $dataURL = str_replace('data:application/pdf;base64,', '', $dataURL);
+		    $dataURL = str_replace('data:image/png;base64,', '', $dataURL);
+		    $dataURL = str_replace('data:image/jpeg;base64,', '', $dataURL);
+		    $dataURL = str_replace('data:image/gif;base64,', '', $dataURL);
+		    $dataURL = str_replace('data:text/html;base64,', '', $dataURL);
+		    $dataURL = str_replace('data:text/xml;base64,', '', $dataURL);
+		    $dataURL = str_replace('data:application/json;base64,', '', $dataURL);
+		    $dataURL = str_replace('data:application/zip;base64,', '', $dataURL);
+
+		    $dataURL = str_replace('data:application/vnd.ms-powerpoint;base64,', '', $dataURL);
+		    $dataURL = str_replace('data:application/vnd.openxmlformats-officedocument.presentationml.presentation;base64,', '', $dataURL);
+		    $dataURL = str_replace('data:application/vnd.ms-excel;base64,', '', $dataURL);
+		    $dataURL = str_replace('data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,', '', $dataURL);
+		    $dataURL = str_replace('data:application/msword;base64,', '', $dataURL);
+		    $dataURL = str_replace('data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,', '', $dataURL);
+
+		    $data = base64_decode($dataURL);
+
+		    // Ruta del directorio donde se guardarán los archivos
+		    $directorio = './produccion/ordencompra/'.$idpedido.'/';
+
+
+
+			if(!file_exists($directorio) ){
+				mkdir($directorio,0777,true);
+			}
+
+
+
+		    // Nombre del archivo (puedes generar un nombre único si es necesario)
+		    $nombreArchivo = 'archivo_' . uniqid() . '.'.$extension; // Cambia la extensión según el tipo de archivo que estés recibiendo
+
+		    // Ruta completa del archivo
+		    $rutaArchivo = $directorio . $nombreArchivo;
+
+		    // Guarda los datos del archivo en el archivo en el sistema de archivos del servidor
+		    if(file_put_contents($rutaArchivo, $data) !== false) {
+		        // Si se guardó correctamente, envía una respuesta de éxito
+
+		    	$array_actualiza = array(
+		    								'subeoc' => 1,
+		    								'nomarchivooc' => $nombreArchivo,
+		    								'nomarchivoocreal' => $name,
+		    								'ordencompra' => $ordencompra
+		    						);
+
+				$this->db->where('id',$idpedido);
+				$this->db->update('pedidos', $array_actualiza);
+
+
+
+
+		        echo json_encode(['success' => true, 'rutaArchivo' => $rutaArchivo]);
+		    } else {
+		        // Si hubo un error al guardar el archivo, envía una respuesta de error
+		        echo json_encode(['success' => false, 'message' => 'Error al guardar el archivo.']);
+		    }
+		} else {
+		    // Si no se recibió ningún archivo, devuelve un mensaje de error
+		    echo json_encode(['success' => false, 'message' => 'No se recibió ningún archivo.']);
+		}
+
+	}
+
+
 	public function pedidosdetalle(){
 
 		$resp = array();

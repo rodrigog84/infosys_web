@@ -109,6 +109,22 @@ Ext.define('Infosys_web.view.Pedidos2.Principal' ,{
             }]     
         
     },{
+            header: "OC",
+            xtype:'actioncolumn',
+            width:80,
+            align: 'center',
+            items: [{
+                iconCls: 'icon-upload',  // Use a URL in the icon config
+                tooltip: 'Adjuntar OC',
+                handler: function(grid, rowIndex, colIndex) {
+                    var rec = grid.getStore().getAt(rowIndex);
+                    //salert("Edit " + rec.get('firstname'));
+                    var vista = this.up('pedidosprincipalformula');
+                    vista.fireEvent('adjuntarOc',rec)
+                }            
+            }]     
+        
+    },{
         header: "Ver",
         xtype:'actioncolumn',
         align: 'center',

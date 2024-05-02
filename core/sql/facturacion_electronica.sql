@@ -745,4 +745,19 @@ ALTER TABLE `produccion`
 ALTER TABLE `pedidos_detalle`
 	ADD COLUMN `cantidad_solicitada` DECIMAL(10,2) NOT NULL DEFAULT 0 AFTER `nroreceta`;
 
-	
+
+/**********************************************************************************************************/
+
+ALTER TABLE `pedidos`
+	ADD COLUMN `subeoc` TINYINT NOT NULL DEFAULT 0 AFTER `ordencompra`;
+
+
+	ALTER TABLE `pedidos`
+	ADD COLUMN `nomarchivooc` VARCHAR(100) NOT NULL DEFAULT '0' AFTER `subeoc`;
+
+	ALTER TABLE `pedidos`
+	ADD COLUMN `nomarchivoocreal` VARCHAR(100) NOT NULL DEFAULT '0' AFTER `nomarchivooc`;
+
+	ALTER TABLE `pedidos`
+	CHANGE COLUMN `nomarchivooc` `nomarchivooc` VARCHAR(100) NOT NULL COLLATE 'latin1_swedish_ci' AFTER `subeoc`,
+	CHANGE COLUMN `nomarchivoocreal` `nomarchivoocreal` VARCHAR(100) NOT NULL COLLATE 'latin1_swedish_ci' AFTER `nomarchivooc`;
