@@ -83,7 +83,8 @@ Ext.define('Infosys_web.view.Pedidos2.Pedidos', {
                                 fieldLabel: '<b>FECHA</b>',
                                 itemId: 'fechadocumId',
                                 name: 'fecha_docum',
-                                value: new Date()
+                                value: new Date(),
+                                minValue: new Date()
                             },{
                                 xtype: 'displayfield',
                                 width: 15
@@ -97,7 +98,8 @@ Ext.define('Infosys_web.view.Pedidos2.Pedidos', {
                                 fieldLabel: '<b>FECHA PEDIDO</b>',
                                 itemId: 'fechapedidoId',
                                 name: 'fecha_pedido',
-                                value: new Date()
+                                value: new Date(),
+                                minValue: new Date()
                             }
                             ]
                         },{
