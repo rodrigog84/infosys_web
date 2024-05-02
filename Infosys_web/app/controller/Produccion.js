@@ -1387,6 +1387,7 @@ Ext.define('Infosys_web.controller.Produccion', {
         var horainicio = view.down('#horainicioId').getValue();
         var fechavenc = view.down('#fechavencId').getValue();
         var lote = view.down('#numLoteId').getValue();
+        var ciclos = view.down('#ciclosId').getValue();
         var bodega = view.down('#bodegaId').getValue();
         var stItem = this.getProduccionTerminoStore();
         var stProduccion = this.getProduccionStore();
@@ -1403,6 +1404,14 @@ Ext.define('Infosys_web.controller.Produccion', {
              Ext.Msg.alert('Debe Ingresar Lote');
             return;            
         };
+
+
+        if(!ciclos){
+            view.down("#grabarproduccion2").setDisabled(false);
+             Ext.Msg.alert('Atencion','Debe Indicar los Ciclos');
+            return; 
+            
+        }        
 
         if(!horatermino){
             view.down("#grabarproduccion2").setDisabled(false);
@@ -1444,6 +1453,7 @@ Ext.define('Infosys_web.controller.Produccion', {
                 numproduccion: numproduccion,
                 idproduccion: idproduccion,
                 lote: lote,
+                ciclos: ciclos,
                 fechavenc: Ext.Date.format(fechavenc,'Y-m-d'),
                 horatermino: Ext.Date.format(horatermino,'H:i'),
                 horainicio: Ext.Date.format(horainicio,'H:i'),
@@ -1974,7 +1984,8 @@ Ext.define('Infosys_web.controller.Produccion', {
                     view.down("#idId").setValue(idproduccion);                    
                     view.down("#horainicioId").setValue(cliente.hora_inicio);
                     view.down("#fechainicioId").setValue(cliente.fecha_produccion);
-                    view.down("#numLoteId").setValue(cliente.lote);                                   
+                    view.down("#numLoteId").setValue(cliente.lote);  
+                    view.down("#ciclosId").setValue(cliente.ciclos);                                  
                     view.down("#nombreformulaId").setValue(cliente.nom_formula);
                     view.down("#cantidadId").setValue(cliente.cantidad);
                     view.down("#formulaId").setValue(cliente.id_formula_pedido);
@@ -2138,7 +2149,7 @@ Ext.define('Infosys_web.controller.Produccion', {
             
         }
 
-        if(!lote){
+        /*if(!lote){
             view.down("#grabarproduccion5").setDisabled(false);
              Ext.Msg.alert('Atencion','Debe Indicar Lote');
             return; 
@@ -2151,7 +2162,7 @@ Ext.define('Infosys_web.controller.Produccion', {
              Ext.Msg.alert('Atencion','Debe Indicar los Ciclos');
             return; 
             
-        }
+        }*/
 
         
         Ext.Ajax.request({

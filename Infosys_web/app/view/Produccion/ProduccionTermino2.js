@@ -177,6 +177,19 @@ Ext.define('Infosys_web.view.Produccion.ProduccionTermino2', {
                                     xtype: 'displayfield',
                                     width: 10                                   
                                 },{
+                                    xtype: 'textfield',
+                                    fieldCls: 'required',
+                                    msgTarget: 'side',
+                                    labelWidth: 60,
+                                    maxHeight: 25,
+                                    width: 180,
+                                    fieldLabel: '<b>CICLOS</b>',
+                                    itemId: 'ciclosId',
+                                    name : 'ciclos'                                         
+                                },{
+                                    xtype: 'displayfield',
+                                    width: 10                                   
+                                },{
                                     xtype: 'numberfield',
                                     itemId: 'diasvencId',
                                     name : 'diasvenc',

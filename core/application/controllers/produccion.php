@@ -1448,6 +1448,7 @@ class Produccion extends CI_Controller {
 		$idproduccion = $this->input->post('idproduccion');
 		$idbodega = $this->input->post('idbodega');
 		$lote = $this->input->post('lote');
+		$ciclos = $this->input->post('ciclos');
 		$items = json_decode($this->input->post('items'));
 		$horatermino = $this->input->post('horatermino');
 		$horainicio = $this->input->post('horainicio');
@@ -1503,8 +1504,9 @@ class Produccion extends CI_Controller {
 
 
 
-		$this->db->select('id_producto, id_detalle_pedido, id_pedido',false)
+		$this->db->select('d.id_producto, d.id_detalle_pedido, d.id_pedido, pd.cantidad_solicitada , pd.cantidad',false)
 						  ->from('produccion_detalle_pedidos d')
+						  ->join('pedidos_detalle pd','d.id_detalle_pedido = pd.id')
 						  ->where('d.id_produccion',$idproduccion); 	                  
 		$query = $this->db->get();		
 		$prod_pedido = $query->result();
@@ -1603,6 +1605,7 @@ class Produccion extends CI_Controller {
 	        'hora_termino' => $horatermino,
 	        'hora_inicio' => $horainicio,
 	        'lote' => $lote,
+	        'ciclos' => $ciclos,
 	        'valor_prod' => ($valorprod/$cantidadproduccion),
 	        'fecha_vencimiento' => $fechavenc,
 	        'estado' => 2
@@ -1653,23 +1656,26 @@ class Produccion extends CI_Controller {
 		// marca el estado de los productos  de un pedido
 		foreach ($prod_pedido as $pedido_detalle) {
 
+			if($pedido_detalle->cantidad_solicitada >= $pedido_detalle->cantidad){
 
-			$pedidos_detalle_log = array(
-										'idproductodetalle' => $pedido_detalle->id_detalle_pedido,
-										'idestado' => 4,
-										'fecha' => date('Y-m-d H:i:s')
-									);
-			$this->db->insert('pedidos_detalle_log_estados', $pedidos_detalle_log); 						
+				$pedidos_detalle_log = array(
+											'idproductodetalle' => $pedido_detalle->id_detalle_pedido,
+											'idestado' => 4,
+											'fecha' => date('Y-m-d H:i:s')
+										);
+				$this->db->insert('pedidos_detalle_log_estados', $pedidos_detalle_log); 						
 
-			$pedidos_detalle_log = array(
-										'idproductodetalle' => $pedido_detalle->id_detalle_pedido,
-										'idestado' => 5,
-										'fecha' => date('Y-m-d H:i:s')
-									);
-			$this->db->insert('pedidos_detalle_log_estados', $pedidos_detalle_log); 	
-		
-			$this->db->where('id', $pedido_detalle->id_detalle_pedido);
-			$this->db->update('pedidos_detalle', array('idestadoproducto' => 5));		
+				$pedidos_detalle_log = array(
+											'idproductodetalle' => $pedido_detalle->id_detalle_pedido,
+											'idestado' => 5,
+											'fecha' => date('Y-m-d H:i:s')
+										);
+				$this->db->insert('pedidos_detalle_log_estados', $pedidos_detalle_log); 	
+			
+				$this->db->where('id', $pedido_detalle->id_detalle_pedido);
+				$this->db->update('pedidos_detalle', array('idestadoproducto' => 5));	
+
+			}
 
 
 		}
@@ -2453,6 +2459,7 @@ class Produccion extends CI_Controller {
 		$cantreal = $row->cant_real;
 		$cantidad = $row->cantidad_prod;
 		$lote = $row->lote;
+		$ciclos = $row->ciclos;
 		$cprod = $row->valor_prod;
 		$encargado = $row->encargado;
 
@@ -2533,11 +2540,13 @@ class Produccion extends CI_Controller {
 		    		<table width="687px" border="0">
 		    		<tr>
 		    		<td width="80px">CODIGO</td>
-		    		<td width="100px"><h3>'.$codigo.'</h3></td>
-		    		<td width="100px">PRODUCTO</td>
-		    		<td width="380"><h3>'.$nombreproducto.'</h3></td>
+		    		<td width="60px"><h3>'.$codigo.'</h3></td>
+		    		<td width="80px">PRODUCTO</td>
+		    		<td width="300"><h3>'.$nombreproducto.'</h3></td>
 		    		<td width="60px">LOTE</td>
 		    		<td width="80px"><h3>'.$lote.'<h3></td>	   
+		    		<td width="60px">CICLOS</td>
+		    		<td width="80px"><h3>'.$ciclos.'<h3></td>	 		    		
 		    		<td width="60px">VALOR PRODUC.</td>
 		    		<td width="80px"><h3>'.$cprod.'<h3></td>	   
 		    		
