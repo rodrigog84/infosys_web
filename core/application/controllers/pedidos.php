@@ -718,7 +718,26 @@ class Pedidos extends CI_Controller {
 			$cantProducto = $c->cantidad;
 		}
 			
-		$items2 = $this->db->get_where('formula_pedido', array('id_pedido' => $idpedidos));
+		//$items2 = $this->db->get_where('formula_pedido', array('id_pedido' => $idpedidos));
+
+		$this->db->select('fp.id
+							,fp.nom_formula
+							,fp.id_pedido
+							,fp.id_detalle_pedido
+							,fp.id_bodega
+							,fp.id_producto
+							,fp.cantidad
+							,fp.porcentaje
+							,fp.valor_compra
+							,fp.valor_produccion
+							,p.codigo',false)
+						  ->from('formula_pedido fp')
+						  ->join('pedidos_detalle pd','fp.id_detalle_pedido = pd.id')
+						  ->join('productos p','pd.id_producto = p.id')
+						  ->where('fp.id_pedido',$idpedidos); 	                  
+		$items2 = $this->db->get();		
+
+
 		//variables generales
 		$codigo = $row->num_pedido;
 		$nombreformula = $row->nombre_formula;
@@ -792,21 +811,54 @@ class Pedidos extends CI_Controller {
 		    		<td width="197px">VENDEDOR:</td>
 		    		<td width="197px">'.$row->nom_vendedor.'</td>
 		    		</tr>
-		    		<tr>
-		    		<td width="197px">PRODUCTO:</td>
-		    		<td width="197px">'.$nomproducto.'</td>
-		    		<td width="197px">CANTIDAD:</td>
-		    		<td width="197px">'.$cantProducto.'</td>
-		    		</tr>    	
-		    		
 		    	</table>
 			</td>
 		  </tr>
 		  <tr>
 		    <td colspan="3" >
+		    	<table width="950px" cellspacing="0" cellpadding="0" >
+		      <tr>
+		        <td width="100px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:left;" >Codigo</td>
+		        <td width="448px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:left;" >Descripcion</td>
+		        <td width="168px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Cantidad</td>
+		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Precio</td>
+		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Neto</td>
+		        
+		       </tr>';
+
+		$i = 0;
+
+		foreach($items->result() as $v){			
+			//$i = 0;
+			//while($i < 30){
+			$this->db->where('id', $v->id_producto);
+			$producto = $this->db->get("productos");	
+			$producto = $producto->result();
+			$producto = $producto[0];
+			
+			$html .= '<tr>
+			<td style="text-align:left">'.$producto->codigo.'</td>
+			<td style="text-align:left">'.$producto->nombre.'</td>			
+			<td align="right">'.number_format($v->cantidad, 2, '.', ',').'</td>
+			<td align="right">'.number_format($v->precio, 2, '.', ',').'</td>
+			<td align="right">'.number_format($neto, 0, '.', ',').'</td>
+			
+			</tr>';
+			
+			//}
+			$i++;
+		}
+
+
+		       $html .= '<tr><td colspan="5">&nbsp;</td></tr>
+		       </table>
+		      </td></tr>
+		  <tr>
+		    <td colspan="3" >
 		    	<table width="987px" cellspacing="0" cellpadding="0" >
 		      <tr>
-		        <td width="395px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:center;" >Descripcion</td>
+		      	<td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:left;" >Producto</td>
+		        <td width="247px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:left;" >Descripcion</td>
 		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" ></td>
 		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" ></td>
 		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Cantidad</td>
@@ -824,6 +876,7 @@ class Pedidos extends CI_Controller {
 			$producto = $producto[0];
 			
 			$html .= '<tr>
+			<td style="text-align:left">'.$v->codigo.'</td>
 			<td style="text-align:left">'.$producto->nombre.'</td>
 			<td style="text-align:left"></td>
 			<td style="text-align:left"></td>
