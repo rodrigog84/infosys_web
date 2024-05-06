@@ -422,6 +422,8 @@ public function exportarExcelPedidos(){
                                             ,acc.ubicacion AS ubicacion
                                             ,v.nombre as nom_vendedor
                                             ,d.nroreceta AS receta
+                                            ,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
+                                            ,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos
                                       FROM pedidos acc
                                       INNER JOIN pedidos_detalle d ON acc.id = d.id_pedido
                                       INNER JOIN productos p ON d.id_producto = p.id
@@ -450,8 +452,18 @@ public function exportarExcelPedidos(){
             echo "<td>FECHA ENTREGA</td>";
             echo "<td>VENDEDOR</td>";
             echo "<td>RECETA</td>";
+            echo "<td>ESTADO</td>";
                          
             foreach($users as $v){
+
+              if($v['cantidad_listos']  == 0){
+                  $estado_pedido =  'PENDIENTE';
+              }else if($v['cantidad_listos']  == $v['cantidad_productos']){
+                  $estado_pedido =  'CULMINADO';
+              }else{
+                  $estado_pedido =  'PARCIAL';
+              }
+              
 
               echo "<tr>";
               echo "<td>".$v['num_pedido']."</td>";
@@ -462,7 +474,8 @@ public function exportarExcelPedidos(){
               echo "<td>".$v['ubicacion']."</td>";
               echo "<td>".$v['fecentrega']."</td>";
               echo "<td>".$v['nom_vendedor']."</td>";
-              echo "<td>".$v['receta']."</td></tr>";
+              echo "<td>".$v['receta']."</td>";
+              echo "<td>".$estado_pedido."</td></tr>";
             
               }
               echo '</table>';
