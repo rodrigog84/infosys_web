@@ -709,6 +709,14 @@ class Pedidos extends CI_Controller {
 		$row = $row[0];
 		//items
 		$items = $this->db->get_where('pedidos_detalle', array('id_pedido' => $idpedidos));
+
+		$this->db->select('pd.*,
+							f.nombre_formula
+						',false)
+						  ->from('pedidos_detalle pd')
+						  ->join('formula f','pd.id_formula = f.id')
+						  ->where('pd.id_pedido',$idpedidos); 	                  
+		$items = $this->db->get();		
 		foreach($items->result() as $c){
 			$this->db->where('id', $c->id_producto);
 			$producto = $this->db->get("productos");	
@@ -806,8 +814,6 @@ class Pedidos extends CI_Controller {
 		    			<td width="197px">'. number_format(substr($row->rut_cliente, 0, strlen($row->rut_cliente) - 1),0,".",".")."-".substr($row->rut_cliente,-1).'</td>
 		    		</tr>
 		    		<tr>
-		    		<td width="197px">FORMULA:</td>
-		    		<td width="197px">'.$nombreformula.'</td>
 		    		<td width="197px">VENDEDOR:</td>
 		    		<td width="197px">'.$row->nom_vendedor.'</td>
 		    		</tr>
@@ -819,10 +825,11 @@ class Pedidos extends CI_Controller {
 		    	<table width="950px" cellspacing="0" cellpadding="0" >
 		      <tr>
 		        <td width="100px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:left;" >Codigo</td>
-		        <td width="448px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:left;" >Descripcion</td>
-		        <td width="168px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Cantidad</td>
-		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Precio</td>
-		        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Neto</td>
+		        <td width="318px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:left;" >Descripcion</td>
+		         <td width="225px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:left;" >Fórmula</td>
+		        <td width="123px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Cantidad</td>
+		        <td width="123px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Precio</td>
+		        <td width="123px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Neto</td>
 		        
 		       </tr>';
 
@@ -839,6 +846,7 @@ class Pedidos extends CI_Controller {
 			$html .= '<tr>
 			<td style="text-align:left">'.$producto->codigo.'</td>
 			<td style="text-align:left">'.$producto->nombre.'</td>			
+			<td style="text-align:left">'.$v->nombre_formula.'</td>	
 			<td align="right">'.number_format($v->cantidad, 2, '.', ',').'</td>
 			<td align="right">'.number_format($v->precio, 2, '.', ',').'</td>
 			<td align="right">'.number_format($neto, 0, '.', ',').'</td>
