@@ -41,6 +41,7 @@ Ext.define('Infosys_web.controller.Pedidos2', {
             'Pedidos2.Elimina',
             'Pedidos2.AdjuntarReceta',
             'Pedidos2.AdjuntarOc',
+            'Pedidos2.GenerarOcint',
             ],
 
     //referencias, es un alias interno para el controller
@@ -100,6 +101,9 @@ Ext.define('Infosys_web.controller.Pedidos2', {
     },{
         ref: 'AdjuntarOc',
         selector: 'AdjuntarOc'
+    },{
+        ref: 'GenerarOcint',
+        selector: 'GenerarOcint'
     }
   
     ],
@@ -333,8 +337,8 @@ Ext.define('Infosys_web.controller.Pedidos2', {
     },
 
 
-    adjuntarOc: function(r){
-            console.log(r.data.id)
+    adjuntarOc: function(r,t){
+            console.log(t)
 
 
        Ext.Ajax.request({
@@ -346,10 +350,22 @@ Ext.define('Infosys_web.controller.Pedidos2', {
             console.log(obj)
               
 
-                Ext.create('Infosys_web.view.Pedidos2.AdjuntarOc', {  idpedido: r.data.id,
-                                                                            cliente: obj.data.nombre_cliente,
-                                                                            rut : obj.data.rut,
-                                                                            num_pedido: obj.data.num_pedido});    
+                if(t == 1){
+                    Ext.create('Infosys_web.view.Pedidos2.AdjuntarOc', {  idpedido: r.data.id,
+                                                                                cliente: obj.data.nombre_cliente,
+                                                                                rut : obj.data.rut,
+                                                                                num_pedido: obj.data.num_pedido}); 
+
+                }else if(t == 2){
+
+                    Ext.create('Infosys_web.view.Pedidos2.GenerarOcint', {  idpedido: r.data.id,
+                                                                                cliente: obj.data.nombre_cliente,
+                                                                                rut : obj.data.rut,
+                                                                                num_pedido: obj.data.num_pedido}); 
+
+
+
+                }    
 
            },
            failure: function(response, opts) {

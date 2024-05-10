@@ -109,7 +109,7 @@ Ext.define('Infosys_web.view.Pedidos2.Principal' ,{
             }]     
         
     },{
-            header: "OC",
+            header: "OC Ext",
             xtype:'actioncolumn',
             width:80,
             align: 'center',
@@ -120,7 +120,23 @@ Ext.define('Infosys_web.view.Pedidos2.Principal' ,{
                     var rec = grid.getStore().getAt(rowIndex);
                     //salert("Edit " + rec.get('firstname'));
                     var vista = this.up('pedidosprincipalformula');
-                    vista.fireEvent('adjuntarOc',rec)
+                    vista.fireEvent('adjuntarOc',rec,1)
+                }            
+            }]     
+        
+    },{
+            header: "OC Int",
+            xtype:'actioncolumn',
+            width:80,
+            align: 'center',
+            items: [{
+                iconCls: 'icon-upload',  // Use a URL in the icon config
+                tooltip: 'Generar OC',
+                handler: function(grid, rowIndex, colIndex) {
+                    var rec = grid.getStore().getAt(rowIndex);
+                    //salert("Edit " + rec.get('firstname'));
+                    var vista = this.up('pedidosprincipalformula');
+                    vista.fireEvent('adjuntarOc',rec,2)
                 }            
             }]     
         

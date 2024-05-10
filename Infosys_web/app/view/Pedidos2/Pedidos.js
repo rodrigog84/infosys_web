@@ -230,7 +230,8 @@ Ext.define('Infosys_web.view.Pedidos2.Pedidos', {
                                 width: 240,
                                 fieldLabel: '<b>FECHA DESPACHO</b>',
                                 itemId: 'fechadespachoId',
-                                name: 'fecha_despacho'
+                                name: 'fecha_despacho',
+                                minValue: Ext.Date.add(new Date(), Ext.Date.DAY, 5)
                             },{
                                     xtype: 'displayfield',
                                     width: 10                                   

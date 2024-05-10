@@ -84,7 +84,7 @@ class Produccion extends CI_Controller {
 		if(count($query->result()) > 0){
 			foreach ($query->result() as $row)
 			{
-				$row->texto = $row->nombre_formula . ' | ' . $row->cantidad;
+				$row->texto = $row->nombre_formula;
 				$data[] = $row;
 			}
 			
