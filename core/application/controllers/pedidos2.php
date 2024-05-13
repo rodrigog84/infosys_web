@@ -1366,7 +1366,7 @@ class Pedidos2 extends CI_Controller {
 
 
 		$requiere_autorizacion = false;
-		if($cliente->estado == 3 || $cliente->estado == 4){
+		if($cliente->estado == 3 || $cliente->estado == 4){ // REQUIERE AUTORIZACION
 
 			$pedidos = array(
 		        'idestadopedido' => 6
@@ -1489,6 +1489,7 @@ class Pedidos2 extends CI_Controller {
 					$existe_stock = false;
 				}
 
+				$existe_stock = false;  //forzamos a que actúe como si no tuviera stock
 
 
 

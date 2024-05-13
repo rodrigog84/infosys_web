@@ -43,6 +43,8 @@ class Pedidos extends CI_Controller {
 						$existe_stock = false;
 					}
 
+					$existe_stock = false; //forzamos a que actúe como si no tuviera stock
+
 					if($existe_stock){
 
 							$estado_nuevo_detalle = 5;
