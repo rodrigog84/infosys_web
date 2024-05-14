@@ -1395,13 +1395,13 @@ Ext.define('Infosys_web.controller.Produccion', {
 
         if(!cantidadproduccion){
             view.down("#grabarproduccion2").setDisabled(false);
-            Ext.Msg.alert('Debe Ingresar Cantidad de produccion Real');
+            Ext.Msg.alert('Atencion','Debe Ingresar Cantidad de produccion Real');
             return;
         };
 
         if(!lote){
             view.down("#grabarproduccion2").setDisabled(false);
-             Ext.Msg.alert('Debe Ingresar Lote');
+             Ext.Msg.alert('Atencion','Debe Ingresar Lote');
             return;            
         };
 
@@ -1413,14 +1413,20 @@ Ext.define('Infosys_web.controller.Produccion', {
             
         }        
 
+        if(!horainicio){
+            view.down("#grabarproduccion2").setDisabled(false);
+             Ext.Msg.alert('Atencion','Debe Ingresar Hora Inicio');
+            return;            
+        };
+
         if(!horatermino){
             view.down("#grabarproduccion2").setDisabled(false);
-             Ext.Msg.alert('Debe Ingresar Hora Termino');
+             Ext.Msg.alert('Atencion','Debe Ingresar Hora Termino');
             return;            
         };
         if(!bodega){
              view.down("#grabarproduccion2").setDisabled(false);
-             Ext.Msg.alert('Debe Asignar Bodega');
+             Ext.Msg.alert('Atencion','Debe Asignar Bodega');
             return;            
         };
         cantreal=0;
@@ -1433,7 +1439,7 @@ Ext.define('Infosys_web.controller.Produccion', {
             cantreal=r.data.cantidad_real
             if(cantreal==0){
                 view.down("#grabarproduccion2").setDisabled(false);
-                 Ext.Msg.alert('Debe Ingresar Toda la Produccion');
+                 Ext.Msg.alert('Atencion','Debe Ingresar Toda la Produccion');
                  permite_guardado = false;
                  return false;
                 
@@ -1981,8 +1987,11 @@ Ext.define('Infosys_web.controller.Produccion', {
                     }else{ 
                     var view = Ext.create('Infosys_web.view.Produccion.ProduccionTermino2').show();                   
                     view.down("#ticketId").setValue(cliente.num_produccion);
-                    view.down("#idId").setValue(idproduccion);                    
-                    view.down("#horainicioId").setValue(cliente.hora_inicio);
+                    view.down("#idId").setValue(idproduccion);      
+                    if(cliente.hora_inicio != '00:00:00'){
+                        view.down("#horainicioId").setValue(cliente.hora_inicio);
+                    }              
+                    
                     view.down("#fechainicioId").setValue(cliente.fecha_produccion);
                     view.down("#numLoteId").setValue(cliente.lote);  
                     view.down("#ciclosId").setValue(cliente.ciclos);                                  
