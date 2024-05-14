@@ -45,7 +45,7 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
 
 
          var pedidosformula = Ext.create('Ext.data.Store', {
-            fields: ['id', 'codigo', 'producto', 'num_pedido', 'nombre_cliente' ,'texto','cantidad_disponible'],
+            fields: ['id', 'codigo', 'producto', 'num_pedido', 'nombre_cliente' ,'texto','stock','cantidad_disponible'],
             proxy: {
               type: 'ajax',
                 actionMethods:  {
@@ -220,7 +220,7 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
                                        xtype: 'combobox',
                                         queryMode: 'local',
                                         labelWidth: 200,
-                                        width: 900,
+                                        width: 600,
                                         fieldLabel: '<b>PRODUCTOS PEDIDO</b>',
                                         store : pedidosformula,
                                         displayField : 'texto',
@@ -231,12 +231,12 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
                                         name : 'productoname' ,
                                         forceSelection: true,  
                                         listConfig: {
-                                            minWidth: 280
+                                            minWidth: 900,
+                                            width: 900
                                         },
                                         listeners: {
                                             select: function (combo, records) {
-                                                console.log(records[0].data)
-
+                                                me.down('#stockId').setValue(records[0].data.stock)
                                                 me.down('#cantpendienteId').setValue(records[0].data.cantidad_disponible)
                                                 me.down('#cantpendienteId').setMaxValue(records[0].data.cantidad_disponible)
 
@@ -244,6 +244,19 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
                                             }
                                         },                                          
                                     },{
+                                        xtype: 'splitter'
+                                        },{
+                                    xtype: 'numberfield',
+                                    fieldCls: 'required',
+                                    msgTarget: 'side',
+                                    labelWidth: 90,
+                                    maxHeight: 25,
+                                    width: 210,
+                                    fieldLabel: '<b>STOCK</b>',
+                                    itemId: 'stockId',
+                                    name : 'stock',
+                                    readOnly: true                                         
+                                },{
                                         xtype: 'splitter'
                                         },{
                                     xtype: 'numberfield',
@@ -269,8 +282,6 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
                                                             var iddetalle = me.down('#productoid').getValue()
                                                             var idformula = me.down('#formulaid').getValue()
 
-                                                            console.log(iddetalle)
-
                                                               Ext.Ajax.request({
                                                                  //url: preurl + 'cuentacorriente/getCuentaCorriente/' + record.get('cuenta') + '/' + editor.value ,
                                                                  url: preurl + 'produccion/getPedidosFormula',
@@ -290,6 +301,7 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
                                                                     var nombre_clientedetalle = obj.data[0].nombre_cliente;
                                                                     var cantidad_disponibledetalle = obj.data[0].cantidad_disponible;
                                                                     var cantidad_totaldetalle = obj.data[0].cantidad_total;
+                                                                    var stockdetalle = obj.data[0].stock;
 
                                                                     var cantproduccion = me.down('#cantpendienteId').getValue()
                                                                     var grid = me.down('#detalleProductosId');
@@ -320,7 +332,7 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
 
                                                                             Ext.Msg.alert('Alerta', 'Producto ya ingresado');   
                                                                         }else{
-                                                                            store.insert(store.count(), {id:iddetalle, codigo: codigodetalle, producto:productodetalle, num_pedido : num_pedidodetalle,nombre_cliente: nombre_clientedetalle, cantidad_disponible: cantproduccion, cantidad_total : cantidad_totaldetalle});
+                                                                            store.insert(store.count(), {id:iddetalle, codigo: codigodetalle, producto:productodetalle, num_pedido : num_pedidodetalle,nombre_cliente: nombre_clientedetalle, stock: stockdetalle, cantidad_disponible: cantproduccion, cantidad_total : cantidad_totaldetalle});
                                                                         }
 
                                                                         var griddetalle = me.down('#itemsgridId');
@@ -329,10 +341,15 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
                                                                         storeDetalle.removeAll()    
 
 
-                                                                        var porct_solicitud = (cantproduccion/cantidad_totaldetalle).toFixed(2); // Esto te dará el resultado con máximo 2 decimales
+                                                                        //var porct_solicitud = (cantproduccion/cantidad_totaldetalle).toFixed(2); // Esto te dará el resultado con máximo 2 decimales
 
-                                                                        console.log(porct_solicitud)
+                                                                        
                                                                         stItem.each(function(r){
+                                                                                var cantproduccion = r.data.cantidad_disponible;
+                                                                                var cantidad_totaldetalle = r.data.cantidad_total;
+                                                                                var porct_solicitud = (cantproduccion/cantidad_totaldetalle).toFixed(2); // Esto te dará el resultado con máximo 2 decimales
+                                                                                console.log(porct_solicitud)
+
 
                                                                                 iddetallelinea = r.data.id;
 
@@ -541,6 +558,72 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
                                             handler: function (grid, rowIndex, colIndex) {
                                                 var rec = grid.getStore().getAt(rowIndex);
                                                 grid.getStore().remove(rec);
+
+                                                /***** ACTUALIZACION SEGUNDA GRILLA ****/
+
+                                                var griddetalle = me.down('#itemsgridId');
+                                                stItemDetalle = griddetalle.getStore();
+                                                var storeDetalle = griddetalle.getStore();   
+                                                storeDetalle.removeAll()    
+
+                                                stItem = grid.getStore();
+                                                var store = grid.getStore();       
+                                                console.log(stItem)
+                                                stItem.each(function(r){
+                                                        var cantproduccion = r.data.cantidad_disponible;
+                                                        var cantidad_totaldetalle = r.data.cantidad_total;
+                                                        var porct_solicitud = (cantproduccion/cantidad_totaldetalle).toFixed(2); // Esto te dará el resultado con máximo 2 decimales
+
+                                                        console.log('---------------------------')
+                                                        console.log(cantproduccion)
+                                                        console.log(cantidad_totaldetalle)
+                                                        console.log(porct_solicitud)
+
+                                                        iddetallelinea = r.data.id;
+
+                                                        Ext.Ajax.request({
+                                                            url: preurl + 'produccion/getProductosFormulabyiddetalle',
+                                                                                      params: {
+                                                                                          iddetallelinea: iddetallelinea,
+                                                                                          porct_solicitud : porct_solicitud
+                                                                                      },
+                                                            async: false,
+                                                            success: function(response, opts) {
+                                                                    var objdetalle = Ext.decode(response.responseText);
+                                                                    //console.log(objdetalle.data)
+
+                                                                                                                                                 
+                                                                    objdetalle.data.forEach(function(r) {
+                                                                        //console.log(r);
+                                                                        var existereg = false;
+                                                                        storeDetalle.each(function(reg){
+                                                                            if(r.id_producto == reg.data.id_producto){
+                                                                                    existereg = true;
+                                                                                    r.cantidad += reg.data.cantidad;
+                                                                                    reg.set('cantidad', parseInt(reg.data.cantidad) + parseInt(r.cantidad)); 
+                                                                                    reg.commit();                                                                                                     
+
+                                                                            }
+                                                                            
+                                                                        });      
+                                                         
+                                                                        if(!existereg){
+                                                                            storeDetalle.insert(storeDetalle.count(), {id_producto:r.id_producto, codigo: r.codigo, nombre_producto:r.nombre_producto, id_bodega : r.id_bodega,valor_compra: r.valor_compra,cantidad: parseInt(r.cantidad),valor_produccion: r.valor_produccion, porcentaje: r.porcentaje});    
+                                                                        }
+                                                                        
+                                                                    });
+                                                                    //objdetalle.each(function(r){
+
+                                                                        //console.log(r)
+                                                                    //});
+
+                                                                
+                                                            }
+
+                                                        });
+                                                });
+
+
 
                                                 /*var store = grid.getStore();
                                                 var total_cancelacion = 0;

@@ -165,6 +165,7 @@ class Produccion extends CI_Controller {
 													,p.nombre_cliente
 													,(d.cantidad - d.cantidad_solicitada) as cantidad_disponible
 													,d.cantidad as cantidad_total
+													,pro.stock
 									FROM 			pedidos_detalle d
 									INNER JOIN 	pedidos p ON d.id_pedido = p.id
 									INNER JOIN 	productos pro ON d.id_producto = pro.id
@@ -182,7 +183,7 @@ class Produccion extends CI_Controller {
 			}
 			
 		}else{
-			$data[] = array('id' => '','codigo' => '','producto' => '','num_pedido' =>  0,'cliente' =>  '','cantidad_disponible' =>  0,'cantidad_total' =>  0,'texto' => '');
+			$data[] = array('id' => '','codigo' => '','producto' => '','num_pedido' =>  0,'cliente' =>  '','stock' =>  0,'cantidad_disponible' =>  0,'cantidad_total' =>  0,'texto' => '');
 		}
 
         $resp['success'] = true;
