@@ -45,7 +45,7 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
 
 
          var pedidosformula = Ext.create('Ext.data.Store', {
-            fields: ['id', 'codigo', 'producto', 'num_pedido', 'nombre_cliente' ,'texto','stock','cantidad_disponible'],
+            fields: ['id', 'codigo', 'producto', 'num_pedido', 'nombre_cliente' ,'texto','stock','cantidad_disponible','formula'],
             proxy: {
               type: 'ajax',
                 actionMethods:  {
@@ -240,6 +240,12 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
                                                 me.down('#cantpendienteId').setValue(records[0].data.cantidad_disponible)
                                                 me.down('#cantpendienteId').setMaxValue(records[0].data.cantidad_disponible)
 
+                                                if(parseFloat(records[0].data.stock) >= parseFloat(records[0].data.cantidad_disponible)){
+                                                        me.down('#btnNoProducir').setDisabled(false);
+                                                }else{
+                                                    me.down('#btnNoProducir').setDisabled(true);
+                                                }
+
 
                                             }
                                         },                                          
@@ -282,6 +288,8 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
                                                             var iddetalle = me.down('#productoid').getValue()
                                                             var idformula = me.down('#formulaid').getValue()
 
+
+
                                                               Ext.Ajax.request({
                                                                  //url: preurl + 'cuentacorriente/getCuentaCorriente/' + record.get('cuenta') + '/' + editor.value ,
                                                                  url: preurl + 'produccion/getPedidosFormula',
@@ -302,6 +310,7 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
                                                                     var cantidad_disponibledetalle = obj.data[0].cantidad_disponible;
                                                                     var cantidad_totaldetalle = obj.data[0].cantidad_total;
                                                                     var stockdetalle = obj.data[0].stock;
+                                                                    var formuladetalle = obj.data[0].id_formula;
 
                                                                     var cantproduccion = me.down('#cantpendienteId').getValue()
                                                                     var grid = me.down('#detalleProductosId');
@@ -332,7 +341,7 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
 
                                                                             Ext.Msg.alert('Alerta', 'Producto ya ingresado');   
                                                                         }else{
-                                                                            store.insert(store.count(), {id:iddetalle, codigo: codigodetalle, producto:productodetalle, num_pedido : num_pedidodetalle,nombre_cliente: nombre_clientedetalle, stock: stockdetalle, cantidad_disponible: cantproduccion, cantidad_total : cantidad_totaldetalle});
+                                                                            store.insert(store.count(), {id:iddetalle, codigo: codigodetalle, producto:productodetalle, num_pedido : num_pedidodetalle,nombre_cliente: nombre_clientedetalle, stock: stockdetalle, cantidad_disponible: cantproduccion, cantidad_total : cantidad_totaldetalle, formula : formuladetalle});
                                                                         }
 
                                                                         var griddetalle = me.down('#itemsgridId');
@@ -377,48 +386,90 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
 
                                                                                                 }
                                                                                                 
-                                                                                            });      
+                                                                                            });   //storeDetalle.each
                                                                              
                                                                                             if(!existereg){
                                                                                                 storeDetalle.insert(storeDetalle.count(), {id_producto:r.id_producto, codigo: r.codigo, nombre_producto:r.nombre_producto, id_bodega : r.id_bodega,valor_compra: r.valor_compra,cantidad: parseInt(r.cantidad),valor_produccion: r.valor_produccion, porcentaje: r.porcentaje});    
                                                                                             }
                                                                                             
-                                                                                        });
+                                                                                        }); // objdetalle.data
                                                                                         //objdetalle.each(function(r){
 
                                                                                             //console.log(r)
                                                                                         //});
 
-                                                                                 }
-                                                                                })  
+                                                                                 } //success
+                                                                                })  //Ext.Ajax.request
 
 
 
                                                                             
-                                                                        });
+                                                                        }); //stItem.each(
 
 
 
 
-                                                                    }
+                                                                    } //}else{
 
 
 
 
 
+
+                                                                 } //success: function
+                                                              });  // Ext.Ajax.request(
+
+                                                                me.down('#formulaid').setValue(null);
+                                                                me.down('#productoid').setValue(null);
+                                                                me.down('#stockId').setValue('');
+                                                                me.down('#cantpendienteId').setValue('');
+
+                                                    } //click: function 
+                                                } //listeners: {
+                                        } //xtype: 'button',
+
+                                        ,{
+                                        xtype: 'splitter'
+                                        },{
+                                                xtype: 'button',
+                                                text: 'No Producir',
+                                                iconCls: 'icon-delete',
+                                                width: 100,
+                                                action: 'noProducir',
+                                                itemId: 'btnNoProducir',
+                                                disabled: true,
+                                                listeners: {
+                                                    click: function (button, event, eOpts) {
+
+                                                            var iddetalle = me.down('#productoid').getValue()
+                                                            var idformula = me.down('#formulaid').getValue()
+                                                            console.log('id detalle')
+                                                            console.log(iddetalle)
+                                                            Ext.Ajax.request({
+                                                                 //url: preurl + 'cuentacorriente/getCuentaCorriente/' + record.get('cuenta') + '/' + editor.value ,
+                                                                 url: preurl + 'produccion/noProducir',
+                                                                      params: {
+                                                                          iddetalle: iddetalle,
+                                                                          idformula: idformula
+                                                                      },
+                                                                 async: false,
+                                                                 success: function(response, opts) {   
+
+                                                                        me.down('#formulaid').setValue(null);
+                                                                        me.down('#productoid').setValue(null);
+                                                                        me.down('#stockId').setValue('');
+                                                                        me.down('#cantpendienteId').setValue('');
+
+
+                                                                        fomulastore.reload();
+                                                                        pedidosformula.reload();
+                                                                        Ext.Msg.alert('Atencion','Producto Marcado como Terminado');
 
                                                                  }
-                                                              });  
-
-
-
-
+                                                            });
                                                     }
                                                 }
                                         }
-
-
-
                                     ,{
                                     xtype: 'displayfield',
                                     width: 10                                   
@@ -516,12 +567,13 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
                                     height: 400,
                                     store: Ext.create('Ext.data.Store', {
                                                             autoDestroy: true,
-                                                            fields: ['id', 'codigo', 'producto', 'num_pedido', 'nombre_cliente','cantidad_disponible','cantidad_total'],
+                                                            fields: ['id', 'codigo', 'producto', 'num_pedido', 'nombre_cliente','cantidad_disponible','cantidad_total','formula'],
                                                             }),                                          
                                     columns: [
 
                                         { text: 'Id Detalle Producto',  dataIndex: 'id', width: 100, headerCfg: { style: 'font-size: 9px;' }, hidden : true },
                                         { text: 'Cod. Prod',  dataIndex: 'codigo', headerCfg: { style: 'font-size: 8px;' }, width: 120, hidden : true},
+                                        { text: 'formula',  dataIndex: 'formula', width: 150, hidden : true },
                                         { text: 'Prod',  dataIndex: 'producto', headerCfg: { style: 'font-size: 8px;' }, width: 200, renderer: function(value) {
                                                         return '<div style="font-size: 9px;">' + value + '</div>';
                                                     }},
@@ -617,7 +669,7 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
                                                                         //console.log(r)
                                                                     //});
 
-                                                                
+
                                                             }
 
                                                         });

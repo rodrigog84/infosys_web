@@ -166,6 +166,7 @@ class Produccion extends CI_Controller {
 													,(d.cantidad - d.cantidad_solicitada) as cantidad_disponible
 													,d.cantidad as cantidad_total
 													,pro.stock
+													,d.id_formula
 									FROM 			pedidos_detalle d
 									INNER JOIN 	pedidos p ON d.id_pedido = p.id
 									INNER JOIN 	productos pro ON d.id_producto = pro.id
@@ -183,7 +184,7 @@ class Produccion extends CI_Controller {
 			}
 			
 		}else{
-			$data[] = array('id' => '','codigo' => '','producto' => '','num_pedido' =>  0,'cliente' =>  '','stock' =>  0,'cantidad_disponible' =>  0,'cantidad_total' =>  0,'texto' => '');
+			$data[] = array('id' => '','codigo' => '','producto' => '','num_pedido' =>  0,'cliente' =>  '','stock' =>  0,'cantidad_disponible' =>  0,'cantidad_total' =>  0,'formula' =>  0,'texto' => '');
 		}
 
         $resp['success'] = true;
@@ -957,13 +958,80 @@ class Produccion extends CI_Controller {
         echo json_encode($resp);
 	}
 
+	public function noProducir(){
 
+		$iddtallepedidos = $this->input->post('iddetalle');
+		$idformula = $this->input->post('idformula');
+
+
+		$this->db->select("d.id_pedido",false)
+						  ->from('pedidos_detalle d')
+						  ->where('d.id',$iddtallepedidos); 	                  
+		$query = $this->db->get();		
+
+		$pedido_detalle = $query->row();
+		$idpedido = $pedido_detalle->id_pedido;
+		
+
+		$estado_nuevo_detalle = 5;
+		$pedidos_detalle_log = array(
+									'idproductodetalle' => $iddtallepedidos,
+									'idestado' => $estado_nuevo_detalle,
+									'fecha' => date('Y-m-d H:i:s')
+								);
+		$this->db->insert('pedidos_detalle_log_estados', $pedidos_detalle_log); 	
+
+			
+		$this->db->where('id', $iddtallepedidos);
+		$this->db->update('pedidos_detalle', array('idestadoproducto' => $estado_nuevo_detalle));		
+		//var_dump($iddetalle);
+
+
+		$this->db->select("d.idestadoproducto",false)
+						  ->from('pedidos_detalle d')
+						  ->where('d.id_pedido',$idpedido); 	                  
+		$query = $this->db->get();		
+		$pedido_detalle = $query->result();
+
+		$pedidocompleto = true;
+		foreach ($pedido_detalle as $pdetalle) {
+
+			if($pdetalle->idestadoproducto != 5){
+				$pedidocompleto = false;
+			}
+
+		}
+
+
+
+		if($pedidocompleto){
+
+				$pedidos = array(
+			        'idestadopedido' => 8
+					);			
+
+					
+				$this->db->where('id', $idpedido);
+				$this->db->update('pedidos', $pedidos);			
+
+				$pedidos_log = array(
+											'idpedido' => $idpedido,
+											'idestado' => 8,
+											'fecha' => date('Y-m-d H:i:s')
+										);
+				$this->db->insert('pedidos_log_estados', $pedidos_log); 
+
+		}
+
+		
+
+	}
 
 	public function savesolicita(){
 		
 		//echo '<pre>';
-		//var_dump($_POST); exit;
-		//exit;
+		//var_dump($_POST); //exit;
+		
 		$resp = array();
 		$numproduccion = $this->input->post('numproduccion');
 		$fechaproduccion = $this->input->post('fechaproduccion');
@@ -976,6 +1044,13 @@ class Produccion extends CI_Controller {
 		$encargado = $this->input->post('encargado');
 					
 
+
+		foreach($productos as $p){
+			$idformula = $p->formula;
+		}
+
+		//var_dump($idformula);
+		//exit;
         $this->db->select('id, nombre_formula')
           ->from('formula')
           ->where('id',$idformula);
@@ -1032,6 +1107,7 @@ class Produccion extends CI_Controller {
 				'id_produccion' => $idproduccion,
 				'id_cliente' => $data_detalle_pedido->id_cliente,
 		        'id_pedido' => $data_detalle_pedido->id_pedido,
+		        'id_formula' => $p->formula,
 		        'id_detalle_pedido' => $data_detalle_pedido->id,
 		        'nom_producto' => $data_detalle_pedido->nomproducto,
 		        'id_producto' => $data_detalle_pedido->id_producto,
@@ -1682,24 +1758,46 @@ class Produccion extends CI_Controller {
 		}
 
 
-	
+		
 		// define si el pedido está listo según tenga todos los productos listos
 		foreach ($prod_pedido as $pedido_detalle) {
 
-
 				$this->db->select('id, id_producto, cantidad')
 						 ->from('pedidos_detalle')
-						 ->where('id',$pedido_detalle->id_detalle_pedido)
-						 ->where('idestadoproducto not in (4,5)');
+						 ->where('id_pedido',$pedido_detalle->id_pedido);
+
+				$query = $this->db->get();
+				$detalles_pedido = $query->result();
+				$pedidocompleto = true;
+				foreach ($detalles_pedido as $dpedido) {
 
 
-			   $query = $this->db->get();
-			   $cantidad_pendiente = $query->num_rows(); //si existe alguno que no este listo, no hacer nada.  Si no hay ninguno pendiente, finalizar el pedido		
-			   //$detalle_pedido = $query->result();
+					//var_dump($pedidocompleto);
+					$this->db->select('id, id_producto, cantidad')
+							 ->from('pedidos_detalle')
+							 ->where('id',$dpedido->id)
+							 ->where('idestadoproducto not in (4,5)');
+
+					
+				   $query = $this->db->get();
+				  // echo $this->db->last_query();
+				   $cantidad_pendiente = $query->num_rows(); //si existe alguno que no este listo, no hacer nada.  Si no hay ninguno pendiente, finalizar el pedido		
+				   //$detalle_pedido = $query->result();
+				   //var_dump($cantidad_pendiente);
+
+				   if($cantidad_pendiente > 0){
+				   		$pedidocompleto = false;	
+				   }
+
+				   // var_dump($pedidocompleto);
+				   //$pedidocompleto = $cantidad_pendiente > 0 ? false : true;
 
 
-			   $pedidocompleto = $cantidad_pendiente == 0 ? true : false;
+				}
 
+
+				//echo 'termina proceso';
+				//var_dump($pedidocompleto);
 
 			   if($pedidocompleto){
 
@@ -1723,11 +1821,11 @@ class Produccion extends CI_Controller {
 
 			   }
 
+
+
+
+
 		}
-
-
-
-
 
 
 		$this->Bitacora->logger("M", 'produccion', $idproduccion);

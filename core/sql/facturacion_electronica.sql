@@ -761,3 +761,12 @@ ALTER TABLE `pedidos`
 	ALTER TABLE `pedidos`
 	CHANGE COLUMN `nomarchivooc` `nomarchivooc` VARCHAR(100) NOT NULL COLLATE 'latin1_swedish_ci' AFTER `subeoc`,
 	CHANGE COLUMN `nomarchivoocreal` `nomarchivoocreal` VARCHAR(100) NOT NULL COLLATE 'latin1_swedish_ci' AFTER `nomarchivooc`;
+
+
+
+/***********************************************************************************************************/
+
+ALTER TABLE `produccion_detalle_pedidos`
+	ADD COLUMN `id_formula` INT(11) NOT NULL AFTER `id_pedido`;
+
+	
