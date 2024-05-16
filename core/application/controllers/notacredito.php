@@ -1361,35 +1361,65 @@ class Notacredito extends CI_Controller {
 
 	public function validaproducto(){
 		
+    //var_dump($_POST); exit;
+
 		$resp = array();
 		$idproducto = $this->input->post('idproducto');
 		$idfactura = $this->input->post('idfactura');
+    $idlinea = $this->input->post('idlinea');
 
-		if ($idfactura){
 
-		$query = $this->db->query('SELECT * FROM detalle_factura_cliente 
-		WHERE id_producto like '.$idproducto.' AND id_factura like '.$idfactura.'');
-    	       $row = $query->first_row();
-		
-		if($query->num_rows()>0){
-			$resp['success'] = true;		 	
-		 }else {
-                  $query = $this->db->query('SELECT * FROM detalle_factura_glosa 
-                  WHERE id_producto like '.$idproducto.' AND id_factura like '.$idfactura.'');
-                  $row = $query->first_row();            
-                  if($query->num_rows()>0){
-                    $resp['success'] = true;
-                  }else{
-                    $resp['success'] = false;                        
-                  }
-		};
+    if($idlinea){
+          $query = $this->db->query('SELECT * FROM detalle_factura_cliente 
+          WHERE id = '.$idlinea.'');
+                   $row = $query->first_row();
+          
+          if($query->num_rows()>0){
+            $resp['success'] = true;      
+           }else {
+                        $query = $this->db->query('SELECT * FROM detalle_factura_glosa 
+                        WHERE id like '.$idproducto.' AND id_factura like '.$idfactura.'');
+                        $row = $query->first_row();            
+                        if($query->num_rows()>0){
+                          $resp['success'] = true;
+                        }else{
+                          $resp['success'] = false;                        
+                        }
+          };
 
-		$resp['cliente'] = $row;
-	    }else{
+          $resp['cliente'] = $row;
+    }else{
 
-	    	$resp['success'] = true;
-	    	
-	    };
+      if ($idfactura){
+
+          $query = $this->db->query('SELECT * FROM detalle_factura_cliente 
+          WHERE id_producto like '.$idproducto.' AND id_factura like '.$idfactura.'');
+                   $row = $query->first_row();
+          
+          if($query->num_rows()>0){
+            $resp['success'] = true;      
+           }else {
+                        $query = $this->db->query('SELECT * FROM detalle_factura_glosa 
+                        WHERE id_producto like '.$idproducto.' AND id_factura like '.$idfactura.'');
+                        $row = $query->first_row();            
+                        if($query->num_rows()>0){
+                          $resp['success'] = true;
+                        }else{
+                          $resp['success'] = false;                        
+                        }
+          };
+
+          $resp['cliente'] = $row;
+        }else{
+
+          $resp['success'] = true;
+          
+        };
+
+    }
+
+
+
         
         echo json_encode($resp);
 	}

@@ -1227,6 +1227,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
         var grid  = view.down('grid');
         if (grid.getSelectionModel().hasSelection()) {
             var row = grid.getSelectionModel().getSelection()[0];
+            console.log(row.data)
             viewIngresa.down('#facturaId').setValue(row.data.id);
             viewIngresa.down('#numfactId').setValue(row.data.num_factura);
             viewIngresa.down('#totfactId').setValue(row.data.totalfactura);
@@ -1798,7 +1799,8 @@ Ext.define('Infosys_web.controller.Notacredito', {
                     url: preurl + 'notacredito/validaproducto',
                 params: {
                     idproducto: idproducto,
-                    idfactura : idfactura
+                    idfactura : idfactura,
+                    idlinea: idp
                 },
                 success: function(response){
                    var resp = Ext.JSON.decode(response.responseText);                
