@@ -117,6 +117,8 @@ class Pedidos2 extends CI_Controller {
 						,case when p.subeoc = 0 then 1 else 0 end as permitecargaroc
 						,p.ordencompra
 						,p.subeoc
+						,p.ordencompraint
+						,p.nomarchivoocint
 						, c.rut",false)
 						  ->from('pedidos p')
 						  ->join('clientes c','p.id_cliente = c.id')
@@ -1197,7 +1199,7 @@ class Pedidos2 extends CI_Controller {
 			<td style="text-align:left">'.$producto->nombre.'</td>			
 			<td align="right">'.number_format($v->cantidad, 2, '.', ',').'</td>
 			<td align="right">'.number_format($v->precio, 2, '.', ',').'</td>
-			<td align="right">'.number_format($neto, 0, '.', ',').'</td>
+			<td align="right">'.number_format($v->neto, 0, '.', ',').'</td>
 			
 			</tr>';
 			

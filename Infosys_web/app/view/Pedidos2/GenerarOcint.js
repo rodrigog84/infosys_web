@@ -58,7 +58,7 @@ Ext.define('Infosys_web.view.Pedidos2.GenerarOcint' ,{
         this.items = {
             xtype: 'grid',
             store:Ext.create('Ext.data.Store', {
-            fields: ['id','occargada','permitecargaroc','subeoc','nomarchivooc','ordencompra'],
+            fields: ['id','occargada','permitecargaroc','subeoc','nomarchivooc','ordencompra','ordencompraint','nomarchivoocint'],
             proxy: {
               type: 'ajax',
                 actionMethods:  {
@@ -80,12 +80,17 @@ Ext.define('Infosys_web.view.Pedidos2.GenerarOcint' ,{
         header: "Generar Orden",
         width: 350,
         renderer: function(value, metaData, record, rowIndex, colIndex, store, view) {
-                    var disabled_file = record.data.permitecargaroc == 1 ? '' : 'disabled';
+                    var disabled_file = record.data.ordencompraint == '' ? '' : 'disabled';
+                    console.log(record.data)
                     return Ext.String.format(
-                        '<input type="button" id="btnoc_{0}" name="btnoc_{0}" disabled style="width: 95%" ' + disabled_file + ' value="Generar OC (* En desarrollo)">',
+                        '<input type="button"  id="btnoc_{0}" name="btnoc_{0}" style="width: 95%" ' + disabled_file + ' value="Generar OC" onclick="handlebtnoc(this, {0})"  >',
                         record.data.id
                     );
                 },
+    },{
+        header: "Nro OC",
+        flex: 1,
+        dataIndex: 'ordencompraint',
     },{
             header: "Descargar",
             xtype:'actioncolumn',
@@ -96,15 +101,15 @@ Ext.define('Infosys_web.view.Pedidos2.GenerarOcint' ,{
                 handler: function(grid, rowIndex, colIndex) {
                     var record = grid.getStore().getAt(rowIndex);
                     var idpedido = record.data.id
-                   window.open(preurl + 'pedidos2/verordencompra?idpedido='+idpedido);
+                    var oc = record.data.ordencompraint
+                   window.open(preurl + 'pedidos/exportPDFOC?idpedidos=' + idpedido + '&oc=' + oc);
                 },
                 isDisabled: function(view, rowIndex, colIndex, item, record) {
                     // Returns true if 'editable' is false (, null, or undefined)
-                    console.log(record.data)
-                    if(record.data.subeoc == 1){
-                        return false;
-                    }else{
+                    if(record.data.ordencompraint == ''){
                         return true;
+                    }else{
+                        return false;
                     }
                 }
 
@@ -122,51 +127,33 @@ Ext.define('Infosys_web.view.Pedidos2.GenerarOcint' ,{
         
 
         // Función para manejar la selección de archivos
-        window.handleFileSelect = function(input, input_nro, rowIndex) {
+        window.handlebtnoc = function(input, input_nro, rowIndex) {
+                 Ext.Ajax.request({
 
+                    url: preurl + 'correlativos/genera?valida=109',
+                    params: {
+                        id: 1
+                    },
+                    success: function(response){
+                        var resp = Ext.JSON.decode(response.responseText);
 
-            if (input.files && input.files[0]) {
+                        if (resp.success == true) {
 
-                var file = input.files[0];
-                var reader = new FileReader();
-                var grid = me.down('grid')
-                reader.onload = function(e) {
-                    var dataURL = e.target.result;
+                            var cliente = resp.cliente;
+                            var correlanue = cliente.correlativo;
 
-                    // Crea un objeto FormData para enviar el archivo al servidor
-                    let formData = new FormData();
-                    formData.append('file', file);
-
-
-
-                   // Realiza una solicitud AJAX al servidor
-                    Ext.Ajax.request({
-                        url: preurl +'pedidos2/saveOcPedido', // La URL de tu script PHP para guardar archivos
-                        method: 'POST',
-                        async: false,
-                        /*headers: {
-                                        'Content-Type': 'multipart/form-data'
-                                    },*/
-                       params: {
-                            file: dataURL,
-                            name: file.name,
-                            ordencompra: input_nro,
-                            idpedido: rowIndex
-                        },
-                        success: function(response) {
-                            Ext.Msg.alert('Éxito', 'La Orden de compra se ha guardado correctamente.');
+                            window.open(preurl +'pedidos/exportPDFOC/?idpedidos=' + input_nro + '&oc=' + correlanue)
+                            Ext.Msg.alert('Éxito', 'OC generada correctamente.');
                             me.close();
 
-                        },
-                        failure: function(response) {
-                            Ext.Msg.alert('Error', 'Ha ocurrido un error al intentar guardar el archivo.');
+                        }else{
+                            Ext.Msg.alert('Correlativo YA Existe');
+                            return;
                         }
-                    });                
+                    }            
+                });            
 
-                };
-                reader.readAsDataURL(file);
-
-            }
+            
 
         };        
         

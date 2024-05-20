@@ -696,6 +696,280 @@ class Pedidos extends CI_Controller {
 	}
 
 	
+	public function exportPDFOC(){
+		$idpedidos = $this->input->get('idpedidos');
+		$oc = $this->input->get('oc');
+
+
+
+
+		$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor, cor.nombre as nom_documento, op.observaciones as observa, f.nombre_formula as nombre_formula FROM pedidos acc
+		left join correlativos cor on (acc.tip_documento = cor.id)
+		left join clientes c on (acc.id_cliente = c.id)
+		left join vendedores v on (acc.id_vendedor = v.id)
+		left join formula f on (acc.id_formula = f.id)
+		left join observacion_pedidos op on (acc.num_pedido = op.num_pedidos)
+		WHERE acc.id = "'.$idpedidos.'"
+		');
+		//cotizacion header
+		$row = $query->result();
+		$row = $row[0];
+
+		$ordencompraint = $row->ordencompraint;
+		$ordencompraarchivo = $row->nomarchivoocint;
+
+		if($ordencompraint == ''){
+			$this->db->where('id', $idpedidos);
+			$this->db->update('pedidos', array('ordencompraint' => $oc));		
+
+		}
+
+	    // Ruta del directorio donde se guardarán los archivos
+	    $directorio = './produccion/ordencompraint/'.$idpedidos.'/';
+
+		if($ordencompraarchivo == ''){
+				//items
+				$items = $this->db->get_where('pedidos_detalle', array('id_pedido' => $idpedidos));
+				
+					
+				$codigo = $oc;
+				$nombre_contacto = $row->nombre_cliente;
+				$vendedor = $row->nom_vendedor;
+				$observacion = $row->observa;
+				$fecha = $row->fecha_doc;
+				$fecha_despacho = $row->fecha_despacho;
+				$totaliva = 0;
+				$neto = ($row->total / 1.19);
+				$iva = ($row->total - $neto);
+				$subtotal = ($row->total);		
+
+				$this->load->model('facturaelectronica');
+		      $empresa = $this->facturaelectronica->get_empresa();
+
+		      $logo =  PATH_FILES."facturacion_electronica/images/".$empresa->logo; 
+
+
+
+				$html = '
+				<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+				<html xmlns="http://www.w3.org/1999/xhtml">
+				<head>
+				<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+				<title>Pedidos</title>
+				<style type="text/css">
+				td {
+					font-size: 16px;
+				}
+				p {
+				}
+				</style>
+				</head>
+
+				<body>
+				<table width="892px" height="602" border="0">
+				  <tr>
+				   <td width="197px"><img src="' . $logo . '" width="150" height="136" /></td>
+				    <td width="493px" style="font-size: 14px;text-align:center;vertical-align:text-top"	>
+				     <p>' . $empresa->razon_social .'</p>
+		        <p>RUT:' . number_format($empresa->rut,0,".",".").'-' . $empresa->dv . '</p>
+		        <p>' . $empresa->dir_origen . ' - ' . $empresa->comuna_origen . ' - Chile</p>
+		        <p>Fonos: ' . $empresa->comuna_origen . '</p>
+				    <p>http://www.lircay.cl</p>
+				    </td>
+			    <td width="296px" style="font-size: 16px;text-align:left;vertical-align:text-top"	>
+			          <p>ORDEN COMPRA N°: '.$codigo.'</p>
+			          <!--p>&nbsp;</p-->
+			          <p>FECHA EMISION : '.$fecha.'</p>
+			          <!--p>&nbsp;</p-->
+			          <p>FECHA DESPACHO : '.$fecha_despacho.'</p>
+			          <!--p>&nbsp;</p-->		         
+					</td>
+				  </tr>
+				  <tr>
+					<td style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:center;" colspan="3" width="892px"><h1>ORDEN DE COMPRA</h1></td>
+				  </tr>
+				  <tr>
+				    <td colspan="3" width="892px" >
+				    	<table width="987px" border="0">
+				    		<tr>
+				    			<td width="197px">Sr.(es):</td>
+				    			<td width="395px">'. $row->nombre_cliente.'</td>
+				    			<td width="197px">Rut:</td>
+				    			<td width="197px">'. number_format(substr($row->rut_cliente, 0, strlen($row->rut_cliente) - 1),0,".",".")."-".substr($row->rut_cliente,-1).'</td>
+				    		</tr>
+				    		<tr>
+				    		
+				    		</tr>
+				    		<tr>
+				    		
+				    		</tr>    	
+				    		
+				    	</table>
+					</td>
+				  </tr>
+				  <tr>
+				    <td colspan="3" >
+				    	<table width="950px" cellspacing="0" cellpadding="0" >
+				      <tr>
+				        <td width="100px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:left;" >Codigo</td>
+				        <td width="448px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:left;" >Descripcion</td>
+				        <td width="168px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Cantidad</td>
+				        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Precio</td>
+				        <td width="148px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Neto</td>
+				        
+				       </tr>';
+				$descripciones = '';
+				$i = 0;
+
+				foreach($items->result() as $v){			
+					//$i = 0;
+					//while($i < 30){
+					$this->db->where('id', $v->id_producto);
+					$producto = $this->db->get("productos");	
+					$producto = $producto->result();
+					$producto = $producto[0];
+					
+					$html .= '<tr>
+					<td style="text-align:left">'.$producto->codigo.'</td>
+					<td style="text-align:left">'.$producto->nombre.'</td>			
+					<td align="right">'.number_format($v->cantidad, 2, '.', ',').'</td>
+					<td align="right">'.number_format($v->precio, 2, '.', ',').'</td>
+					<td align="right">'.number_format($v->neto, 0, '.', ',').'</td>
+					
+					</tr>';
+					
+					//}
+					$i++;
+				}
+
+				// RELLENA ESPACIO
+				/*while($i < 30){
+					$html .= '<tr><td colspan="5">&nbsp;</td></tr>';
+					$i++;
+				}*/
+
+
+				$html .= '<tr><td colspan="5">&nbsp;</td></tr></table></td>
+				  </tr>
+				  <tr>
+				  <td colspan="2" rowspan="6" style="font-size: 12px;border-bottom:1pt solid black;border-top:1pt solid black;border-left:1pt solid black;border-right:1pt solid black;text-align:left;">'.$observacion.'</td>
+				  	
+				  </tr>
+				  <tr>
+				  	<td>
+						<table width="296px" border="0">
+							<tr>
+								<td width="150px" style="font-size: 20px;text-align:left;"></td>
+								<td width="146px" style="text-align:right;"></td>
+							</tr>
+						</table>
+				  	</td>		  
+				  </tr>	
+				  <tr>
+				  	<td>
+						<table width="296px" border="0">
+							<tr>
+								<td width="150px" style="font-size: 20px;text-align:left;">Neto</td>
+								<td width="146px" style="text-align:right;">$ '.number_format($neto, 0, '.', ',').'</td>
+							</tr>
+						</table>
+				  	</td>		  
+				  </tr>	
+				  <tr>
+				  	<td>
+						<table width="296px" border="0">
+							<tr>
+								<td width="150px" style="font-size: 20px;text-align:left;">IVA</td>
+								<td width="146px" style="text-align:right;">$ '.number_format($iva, 0, '.', ',').'</td>
+							</tr>
+						</table>
+				  	</td>		  
+				  </tr>
+				  <tr>
+				  	<td>
+						<table width="296px" border="0">
+							<tr>
+								<td width="150px" style="font-size: 20px;text-align:left;">Total</td>
+								<td width="146px" style="text-align:right;">$ '. number_format($row->total, 0, '.', ',') .'</td>
+							</tr>
+						</table>
+				  	</td>		  
+				  </tr>
+				  <tr>
+				  	<td>&nbsp;</td>		  
+				  </tr>
+				  <tr>
+				  	<td>&nbsp;</td>		  
+				  </tr>		  		  		  	  
+				 
+				  
+				</table>
+				</body>
+				</html>
+				';
+				//==============================================================
+				//==============================================================
+				//==============================================================
+
+				include(dirname(__FILE__)."/../libraries/mpdf60/mpdf.php");
+
+				$mpdf= new mPDF(
+					'',    // mode - default ''
+					'',    // format - A4, for example, default ''
+					0,     // font size - default 0
+					'',    // default font family
+					15,    // margin_left
+					15,    // margin right
+					16,    // margin top
+					16,    // margin bottom
+					9,     // margin header
+					9,     // margin footer
+					'L'    // L - landscape, P - portrait
+					);  
+
+
+
+
+
+
+				if(!file_exists($directorio) ){
+					mkdir($directorio,0777,true);
+				}
+
+				$ordencompraarchivo = "OC_{$codigo}.pdf";
+
+
+				$mpdf->WriteHTML($html);
+				$mpdf->Output($directorio.$ordencompraarchivo, "F");
+
+				$this->db->where('id', $idpedidos);
+				$this->db->update('pedidos', array('nomarchivoocint' => $ordencompraarchivo));		
+
+		}
+		
+		$directorio2 = '/../../produccion/ordencompraint/'.$idpedidos.'/';
+		//var_dump($directorio2.$ordencompraarchivo); exit;
+
+			$base_path = __DIR__;
+			$base_path = str_replace("\\", "/", $base_path);
+
+			$filename = $ordencompraarchivo; /* Note: Always use .pdf at the end. */
+			$file = $base_path .$directorio2 .$filename;	
+			header('Content-type: application/pdf');
+			header('Content-Disposition: inline; filename="' . $filename . '"');
+			header('Content-Transfer-Encoding: binary');
+			header('Content-Length: ' . filesize($file));
+			header('Accept-Ranges: bytes');
+
+			@readfile($file);
+
+
+		
+		exit;
+	}
+
+
+
 	public function exportPDF(){
 		$idpedidos = $this->input->get('idpedidos');
 		$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor, cor.nombre as nom_documento, op.observaciones as observa, f.nombre_formula as nombre_formula FROM pedidos acc

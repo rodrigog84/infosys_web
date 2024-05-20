@@ -770,3 +770,13 @@ ALTER TABLE `produccion_detalle_pedidos`
 	ADD COLUMN `id_formula` INT(11) NOT NULL AFTER `id_pedido`;
 
 	
+/**********************************************************************************************************/
+
+INSERT INTO `correlativos` (`id`, `nombre`, `correlativo`, `hasta`) VALUES (109, 'ORDEN DE COMPRA', 1, 20000);
+
+ALTER TABLE `pedidos`
+	ADD COLUMN `ordencompraint` VARCHAR(50) NOT NULL AFTER `nomarchivoocreal`;
+
+ALTER TABLE `pedidos`
+	ADD COLUMN `nomarchivoocint` VARCHAR(100) NOT NULL AFTER `ordencompraint`;
+
