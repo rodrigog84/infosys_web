@@ -2041,7 +2041,7 @@ class Ordencompra extends CI_Controller {
 			<td style="text-align:left">'.$v->numero_documento.'</td>
 			<td style="text-align:right">'.number_format($v->cantidad,0,'.',',').'&nbsp;&nbsp;</td>	
 			<td align="right">'.number_format($v->val_real, 0, '.', ',').'</td>		
-			<td align="right">$ '.number_format($valorunit, 2, '.', ',').'</td>
+			<td align="right">$ '.number_format($valorunit, 3, '.', ',').'</td>
 
 			<td align="right">$ '.number_format($v->neto, 0, '.', ',').'</td>
 			</tr>';
