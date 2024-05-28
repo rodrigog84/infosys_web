@@ -276,7 +276,7 @@ public function get_consumo_folios_by_id($id){
 
 
 	public function get_detalle_factura($id_factura){
-		$this->db->select('p.nombre, p.codigo, f.precio, f.cantidad, f.descuento , f.iva, f.totalproducto, f.lote, f.fecha_vencimiento, f.neto')
+		$this->db->select("case when f.nombre = '' then p.nombre else f.nombre end as nombre, p.codigo, f.precio, f.cantidad, f.descuento , f.iva, f.totalproducto, f.lote, f.fecha_vencimiento, f.neto",false)
 		  ->from('detalle_factura_cliente f')
 		  ->join('productos p','f.id_producto = p.id')
 		  ->where('f.id_factura',$id_factura);
