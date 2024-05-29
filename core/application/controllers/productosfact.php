@@ -129,6 +129,8 @@ class Productosfact extends CI_Controller {
         $agrupacion = $this->input->get('agrupacion');
         $codigo = $this->input->get('codigo');
 
+        $id_pedido = $this->input->get('id_pedido');
+
         $bodegaid = $this->input->get('bodegaid');
 
         $sql_bodega = $bodegaid ? 'AND acc.id_bodega = ' . $bodegaid : '';
@@ -260,18 +262,86 @@ class Productosfact extends CI_Controller {
 			
 
 		}else{
+
+
+			if($id_pedido == 0){
+
+				$query = $this->db->query('SELECT acc.*, c.nombre as nom_ubi_prod, ca.nombre as nom_uni_medida,
+				fa.nombre as nom_familia, bo.nombre as nom_bodega, ag.nombre as nom_agrupacion, sb.nombre as nom_subfamilia FROM productos acc
+				left join mae_ubica c on (acc.id_ubi_prod = c.id)
+				left join mae_medida ca on (acc.id_uni_medida = ca.id)
+				left join familias fa on (acc.id_familia = fa.id)
+				left join agrupacion ag on (acc.id_agrupacion = ag.id)
+				left join subfamilias sb on (acc.id_subfamilia = sb.id)
+				left join bodegas bo on (acc.id_bodega = bo.id)
+				WHERE 1 = 1   ' . $sql_bodega . '
+				limit '.$start.', '.$limit.'
+			     ' );
+
+
+			}else{
+
+
+				$query = $this->db->query('SELECT acc.id
+												, acc.codigo
+												, acc.codigo_barra
+												, acc.nombre
+												, acc.id_marca
+												, acc.id_ubi_prod
+												, acc.id_uni_medida
+												, acc.id_bodega
+												, acc.p_ult_compra
+												, acc.p_may_compra
+												, acc.fecha_ult_compra
+												, acc.p_promedio
+												, acc.p_costo
+												, acc.p_venta
+												, acc.p_ventadiva
+												, acc.p_ventasiva
+												, acc.mar_venta
+												, acc.por_adicional
+												, acc.com_vendedor
+												, acc.com_maestro
+												, acc.p_valvula
+												, acc.p_calcula_compra
+												, case when pd.idestadoproducto = 5 then pd.cantidad 
+															else (SELECT 	SUM(cantidad) AS cantidad
+																	FROM 	produccion_detalle_pedidos
+																	WHERE 	id_pedido = pd.id_pedido
+																	AND 		id_producto = pd.id_producto
+																)
+												  end as stock
+												, acc.stock_critico
+												, acc.u_lote
+												, acc.diasvencimiento
+												, acc.fecha_vencimiento
+												, acc.id_familia
+												, acc.id_agrupacion
+												, acc.id_subfamilia
+												, acc.foto
+												, acc.clasificacion
+												, acc.imagen
+												, acc.requiere_receta
+				, c.nombre as nom_ubi_prod, ca.nombre as nom_uni_medida,
+				fa.nombre as nom_familia, bo.nombre as nom_bodega, ag.nombre as nom_agrupacion, sb.nombre as nom_subfamilia FROM productos acc
+				left join mae_ubica c on (acc.id_ubi_prod = c.id)
+				left join mae_medida ca on (acc.id_uni_medida = ca.id)
+				left join familias fa on (acc.id_familia = fa.id)
+				left join agrupacion ag on (acc.id_agrupacion = ag.id)
+				left join subfamilias sb on (acc.id_subfamilia = sb.id)
+				left join bodegas bo on (acc.id_bodega = bo.id)
+				INNER JOIN pedidos_detalle pd ON acc.id = pd.id_producto AND pd.id_pedido = ' . $id_pedido . '
+				WHERE 1 = 1   ' . $sql_bodega . '
+				limit '.$start.', '.$limit.'
+			     ' );
+
+
+
+			}
 			
-			$query = $this->db->query('SELECT acc.*, c.nombre as nom_ubi_prod, ca.nombre as nom_uni_medida,
-			fa.nombre as nom_familia, bo.nombre as nom_bodega, ag.nombre as nom_agrupacion, sb.nombre as nom_subfamilia FROM productos acc
-			left join mae_ubica c on (acc.id_ubi_prod = c.id)
-			left join mae_medida ca on (acc.id_uni_medida = ca.id)
-			left join familias fa on (acc.id_familia = fa.id)
-			left join agrupacion ag on (acc.id_agrupacion = ag.id)
-			left join subfamilias sb on (acc.id_subfamilia = sb.id)
-			left join bodegas bo on (acc.id_bodega = bo.id)
-			WHERE 1 = 1   ' . $sql_bodega . '
-			limit '.$start.', '.$limit.'
-		     ' );
+
+
+			//echo $this->db->last_query();
 		}
 			
 		}

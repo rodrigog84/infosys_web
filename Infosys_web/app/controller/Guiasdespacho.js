@@ -26,7 +26,9 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
              'facturaglosa.Item',
              'Guiasdespacho.Item'],
 
-    views: ['guiasdespacho.Principalguias',
+    views: [
+            'Pedidos2.Principal',
+            'guiasdespacho.Principalguias',
             'guiasdespacho.Principalguiaspendientes',
             'guiasdespacho.Facturaguias',
             'guiasdespacho.BuscarClientes',
@@ -42,6 +44,7 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
             'guiasdespacho.Exportar2',
             'guiasdespacho.BuscarSucursales2',
             'guiasdespacho.GuiasDespacho',
+            'guiasdespacho.GuiasDespachopedidos',
             'guiasdespacho.PrincipalguiasDespacho',
             'productos.BuscarProductos2',
             'guiasdespacho.BuscarProductos4',
@@ -57,7 +60,10 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
             'guiasdespacho.BuscarTransportista'],
            
     
-    refs: [{
+    refs: [{    
+       ref: 'pedidosprincipalformula',
+        selector: 'pedidosprincipalformula'
+    },{
        ref: 'panelprincipal',
         selector: 'panelprincipal'
     },{
@@ -111,6 +117,9 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
     },{
         ref: 'guiasdespachoingresar',
         selector: 'guiasdespachoingresar'
+    },{
+        ref: 'guiasdespachopedidosingresar',
+        selector: 'guiasdespachopedidosingresar'
     },{
         ref: 'guiasprincipaldespacho',
         selector: 'guiasprincipaldespacho'
@@ -317,6 +326,9 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
             'guiasprincipaldespacho button[action=iguiasdespacho]': {
                 click: this.iguiasdespacho
             },
+            'pedidosprincipalformula': {
+                iguiasdespacho: this.iguiasdespachopedido
+            },            
             'guiasprincipaldespacho #bodegaId': {
                 select: this.despliegadocumentos3
             },
@@ -363,7 +375,7 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
                 click: this.agregarItem3
             }, 
             'guiasdespachoingresar button[action=eliminaritem3]': {
-                click: this.eliminaritem3
+                click: this.eliminaritem5
             },
             'guiasdespachoingresar button[action=editaritem3]': {
                 click: this.editaritem3
@@ -1447,7 +1459,7 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
         var view = this.getGuiasprincipaldespacho();
         var tipo_documento = 105;
         var idcliente = viewIngresa.down('#id_cliente').getValue();
-        var idbodega = view.down('#bodegaId').getValue();
+        var idbodega = viewIngresa.down('#bodegaId').getValue();
         var idtipo= viewIngresa.down('#tipoDocumentoId').getValue();
         var idsucursal= viewIngresa.down('#id_sucursalID').getValue();
         var idcondventa= viewIngresa.down('#tipocondpagoId').getValue();
@@ -1467,7 +1479,9 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
         var stFactura = this.getGuiasdespachoStore();
         var totalfact = viewIngresa.down('#finaltotalId').getValue();
 
-        
+        viewIngresa.down("#grabarfactura").setDisabled(true);
+        viewIngresa.down("#observaciones").setDisabled(true);
+
 
         if(!totalfact){
             Ext.Msg.alert('Ingrese Detalle a la Factura');
@@ -1490,6 +1504,11 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
         stItem.each(function(r){
             dataItems.push(r.data);          
         });          
+
+
+        var loginMask = new Ext.LoadMask(Ext.getBody(), {msg:"Generando Documento ..."});
+
+        loginMask.show();
 
         Ext.Ajax.request({
             url: preurl + 'facturas/save',
@@ -1526,7 +1545,7 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
                  st.reload();
                  //window.open(preurl + 'facturas/exportTXT/?idfactura='+idfactura);
                  window.open(preurl + 'facturas/exportPDF/?idfactura='+idfactura);              
-
+                 loginMask.hide();
             }
            
         });
@@ -1627,7 +1646,7 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
           
     },
 
-    eliminaritem3: function() {
+    eliminaritem5: function() {
         var view = this.getGuiasdespachoingresar();
         var grid  = view.down('#itemsgridId');
         var idbodega = view.down('#bodegaId').getValue();
@@ -1990,14 +2009,17 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
         var codigo = viewIngresa.down('#codigoId').getValue();
         var id = viewIngresa.down('#productoId').getValue();
         var bodegaid = viewIngresa.down('#bodegaId').getValue();
-        console.log(bodegaid);
+        var id_pedido = viewIngresa.down('#id_pedido').getValue();
+        console.log('id pedido:');
+        console.log(id_pedido);
         
         if(!codigo){
             var st = this.getProductosfStore();
 
 
             st.proxy.extraParams = {
-                                                    bodegaid : bodegaid
+                                                    bodegaid : bodegaid,
+                                                    id_pedido: id_pedido
                                                 }
 
 
@@ -2554,6 +2576,92 @@ seleccionarclienteguias4: function(){
 
         }
         
+        };
+    },
+
+
+    iguiasdespachopedido: function(rec){
+
+
+        console.log('registro')
+        console.log(rec.data)
+        var view = this.getGuiasprincipaldespacho();
+        var idbodega = 1; //view.down('#bodegaId').getValue();
+        if(!idbodega){
+            Ext.Msg.alert('Alerta', 'Debe Elegir Bodega');
+            return;    
+        }else{ 
+
+        var nombre = 105;
+        response_certificado = Ext.Ajax.request({
+        async: false,
+        url: preurl + 'facturas/existe_certificado/'});
+
+        var obj_certificado = Ext.decode(response_certificado.responseText);
+        var descripcion = "GUIA DESPACHO ELECTRONICA";  
+        if(obj_certificado.existe == true){
+
+            response_folio = Ext.Ajax.request({
+            async: false,
+            url: preurl + 'facturas/folio_documento_electronico/'+nombre});  
+            var obj_folio = Ext.decode(response_folio.responseText);
+            id_folio = obj_folio.idfolio;
+            nuevo_folio = obj_folio.folio;
+            if(nuevo_folio != 0){
+
+                var rutcli = rec.data.rut_cliente;
+                var rutcli = rutcli.replace(/[\.-]/g, '');
+                var numpedido = rec.data.num_pedido
+                var ordencompra = rec.data.ordencompra
+                var id_pedido = rec.data.id
+                var view = Ext.create('Infosys_web.view.guiasdespacho.GuiasDespacho').show();
+                view.down('#numfacturaId').setValue(nuevo_folio);
+                view.down('#nomdocumentoId').setValue(descripcion);
+                view.down('#idfolio').setValue(id_folio);
+                view.down('#tipodocumentoId').setValue(nombre);
+                view.down('#tipoDocumentoId').setValue(nombre);                    
+                view.down('#bodegaId').setValue(idbodega);
+
+                /******* LLENAR ENCABEZADO *******/
+
+                view.down('#rutId').setValue(rutcli);
+                view.down('#rutId').setReadOnly(rutcli);
+
+                
+                view.down('#ordencompraId').setValue(ordencompra);
+                view.down('#ordencompraId').setReadOnly(ordencompra);
+
+                view.down('#pedidoId').setValue(numpedido);
+                view.down('#pedidoId').setReadOnly(numpedido);
+
+                view.down('#id_pedido').setValue(id_pedido);
+                this.validarutD()
+
+                /*view.down('#codigoId').setDisabled(true);
+                view.down('#nombreproductoId').setDisabled(true);
+                view.down('#buscarproc').setDisabled(true);
+                view.down('#precioId').setDisabled(true);
+                view.down('#preciopromId').setDisabled(true);
+                view.down('#cantidadOriginalId').setDisabled(true);
+                view.down('#cantidadId').setDisabled(true);      
+                view.down('#totdescuentoId').setDisabled(true);  
+                view.down('#DescuentoproId').setDisabled(true);            
+                view.down('#agregarItem').setDisabled(true);   */
+
+
+                habilita = true;
+            }else{
+                Ext.Msg.alert('Atención','No existen folios disponibles');
+                view.down('#numfacturaId').setValue('');  
+
+                //return
+            }
+
+        }else{
+                Ext.Msg.alert('Atención','No se ha cargado certificado');
+                view.down('#numfacturaId').setValue('');  
+        }
+
         };
     },
 

@@ -37,7 +37,8 @@ Ext.define('Infosys_web.model.Pedidos', {
         {name: 'nom_bodega'},
         {name: 'id_bodega'},
         {name: 'id_producto'},
-        {name: 'cantidad_requiere_receta'}
+        {name: 'cantidad_requiere_receta'},
+        {name: 'ordencompra'}
          
        
     ]

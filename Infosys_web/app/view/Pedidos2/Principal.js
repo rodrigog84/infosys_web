@@ -80,13 +80,13 @@ Ext.define('Infosys_web.view.Pedidos2.Principal' ,{
         renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00")}
         
     },{
-        header: "Situacion Produccion",
+        header: "Situacion",
         flex: 1,
         dataIndex: 'situacionpedido',
     },{
-            header: "Adjuntar Receta",
+            header: "Adj Receta",
             xtype:'actioncolumn',
-            width:150,
+            width:100,
             align: 'center',
             items: [{
                 iconCls: 'icon-upload',  // Use a URL in the icon config
@@ -141,10 +141,29 @@ Ext.define('Infosys_web.view.Pedidos2.Principal' ,{
             }]     
         
     },{
+            header: "Guia",
+            xtype:'actioncolumn',
+            width:80,
+            align: 'center',
+            items: [{
+                iconCls: 'icon-upload',  // Use a URL in the icon config
+                tooltip: 'Generar OC',
+                handler: function(grid, rowIndex, colIndex) {
+                    var rec = grid.getStore().getAt(rowIndex);
+                    //salert("Edit " + rec.get('firstname'));
+                    var vista = this.up('pedidosprincipalformula');
+                    vista.fireEvent('iguiasdespacho',rec)
+                },
+               /* isDisabled: function(view, rowIndex, colIndex, item, record) {
+                    return true;
+                }  */                              
+            }]     
+        
+    },{
         header: "Ver",
         xtype:'actioncolumn',
         align: 'center',
-        width:100,
+        width:80,
         items: [{
             icon: 'images/search_page.png',  // Use a URL in the icon config
             tooltip: 'Ver Pedido',

@@ -1,6 +1,6 @@
-Ext.define('Infosys_web.view.guiasdespacho.GuiasDespacho', {
+Ext.define('Infosys_web.view.guiasdespacho.GuiasDespachopedidos', {
     extend: 'Ext.window.Window',
-    alias : 'widget.guiasdespachoingresar',
+    alias : 'widget.guiasdespachopedidosingresar',
 
     requires: [
         'Ext.form.FieldContainer',
@@ -61,13 +61,6 @@ Ext.define('Infosys_web.view.guiasdespacho.GuiasDespacho', {
                                             xtype: 'textfield',
                                             name: 'id_documento',
                                             itemId: 'tipodocumentoId',
-                                            hidden: true
-                                          
-                                        },{
-                                            xtype: 'textfield',
-                                            name: 'id_pedido',
-                                            itemId: 'id_pedido',
-                                            value: 0,
                                             hidden: true
                                           
                                         },{
@@ -521,7 +514,6 @@ Ext.define('Infosys_web.view.guiasdespacho.GuiasDespacho', {
                                 xtype: 'button',
                                 text: 'Agregar',
                                 iconCls: 'icon-plus',
-                                itemId: 'agregarItem',
                                 width: 80,
                                 allowBlank: true,
                                 action: 'agregarItem3'
@@ -717,14 +709,12 @@ Ext.define('Infosys_web.view.guiasdespacho.GuiasDespacho', {
                             //iconCls: 'icono',
                             scale: 'large',
                             action: 'observacionesguia',
-                            itemId: 'observaciones',
                             text: 'OBSERVACIONES'
                         },{
                             xtype: 'button',
                             iconCls: 'icon-save',
                             scale: 'large',
                             action: 'grabarguiadirecta',
-                            itemId: 'grabarfactura',
                             text: 'Grabar / Emitir'
                         },
                         {
