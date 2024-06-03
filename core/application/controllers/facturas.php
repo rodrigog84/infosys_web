@@ -3159,6 +3159,10 @@ class Facturas extends CI_Controller {
     $observacion = $this->input->post('observacion');
     $idobserva = $this->input->post('idobserva');
 
+    $id_pedido = $this->input->post('id_pedido');
+
+
+
     if(!$observacion){
     $observacion="";
     };
@@ -3354,14 +3358,55 @@ class Facturas extends CI_Controller {
 
                   $referencia = array();
                   $NroLinRef = 1;
-                  if($ordencompra != ""){
-                        $referencia[($NroLinRef-1)]['NroLinRef'] = $NroLinRef;
-                        //$referencia['TpoDocRef'] = $datos_empresa_factura->tipodocref;
-                        $referencia[($NroLinRef-1)]['TpoDocRef'] = 801;
-                        $referencia[($NroLinRef-1)]['FolioRef'] = $ordencompra;
-                        $referencia[($NroLinRef-1)]['FchRef'] = substr($fechafactura,0,10);
-                        $NroLinRef++;
+
+                 // var_dump($tipodocumento);
+                 // var_dump($id_pedido);
+                  if($tipodocumento == 105 && $id_pedido != 0){
+
+                          $this->db->select('ordencompraint')
+                              ->from('pedidos')
+                              ->where('id',$id_pedido)
+                              ->limit(1);
+                            $query = $this->db->get();
+                            $datos = $query->row();     
+                            $ordencompraint = $datos->ordencompraint;
+                            //var_dump($ordencompraint);
+                            if($ordencompraint != ''){
+                                $referencia[($NroLinRef-1)]['NroLinRef'] = $NroLinRef;
+                                //$referencia['TpoDocRef'] = $datos_empresa_factura->tipodocref;
+                                $referencia[($NroLinRef-1)]['TpoDocRef'] = 801;
+                                $referencia[($NroLinRef-1)]['FolioRef'] = $ordencompraint;
+                                $referencia[($NroLinRef-1)]['FchRef'] = substr($fechafactura,0,10);
+                                $NroLinRef++;
+                            }else if($ordencompra != ""){
+
+                                $referencia[($NroLinRef-1)]['NroLinRef'] = $NroLinRef;
+                                //$referencia['TpoDocRef'] = $datos_empresa_factura->tipodocref;
+                                $referencia[($NroLinRef-1)]['TpoDocRef'] = 801;
+                                $referencia[($NroLinRef-1)]['FolioRef'] = $ordencompra;
+                                $referencia[($NroLinRef-1)]['FchRef'] = substr($fechafactura,0,10);
+                                $NroLinRef++;
+
+
+                            }
+
+
+                  }else{
+
+                      if($ordencompra != ""){
+                            $referencia[($NroLinRef-1)]['NroLinRef'] = $NroLinRef;
+                            //$referencia['TpoDocRef'] = $datos_empresa_factura->tipodocref;
+                            $referencia[($NroLinRef-1)]['TpoDocRef'] = 801;
+                            $referencia[($NroLinRef-1)]['FolioRef'] = $ordencompra;
+                            $referencia[($NroLinRef-1)]['FchRef'] = substr($fechafactura,0,10);
+                            $NroLinRef++;
+                      }
+
                   }
+
+
+                 // exit;
+
 
                   if($pedido != ""){
                         $referencia[($NroLinRef-1)]['NroLinRef'] = $NroLinRef;

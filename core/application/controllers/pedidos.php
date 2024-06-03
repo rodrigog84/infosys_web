@@ -703,7 +703,7 @@ class Pedidos extends CI_Controller {
 
 
 
-		$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor, cor.nombre as nom_documento, op.observaciones as observa, f.nombre_formula as nombre_formula FROM pedidos acc
+		$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor, cor.nombre as nom_documento, op.observaciones as observa, f.nombre_formula as nombre_formula, v.siglavendedor FROM pedidos acc
 		left join correlativos cor on (acc.tip_documento = cor.id)
 		left join clientes c on (acc.id_cliente = c.id)
 		left join vendedores v on (acc.id_vendedor = v.id)
@@ -777,7 +777,7 @@ class Pedidos extends CI_Controller {
 				    <p>http://www.lircay.cl</p>
 				    </td>
 			    <td width="296px" style="font-size: 16px;text-align:left;vertical-align:text-top"	>
-			          <p>ORDEN COMPRA N°: '.$codigo.'</p>
+			          <p>ORDEN COMPRA N°: '.$row->siglavendedor.'-'.$codigo.'</p>
 			          <!--p>&nbsp;</p-->
 			          <p>FECHA EMISION : '.$fecha.'</p>
 			          <!--p>&nbsp;</p-->
@@ -798,7 +798,8 @@ class Pedidos extends CI_Controller {
 				    			<td width="197px">'. number_format(substr($row->rut_cliente, 0, strlen($row->rut_cliente) - 1),0,".",".")."-".substr($row->rut_cliente,-1).'</td>
 				    		</tr>
 				    		<tr>
-				    		
+				    			<td width="197px">VENDEDOR:</td>
+				    			<td width="395px">'. $row->nom_vendedor.'</td>
 				    		</tr>
 				    		<tr>
 				    		

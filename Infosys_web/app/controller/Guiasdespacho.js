@@ -1479,6 +1479,11 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
         var stFactura = this.getGuiasdespachoStore();
         var totalfact = viewIngresa.down('#finaltotalId').getValue();
 
+
+        var id_pedido = viewIngresa.down('#id_pedido').getValue();
+
+
+
         viewIngresa.down("#grabarfactura").setDisabled(true);
         viewIngresa.down("#observaciones").setDisabled(true);
 
@@ -1536,7 +1541,8 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
                 ivafactura: viewIngresa.down('#finaltotalivaId').getValue(),
                 afectofactura: viewIngresa.down('#finalafectoId').getValue(),
                 descuentofactura : viewIngresa.down('#descuentovalorId').getValue(),
-                totalfacturas: viewIngresa.down('#finaltotalpostId').getValue()
+                totalfacturas: viewIngresa.down('#finaltotalpostId').getValue(),
+                id_pedido : id_pedido,
             },
              success: function(response){
                 var resp = Ext.JSON.decode(response.responseText);

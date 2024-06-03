@@ -780,3 +780,23 @@ ALTER TABLE `pedidos`
 ALTER TABLE `pedidos`
 	ADD COLUMN `nomarchivoocint` VARCHAR(100) NOT NULL AFTER `ordencompraint`;
 
+
+/**************************************************************************************************************/
+
+ALTER TABLE `vendedores`
+	ADD COLUMN `siglavendedor` VARCHAR(5) NOT NULL DEFAULT '' AFTER `estado`;
+
+
+UPDATE `infosys_web`.`vendedores` SET `siglavendedor`='VG' WHERE  `id`=1;
+UPDATE `infosys_web`.`vendedores` SET `siglavendedor`='VE' WHERE  `id`=2;
+UPDATE `infosys_web`.`vendedores` SET `siglavendedor`='JP' WHERE  `id`=3;
+UPDATE `infosys_web`.`vendedores` SET `siglavendedor`='BO' WHERE  `id`=4;
+UPDATE `infosys_web`.`vendedores` SET `siglavendedor`='FB' WHERE  `id`=6;
+UPDATE `infosys_web`.`vendedores` SET `siglavendedor`='MR' WHERE  `id`=7;
+UPDATE `infosys_web`.`vendedores` SET `siglavendedor`='JS' WHERE  `id`=8;
+UPDATE `infosys_web`.`vendedores` SET `siglavendedor`='MS' WHERE  `id`=9;
+UPDATE `infosys_web`.`vendedores` SET `siglavendedor`='MC' WHERE  `id`=10;
+UPDATE `infosys_web`.`vendedores` SET `siglavendedor`='AG' WHERE  `id`=11;
+UPDATE `infosys_web`.`vendedores` SET `siglavendedor`='EC' WHERE  `id`=12;
+UPDATE `infosys_web`.`vendedores` SET `siglavendedor`='FP' WHERE  `id`=13;
+UPDATE `infosys_web`.`vendedores` SET `siglavendedor`='KL' WHERE  `id`=14;

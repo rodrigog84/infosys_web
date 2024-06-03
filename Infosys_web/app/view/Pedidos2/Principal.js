@@ -154,9 +154,9 @@ Ext.define('Infosys_web.view.Pedidos2.Principal' ,{
                     var vista = this.up('pedidosprincipalformula');
                     vista.fireEvent('iguiasdespacho',rec)
                 },
-               /* isDisabled: function(view, rowIndex, colIndex, item, record) {
+                isDisabled: function(view, rowIndex, colIndex, item, record) {
                     return true;
-                }  */                              
+                }                              
             }]     
         
     },{

@@ -310,7 +310,8 @@ class Productosfact extends CI_Controller {
 																	WHERE 	id_pedido = pd.id_pedido
 																	AND 		id_producto = pd.id_producto
 																)
-												  end as stock
+												  end as stock2
+												, acc.stock
 												, acc.stock_critico
 												, acc.u_lote
 												, acc.diasvencimiento
