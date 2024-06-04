@@ -800,3 +800,20 @@ UPDATE `infosys_web`.`vendedores` SET `siglavendedor`='AG' WHERE  `id`=11;
 UPDATE `infosys_web`.`vendedores` SET `siglavendedor`='EC' WHERE  `id`=12;
 UPDATE `infosys_web`.`vendedores` SET `siglavendedor`='FP' WHERE  `id`=13;
 UPDATE `infosys_web`.`vendedores` SET `siglavendedor`='KL' WHERE  `id`=14;
+
+
+
+/*******************************************************************************************************/
+
+CREATE TABLE `pedidos_guias` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`idpedido` INT(11) NULL DEFAULT NULL,
+	`idguia` INT(11) NULL DEFAULT NULL,
+	`created_at` DATE NULL DEFAULT current_timestamp(),
+	PRIMARY KEY (`id`) USING BTREE
+)
+COLLATE='utf8mb4_general_ci'
+ENGINE=InnoDB
+;
+
+

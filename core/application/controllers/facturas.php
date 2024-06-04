@@ -3210,6 +3210,21 @@ class Facturas extends CI_Controller {
 		$this->db->insert('factura_clientes', $factura_cliente); 
 		$idfactura = $this->db->insert_id();
 
+
+    if($tipodocumento == 105 && $id_pedido != 0){
+
+            $guia_pedido = array(
+                'idpedido' => $id_pedido,
+                'idguia' => $idfactura     
+            );
+            $this->db->insert('pedidos_guias', $guia_pedido); 
+            $idguiapedido = $this->db->insert_id();
+
+    }
+
+
+
+
     $data8 = array(
      'id_documento' => $idfactura
     );

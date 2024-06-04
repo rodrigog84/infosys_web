@@ -134,6 +134,30 @@ class Pedidos2 extends CI_Controller {
 	}
 
 
+	public function getGuiasPedido(){
+
+		$resp = array();
+		$pedido = $this->input->get('idpedido');
+
+		if ($pedido){
+
+
+
+		$this->db->select("pg.idpedido
+							,pg.idguia
+							,fc.num_factura as numguia",false)
+						  ->from('pedidos_guias pg')
+						  ->join('factura_clientes fc','pg.idguia = fc.id')
+						  ->where('pg.idpedido',$pedido); 	                  
+		$query = $this->db->get();		
+		$pedido = $query->result();			
+
+   	
+	    $resp['success'] = true;
+        $resp['data'] = $pedido; 
+        echo json_encode($resp);
+        }
+	}
 
 	public function verreceta(){
 

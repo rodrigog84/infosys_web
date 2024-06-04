@@ -23,13 +23,13 @@ Ext.define('Infosys_web.view.Pedidos2.Principal' ,{
         flex: 1,
         dataIndex: 'num_pedido'
                
-    },{
+    }/*,{
         header: "Fecha",
         flex: 1,
         dataIndex: 'fecha_doc',
         type: 'date',
         renderer:Ext.util.Format.dateRenderer('d/m/Y') 
-    },{
+    }*/,{
         header: "Fecha Pedido",
         flex: 1,
         dataIndex: 'fecha_pedido',
@@ -141,9 +141,9 @@ Ext.define('Infosys_web.view.Pedidos2.Principal' ,{
             }]     
         
     },{
-            header: "Guia",
+            header: "Genera Guia",
             xtype:'actioncolumn',
-            width:80,
+            width:85,
             align: 'center',
             items: [{
                 iconCls: 'icon-upload',  // Use a URL in the icon config
@@ -153,6 +153,25 @@ Ext.define('Infosys_web.view.Pedidos2.Principal' ,{
                     //salert("Edit " + rec.get('firstname'));
                     var vista = this.up('pedidosprincipalformula');
                     vista.fireEvent('iguiasdespacho',rec)
+                },
+                isDisabled: function(view, rowIndex, colIndex, item, record) {
+                    return true;
+                }                              
+            }]     
+        
+    },{
+            header: "Ver Guias",
+            xtype:'actioncolumn',
+            width:85,
+            align: 'center',
+            items: [{
+                iconCls: 'icon-upload',  // Use a URL in the icon config
+                tooltip: 'Generar OC',
+                handler: function(grid, rowIndex, colIndex) {
+                    var rec = grid.getStore().getAt(rowIndex);
+                    //salert("Edit " + rec.get('firstname'));
+                    var vista = this.up('pedidosprincipalformula');
+                    vista.fireEvent('iguiasdespachover',rec,1)
                 },
                 isDisabled: function(view, rowIndex, colIndex, item, record) {
                     return true;
