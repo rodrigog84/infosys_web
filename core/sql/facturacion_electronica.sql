@@ -809,7 +809,7 @@ CREATE TABLE `pedidos_guias` (
 	`id` INT(11) NOT NULL AUTO_INCREMENT,
 	`idpedido` INT(11) NULL DEFAULT NULL,
 	`idguia` INT(11) NULL DEFAULT NULL,
-	`created_at` DATE NULL DEFAULT current_timestamp(),
+	`created_at` TIMESTAMP NULL DEFAULT current_timestamp(),
 	PRIMARY KEY (`id`) USING BTREE
 )
 COLLATE='utf8mb4_general_ci'

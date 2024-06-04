@@ -1393,7 +1393,7 @@ class Notacredito extends CI_Controller {
       if ($idfactura){
 
           $query = $this->db->query('SELECT * FROM detalle_factura_cliente 
-          WHERE id_producto like '.$idproducto.' AND id_factura like '.$idfactura.'');
+          WHERE id_producto like '.$idproducto.' AND id_factura like '.$idfactura.' order by cantidad desc');
                    $row = $query->first_row();
           
           if($query->num_rows()>0){

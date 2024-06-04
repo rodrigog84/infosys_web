@@ -1005,7 +1005,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
         };
 
         if (cantidadori){
-            if(cantidad>cantidadori){
+            if(parseFloat(cantidad)>parseFloat(cantidadori)){
                 Ext.Msg.alert('Alerta', 'Cantidad Ingresada de Productos Supera El Stock');
                 return false;
             };
@@ -1066,6 +1066,12 @@ Ext.define('Infosys_web.controller.Notacredito', {
                     
 
                    }else{
+
+
+        console.log(cantidad)
+        console.log(canti)     
+        console.log(parseFloat(cantidad))
+        console.log(parseFloat(canti))                    
 
                     if(cantidad>canti){
 
