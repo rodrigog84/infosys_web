@@ -1654,21 +1654,31 @@ class Produccion extends CI_Controller {
 					$this->db->insert('existencia', $datos3);
 				};
 
-				$datos2 = array(
-						'num_movimiento' => $numproduccion,
-				        'id_producto' => $idproducto,
-				        'id_tipo_movimiento' => 23,
-				        'cantidad_entrada' => $cantidadproduccion,
-				        'fecha_movimiento' => $fechaproduccion,
-				        'id_bodega' => $idbodega,
-				        'id_cliente' => 0,
-				        'lote' => $lote,
-				        'valor_producto' => ($valorprod/$cantidadproduccion),
-				        'saldo' => $cantidadproduccion,
-				        'fecha_vencimiento' => $fechavenc
-				);
+				$query_detalle = $this->db->query('SELECT * FROM existencia_detalle WHERE id_producto='.$idproducto.' and id_tipo_movimiento = 23 and num_movimiento = "' . $numproduccion . '" AND id_bodega='.$idbodega.'');
+				$row_detalle = $query_detalle->result();
 
-				$this->db->insert('existencia_detalle', $datos2);	   
+				if($query_detalle->num_rows()==0){
+
+
+					$datos2 = array(
+							'num_movimiento' => $numproduccion,
+					        'id_producto' => $idproducto,
+					        'id_tipo_movimiento' => 23,
+					        'cantidad_entrada' => $cantidadproduccion,
+					        'fecha_movimiento' => $fechaproduccion,
+					        'id_bodega' => $idbodega,
+					        'id_cliente' => 0,
+					        'lote' => $lote,
+					        'valor_producto' => ($valorprod/$cantidadproduccion),
+					        'saldo' => $cantidadproduccion,
+					        'fecha_vencimiento' => $fechavenc
+					);
+
+					$this->db->insert('existencia_detalle', $datos2);	
+
+				}
+
+   
 
 
 		}	
