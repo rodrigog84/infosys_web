@@ -3219,7 +3219,6 @@ class Facturas extends CI_Controller {
             );
             $this->db->insert('pedidos_guias', $guia_pedido); 
             $idguiapedido = $this->db->insert_id();
-
     }
 
 
@@ -3234,27 +3233,47 @@ class Facturas extends CI_Controller {
 
 		foreach($items as $v){
 
-    if (!$v->fecha_vencimiento){
-      $v->fecha_vencimiento="0000-00-00";
-    };
-    $factura_clientes_item = array(
-      'id_producto' => $v->id_producto,
-      'nombre' => strtoupper($v->nombre),
-      'id_existencia' => $v->id_existencia,
-      'id_factura' => $idfactura,
-      'num_factura' => $numfactura,
-      'precio' => $v->precio,
-      'cantidad' => $v->cantidad,
-      'neto' => ($v->total - $v->iva),
-      'descuento' => $v->dcto,
-      'iva' => $v->iva,
-      'totalproducto' => $v->total,
-      'fecha' => $fechafactura,
-      'fecha_vencimiento' => $v->fecha_vencimiento,
-      'lote' => $v->lote,
-    );
-		$producto = $v->id_producto;
-		$this->db->insert('detalle_factura_cliente', $factura_clientes_item);		
+            if (!$v->fecha_vencimiento){
+              $v->fecha_vencimiento="0000-00-00";
+            };
+            $factura_clientes_item = array(
+              'id_producto' => $v->id_producto,
+              'nombre' => strtoupper($v->nombre),
+              'id_existencia' => $v->id_existencia,
+              'id_factura' => $idfactura,
+              'num_factura' => $numfactura,
+              'precio' => $v->precio,
+              'cantidad' => $v->cantidad,
+              'neto' => ($v->total - $v->iva),
+              'descuento' => $v->dcto,
+              'iva' => $v->iva,
+              'totalproducto' => $v->total,
+              'fecha' => $fechafactura,
+              'fecha_vencimiento' => $v->fecha_vencimiento,
+              'lote' => $v->lote,
+            );
+		      
+            $producto = $v->id_producto;
+		    $this->db->insert('detalle_factura_cliente', $factura_clientes_item);		
+
+
+
+            if($tipodocumento == 105 && $id_pedido != 0){
+
+
+                    $incremento = $v->cantidad;
+                    $this->db->set('cantidad_guia', 'cantidad_guia + ' . $incremento, FALSE);
+                    $this->db->where('id_pedido', $id_pedido);
+                    $this->db->where('id_producto', $v->id_producto);
+                    $this->db->update('pedidos_detalle');
+
+
+                  //  echo $this->db->last_query().'<br>';
+
+
+            }
+
+
 		$query = $this->db->query('SELECT * FROM productos WHERE id="'.$producto.'"');
     if($query->num_rows()>0){
     	$row = $query->first_row();
