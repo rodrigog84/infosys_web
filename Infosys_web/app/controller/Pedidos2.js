@@ -316,6 +316,7 @@ Ext.define('Infosys_web.controller.Pedidos2', {
 
 
     adjuntarReceta: function(r){
+            console.log('adjuntar receta')
             console.log(r.data.id)
 
 

@@ -313,6 +313,35 @@ class Facturas extends CI_Controller {
             echo json_encode($resp);
     }
 
+
+
+
+     public function cantidad_pedidos(){
+
+        $resp = array();
+
+        $id_pedido= $this->input->post('id_pedido');
+        $producto= $this->input->post('producto');
+
+        if($id_pedido != 0 && $id_pedido != ''){
+
+          $queryt = $this->db->query('SELECT acc.* FROM pedidos_detalle acc
+         WHERE acc.id_pedido ='.$id_pedido.' and acc.id_producto='.$producto.' order by cantidad desc');
+             $row = $queryt->row();
+             //$data[] = $row;    
+
+            $resp['success'] = true;
+            $resp['data'] = $row;
+            echo json_encode($resp);
+
+        }
+        
+
+            
+    }
+
+
+
      public function stock(){
 
         $resp = array();

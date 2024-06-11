@@ -92,10 +92,33 @@ Ext.define('Infosys_web.view.Pedidos2.Principal' ,{
                 iconCls: 'icon-upload',  // Use a URL in the icon config
                 tooltip: 'Adjuntar Receta',
                 handler: function(grid, rowIndex, colIndex) {
-                    var rec = grid.getStore().getAt(rowIndex);
+                    var r = grid.getStore().getAt(rowIndex);
                     //salert("Edit " + rec.get('firstname'));
                     var vista = this.up('pedidosprincipalformula');
-                    vista.fireEvent('adjuntarReceta',rec)
+                    console.log('presiona adjuntar receta')
+                   // vista.fireEvent('adjuntarReceta',rec)
+
+                       Ext.Ajax.request({
+                           //url: preurl + 'cuentacorriente/getCuentaCorriente/' + record.get('cuenta') + '/' + editor.value ,
+                           url: preurl + 'pedidos2/getPedido?idpedido='+r.data.id,
+                           success: function(response, opts) {                         
+                                console.log(response)
+                              var obj = Ext.decode(response.responseText);
+                            console.log(obj)
+                              
+
+                                Ext.create('Infosys_web.view.Pedidos2.AdjuntarReceta', {  idpedido: r.data.id,
+                                                                                            cliente: obj.data.nombre_cliente,
+                                                                                            rut : obj.data.rut,
+                                                                                            num_pedido: obj.data.num_pedido});    
+
+                           },
+                           failure: function(response, opts) {
+                              console.log('server-side failure with status code ' + response.status);
+                           }
+                        });  
+
+
                 },
                 isDisabled: function(view, rowIndex, colIndex, item, record) {
                     // Returns true if 'editable' is false (, null, or undefined)
@@ -117,10 +140,34 @@ Ext.define('Infosys_web.view.Pedidos2.Principal' ,{
                 iconCls: 'icon-upload',  // Use a URL in the icon config
                 tooltip: 'Adjuntar OC',
                 handler: function(grid, rowIndex, colIndex) {
-                    var rec = grid.getStore().getAt(rowIndex);
+                    var r = grid.getStore().getAt(rowIndex);
                     //salert("Edit " + rec.get('firstname'));
-                    var vista = this.up('pedidosprincipalformula');
-                    vista.fireEvent('adjuntarOc',rec,1)
+                    //var vista = this.up('pedidosprincipalformula');
+                    //vista.fireEvent('adjuntarOc',rec,1)
+
+                    Ext.Ajax.request({
+                               //url: preurl + 'cuentacorriente/getCuentaCorriente/' + record.get('cuenta') + '/' + editor.value ,
+                               url: preurl + 'pedidos2/getPedido?idpedido='+r.data.id,
+                               success: function(response, opts) {                         
+                                    console.log(response)
+                                  var obj = Ext.decode(response.responseText);
+                                console.log(obj)
+                                  
+
+                                Ext.create('Infosys_web.view.Pedidos2.AdjuntarOc', {  idpedido: r.data.id,
+                                                                                            cliente: obj.data.nombre_cliente,
+                                                                                            rut : obj.data.rut,
+                                                                                            num_pedido: obj.data.num_pedido}); 
+
+
+                               },
+                               failure: function(response, opts) {
+                                  console.log('server-side failure with status code ' + response.status);
+                               }
+                            });  
+
+
+
                 }            
             }]     
         
@@ -130,13 +177,38 @@ Ext.define('Infosys_web.view.Pedidos2.Principal' ,{
             width:80,
             align: 'center',
             items: [{
-                iconCls: 'icon-upload',  // Use a URL in the icon config
+                iconCls: 'icon-note',  // Use a URL in the icon config
                 tooltip: 'Generar OC',
                 handler: function(grid, rowIndex, colIndex) {
-                    var rec = grid.getStore().getAt(rowIndex);
+                    var r = grid.getStore().getAt(rowIndex);
                     //salert("Edit " + rec.get('firstname'));
-                    var vista = this.up('pedidosprincipalformula');
-                    vista.fireEvent('adjuntarOc',rec,2)
+                    //var vista = this.up('pedidosprincipalformula');
+                    //vista.fireEvent('adjuntarOc',rec,2)
+                    Ext.Ajax.request({
+                               //url: preurl + 'cuentacorriente/getCuentaCorriente/' + record.get('cuenta') + '/' + editor.value ,
+                               url: preurl + 'pedidos2/getPedido?idpedido='+r.data.id,
+                               success: function(response, opts) {                         
+                                    console.log(response)
+                                  var obj = Ext.decode(response.responseText);
+                                console.log(obj)
+                                  
+
+                 
+                                Ext.create('Infosys_web.view.Pedidos2.GenerarOcint', {  idpedido: r.data.id,
+                                                                                            cliente: obj.data.nombre_cliente,
+                                                                                            rut : obj.data.rut,
+                                                                                            num_pedido: obj.data.num_pedido}); 
+
+
+
+                 
+                               },
+                               failure: function(response, opts) {
+                                  console.log('server-side failure with status code ' + response.status);
+                               }
+                            });  
+
+
                 }            
             }]     
         
@@ -146,17 +218,17 @@ Ext.define('Infosys_web.view.Pedidos2.Principal' ,{
             width:85,
             align: 'center',
             items: [{
-                iconCls: 'icon-upload',  // Use a URL in the icon config
-                tooltip: 'Generar OC',
+                iconCls: 'icon-edit',  // Use a URL in the icon config
+                tooltip: 'Generar Guia',
                 handler: function(grid, rowIndex, colIndex) {
                     var rec = grid.getStore().getAt(rowIndex);
                     //salert("Edit " + rec.get('firstname'));
                     var vista = this.up('pedidosprincipalformula');
                     vista.fireEvent('iguiasdespacho',rec)
                 },
-                isDisabled: function(view, rowIndex, colIndex, item, record) {
+               /* isDisabled: function(view, rowIndex, colIndex, item, record) {
                     return true;
-                }                              
+                }*/                              
             }]     
         
     },{
@@ -165,7 +237,7 @@ Ext.define('Infosys_web.view.Pedidos2.Principal' ,{
             width:85,
             align: 'center',
             items: [{
-                iconCls: 'icon-upload',  // Use a URL in the icon config
+                iconCls: 'icon-search',  // Use a URL in the icon config
                 tooltip: 'Generar OC',
                 handler: function(grid, rowIndex, colIndex) {
                     var rec = grid.getStore().getAt(rowIndex);
@@ -173,9 +245,9 @@ Ext.define('Infosys_web.view.Pedidos2.Principal' ,{
                     var vista = this.up('pedidosprincipalformula');
                     vista.fireEvent('iguiasdespachover',rec,1)
                 },
-                isDisabled: function(view, rowIndex, colIndex, item, record) {
+                /*isDisabled: function(view, rowIndex, colIndex, item, record) {
                     return true;
-                }                              
+                } */                             
             }]     
         
     },{
