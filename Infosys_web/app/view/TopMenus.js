@@ -417,7 +417,7 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                         disabled: true,
                         action: 'mProduccion'
                         },{
-                        text: 'Registro Produccion Productos (En construcción)',
+                        text: 'Registro Produccion Productos',
                         iconCls: '',
                         itemId: 'pro_md_reproprod',
                         disabled: true,
@@ -440,6 +440,12 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                         itemId: 'pro_md_pedidosformula',
                         disabled: true,
                         action: 'mPedidos2'
+                        },{
+                        text: 'Registro de Transporte',
+                        iconCls: '',
+                        itemId: 'pro_md_registrotransporte',
+                        disabled: true,
+                        action: 'mRegistroTransporte'
                         },{
                         text: 'Genera Formula',
                         iconCls: '',

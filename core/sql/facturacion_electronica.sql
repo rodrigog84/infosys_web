@@ -824,3 +824,10 @@ ENGINE=InnoDB
 ALTER TABLE `pedidos_detalle`
 	ADD COLUMN `cantidad_guia` DECIMAL(10,2) NOT NULL DEFAULT '0.00' AFTER `cantidad_solicitada`;
 
+/*********************************************************************************************************/
+
+INSERT INTO `infosys_web`.`accesos` (`codigo`, `reg_estado`, `descripcion`) VALUES ('pro_md_registrotransporte', 1, 'Produccion -> Movimiento Diario -> Registro de Transporte');
+
+INSERT INTO `infosys_web`.`rol_acceso` (`id_rol`, `id_acceso`) VALUES (1, 111);
+
+INSERT INTO `infosys_web`.`correlativos` (`nombre`, `correlativo`, `hasta`, `fecha_venc`) VALUES ('REGISTRO TRANSPORTE', 0, 20000, '0000-00-00');

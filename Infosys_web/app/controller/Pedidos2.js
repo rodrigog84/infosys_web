@@ -28,6 +28,8 @@ Ext.define('Infosys_web.controller.Pedidos2', {
     
     views: ['Pedidos2.Pedidos',
             'Pedidos2.Principal',
+            'Pedidos2.Principaltransporte',
+            'Pedidos2.Registrotransporte',            
             'Pedidos2.BuscarClientes',
             'Pedidos2.Editarpedidos',
             'Pedidos2.BuscarProductos',
@@ -51,6 +53,9 @@ Ext.define('Infosys_web.controller.Pedidos2', {
     refs: [{    
        ref: 'pedidosprincipalformula',
         selector: 'pedidosprincipalformula'
+    },{    
+       ref: 'pedidosprincipaltransporte',
+        selector: 'pedidosprincipaltransporte'
     },{    
         ref: 'pedidosingresar2',
         selector: 'pedidosingresar2'
@@ -118,6 +123,9 @@ Ext.define('Infosys_web.controller.Pedidos2', {
             'topmenus menuitem[action=mPedidos2]': {
                 click: this.mPedidos2
             },
+            'topmenus menuitem[action=mRegistroTransporte]': {
+                click: this.mRegistroTransporte
+            },
             'topmenus menuitem[action=mInforme]': {
                 click: this.exportarlibrorecaudacion
             },            
@@ -129,6 +137,9 @@ Ext.define('Infosys_web.controller.Pedidos2', {
             },
             'pedidosprincipalformula button[action=agregarpedido]': {
                 click: this.agregarpedido
+            },
+            'pedidosprincipaltransporte button[action=agregarregistrotransporte]': {
+                click: this.agregarregistrotransporte
             },
             'pedidosprincipalformula': {
                 adjuntarReceta: this.adjuntarReceta
@@ -2098,6 +2109,13 @@ Ext.define('Infosys_web.controller.Pedidos2', {
         viewport.add({xtype: 'pedidosprincipalformula'});
     },
 
+
+    mRegistroTransporte: function(){       
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'pedidosprincipaltransporte'});
+    },
+
     
     buscarpedidos: function(){
         
@@ -2273,6 +2291,45 @@ Ext.define('Infosys_web.controller.Pedidos2', {
        
     },        
     
+    agregarregistrotransporte: function(){
+
+         var viewIngresa = this.getPedidosprincipaltransporte();
+         var idbodega = viewIngresa.down('#bodegaId').getValue();
+         
+         if(!idbodega){
+            Ext.Msg.alert('Alerta', 'Debe Elegir Bodega');
+            return;    
+         }else{
+         var nombre = "110";    
+         Ext.Ajax.request({
+
+            url: preurl + 'correlativos/genera?valida='+nombre,
+            params: {
+                id: 1
+            },
+            success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+
+                if (resp.success == true) {
+                    var view = Ext.create('Infosys_web.view.Pedidos2.Registrotransporte').show();                   
+                    var cliente = resp.cliente;
+                    var correlanue = cliente.correlativo;
+                    correlanue = (parseInt(correlanue)+1);
+                    var correlanue = correlanue;
+                    view.down("#ticketId").setValue(correlanue);
+                    view.down("#bodegaId").setValue(idbodega);
+                }else{
+                    Ext.Msg.alert('Correlativo YA Existe');
+                    return;
+                }
+            }            
+        });
+        
+        };        
+       
+    },
+
+
     agregarpedido: function(){
 
          var viewIngresa = this.getPedidosprincipalformula();
