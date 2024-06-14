@@ -134,6 +134,55 @@ class Pedidos2 extends CI_Controller {
 	}
 
 
+	public function saveRegistroTransporte(){
+
+		//echo '<pre>';
+
+		$numRegistro = $this->input->post('numRegistro');
+		//$selectedRecords = $this->input->post('selectedRecords');
+		$selectedRecords = json_decode($this->input->post('selectedRecords'), true);
+
+
+		//var_dump($numRegistro); 
+		//var_dump($selectedRecords);
+		//exit;
+
+
+	    $resp['success'] = true;
+        //$resp['data'] = $res; 
+        echo json_encode($resp);
+
+
+	}
+
+
+	public function getGuiassinRT(){
+
+		$resp = array();
+
+
+
+		$this->db->select("f.num_factura AS numguia
+							,p.idguia
+							,p.idpedido
+							,c.rut
+							,c.nombres
+							,c.direccion
+							,co.nombre as comuna",false)
+						  ->from('pedidos_guias p')
+						  ->join('factura_clientes f','p.idguia = f.id')
+						  ->join('clientes c','f.id_cliente = c.id')
+						  ->join('comuna co','c.id_comuna = co.id')
+						  ->where('idregistrotransporte IS null'); 	                  
+		$query = $this->db->get();		
+		$guias = $query->result();			
+
+   	
+	    $resp['success'] = true;
+        $resp['data'] = $guias; 
+        echo json_encode($resp);
+	}
+
 	public function getGuiasPedido(){
 
 		$resp = array();

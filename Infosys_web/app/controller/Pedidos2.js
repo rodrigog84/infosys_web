@@ -2317,7 +2317,7 @@ Ext.define('Infosys_web.controller.Pedidos2', {
                     correlanue = (parseInt(correlanue)+1);
                     var correlanue = correlanue;
                     view.down("#ticketId").setValue(correlanue);
-                    view.down("#bodegaId").setValue(idbodega);
+                   // view.down("#bodegaId").setValue(idbodega);
                 }else{
                     Ext.Msg.alert('Correlativo YA Existe');
                     return;

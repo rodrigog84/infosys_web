@@ -831,3 +831,34 @@ INSERT INTO `infosys_web`.`accesos` (`codigo`, `reg_estado`, `descripcion`) VALU
 INSERT INTO `infosys_web`.`rol_acceso` (`id_rol`, `id_acceso`) VALUES (1, 111);
 
 INSERT INTO `infosys_web`.`correlativos` (`nombre`, `correlativo`, `hasta`, `fecha_venc`) VALUES ('REGISTRO TRANSPORTE', 0, 20000, '0000-00-00');
+
+
+/************************************************************************************************/
+
+CREATE TABLE `registro_transporte` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`num_registro` INT(11) NOT NULL DEFAULT '0',
+	`fecha_genera` DATETIME NOT NULL,
+	PRIMARY KEY (`id`) USING BTREE
+)
+COLLATE='utf8mb4_general_ci'
+ENGINE=InnoDB
+;
+
+
+ALTER TABLE `pedidos_guias`
+	ADD COLUMN `idregistrotransporte` INT(11) NULL DEFAULT NULL AFTER `idguia`;
+
+
+	SELECT 	f.num_factura AS numguia
+			,p.idguia
+			,p.idpedido
+			,c.rut
+			,c.nombres
+			,c.direccion
+			,co.nombre
+FROM 		pedidos_guias p
+INNER JOIN factura_clientes f ON p.idguia = f.id
+INNER JOIN clientes c ON f.id_cliente = c.id
+INNER JOIN comuna co ON c.id_comuna = co.id
+WHERE 	idregistrotransporte IS null
