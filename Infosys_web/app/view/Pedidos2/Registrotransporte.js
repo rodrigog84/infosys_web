@@ -98,6 +98,15 @@
                                 });
 
 
+                                // Actualizar el store de la otra vista
+                                var principalTransporteView = Ext.ComponentQuery.query('pedidosprincipaltransporte')[0];
+                                if (principalTransporteView) {
+                                    principalTransporteView.getStore().load();
+                                }                                
+
+                                me.close();
+
+
                                 // Puedes añadir cualquier lógica adicional aquí
                             } else {
                                 Ext.Msg.show({
@@ -180,7 +189,7 @@
                     dataIndex: 'comuna'
                     
                 },{
-                        header: "Ver",
+                        header: "Ver Guia",
                         xtype:'actioncolumn',
                         width:110,
                         items: [{

@@ -2294,12 +2294,7 @@ Ext.define('Infosys_web.controller.Pedidos2', {
     agregarregistrotransporte: function(){
 
          var viewIngresa = this.getPedidosprincipaltransporte();
-         var idbodega = viewIngresa.down('#bodegaId').getValue();
-         
-         if(!idbodega){
-            Ext.Msg.alert('Alerta', 'Debe Elegir Bodega');
-            return;    
-         }else{
+
          var nombre = "110";    
          Ext.Ajax.request({
 
@@ -2324,8 +2319,7 @@ Ext.define('Infosys_web.controller.Pedidos2', {
                 }
             }            
         });
-        
-        };        
+            
        
     },
 

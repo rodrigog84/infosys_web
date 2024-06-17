@@ -146,6 +146,22 @@ class Pedidos2 extends CI_Controller {
 		//var_dump($numRegistro); 
 		//var_dump($selectedRecords);
 		//exit;
+		$data_reg_transporte = array(
+										'num_registro' => $numRegistro,
+										'fecha_genera' => date('Y-m-d H:i:s')
+									);
+
+
+		$this->db->insert('registro_transporte', $data_reg_transporte);
+		$idregistrotransporte = $this->db->insert_id();		
+
+		foreach($selectedRecords as $guia){
+
+				$this->db->where('idguia',$guia);
+				$this->db->update('pedidos_guias', array('idregistrotransporte' => $idregistrotransporte));
+
+		}
+
 
 
 	    $resp['success'] = true;
@@ -154,6 +170,32 @@ class Pedidos2 extends CI_Controller {
 
 
 	}
+
+
+	public function getRegistrosTransporte(){
+
+		$resp = array();
+
+
+
+		$this->db->select("rt.id
+							,rt.num_registro
+							,rt.fecha_genera
+							,count(distinct pg.idguia) AS cantidad",false)
+						  ->from('registro_transporte rt')
+						  ->join('pedidos_guias pg','rt.id = pg.idregistrotransporte')
+						  ->group_by('rt.id')
+						  ->group_by('rt.num_registro')
+						  ->group_by('rt.fecha_genera')
+						  ->order_by('rt.num_registro','desc'); 	                  
+		$query = $this->db->get();		
+		$registros = $query->result();			
+
+   	
+	    $resp['success'] = true;
+        $resp['data'] = $registros; 
+        echo json_encode($resp);
+	}	
 
 
 	public function getGuiassinRT(){
