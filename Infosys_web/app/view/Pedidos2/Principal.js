@@ -238,7 +238,7 @@ Ext.define('Infosys_web.view.Pedidos2.Principal' ,{
             align: 'center',
             items: [{
                 iconCls: 'icon-search',  // Use a URL in the icon config
-                tooltip: 'Generar OC',
+                tooltip: 'Ver Guias',
                 handler: function(grid, rowIndex, colIndex) {
                     var rec = grid.getStore().getAt(rowIndex);
                     //salert("Edit " + rec.get('firstname'));

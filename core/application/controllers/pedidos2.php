@@ -134,6 +134,56 @@ class Pedidos2 extends CI_Controller {
 	}
 
 
+
+public function getGuiasRegistroTransporte(){
+
+		$resp = array();
+		$idregistro = $this->input->get('idregistro');
+
+		if ($idregistro){
+
+			/*
+		$this->db->select("pg.idpedido
+							,pg.idguia
+							,fc.num_factura as numguia",false)
+						  ->from('pedidos_guias pg')
+						  ->join('factura_clientes fc','pg.idguia = fc.id')
+						  ->where('pg.idpedido',$idregistro); 	                  
+		$query = $this->db->get();		
+		$registro = $query->result();		*/	
+
+		/*$this->db->select("rt.id
+							,rt.num_registro
+							,pg.idguia
+							,f.num_factura as numguia			
+							,c.rut
+							,c.nombres
+							,c.direccion",false)*/
+	
+		$this->db->select("rt.id as idregistro
+							,rt.num_registro
+							,pg.idguia
+							,f.num_factura as numguia			
+							,c.rut
+							,c.nombres
+							,c.direccion",false)
+						  ->from('registro_transporte rt')
+						  ->join('pedidos_guias pg','rt.id = pg.idregistrotransporte')
+						  ->join('factura_clientes f','pg.idguia = f.id')
+						  ->join('clientes c','f.id_cliente = c.id')
+						  ->where('rt.id',$idregistro); 	                  
+		$query = $this->db->get();		
+		$registro = $query->result();
+		//echo $this->db->last_query(); exit;			
+
+   	
+	    $resp['success'] = true;
+        $resp['data'] = $registro; 
+        echo json_encode($resp);
+        }
+	}
+
+
 	public function saveRegistroTransporte(){
 
 		//echo '<pre>';

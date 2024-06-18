@@ -44,6 +44,7 @@ Ext.define('Infosys_web.controller.Pedidos2', {
             'Pedidos2.AdjuntarReceta',
             'Pedidos2.AdjuntarOc',
             'Pedidos2.VerGuias',
+            'Pedidos2.VerGuiastransporte',
             'Pedidos2.GenerarOcint',
             ],
 
@@ -111,6 +112,9 @@ Ext.define('Infosys_web.controller.Pedidos2', {
         ref: 'VerGuias',
         selector: 'VerGuias'
     },{
+        ref: 'VerGuiastransporte',
+        selector: 'VerGuiastransporte'
+    },{
         ref: 'GenerarOcint',
         selector: 'GenerarOcint'
     }
@@ -149,7 +153,10 @@ Ext.define('Infosys_web.controller.Pedidos2', {
             },     
             'pedidosprincipalformula': {
                 iguiasdespachover: this.iguiasdespachover
-            },                              
+            },  
+            'pedidosprincipaltransporte': {
+                tguiasdespachover: this.tguiasdespachover
+            },                               
             'pedidosprincipalformula button[action=estadopedidos]': {
                 click: this.estadopedidos
             },
@@ -385,6 +392,23 @@ Ext.define('Infosys_web.controller.Pedidos2', {
 
        
     },
+
+
+    tguiasdespachover: function(r){
+
+        var t = 1
+
+        console.log('guias t')
+
+        console.log(r.data)
+
+        Ext.create('Infosys_web.view.Pedidos2.VerGuiastransporte', {  idregistro: r.data.id,
+                                                                    cant_documentos: r.data.cantidad,
+                                                                    num_registro: r.data.num_registro}); 
+
+
+       
+    },    
 
 
     adjuntarOc: function(r,t){

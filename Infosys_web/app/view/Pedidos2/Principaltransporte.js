@@ -41,21 +41,24 @@ Ext.define('Infosys_web.view.Pedidos2.Principaltransporte' ,{
         align: 'right',
         dataIndex: 'cantidad'
     },{
-        header: "Ver Guias",
-        xtype:'actioncolumn',
-        align: 'center',
-        flex: 1,
-        items: [{
-            icon: 'images/search_page.png',  // Use a URL in the icon config
-            tooltip: 'Ver Pedido',
-            handler: function(grid, rowIndex, colIndex) {
-                var rec = grid.getStore().getAt(rowIndex);
-                window.open(preurl +'pedidos/exportPDF/?idpedidos=' + rec.raw.id)
-              
-            }
-            
-            }
-        ],
+            header: "Ver Guias",
+            xtype:'actioncolumn',
+            width:85,
+            align: 'center',
+            items: [{
+                iconCls: 'icon-search',  // Use a URL in the icon config
+                tooltip: 'Ver Guias',
+                handler: function(grid, rowIndex, colIndex) {
+                    var rec = grid.getStore().getAt(rowIndex);
+                    //salert("Edit " + rec.get('firstname'));
+                    var vista = this.up('pedidosprincipaltransporte');
+                    vista.fireEvent('tguiasdespachover',rec)
+                },
+                /*isDisabled: function(view, rowIndex, colIndex, item, record) {
+                    return true;
+                } */                             
+            }]     
+        
     }],
     
     initComponent: function() {
