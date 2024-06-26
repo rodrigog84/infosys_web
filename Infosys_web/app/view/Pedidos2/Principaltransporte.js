@@ -20,7 +20,7 @@ Ext.define('Infosys_web.view.Pedidos2.Principaltransporte' ,{
                
     },{
         header: "Numero Registro Transporte",
-        flex: 1,
+        width:450,
         dataIndex: 'num_registro'
                
     }/*,{
@@ -31,19 +31,20 @@ Ext.define('Infosys_web.view.Pedidos2.Principaltransporte' ,{
         renderer:Ext.util.Format.dateRenderer('d/m/Y') 
     }*/,{
         header: "Fecha Registro Transporte",
-        flex: 1,
+        width:350,
         dataIndex: 'fecha_genera',
         type: 'date',
         renderer:Ext.util.Format.dateRenderer('d/m/Y H:i:s')
     },{
         header: "Cantidad Guias",
         flex: 1,
+        //width:350,
         align: 'right',
         dataIndex: 'cantidad'
     },{
             header: "Ver Guias",
             xtype:'actioncolumn',
-            width:85,
+            width:150,
             align: 'center',
             items: [{
                 iconCls: 'icon-search',  // Use a URL in the icon config
@@ -53,6 +54,24 @@ Ext.define('Infosys_web.view.Pedidos2.Principaltransporte' ,{
                     //salert("Edit " + rec.get('firstname'));
                     var vista = this.up('pedidosprincipaltransporte');
                     vista.fireEvent('tguiasdespachover',rec)
+                },
+                /*isDisabled: function(view, rowIndex, colIndex, item, record) {
+                    return true;
+                } */                             
+            }]     
+        
+    },{
+            header: "Ver Registro de Transporte",
+            xtype:'actioncolumn',
+            width:150,
+            align: 'center',
+            items: [{
+                iconCls: 'icon-edit',  // Use a URL in the icon config
+                tooltip: 'Ver Guias',
+                handler: function(grid, rowIndex, colIndex) {
+                    var rec = grid.getStore().getAt(rowIndex);
+                    window.open(preurl +'pedidos/exportPDFRT/?idregistro=' + rec.raw.id)
+
                 },
                 /*isDisabled: function(view, rowIndex, colIndex, item, record) {
                     return true;

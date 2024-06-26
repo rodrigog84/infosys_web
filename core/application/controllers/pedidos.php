@@ -971,6 +971,175 @@ class Pedidos extends CI_Controller {
 
 
 
+
+
+
+	public function exportPDFRT(){
+		$idregistro = $this->input->get('idregistro');
+
+		//var_dump($idregistro); exit;
+	
+
+		$this->db->select("rt.id
+							,rt.num_registro
+							,rt.fecha_genera
+							,count(distinct pg.idguia) AS cantidad",false)
+						  ->from('registro_transporte rt')
+						  ->join('pedidos_guias pg','rt.id = pg.idregistrotransporte')
+						   ->where('rt.id',$idregistro)
+						  ->group_by('rt.id')
+						  ->group_by('rt.num_registro')
+						  ->group_by('rt.fecha_genera')
+						  ->order_by('rt.num_registro','desc'); 	                  
+		$query = $this->db->get();		
+		$registros = $query->row();	
+
+		$this->db->select("rt.id as idregistro
+							,rt.num_registro
+							,pg.idguia
+							,f.num_factura as numguia			
+							,c.rut
+							,c.nombres
+							,c.direccion",false)
+						  ->from('registro_transporte rt')
+						  ->join('pedidos_guias pg','rt.id = pg.idregistrotransporte')
+						  ->join('factura_clientes f','pg.idguia = f.id')
+						  ->join('clientes c','f.id_cliente = c.id')
+						  ->where('rt.id',$idregistro); 	                  
+		$query = $this->db->get();		
+		$registro = $query->result();
+		//cotizacion header
+		$guias = $query->result();
+		//echo '<pre>';
+		//var_dump($guias); exit;
+
+			
+		//$items2 = $this->db->get_where('formula_pedido', array('id_pedido' => $idpedidos));
+
+		$this->load->model('facturaelectronica');
+      $empresa = $this->facturaelectronica->get_empresa();
+
+      $logo =  PATH_FILES."facturacion_electronica/images/".$empresa->logo; 
+
+
+
+		$html = '
+		<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+		<html xmlns="http://www.w3.org/1999/xhtml">
+		<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<title>Pedidos</title>
+		<style type="text/css">
+		td {
+			font-size: 16px;
+		}
+		p {
+		}
+		</style>
+		</head>
+
+		<body>
+		<table width="987px" height="602" border="0">
+		  <tr>
+		   <td width="197px"><img src="' . $logo . '" width="150" height="136" /></td>
+		    <td width="493px" style="font-size: 14px;text-align:center;vertical-align:text-top"	>
+		     <p>' . $empresa->razon_social .'</p>
+        <p>RUT:' . number_format($empresa->rut,0,".",".").'-' . $empresa->dv . '</p>
+        <p>' . $empresa->dir_origen . ' - ' . $empresa->comuna_origen . ' - Chile</p>
+        <p>Fonos: ' . $empresa->fono . '</p>
+		    <p>http://www.lircay.cl</p>
+		    </td>
+	    <td width="296px" style="font-size: 16px;text-align:left;vertical-align:text-top"	>
+	          <p>REGISTRO DE TRANSPORTE N°: '.$registros->num_registro.'</p>
+	          <!--p>&nbsp;</p-->
+	          <p>FECHA REGISTRO : '.$registros->fecha_genera.'</p>
+	          <!--p>&nbsp;</p-->
+	          <p>CANTIDAD DOCUMENTOS : '.$registros->cantidad.'</p>
+	          <!--p>&nbsp;</p-->			         
+			</td>
+		  </tr>
+		  <tr>
+			<td style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:center;" colspan="3"><h1>REGISTRO DE TRANSPORTE</h1></td>
+		  </tr>
+		  <tr>
+		    <td colspan="3" >
+		    	<table width="950px" cellspacing="0" cellpadding="0" >
+		      <tr>
+		        <td width="100px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:left;" >Num Guia</td>
+		        <td width="130px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:left;" >Rut Cliente</td>
+		         <td width="380px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:left;" >Nombre Cliente</td>
+		        <td width="380x"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:left;" >Direccion</td>		        
+		       </tr>';
+
+		$i = 0;
+
+		foreach($guias as $guia){			
+
+			$html .= '<tr>
+			<td style="text-align:left">'.$guia->numguia.'</td>
+			<td style="text-align:left">'.$guia->rut.'</td>			
+			<td style="text-align:left">'.$guia->nombres.'</td>	
+			<td style="text-align:left">'.$guia->direccion.'</td>				
+			</tr>';
+			
+			//}
+			$i++;
+		}
+
+
+		       $html .= '<tr><td colspan="5">&nbsp;</td></tr>
+		       </table>
+		      </td></tr>';
+
+		// RELLENA ESPACIO
+		/*while($i < 30){
+			$html .= '<tr><td colspan="5">&nbsp;</td></tr>';
+			$i++;
+		}*/
+
+
+		$html .= '	
+		  <tr>
+		  	<td>&nbsp;</td>		  
+		  </tr>
+		  <tr>
+		  	<td>&nbsp;</td>		  
+		  </tr>		  		  		  	  
+		 
+		  
+		</table>
+		</body>
+		</html>
+		';
+		//==============================================================
+		//==============================================================
+		//==============================================================
+
+		include(dirname(__FILE__)."/../libraries/mpdf60/mpdf.php");
+
+		$mpdf= new mPDF(
+			'',    // mode - default ''
+			'',    // format - A4, for example, default ''
+			0,     // font size - default 0
+			'',    // default font family
+			15,    // margin_left
+			15,    // margin right
+			16,    // margin top
+			16,    // margin bottom
+			9,     // margin header
+			9,     // margin footer
+			'L'    // L - landscape, P - portrait
+			);  
+
+		$mpdf->WriteHTML($html);
+		$mpdf->Output("CF_{$codigo}.pdf", "I");
+		
+		exit;
+	}
+
+
+
+
 	public function exportPDF(){
 		$idpedidos = $this->input->get('idpedidos');
 		$query = $this->db->query('SELECT acc.*, c.nombres as nom_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor, v.id as id_vendedor, cor.nombre as nom_documento, op.observaciones as observa, f.nombre_formula as nombre_formula FROM pedidos acc
