@@ -108,11 +108,6 @@ Ext.define('Infosys_web.view.Pedidos2.Principaltransporte' ,{
                 iconCls: 'icon-add',
                 action: 'agregarregistrotransporte',
                 text : 'Agregar Registro de Transporte'
-            },{
-                xtype: 'button',
-                iconCls : 'icon-pdf',
-                text: 'Imprimir PDF',
-                action:'exportarregistro'
             },'-',{
                 xtype: 'button',
                 iconCls: 'icon-delete',
