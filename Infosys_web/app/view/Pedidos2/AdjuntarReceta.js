@@ -17,6 +17,7 @@ Ext.define('Infosys_web.view.Pedidos2.AdjuntarReceta' ,{
         var rut = me.rut;
         var num_pedido = me.num_pedido;
         var idpedido = me.idpedido;
+        var vistaPrincipal = me.vistaPrincipal;
 
 
         this.dockedItems = [{
@@ -205,6 +206,7 @@ Ext.define('Infosys_web.view.Pedidos2.AdjuntarReceta' ,{
                         },
                         success: function(response) {
                             Ext.Msg.alert('Éxito', 'El archivo se ha guardado correctamente.');
+                            vistaPrincipal.getStore().load();
                             me.close();
 
                         },

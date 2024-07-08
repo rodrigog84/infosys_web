@@ -17,6 +17,7 @@ Ext.define('Infosys_web.view.Pedidos2.AdjuntarOc' ,{
         var rut = me.rut;
         var num_pedido = me.num_pedido;
         var idpedido = me.idpedido;
+        var vistaPrincipal = me.vistaPrincipal;
 
 
         this.dockedItems = [{
@@ -188,6 +189,8 @@ Ext.define('Infosys_web.view.Pedidos2.AdjuntarOc' ,{
                         },
                         success: function(response) {
                             Ext.Msg.alert('Éxito', 'La Orden de compra se ha guardado correctamente.');
+                            // Recargar el store de la vista principal
+                            vistaPrincipal.getStore().load();
                             me.close();
 
                         },

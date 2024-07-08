@@ -17,6 +17,7 @@ Ext.define('Infosys_web.view.Pedidos2.GenerarOcint' ,{
         var rut = me.rut;
         var num_pedido = me.num_pedido;
         var idpedido = me.idpedido;
+        var vistaPrincipal = me.vistaPrincipal;
 
 
         this.dockedItems = [{
@@ -144,7 +145,14 @@ Ext.define('Infosys_web.view.Pedidos2.GenerarOcint' ,{
 
                             window.open(preurl +'pedidos/exportPDFOC/?idpedidos=' + input_nro + '&oc=' + correlanue)
                             Ext.Msg.alert('Éxito', 'OC generada correctamente.');
+
+                            // Recargar el store de la vista principal
+                            vistaPrincipal.getStore().load();
+
+
                             me.close();
+
+
 
                         }else{
                             Ext.Msg.alert('Correlativo YA Existe');

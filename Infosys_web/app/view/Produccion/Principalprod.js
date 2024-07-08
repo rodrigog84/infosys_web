@@ -187,7 +187,7 @@ Ext.define('Infosys_web.view.Produccion.Principalprod' ,{
         },{
             xtype: 'pagingtoolbar',
             dock:'bottom',
-            store: 'Produccion',
+            store: 'Produccionprod',
             displayInfo: true
         }];
         

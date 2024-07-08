@@ -110,7 +110,8 @@ Ext.define('Infosys_web.view.Pedidos2.Principal' ,{
                                 Ext.create('Infosys_web.view.Pedidos2.AdjuntarReceta', {  idpedido: r.data.id,
                                                                                             cliente: obj.data.nombre_cliente,
                                                                                             rut : obj.data.rut,
-                                                                                            num_pedido: obj.data.num_pedido});    
+                                                                                            num_pedido: obj.data.num_pedido,
+                                                                                            vistaPrincipal: grid});    
 
                            },
                            failure: function(response, opts) {
@@ -157,7 +158,8 @@ Ext.define('Infosys_web.view.Pedidos2.Principal' ,{
                                 Ext.create('Infosys_web.view.Pedidos2.AdjuntarOc', {  idpedido: r.data.id,
                                                                                             cliente: obj.data.nombre_cliente,
                                                                                             rut : obj.data.rut,
-                                                                                            num_pedido: obj.data.num_pedido}); 
+                                                                                            num_pedido: obj.data.num_pedido,
+                                                                                            vistaPrincipal: grid}); 
 
 
                                },
@@ -197,7 +199,8 @@ Ext.define('Infosys_web.view.Pedidos2.Principal' ,{
                                 Ext.create('Infosys_web.view.Pedidos2.GenerarOcint', {  idpedido: r.data.id,
                                                                                             cliente: obj.data.nombre_cliente,
                                                                                             rut : obj.data.rut,
-                                                                                            num_pedido: obj.data.num_pedido}); 
+                                                                                            num_pedido: obj.data.num_pedido,
+                                                                                            vistaPrincipal: grid}); 
 
 
 
@@ -222,9 +225,46 @@ Ext.define('Infosys_web.view.Pedidos2.Principal' ,{
                 tooltip: 'Generar Guia',
                 handler: function(grid, rowIndex, colIndex) {
                     var rec = grid.getStore().getAt(rowIndex);
+                    var cumpleoc = rec.raw.cumpleoc
+                    var cumplereceta = rec.raw.cumplereceta
+
+                    if(cumpleoc == 1 && cumplereceta == 1){
+                        var vista = this.up('pedidosprincipalformula');
+                        vista.fireEvent('iguiasdespacho',rec)
+
+                    }else if(cumpleoc == 1 && cumplereceta == 0){
+                        Ext.Msg.show({
+                            title: 'Alerta',
+                            msg: 'Pedido con carga de receta pendiente',
+                            width: 400,
+                            buttons: Ext.Msg.OK,
+                            icon: Ext.Msg.WARNING
+                        });
+
+
+                    }else if(cumpleoc == 0 && cumplereceta == 1){
+                        Ext.Msg.show({
+                            title: 'Alerta',
+                            msg: 'Pedido con generacion de OC Pendiente',
+                            width: 400,
+                            buttons: Ext.Msg.OK,
+                            icon: Ext.Msg.WARNING
+                        });
+
+                    }else{
+                        Ext.Msg.show({
+                            title: 'Alerta',
+                            msg: 'Pedido con generacion de OC y Receta Pendiente',
+                            width: 400,
+                            buttons: Ext.Msg.OK,
+                            icon: Ext.Msg.WARNING
+                        });
+
+                    }
+
+
                     //salert("Edit " + rec.get('firstname'));
-                    var vista = this.up('pedidosprincipalformula');
-                    vista.fireEvent('iguiasdespacho',rec)
+
                 },
                /* isDisabled: function(view, rowIndex, colIndex, item, record) {
                     return true;

@@ -862,3 +862,15 @@ INNER JOIN factura_clientes f ON p.idguia = f.id
 INNER JOIN clientes c ON f.id_cliente = c.id
 INNER JOIN comuna co ON c.id_comuna = co.id
 WHERE 	idregistrotransporte IS null
+
+
+
+
+/************************************************************************************************/
+
+ALTER TABLE `pedidos`
+	ADD COLUMN `autorizarecoc` TINYINT NOT NULL DEFAULT 0 AFTER `ubicacion`,
+	ADD COLUMN `fecautorizarecoc` DATETIME NOT NULL AFTER `autorizarecoc`,
+	ADD COLUMN `userautorizarecoc` INT NOT NULL DEFAULT 0 AFTER `fecautorizarecoc`;
+
+	

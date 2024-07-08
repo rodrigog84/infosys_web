@@ -3162,7 +3162,7 @@ class Facturas extends CI_Controller {
 	public function save(){
 		
 
-
+        set_time_limit(0);
 		$resp = array();
 		$idcliente = $this->input->post('idcliente');
 		$numfactura = $this->input->post('numfactura');
