@@ -1344,7 +1344,9 @@ adjuntarReceta: function(r){
         var idtransportista = view.down('#transportistaId').getValue();
         //var idobserva = view.down('#obsId').getValue();
         var valida = view.down('#validaId').getValue();
-        var numero = view.down('#FactId').getValue();      
+        var numero = view.down('#FactId').getValue(); 
+        var empresa = view.down('#empresaId').getValue();     
+        var transferencia = view.down('#transferenciaId').getValue();          
 
         var permite = "SI"
 
@@ -1374,7 +1376,9 @@ adjuntarReceta: function(r){
                 observa : observa,
                 destino: destino, 
                 idtransportista: idtransportista,
-                numero: numero
+                numero: numero,
+                empresa: empresa,
+                transferencia: transferencia
             },
             success: function(response){
                 var resp = Ext.JSON.decode(response.responseText);
@@ -1476,6 +1480,8 @@ adjuntarReceta: function(r){
                  view.down("#camionId").setValue(observa.pat_camion);
                  view.down("#carroId").setValue(observa.pat_carro);
                  view.down("#fonoId").setValue(observa.fono);
+                 view.down("#empresaId").setValue(observa.empresatransporte);
+                 view.down("#transferenciaId").setValue(observa.transferencia);
                  //view.down("#validaId").setValue(okey);
                  view.down("#observaId").setValue(observa.observacion);
                 }             

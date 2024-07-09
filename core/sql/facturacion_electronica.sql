@@ -874,3 +874,12 @@ ALTER TABLE `pedidos`
 	ADD COLUMN `userautorizarecoc` INT NOT NULL DEFAULT 0 AFTER `fecautorizarecoc`;
 
 	
+
+/****************************************************************************************************/
+
+
+ALTER TABLE `observacion_facturas`
+	ADD COLUMN `empresatransporte` VARCHAR(250) NOT NULL AFTER `observacion`,
+	ADD COLUMN `transferencia` VARCHAR(100) NOT NULL AFTER `empresatransporte`;
+
+	

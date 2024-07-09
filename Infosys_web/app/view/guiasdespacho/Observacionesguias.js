@@ -14,6 +14,16 @@ Ext.define('Infosys_web.view.guiasdespacho.Observacionesguias', {
     iconCls: 'icon-sheet',
 
     initComponent: function() {
+
+
+         var tipotransferencia = Ext.create('Ext.data.Store', {
+            fields: ['value', 'nombre'],
+            data : [
+                {"value":'ENTREGA CLIENTE', "nombre":"ENTREGA CLIENTE"},
+                {"value": 'BASE RALICURA', "nombre":"BASE RALICURA"}
+            ]
+        });  
+
         this.items = [
             {
                 xtype: 'form',
@@ -100,6 +110,29 @@ Ext.define('Infosys_web.view.guiasdespacho.Observacionesguias', {
                     },{
                         xtype: 'textfield',
                         fieldCls: 'required',
+                        labelWidth: 100,
+                        width: 350,
+                        height: 30,
+                        fieldLabel: 'Empresa de Transporte',
+                        itemId: 'empresaId',
+                        name: 'empresa'                            
+                    },{
+                        xtype: 'combobox',
+                        fieldCls: 'required',
+                        labelWidth: 100,
+                        width: 350,
+                        height: 30,
+                        fieldLabel: 'Transferencia',
+                        editable: false,
+                        store : tipotransferencia,
+                        emptyText : 'Seleccionar',
+                        displayField : 'nombre',
+                        valueField : 'value',                        
+                        itemId: 'transferenciaId',
+                        name: 'transferencia'                            
+                    },{
+                        xtype: 'textfield',
+                        fieldCls: 'required',
                         width: 180,
                         height: 25,
                         fieldLabel: 'Patente Camion',
@@ -125,7 +158,7 @@ Ext.define('Infosys_web.view.guiasdespacho.Observacionesguias', {
                         xtype: 'textareafield',
                         fieldCls: 'required',
                         width: 350,
-                        height: 140,
+                        height: 80,
                         fieldLabel: 'Observaciones',
                         itemId: 'observaId',
                         name: 'observaciones'                            
