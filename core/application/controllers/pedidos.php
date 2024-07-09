@@ -1063,23 +1063,76 @@ class Pedidos extends CI_Controller {
 		  </tr>
 		  <tr>
 		    <td colspan="3" >
-		    	<table width="950px" cellspacing="0" cellpadding="0" >
+		    	<table width="950px" cellspacing="0" cellpadding="0" border="1" >
 		      <tr>
-		        <td width="100px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:left;" >Num Guia</td>
-		        <td width="130px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:left;" >Rut Cliente</td>
-		         <td width="380px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:left;" >Nombre Cliente</td>
-		        <td width="380x"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:left;" >Direccion</td>		        
+		        <td width="50px"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" rowspan="2"><b>GD</b></td>
+		         <td width="380px"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" rowspan="2"><b>ORDEN CARGA</b></td>
+		         <td width="340px"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" colspan="2"><b>DESTINO</b></td>
+		         <td width="120px"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" colspan="2"><b>TARIFA FLETE</b></td>
+		         <td width="60x"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" rowspan="2"><b>KILOS</b></td>
+		        </tr>
+		       <tr>
+		        <td width="220x"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" ><b>FUNDO</b></td>	
+		        <td width="120x"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" ><b>TRANSFERENCIA</b></td>	
+		        <td width="60x"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" ><b>C/DESCARGA</b></td>	
+		       	<td width="60x"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" ><b>S/DESCARGA</b></td>	
+		       			        
 		       </tr>';
 
 		$i = 0;
+		$max_filas = 16;
+		$total_kilos = 0;
 
-		foreach($guias as $guia){			
+		foreach($guias as $guia){	
+
+			$idguia = $guia->idguia;
+			$this->db->select("of.id
+								,of.id_documento
+								,of.rut
+								,of.nombre
+								,of.id_transportista
+								,of.pat_camion
+								,of.pat_carro
+								,of.fono
+								,of.destino
+								,of.observacion	
+								,of.empresatransporte
+								,of.transferencia",false)
+							  ->from('observacion_facturas of')
+							  ->where('of.id_documento',$idguia); 	                  
+			$query = $this->db->get();		
+			$observacion_guia = $query->row();
+
+			$destino = isset($observacion_guia->destino) ? $observacion_guia->destino : '';
+			$transferencia = isset($observacion_guia->transferencia) ? $observacion_guia->transferencia : '';
+
+			if($observacion_guia->transferencia){
+				$condescarga = $observacion_guia->transferencia == 'ENTREGA CLIENTE' ? 'XX' : '';
+				$sindescarga = $observacion_guia->transferencia == 'BASE RALICURA' ? 'XX' : '';
+
+			}else{
+				$condescarga = '';
+				$sindescarga = '';
+			}
+
+
+
+			$idguia = $guia->idguia;
+			$this->db->select("sum(cantidad) as cantidad",false)
+							  ->from('detalle_factura_cliente df')
+							  ->where('df.id_factura',$idguia); 	                  
+			$query = $this->db->get();		
+			$cantidad_guia = $query->row();
+			$total_kilos += $cantidad_guia->cantidad;
 
 			$html .= '<tr>
-			<td style="text-align:left">'.$guia->numguia.'</td>
-			<td style="text-align:left">'.$guia->rut.'</td>			
+			<td style="text-align:left">'.$guia->numguia.'</td>	
 			<td style="text-align:left">'.$guia->nombres.'</td>	
-			<td style="text-align:left">'.$guia->direccion.'</td>				
+			<td style="text-align:left">'.$destino.'</td>
+			<td style="text-align:left">'.$transferencia.'</td>		
+			<td style="text-align:left">'.$condescarga.'</td>		
+			<td style="text-align:left">'.$sindescarga.'</td>	
+			<td style="text-align:left">'.number_format($cantidad_guia->cantidad,2,',','.').'</td>					
 			</tr>';
 			
 			//}
@@ -1087,7 +1140,25 @@ class Pedidos extends CI_Controller {
 		}
 
 
-		       $html .= '<tr><td colspan="5">&nbsp;</td></tr>
+		while($i < $max_filas){
+			$html .= '<tr>
+			<td style="text-align:left">&nbsp;</td>	
+			<td style="text-align:left">&nbsp;</td>	
+			<td style="text-align:left">&nbsp;</td>
+			<td style="text-align:left">&nbsp;</td>		
+			<td style="text-align:left">&nbsp;</td>		
+			<td style="text-align:left">&nbsp;</td>	
+			<td style="text-align:left">&nbsp;</td>					
+			</tr>';
+
+			$i++;
+		}
+
+			$html .= '<tr>
+			<td colspan="6" style="text-align:left"><b>TOTAL KILOS</b></td>	
+			<td style="text-align:left">'.number_format($total_kilos,2,',','.').'</td>		
+			</tr>';
+		       $html .= '
 		       </table>
 		      </td></tr>';
 
