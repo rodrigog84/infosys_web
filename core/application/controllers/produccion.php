@@ -2571,6 +2571,40 @@ class Produccion extends CI_Controller {
 		$ciclos = $row->ciclos;
 		$cprod = $row->valor_prod;
 		$encargado = $row->encargado;
+		$nomcliente = $row->nom_cliente;
+		$rut_cliente = $row->rut_cliente;
+
+
+
+		if($row->id_pedido == 0){
+
+			if($nomcliente == ''){
+
+
+					$this->db->select("c.rut as rut_cliente
+										,c.nombres as nom_cliente
+										,v.nombre as nom_vendedor
+										,pr.nombre as nom_productos
+										, pr.codigo as codigopro
+										",false)
+									  ->from('produccion_detalle_pedidos dp')
+									  ->join('clientes c ','dp.id_cliente = c.id')
+									  ->join('pedidos p ','dp.id_pedido = p.id')
+									  ->join('vendedores v ','p.id_vendedor = v.id')
+									  ->join('productos pr ','dp.id_producto = pr.id')
+									  ->where('dp.id_produccion',$row->id); 	                  
+					$query = $this->db->get();		
+					$datos_cli = $query->row();
+					$nomcliente = $datos_cli->nom_cliente;
+					$rut_cliente = $datos_cli->rut_cliente;
+					$vendedor = $datos_cli->nom_vendedor;
+					$codigo = $datos_cli->codigopro;
+					$nombreproducto = $datos_cli->nom_productos;
+
+			}
+
+
+		}
 
 		//print_r($row);
 		//exit;
@@ -2633,15 +2667,15 @@ class Produccion extends CI_Controller {
 		    	<table width="687px" border="0">
 		    		<tr>
 					<td width="197px">Sr.(es):</td>
-					<td width="395px">'. $row->nom_cliente.'</td>
+					<td width="395px">'. $nomcliente.'</td>
 					<td width="147px">Rut:</td>
-					<td width="147px">'. number_format(substr($row->rut_cliente, 0, strlen($row->rut_cliente) - 1),0,".",".")."-".substr($row->rut_cliente,-1).'</td>
+					<td width="147px">'. number_format(substr($rut_cliente, 0, strlen($rut_cliente) - 1),0,".",".")."-".substr($rut_cliente,-1).'</td>
 					</tr>
 					</h2></table>
 					<table width="6887px" border="0">
 		    		<tr>		    		
 		    		<td width="127px">VENDEDOR:</td>
-		    		<td width="340px">'.$row->nom_vendedor.'</td>
+		    		<td width="340px">'.$vendedor.'</td>
 		    		<td width="127px">ENCARGADO:</td>
 		    		<td width="240px">'.$row->encargado.'</td>
 		    		</tr>
