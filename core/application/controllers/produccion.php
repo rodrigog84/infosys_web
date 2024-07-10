@@ -3624,6 +3624,10 @@ class Produccion extends CI_Controller {
 		//cotizacion header
 		$row = $query->result();
 		$row = $row[0];
+
+		//echo '<pre>';
+		//var_dump($row); exit;
+
 		//items
 		//$items = $this->db->get_where('formula_detalle', array('id_formula' => $idformula));
 		
@@ -3654,16 +3658,21 @@ class Produccion extends CI_Controller {
 		$query = $this->db->get();		
 		$productos = $query->result();
 
-		//echo '<pre>';
-		//var_dump($productos); exit;
+
 		//print_r($row);
 		//exit;
 
 		//$observacion = $row->observa;
 		$fecha = $row->fecha_produccion;
 		$fechatermino = $row->fecha_termino;		
-		$hora = $row->hora_inicio;
+		$hora = $row->hora_inicio == '00:00:00' ? '______________' : $row->hora_inicio;
 		$horatermino= $row->hora_termino;
+
+
+		//echo '<pre>';
+		//var_dump($row->hora_inicio); 
+		//var_dump($hora); 
+		//exit;		
 		
 		$this->load->model('facturaelectronica');
       $empresa = $this->facturaelectronica->get_empresa();
@@ -3703,7 +3712,7 @@ class Produccion extends CI_Controller {
 	          <!--p>&nbsp;</p-->
 	          <p><h3>Fecha Termino: '.$fechatermino.'</h3></p>
 	          <!--p>&nbsp;</p-->
-	          <p><h3>Hora Inicio: '.$row->hora_inicio.'</h3></p>
+	          <p><h3>Hora Inicio: '.$hora.'</h3></p>
 	          <!--p>&nbsp;</p-->
 	          <p><h3>Hora Termino: '.$horatermino.'</h3></p>
 	          <!--p>&nbsp;</p-->		         
@@ -3752,7 +3761,7 @@ class Produccion extends CI_Controller {
 		    	<table width="987px" border="0">
 		    		<tr>			    		
 		    		<td width="117px">HORA INICIO:</td>
-		    		<td width="127px"><h3>' . $row->hora_inicio . '<h3></td>
+		    		<td width="127px"><h3>' . $hora . '<h3></td>
 		    		<td width="100px">HORA FIN:</td>
 		    		<td width="127px"><h3>______________</h3></td>
 		    		<td width="100px">FECHA FIN:</td>
