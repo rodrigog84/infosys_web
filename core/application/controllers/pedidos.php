@@ -1080,8 +1080,13 @@ class Pedidos extends CI_Controller {
 		       </tr>';
 
 		$i = 0;
-		$max_filas = 16;
+		$max_filas = 20;
 		$total_kilos = 0;
+		$rut_transportista = '';
+		$nombre_transportista = '';
+		$empresa_transporte = '';
+		$patente_camion = '';
+		$patente_carro = '';
 
 		foreach($guias as $guia){	
 
@@ -1115,6 +1120,19 @@ class Pedidos extends CI_Controller {
 				$sindescarga = '';
 			}
 
+			if(isset($observacion_guia->rut)){
+				if($rut_transportista == '' && $observacion_guia->rut != ''){
+					$rut_transportista = number_format(substr($observacion_guia->rut,0,strlen($observacion_guia->rut)-1),0,'.','.').'-'.substr($observacion_guia->rut,-1);
+					$nombre_transportista = $observacion_guia->nombre;
+					$empresa_transporte = $observacion_guia->empresatransporte;
+					$patente_camion = $observacion_guia->pat_camion;
+					$patente_carro = $observacion_guia->pat_carro;
+
+				}
+
+			}
+
+			
 
 
 			$idguia = $guia->idguia;
@@ -1161,6 +1179,63 @@ class Pedidos extends CI_Controller {
 		       $html .= '
 		       </table>
 		      </td></tr>';
+
+
+
+		   $html .= '<tr>
+		    <td colspan="3" >
+		    	<table width="1000px" cellspacing="0" cellpadding="0" border="1" >
+		    		<tr>
+		    		<td width="200px"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;"><b>RUT TRANSPORTISTA</b></td>
+		    		<td width="200px" style="text-align:left">' . $rut_transportista . '</td>	
+		    		<td width="400px" style="text-align:left">&nbsp;</td>
+		    		<td width="200px" colspan="2" style="text-align:left">&nbsp;</td>		
+		    		</tr>
+		    		<tr>
+		    		<td width="200px"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" ><b>Empresa Transporte <br></b>' . $empresa_transporte . '</td>
+		    		<td width="600px" colspan="2" style="text-align:left">' .  $nombre_transportista . '</td>	
+		    		<td width="100px" style="text-align:left"><b>PATENTE</b><br>' .  $patente_camion . '</td>	
+		    		<td width="100px" style="text-align:left"><b>CARRO</b><br>' . $patente_carro  . '</td>	
+		    		</tr>	
+		    		<tr>
+		    		<td width="1000px"  colspan="5" style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" >&nbsp;</td>	
+		    		</tr>		    		
+		    		<tr>
+		    		<td width="200px"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;"><b>HORA SALIDA</b></td>
+		    		<td width="200px" style="text-align:left">&nbsp;</td>	
+		    		<td width="600px" colspan="3" rowspan="2" style="text-align:left">PD: En caso de retraso o problemas en la ruta favor llamar al numero telefono del vendedor </td>		
+		    		</tr>
+		    		<tr>
+		    		<td width="200px"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;"><b>HORA LLEGADA</b></td>
+		    		<td width="200px" style="text-align:left">&nbsp;</td>	
+		    		</tr>	
+		    		<tr>
+		    		<td width="200px"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;"><b>TELEFONO ADMINISTRATIVA</b></td>
+		    		<td width="200px" style="text-align:left">VERONICA JARA</td>	
+		    		<td width="600px" colspan="3" style="text-align:left">961164421</td>		
+		    		</tr>	
+		    		<tr>
+		    		<td width="200px"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;"><b>TELEFONO ZONAL</b></td>
+		    		<td width="200px" style="text-align:left">MARCELO SCHEIHING</td>	
+		    		<td width="600px" colspan="3" style="text-align:left">998884472</td>		
+		    		</tr>	
+		    		<tr>
+		    		<td width="1000px"  colspan="5" style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" >El conductor es responsable de la descarga correcta en cada predio de destino, errores y costos que ellos impliquen seran descontados de los pagos</td>	
+		    		</tr>	
+		    		<tr>
+		    		<td width="1000px"  colspan="5" style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" >El cobro del flete estara sujeto a la presentacion de Guia de Despacho o Factura con Nombre, Rut y firma del receptor</td>	
+		    		</tr>		    			    			    			    			    				
+		    		 <tr>
+		    		<td width="1000px"  colspan="5" style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" >Tambien se recuerda que todas las guias o facturas deben tener la firma conforme de quien recepciono el pedido</td>	
+		    		</tr>
+		    		 <tr>
+		    		<td width="1000px"  colspan="5" style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" >Ante cualquier duda de ruta, descarga o destino por favor comunicarse con el contacto</td>	
+		    		</tr>		    		
+		    	</table>
+		   	</td>
+		   	</tr>';
+
+
 
 		// RELLENA ESPACIO
 		/*while($i < 30){
