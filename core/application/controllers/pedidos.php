@@ -13,7 +13,7 @@ class Pedidos extends CI_Controller {
 
 	public function autoriza_pedido($idpedido){
 
-
+				header("Access-Control-Allow-Origin: *");
 				$this->db->select('id, id_producto, cantidad')
 						 ->from('pedidos_detalle')
 						 ->where('id_pedido',$idpedido);
