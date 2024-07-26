@@ -882,4 +882,11 @@ ALTER TABLE `observacion_facturas`
 	ADD COLUMN `empresatransporte` VARCHAR(250) NOT NULL AFTER `observacion`,
 	ADD COLUMN `transferencia` VARCHAR(100) NOT NULL AFTER `empresatransporte`;
 
-	
+	/**************************************************************************************************/
+
+
+
+
+ALTER TABLE `pedidos`
+	ADD COLUMN `tipoenvase` VARCHAR(250) NOT NULL AFTER `userautorizarecoc`,
+	ADD COLUMN `tipotransporte` VARCHAR(100) NOT NULL AFTER `tipoenvase`;

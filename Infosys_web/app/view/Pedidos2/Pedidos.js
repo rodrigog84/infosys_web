@@ -26,6 +26,29 @@ Ext.define('Infosys_web.view.Pedidos2.Pedidos', {
 
     initComponent: function() {
         var me = this;
+
+         var tipoEnvase = Ext.create('Ext.data.Store', {
+            fields: ['value', 'nombre'],
+            data : [
+                {"value":'SACO', "nombre":"SACO"},
+                {"value": 'GRANEL', "nombre":"GRANEL"}
+            ]
+        }); 
+
+
+         var tipoTransporte = Ext.create('Ext.data.Store', {
+            fields:
+             ['value', 'nombre'],
+            data : [
+                {"value":'CAMION SOLO', "nombre":"CAMION SOLO"},
+                {"value": 'CON CARRO', "nombre":"CON CARRO"},
+                {"value": 'RAMPLA', "nombre":"RAMPLA"},
+                {"value": 'BATEA', "nombre":"BATEA"},
+
+            ]
+        }); 
+
+
         var stItms = Ext.getStore('Pedidos.Items');
         stItms.removeAll();
         Ext.applyIf(me, {
@@ -268,11 +291,39 @@ Ext.define('Infosys_web.view.Pedidos2.Pedidos', {
                                     msgTarget: 'side',
                                     labelWidth: 155,
                                     maxHeight: 25,
-                                    width: 600,
+                                    width: 350,
                                     fieldLabel: '<b>UBICACION</b>',
                                     itemId: 'ubicacionId',
                                     name : 'ubicacion'                                         
-                                }
+                                },{
+                                        xtype: 'combobox',
+                                        fieldCls: 'required',
+                                        labelWidth: 100,
+                                        width: 350,
+                                        height: 30,
+                                        fieldLabel: '<b>TIPO ENVASE</b>',
+                                        editable: false,
+                                        store : tipoEnvase,
+                                        emptyText : 'Seleccionar',
+                                        displayField : 'nombre',
+                                        valueField : 'value',                        
+                                        itemId: 'tipoenvaseId',
+                                        name: 'tipoenvase'                            
+                                    },{
+                                        xtype: 'combobox',
+                                        fieldCls: 'required',
+                                        labelWidth: 200,
+                                        width: 350,
+                                        height: 30,
+                                        fieldLabel: '<b>TIPO TRANSPORTE</b>',
+                                        editable: false,
+                                        store : tipoTransporte,
+                                        emptyText : 'Seleccionar',
+                                        displayField : 'nombre',
+                                        valueField : 'value',                        
+                                        itemId: 'tipotransporteId',
+                                        name: 'tipotransporte'                            
+                                    }
                             ]
                         },{
                             xtype: 'fieldcontainer',

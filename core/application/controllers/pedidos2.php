@@ -1486,6 +1486,9 @@ public function getGuiasRegistroTransporte(){
 		$idobserva = $this->input->post('idobserva');
 		$ordencompra = $this->input->post('ordencompra');
 		$ubicacion = $this->input->post('ubicacion');
+
+		$tipoenvase = $this->input->post('tipoenvase');
+		$tipotransporte = $this->input->post('tipotransporte');
 						
 			
 
@@ -1509,6 +1512,8 @@ public function getGuiasRegistroTransporte(){
 	        'idestadopedido' => 1,
 	        'ordencompra' => $ordencompra,
 	        'ubicacion' => $ubicacion,
+	        'tipoenvase' => $tipoenvase,
+	        'tipotransporte' => $tipotransporte,
 		);
 
 		$this->db->insert('pedidos', $pedidos); 

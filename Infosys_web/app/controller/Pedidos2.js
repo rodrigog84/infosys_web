@@ -2238,6 +2238,10 @@ Ext.define('Infosys_web.controller.Pedidos2', {
         var finalafectoId = viewIngresa.down('#finaltotalnetoId').getValue();
         var ordencompraId = viewIngresa.down('#ordencompraId').getValue();
         var ubicacionId = viewIngresa.down('#ubicacionId').getValue();
+
+        var tipoenvaseId = viewIngresa.down('#tipoenvaseId').getValue();
+        var tipotransporteId = viewIngresa.down('#tipotransporteId').getValue();
+
         var vendedor = record.id;
         var stItem = this.getPedidosItemsStore();
         var stpedidos = this.getPedidosStore();
@@ -2248,6 +2252,20 @@ Ext.define('Infosys_web.controller.Pedidos2', {
             Ext.Msg.alert('Atención','Debe Asignar Formula');
             return;            
         }
+
+        if(!tipoenvaseId){
+            viewIngresa.down("#grabarpedidos").setDisabled(false);
+            Ext.Msg.alert('Atención','Debe Seleccionar Tipo Envase');
+            return;            
+        }
+
+
+        if(!tipotransporteId){
+            viewIngresa.down("#grabarpedidos").setDisabled(false);
+            Ext.Msg.alert('Atención','Debe Seleccionar Tipo Transporte');
+            return;            
+        }
+
 
         if(!fechadespacho){
             viewIngresa.down("#grabarpedidos").setDisabled(false);
@@ -2293,6 +2311,8 @@ Ext.define('Infosys_web.controller.Pedidos2', {
                 idbodega: idbodega,
                 numeropedido : numeropedido,
                 ordencompra : ordencompraId,
+                tipoenvase : tipoenvaseId,
+                tipotransporte : tipotransporteId,
                 ubicacion : ubicacionId,
                 fechadocum: Ext.Date.format(fechadocum,'Y-m-d'),
                 fechapedido: Ext.Date.format(fechapedidos,'Y-m-d'),
