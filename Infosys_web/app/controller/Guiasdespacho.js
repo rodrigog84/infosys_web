@@ -57,13 +57,15 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
             'guiasdespacho.BuscarSucursales4',
             'guiasdespacho.BuscarSucursales3',
             'guiasdespacho.Anular',
-            'guiasdespacho.BuscarTransportista'],
+            'guiasdespacho.BuscarTransportista',
+            'Pedidos2.Pedidos',
+            'Pedidos2.Principal'],
            
     
-    refs: [/*{    
+    refs: [{    
        ref: 'pedidosprincipalformula',
         selector: 'pedidosprincipalformula'
-    },*/{
+    },{
        ref: 'panelprincipal',
         selector: 'panelprincipal'
     },{
@@ -2516,8 +2518,20 @@ seleccionarclienteguias4: function(){
 
     cancelar2: function(){
 
+
         var viewIngresa = this.getGuiasdespachoingresar();
-        var view = this.getGuiasprincipaldespacho();
+        //var view = this.getGuiasprincipaldespacho();
+        //var view = this.getPedidosprincipalformula();
+
+
+        // Verifica cuál de las dos vistas es válida
+        var view = this.getGuiasprincipaldespacho(); // Intenta obtener la primera vista
+        if (!view) {
+            view = this.getPedidosprincipalformula(); // Si la primera es null o indefinida, usa la segunda
+        }
+
+
+
         var idbodega = view.down('#bodegaId').getValue();
         var documento = 105;
         var numero = viewIngresa.down('#numfacturaId').getValue();
