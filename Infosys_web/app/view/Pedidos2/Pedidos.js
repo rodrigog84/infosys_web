@@ -556,7 +556,11 @@ Ext.define('Infosys_web.view.Pedidos2.Pedidos', {
                         align: 'middle',
                         pack: 'center'
                     },
-                    items: ['->',
+                    items: [{
+                            iconCls: 'icon-reset',
+                            text: 'Cancelar',
+                            action: 'cancelar2',
+                        },'->',
                         {
                             xtype: 'button',
                             //iconCls: 'icono',

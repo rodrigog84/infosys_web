@@ -911,6 +911,17 @@ class Facturas extends CI_Controller {
             echo json_encode($resp);
     }
 
+
+    public function cancela_correlativo(){
+
+            $resp = array();
+            $tipo_correlativo = $this->input->post('tipo_correlativo');
+          $query = $this->db->query("UPDATE correlativos SET correlativo = correlativo - 1 WHERE nombre = '" . $tipo_correlativo . "'");          
+          $resp['success'] = true;
+            echo json_encode($resp);
+    }
+
+
       public function folio_documento_electronico($tipo_doc){
 
             $tipo_caf = 0;

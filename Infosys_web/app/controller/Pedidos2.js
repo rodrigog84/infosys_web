@@ -197,7 +197,11 @@ Ext.define('Infosys_web.controller.Pedidos2', {
             },
             'pedidosingresar2 button[action=buscarsucursalfactura]': {
                 click: this.buscarsucursalfactura
-            },           
+            }, 
+
+            'pedidosingresar2 button[action=cancelar2]': {
+                click: this.cancelar2
+            },                         
             'buscarclientespedidos2 button[action=buscarclientes]': {
                 click: this.buscar
             },
@@ -614,6 +618,75 @@ Ext.define('Infosys_web.controller.Pedidos2', {
                                 tipopedido: 'I' }
         st.load();       
     },
+
+    cancelar2: function(){
+
+        var viewIngresa = this.getPedidosingresar2();
+
+        Ext.Ajax.request({
+            url: preurl + 'facturas/cancela_correlativo',
+            params: {
+                tipo_correlativo: 'PEDIDOS'
+            },
+             success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+            }
+           
+        }); 
+
+
+        viewIngresa.close();  
+
+
+       /* var viewIngresa = this.getGuiasdespachoingresar();
+        var view = this.getGuiasprincipaldespacho();
+        var idbodega = view.down('#bodegaId').getValue();
+        var documento = 105;
+        var numero = viewIngresa.down('#numfacturaId').getValue();
+        var folio = viewIngresa.down('#idfolio').getValue();
+        var stItem = this.getProductosItemsStore();
+
+
+        if(stItem){
+
+         var dataItems = new Array();
+        stItem.each(function(r){
+            dataItems.push(r.data)
+        });
+
+        Ext.Ajax.request({
+            url: preurl + 'facturas/stock3',
+            params: {               
+                items: Ext.JSON.encode(dataItems),
+                idbodega: idbodega                
+            },
+             success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+               
+            }
+           
+        });
+
+        };
+        
+        if(documento){
+
+        if (documento != 2){
+             Ext.Ajax.request({
+            url: preurl + 'facturas/folio_documento_electronico2',
+            params: {
+                id_folio: folio
+            },
+             success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+            }
+           
+        });            
+        }
+        };       
+
+        viewIngresa.close();      */  
+    },    
 
 
     exportarpdf: function(){
