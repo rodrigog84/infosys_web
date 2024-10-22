@@ -2424,6 +2424,17 @@ seleccionarclienteguias4: function(){
 
      validarutD: function(){
 
+
+        // Verifica cuál de las dos vistas es válida
+        var view_valida = this.getGuiasprincipaldespacho(); // Intenta obtener la primera vista
+        var tipo_llamado = 'normal'
+        if (!view_valida) {
+            //view = this.getPedidosprincipalformula(); // Si la primera es null o indefinida, usa la segunda
+            tipo_llamado = 'pedido'
+        }
+
+
+
         var view =this.getGuiasdespachoingresar();
         var rut = view.down('#rutId').getValue();
         var numero = rut.length;
@@ -2468,7 +2479,10 @@ seleccionarclienteguias4: function(){
                         view.down("#nombre_id").setValue(cliente.nombres)
                         view.down("#tipoCiudadId").setValue(cliente.nombre_ciudad)
                         view.down("#tipoComunaId").setValue(cliente.nombre_comuna)
-                        view.down("#tipoVendedorId").setValue(cliente.id_vendedor)
+                        //
+                        if(tipo_llamado == 'normal'){
+                            view.down("#tipoVendedorId").setValue(cliente.id_vendedor)    
+                        }                        
                         view.down("#giroId").setValue(cliente.giro)
                         view.down("#direccionId").setValue(cliente.direccion)    
                         view.down("#rutId").setValue(rut)
@@ -2704,6 +2718,8 @@ seleccionarclienteguias4: function(){
                 var rutcli = rutcli.replace(/[\.-]/g, '');
                 var numpedido = rec.data.num_pedido
                 var ordencompra = rec.data.ordencompra
+                var id_vendedor = rec.data.id_vendedor
+                console.log(id_vendedor)
                 var id_pedido = rec.data.id
                 var view = Ext.create('Infosys_web.view.guiasdespacho.GuiasDespacho').show();
                 view.down('#numfacturaId').setValue(nuevo_folio);
@@ -2712,6 +2728,7 @@ seleccionarclienteguias4: function(){
                 view.down('#tipodocumentoId').setValue(nombre);
                 view.down('#tipoDocumentoId').setValue(nombre);                    
                 view.down('#bodegaId').setValue(idbodega);
+                
 
                 /******* LLENAR ENCABEZADO *******/
 
@@ -2728,6 +2745,7 @@ seleccionarclienteguias4: function(){
                 view.down('#id_pedido').setValue(id_pedido);
                 this.validarutD()
 
+                view.down('#tipoVendedorId').setValue(id_vendedor);
                 /*view.down('#codigoId').setDisabled(true);
                 view.down('#nombreproductoId').setDisabled(true);
                 view.down('#buscarproc').setDisabled(true);
