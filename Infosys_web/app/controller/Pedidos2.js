@@ -2315,6 +2315,9 @@ Ext.define('Infosys_web.controller.Pedidos2', {
         var tipoenvaseId = viewIngresa.down('#tipoenvaseId').getValue();
         var tipotransporteId = viewIngresa.down('#tipotransporteId').getValue();
 
+        var opedidoextId = viewIngresa.down('#opedidoextId').getValue();
+
+
         var vendedor = record.id;
         var stItem = this.getPedidosItemsStore();
         var stpedidos = this.getPedidosStore();
@@ -2387,6 +2390,7 @@ Ext.define('Infosys_web.controller.Pedidos2', {
                 tipoenvase : tipoenvaseId,
                 tipotransporte : tipotransporteId,
                 ubicacion : ubicacionId,
+                opedidoext: opedidoextId,
                 fechadocum: Ext.Date.format(fechadocum,'Y-m-d'),
                 fechapedido: Ext.Date.format(fechapedidos,'Y-m-d'),
                 fechadespacho: Ext.Date.format(fechadespacho,'Y-m-d'),

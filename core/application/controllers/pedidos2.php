@@ -1465,6 +1465,9 @@ public function getGuiasRegistroTransporte(){
 
 	public function save(){
 
+
+		//echo '<pre>';
+		//var_dump($_POST); exit;
 		$resp = array();
 		$idcliente = $this->input->post('idcliente');
 		$nomcliente = $this->input->post('nomcliente');
@@ -1489,6 +1492,8 @@ public function getGuiasRegistroTransporte(){
 
 		$tipoenvase = $this->input->post('tipoenvase');
 		$tipotransporte = $this->input->post('tipotransporte');
+
+		$opedidoext = $this->input->post('opedidoext');
 						
 			
 
@@ -1514,6 +1519,7 @@ public function getGuiasRegistroTransporte(){
 	        'ubicacion' => $ubicacion,
 	        'tipoenvase' => $tipoenvase,
 	        'tipotransporte' => $tipotransporte,
+	        'opedidoext' => $opedidoext
 		);
 
 		$this->db->insert('pedidos', $pedidos); 

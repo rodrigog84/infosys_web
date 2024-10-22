@@ -299,7 +299,7 @@ Ext.define('Infosys_web.view.Pedidos2.Pedidos', {
                                         xtype: 'combobox',
                                         fieldCls: 'required',
                                         labelWidth: 100,
-                                        width: 350,
+                                        width: 250,
                                         height: 30,
                                         fieldLabel: '<b>TIPO ENVASE</b>',
                                         editable: false,
@@ -323,7 +323,20 @@ Ext.define('Infosys_web.view.Pedidos2.Pedidos', {
                                         valueField : 'value',                        
                                         itemId: 'tipotransporteId',
                                         name: 'tipotransporte'                            
-                                    }
+                                    },{
+                                    xtype: 'displayfield',
+                                    width: 10                                   
+                                },{
+                                    xtype: 'textfield',
+                                    fieldCls: 'required',
+                                    msgTarget: 'side',
+                                    labelWidth: 150,
+                                    maxHeight: 25,
+                                    width: 240,
+                                    fieldLabel: '<b>O.PEDIDO EXT</b>',
+                                    itemId: 'opedidoextId',
+                                    name : 'opedidoext'                                         
+                                }
                             ]
                         },{
                             xtype: 'fieldcontainer',

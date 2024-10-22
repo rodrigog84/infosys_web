@@ -890,3 +890,10 @@ ALTER TABLE `observacion_facturas`
 ALTER TABLE `pedidos`
 	ADD COLUMN `tipoenvase` VARCHAR(250) NOT NULL AFTER `userautorizarecoc`,
 	ADD COLUMN `tipotransporte` VARCHAR(100) NOT NULL AFTER `tipoenvase`;
+
+
+/*******************************************************************************************************/
+
+ALTER TABLE `pedidos`
+	ADD COLUMN `opedidoext` VARCHAR(50) NOT NULL AFTER `tipotransporte`;
+	
