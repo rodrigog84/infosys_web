@@ -3172,7 +3172,8 @@ class Facturas extends CI_Controller {
 
 	public function save(){
 		
-
+       // echo '<pre>';
+       // var_dump($_POST); exit;
         set_time_limit(0);
 		$resp = array();
 		$idcliente = $this->input->post('idcliente');
@@ -3200,6 +3201,8 @@ class Facturas extends CI_Controller {
     $idobserva = $this->input->post('idobserva');
 
     $id_pedido = $this->input->post('id_pedido');
+
+    $opedidoextId = $this->input->post('opedidoextId');
 
 
 
@@ -3481,16 +3484,30 @@ class Facturas extends CI_Controller {
 
                  // exit;
 
+                  if($opedidoextId != ''){
 
-                  if($pedido != ""){
-                        $referencia[($NroLinRef-1)]['NroLinRef'] = $NroLinRef;
-                        //$referencia['TpoDocRef'] = $datos_empresa_factura->tipodocref;
-                        $referencia[($NroLinRef-1)]['TpoDocRef'] = 802;
-                        $referencia[($NroLinRef-1)]['FolioRef'] = $pedido;
-                        $referencia[($NroLinRef-1)]['FchRef'] = substr($fechafactura,0,10);
-                        $NroLinRef++;
+                            $referencia[($NroLinRef-1)]['NroLinRef'] = $NroLinRef;
+                            //$referencia['TpoDocRef'] = $datos_empresa_factura->tipodocref;
+                            $referencia[($NroLinRef-1)]['TpoDocRef'] = 802;
+                            $referencia[($NroLinRef-1)]['FolioRef'] = $opedidoextId;
+                            $referencia[($NroLinRef-1)]['FchRef'] = substr($fechafactura,0,10);
+                            $NroLinRef++;
+
+
+                  }else{
+
+                      if($pedido != ""){
+                            $referencia[($NroLinRef-1)]['NroLinRef'] = $NroLinRef;
+                            //$referencia['TpoDocRef'] = $datos_empresa_factura->tipodocref;
+                            $referencia[($NroLinRef-1)]['TpoDocRef'] = 802;
+                            $referencia[($NroLinRef-1)]['FolioRef'] = $pedido;
+                            $referencia[($NroLinRef-1)]['FchRef'] = substr($fechafactura,0,10);
+                            $NroLinRef++;
+                      }
+                      
+
                   }
-                  
+
 
                   $lista_detalle = array();
                   $i = 0;

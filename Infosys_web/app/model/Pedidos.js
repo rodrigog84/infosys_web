@@ -40,7 +40,8 @@ Ext.define('Infosys_web.model.Pedidos', {
         {name: 'cantidad_requiere_receta'},
         {name: 'ordencompra'},
         {name: 'cumplereceta'},
-        {name: 'cumpleoc'}       
+        {name: 'cumpleoc'} ,
+        {name: 'opedidoext'}      
        
     ]
 });

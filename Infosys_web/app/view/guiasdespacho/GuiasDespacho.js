@@ -260,7 +260,7 @@ Ext.define('Infosys_web.view.guiasdespacho.GuiasDespacho', {
                                             fieldLabel: '<b>DIRECCION</b>',
                                             fieldCls: 'required',
                                             maxHeight: 25,
-                                            width: 580,
+                                            width: 400,
                                             itemId: 'direccionId',
                                             name : 'direccion',
                                             //disabled : true,                                            
@@ -283,12 +283,22 @@ Ext.define('Infosys_web.view.guiasdespacho.GuiasDespacho', {
                                             fieldCls: 'required',
                                             fieldLabel: '<b>GIRO</b>',
                                             maxHeight: 25,
-                                            width: 550,
+                                            width: 400,
                                             itemId: 'giroId',
                                             readOnly: true,
                                             //disabled : true,                                           
                                             name : 'giro'
                                           
+                                        },{
+                                            xtype: 'textfield',
+                                            width: 240,
+                                            labelWidth: 150,
+                                            maxHeight: 25,
+                                            fieldLabel: '<b>O. PEDIDO EXT</b>',
+                                            name: 'opedidoextId',
+                                            itemId: 'opedidoextId',
+                                            style: 'font-weight: bold;',
+                                            readOnly: true,
                                         },{
                                             xtype: 'textfield',
                                             fieldCls: 'required',

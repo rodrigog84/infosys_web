@@ -1526,6 +1526,9 @@ adjuntarReceta: function(r){
 
         var id_pedido = viewIngresa.down('#id_pedido').getValue();
 
+        var opedidoextId = viewIngresa.down('#opedidoextId').getValue();
+
+
 
 
         viewIngresa.down("#grabarfactura").setDisabled(true);
@@ -1587,6 +1590,7 @@ adjuntarReceta: function(r){
                 descuentofactura : viewIngresa.down('#descuentovalorId').getValue(),
                 totalfacturas: viewIngresa.down('#finaltotalpostId').getValue(),
                 id_pedido : id_pedido,
+                opedidoextId : opedidoextId
             },
              success: function(response){
                 var resp = Ext.JSON.decode(response.responseText);
@@ -2717,6 +2721,7 @@ seleccionarclienteguias4: function(){
                 var rutcli = rec.data.rut_cliente;
                 var rutcli = rutcli.replace(/[\.-]/g, '');
                 var numpedido = rec.data.num_pedido
+                var opedidoext = rec.data.opedidoext
                 var ordencompra = rec.data.ordencompra
                 var id_vendedor = rec.data.id_vendedor
                 console.log(id_vendedor)
@@ -2741,6 +2746,10 @@ seleccionarclienteguias4: function(){
 
                 view.down('#pedidoId').setValue(numpedido);
                 view.down('#pedidoId').setReadOnly(numpedido);
+
+                view.down('#opedidoextId').setValue(opedidoext);
+                view.down('#opedidoextId').setReadOnly(opedidoext);
+
 
                 view.down('#id_pedido').setValue(id_pedido);
                 this.validarutD()
