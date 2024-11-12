@@ -143,6 +143,10 @@ Ext.define('Infosys_web.controller.Produccion', {
             'produccionprincipal button[action=buscarpedidoprincipal]': {
                 click: this.buscarpedidoprincipal
             },
+
+            'produccionprincipalprod button[action=buscarpedidoprincipalprod]': {
+                click: this.buscarpedidoprincipalprod
+            },            
             'produccioningresar button[action=buscarpedidopro]': {
                 click: this.buscarpedidopro
             },
@@ -284,6 +288,21 @@ Ext.define('Infosys_web.controller.Produccion', {
                                     nombre: nombre};
         stItem.load();      
     },
+
+
+    buscarpedidoprincipalprod: function() { 
+        console.log('llega?')
+
+        var view = this.getProduccionprincipalprod(); 
+        var tipo = view.down('#tipoSeleccionId').getValue();
+        var nombre = view.down('#nombreId').getValue();
+        var stItem = this.getProduccionprodStore();
+        stItem.proxy.extraParams = {tipo : tipo,
+                                    nombre: nombre};
+        stItem.load();      
+    },
+
+
 
     buscarproductos5: function(){       
         var viewIngresa = this.getEditaproducciontermino();

@@ -176,7 +176,7 @@ Ext.define('Infosys_web.view.Produccion.Principalprod' ,{
             },'-',{
                 xtype: 'button',
                 iconCls: 'icon-search',
-                action: 'buscarpedidoprincipal',
+                action: 'buscarpedidoprincipalprod',
                 text : 'Buscar'
             },{
                 xtype: 'button',
