@@ -743,7 +743,11 @@ Ext.define('Infosys_web.view.Produccion.Solicitaproduccion', {
                         align: 'middle',
                         pack: 'center'
                     },
-                    items: ['->',
+                    items: [{
+                            iconCls: 'icon-reset',
+                            text: 'Cancelar',
+                            action: 'cancelarproduccion',
+                        },'->',
                         {
                             xtype: 'button',
                             //iconCls: 'icono',

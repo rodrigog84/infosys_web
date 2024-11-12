@@ -169,7 +169,10 @@ Ext.define('Infosys_web.controller.Produccion', {
             },
              'solicitaproduccionformula button[action=grabarsolicitaproduccion]': {
                 click: this.grabarsolicitaproduccion
-            },            
+            },        
+             'solicitaproduccionformula button[action=cancelarproduccion]': {
+                click: this.cancelarproduccion
+            },                      
             'validastock button[action=Salir]': {
                 click: this.Salir
             },  
@@ -2108,6 +2111,27 @@ Ext.define('Infosys_web.controller.Produccion', {
         
                
     },
+
+
+    cancelarproduccion: function(){
+
+        var viewIngresa = this.getSolicitaproduccionformula();
+
+        Ext.Ajax.request({
+            url: preurl + 'facturas/cancela_correlativo',
+            params: {
+                tipo_correlativo: 'FORMULARIO PRODUCCION'
+            },
+             success: function(response){
+                var resp = Ext.JSON.decode(response.responseText);
+            }
+           
+        }); 
+
+
+        viewIngresa.close();  
+
+    },    
 
 
     grabarsolicitaproduccion: function(){
