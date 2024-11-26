@@ -897,3 +897,20 @@ ALTER TABLE `pedidos`
 ALTER TABLE `pedidos`
 	ADD COLUMN `opedidoext` VARCHAR(50) NOT NULL AFTER `tipotransporte`;
 	
+/*******************************************************************************************/
+
+INSERT INTO `infosys_web`.`accesos` (`codigo`, `reg_estado`, `descripcion`) VALUES ('inv_tg_tenvases', 1, 'inventario->tablas generales->tipos envases');
+INSERT INTO `infosys_web`.`rol_acceso` (`id_rol`, `id_acceso`) VALUES (1, 112);
+
+
+CREATE TABLE `tipo_envases` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`codigo` VARCHAR(5) NOT NULL DEFAULT '0' COLLATE 'utf8mb4_general_ci',
+	`nombre` VARCHAR(50) NULL DEFAULT NULL COLLATE 'utf8mb4_general_ci',
+	PRIMARY KEY (`id`) USING BTREE
+)
+COLLATE='utf8mb4_general_ci'
+ENGINE=InnoDB
+;
+INSERT INTO `infosys_web`.`tipo_envases` (`codigo`, `nombre`) VALUES ('0001', 'SACO');
+INSERT INTO `infosys_web`.`tipo_envases` (`codigo`, `nombre`) VALUES ('0002', 'GRANEL');

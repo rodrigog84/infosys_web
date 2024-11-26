@@ -3439,9 +3439,9 @@ class Facturas extends CI_Controller {
                  // var_dump($tipodocumento);
                  // var_dump($id_pedido);
                   //801:  si es GUIA de pedido
-                                    si tiene OC int, va OC int, sino OC externa
-                          en caso contrario
-                                    va la orden de compra
+                         //           si tiene OC int, va OC int, sino OC externa
+                        //  en caso contrario
+                        //            va la orden de compra
                   if($tipodocumento == 105 && $id_pedido != 0){
 
                           $this->db->select('ordencompraint')
@@ -3489,8 +3489,8 @@ class Facturas extends CI_Controller {
                  // exit;
 
                   //802:
-                        Si tiene OC externa, va la OC externa
-                        En caso contrario, va el pedido
+                        //Si tiene OC externa, va la OC externa
+                        //En caso contrario, va el pedido
 
 
                   if($opedidoextId != ''){

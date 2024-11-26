@@ -229,6 +229,13 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                         disabled: true,
                     action: 'mtipomovimiento'
 
+                },{
+                    text: 'Tipos de Envases',
+                    iconCls: '',
+                        itemId: 'inv_tg_tenvases',
+                        disabled: true,
+                    action: 'mtipoenvases'
+
                 }]
 
             },{
