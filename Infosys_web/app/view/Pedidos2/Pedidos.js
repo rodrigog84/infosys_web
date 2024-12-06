@@ -27,13 +27,13 @@ Ext.define('Infosys_web.view.Pedidos2.Pedidos', {
     initComponent: function() {
         var me = this;
 
-         var tipoEnvase = Ext.create('Ext.data.Store', {
+        /* var tipoEnvase = Ext.create('Ext.data.Store', {
             fields: ['value', 'nombre'],
             data : [
                 {"value":'SACO', "nombre":"SACO"},
                 {"value": 'GRANEL', "nombre":"GRANEL"}
             ]
-        }); 
+        }); */
 
 
          var tipoTransporte = Ext.create('Ext.data.Store', {
@@ -303,10 +303,11 @@ Ext.define('Infosys_web.view.Pedidos2.Pedidos', {
                                         height: 30,
                                         fieldLabel: '<b>TIPO ENVASE</b>',
                                         editable: false,
-                                        store : tipoEnvase,
+                                        //store : tipoEnvase,
+                                        store: 'Tipoenvases',
                                         emptyText : 'Seleccionar',
                                         displayField : 'nombre',
-                                        valueField : 'value',                        
+                                        valueField : 'nombre',                        
                                         itemId: 'tipoenvaseId',
                                         name: 'tipoenvase'                            
                                     },{

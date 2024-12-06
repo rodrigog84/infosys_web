@@ -22,7 +22,8 @@ Ext.define('Infosys_web.controller.Pedidos2', {
             'Bodegas',
             'Factura',
             'FormulasPedidos',
-            'Vendedores'
+            'Vendedores',
+            'Tipoenvases'
              ],
 
     
