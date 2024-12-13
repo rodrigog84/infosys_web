@@ -1405,7 +1405,7 @@ class Guias extends CI_Controller {
       	           'id_factura' => $idfactura,
       		    );
 
-
+                  $opedidoextId = '';
                   if(!$inserta_pedido){
                         $this->db->select('f.id, f.orden_compra, f.num_pedido, f.id_cond_venta, f.id_vendedor')
                                     ->from('factura_clientes f')
@@ -1427,6 +1427,24 @@ class Guias extends CI_Controller {
                         $pedido = $datos_guia->num_pedido;
 
                         $inserta_pedido = true;
+
+
+                        $this->db->select('opedidoext')
+                                    ->from('pedidos f')
+                                     ->where('num_pedido',$pedido);
+                        $query = $this->db->get();
+                        $datos_pedidos = $query->result();
+
+
+
+                        foreach($datos_pedidos as $dato_pedido){
+
+                            $opedidoextId = $dato_pedido->opedidoext;
+                        }
+
+
+
+
 
                   }
 
@@ -1563,15 +1581,32 @@ class Guias extends CI_Controller {
                         $NroLinRef++;
                   }
                   
-                  if($pedido != ""){
-                        $referencia[($NroLinRef-1)]['NroLinRef'] = $NroLinRef;
-                        //$referencia['TpoDocRef'] = $datos_empresa_factura->tipodocref;
-                        $referencia[($NroLinRef-1)]['TpoDocRef'] = 802;
-                        $referencia[($NroLinRef-1)]['FolioRef'] = $pedido;
-                        $referencia[($NroLinRef-1)]['FchRef'] = substr($fechafactura,0,10);
-                        $NroLinRef++;
-                  }
 
+
+
+                  if($opedidoextId != ''){
+
+                            $referencia[($NroLinRef-1)]['NroLinRef'] = $NroLinRef;
+                            //$referencia['TpoDocRef'] = $datos_empresa_factura->tipodocref;
+                            $referencia[($NroLinRef-1)]['TpoDocRef'] = 802;
+                            $referencia[($NroLinRef-1)]['FolioRef'] = $opedidoextId;
+                            $referencia[($NroLinRef-1)]['FchRef'] = substr($fechafactura,0,10);
+                            $NroLinRef++;
+
+
+                  }else{
+
+                      if($pedido != ""){
+                            $referencia[($NroLinRef-1)]['NroLinRef'] = $NroLinRef;
+                            //$referencia['TpoDocRef'] = $datos_empresa_factura->tipodocref;
+                            $referencia[($NroLinRef-1)]['TpoDocRef'] = 802;
+                            $referencia[($NroLinRef-1)]['FolioRef'] = $pedido;
+                            $referencia[($NroLinRef-1)]['FchRef'] = substr($fechafactura,0,10);
+                            $NroLinRef++;
+                      }
+                      
+
+                  }
 
 
 
