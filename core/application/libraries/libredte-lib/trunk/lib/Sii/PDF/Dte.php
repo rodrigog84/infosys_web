@@ -288,6 +288,8 @@ class Dte extends \sasco\LibreDTE\PDF
     {
             
         // agregar página para la factura
+        //echo '<pre>';
+        //var_dump($dte);// exit;
         $this->AddPage();
         // agregar cabecera del documento
         $y[] = $this->agregarEmisor($dte['Encabezado']['Emisor']);
@@ -336,7 +338,14 @@ class Dte extends \sasco\LibreDTE\PDF
                 //$y = $y + 9;
         }else{
                 $y = $y + 3;
-        }       
+        }     
+
+        if($dte['Encabezado']['IdDoc']['TipoDTE'] == 33){
+                if($dte['Encabezado']['IdDoc']['FchVenc'] != ''){
+                    $h = $h + 5;
+                }
+        }
+
        
 
        /* $y = $dte['Encabezado']['IdDoc']['TipoDTE'] == 34 || $dte['Encabezado']['IdDoc']['TipoDTE'] == 61  || $dte['Encabezado']['IdDoc']['TipoDTE'] == 52 ? $y + 5 : $y+3;*/

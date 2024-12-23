@@ -417,7 +417,11 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
             },
             'guiasprincipaldespacho button[action=mguiasglosa]': {
                 click: this.mguiasglosa
-            },            
+            },      
+
+            'guiasprincipaldespacho button[action=mguiastraslado]': {
+                click: this.mguiastraslado
+            },                        
             'guiasglosaingresar #rutId': {
                 specialkey: this.special9
             },
@@ -1274,6 +1278,93 @@ adjuntarReceta: function(r){
 
         
     },
+
+
+mguiastraslado: function(){
+
+        var view = this.getGuiasprincipaldespacho();
+        var idbodega = view.down('#bodegaId').getValue();
+        if(!idbodega){
+            Ext.Msg.alert('Alerta', 'Debe Elegir Bodega');
+            return;    
+        }else{ 
+
+        var nombre = 105;
+        var descripcion = "GUIA DESPACHO ELECTRONICA";    
+        habilita = false;
+        if(nombre == 101 || nombre == 103 || nombre == 105){ // FACTURA ELECTRONICA o FACTURA EXENTA
+
+            response_certificado = Ext.Ajax.request({
+            async: false,
+            url: preurl + 'facturas/existe_certificado/'});
+
+            var obj_certificado = Ext.decode(response_certificado.responseText);
+
+            if(obj_certificado.existe == true){
+
+                response_folio = Ext.Ajax.request({
+                async: false,
+                url: preurl + 'facturas/folio_documento_electronico/'+nombre});  
+                var obj_folio = Ext.decode(response_folio.responseText);
+                id_folio = obj_folio.idfolio;
+                nuevo_folio = obj_folio.folio;
+                if(nuevo_folio != 0){
+                    var view = Ext.create('Infosys_web.view.guiasdespacho.GuiasDespacho').show();
+                    view.down('#numfacturaId').setValue(nuevo_folio);
+                    view.down('#nomdocumentoId').setValue(descripcion);
+                    view.down('#idfolio').setValue(id_folio);
+                    view.down('#tipodocumentoId').setValue(nombre);
+                    view.down('#tipoDocumentoId').setValue(nombre);                    
+                    view.down('#bodegaId').setValue(idbodega);
+
+                    view.down('#rutId').setValue('965163204');
+                    var buscarBtn = view.down('#buscarBtn');
+
+                    // Simular el clic llamando al handler o disparando el evento
+                    if (buscarBtn) {
+                        // Si tiene un evento configurado, lo dispara
+                        buscarBtn.fireEvent('click', buscarBtn);
+
+                        // Alternativamente, puedes llamar a su handler (si está definido directamente)
+                        if (buscarBtn.handler) {
+                            buscarBtn.handler.call(buscarBtn.scope || this, buscarBtn);
+                        }
+
+                        // Deshabilitar el botón después de ejecutar la acción
+                        buscarBtn.setDisabled(true);
+                    }
+
+
+                    /*view.down('#nombre_id').setValue('AGRICOLA Y COMERCIAL LIRCAY SPA');
+                    //view.down('#id_sucursalID').setValue('Avenida Las Rastras Nro 1218');
+                    view.down('#direccionId').setValue('AVENIDA LAS RASTRAS NRO 1218');
+                    view.down('#giroId').setValue('CRIA DE GANADO BOVINO PARA LA PRODUCCION DE C');
+                    view.down('#tipoCiudadId').setValue('TALCA');
+                    view.down('#tipoComunaId').setValue('TALCA');
+                    view.down('#tipoVendedorId').setValue('1');
+                    view.down('#tipocondpagoId').setValue('1');*/
+
+          
+                    habilita = true;
+                }else{
+                    Ext.Msg.alert('Atención','No existen folios disponibles');
+                    view.down('#numfacturaId').setValue('');  
+
+                    //return
+                }
+
+            }else{
+                    Ext.Msg.alert('Atención','No se ha cargado certificado');
+                    view.down('#numfacturaId').setValue('');  
+            }
+
+
+        }
+        
+        };
+    },
+
+
 
 
     ingresaobsguias2: function(){
@@ -4252,7 +4343,7 @@ seleccionarclienteguias4: function(){
             Ext.Ajax.request({
                 url: preurl + 'facturas/calculofechas',
                 params: {
-                    factura: dias,
+                    dias: dias,
                     fechafactura : fechafactura
                 },
                 success: function(response){
