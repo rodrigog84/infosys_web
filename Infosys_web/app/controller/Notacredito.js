@@ -1478,7 +1478,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
         var view = this.getNotacreditoprincipal();
         var tipo_documento = viewIngresa.down('#tipodocumentoId').getValue();
         var idcliente = viewIngresa.down('#id_cliente').getValue();
-        var idbodega = view.down('#bodegaId').getValue();
+        var idbodega = viewIngresa.down('#bodegaId').getValue();
         var idtipo= viewIngresa.down('#tipodocumentoId').getValue();
         var idsucursal= viewIngresa.down('#id_sucursalID').getValue();
         var idcondventa= viewIngresa.down('#tipocondpagoId').getValue();
@@ -1496,28 +1496,38 @@ Ext.define('Infosys_web.controller.Notacredito', {
         viewIngresa.down("#grabarfactura").setDisabled(true); 
 
 
-
         if(!vendedor){
-            Ext.Msg.alert('Ingrese Vendedor');
+            Ext.Msg.alert('Atención','Ingrese Vendedor');
+            viewIngresa.down("#grabarfactura").setDisabled(false); 
             return;   
             }
 
         if(!idcondventa){
-            Ext.Msg.alert('Ingrese Condicion Venta');
+            Ext.Msg.alert('Atención','Ingrese Condicion Venta');
+            viewIngresa.down("#grabarfactura").setDisabled(false); 
             return;   
             }
 
 
         if(numdocumento==0){
-            Ext.Msg.alert('Ingrese Datos a La Factura');
+            Ext.Msg.alert('Atención','Ingrese Datos a La Factura');
+            viewIngresa.down("#grabarfactura").setDisabled(false); 
             return;   
             }
+
+        if(!idbodega){
+            Ext.Msg.alert('Atención','Debe Seleccionar Bodega de destino');
+            viewIngresa.down("#grabarfactura").setDisabled(false); 
+            return;   
+            }
+
 
          var tipo_nota_credito = 0;
         if(tipo_documento == 102){
             var tipo_nota_credito = viewIngresa.down('#tipoNotaCredito').getValue();
             if(tipo_nota_credito==0 || tipo_nota_credito == null || tipo_nota_credito == ''){
                 Ext.Msg.alert('Atención','Debe seleccionar tipo de nota de crédito');
+                viewIngresa.down("#grabarfactura").setDisabled(false); 
                 return;   
                 }
 
@@ -1532,8 +1542,8 @@ Ext.define('Infosys_web.controller.Notacredito', {
 
         var loginMask = new Ext.LoadMask(Ext.getBody(), {msg:"Generando Documento ..."});
 
-        loginMask.show();
-
+         loginMask.show();
+        
         Ext.Ajax.request({
             url: preurl + 'notacredito/save',
             params: {
@@ -1571,7 +1581,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
                  loginMask.hide();  
             }
            
-        });      
+        });    
         
     },
 
@@ -1679,7 +1689,7 @@ Ext.define('Infosys_web.controller.Notacredito', {
                     view.down('#numfacturaId').setValue(nuevo_folio);
                     view.down('#idfolio').setValue(id_folio);
                     view.down('#tipodocumentoId').setValue(nombre);                    
-                    view.down('#bodegaId').setValue(idbodega);
+                    //view.down('#bodegaId').setValue(idbodega);
           
                     habilita = true;
                 }else{

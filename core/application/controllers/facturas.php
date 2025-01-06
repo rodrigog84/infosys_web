@@ -91,10 +91,23 @@ class Facturas extends CI_Controller {
                 );
 
                 $this->db->where('id_producto', $producto);
+                $this->db->where('id_bodega', $idbodega);
                 $this->db->update('existencia', $datos3);
 
-                $this->db->where('id', $producto);
-                $this->db->update('productos', $datos3);
+                $query_stock_producto = $this->db->query('SELECT SUM(stock) as stock FROM existencia WHERE id_producto='.$producto.'');
+                $row_stock_producto = $query_stock_producto->result();
+
+                if(isset($row_stock_producto[0])){
+                       $row_stock_producto = $row_stock_producto[0];
+                        $datos3 = array(
+                          'stock' => $row_stock_producto->stock,
+                        );                    
+
+
+                        $this->db->where('id', $producto);
+                        $this->db->update('productos', $datos3);
+                }
+
                 }
                  $resp['success'] = true;
 
@@ -150,10 +163,24 @@ class Facturas extends CI_Controller {
                 );
 
                 $this->db->where('id_producto', $producto);
+                $this->db->where('id_bodega', $idbodega);
                 $this->db->update('existencia', $datos3);
 
-                $this->db->where('id', $producto);
-                $this->db->update('productos', $datos3);
+                $query_stock_producto = $this->db->query('SELECT SUM(stock) as stock FROM existencia WHERE id_producto='.$producto.'');
+                $row_stock_producto = $query_stock_producto->result();
+
+                if(isset($row_stock_producto[0])){
+                       $row_stock_producto = $row_stock_producto[0];
+                        $datos3 = array(
+                          'stock' => $row_stock_producto->stock,
+                        );                    
+
+
+                        $this->db->where('id', $producto);
+                        $this->db->update('productos', $datos3);
+                }                
+
+
                 };
 
                  $resp['success'] = true;
@@ -208,10 +235,22 @@ class Facturas extends CI_Controller {
                 );
 
                 $this->db->where('id_producto', $producto);
+                $this->db->where('id_bodega', $idbodega);
                 $this->db->update('existencia', $datos3);
                 
-                $this->db->where('id', $producto);
-                $this->db->update('productos', $datos3);
+                $query_stock_producto = $this->db->query('SELECT SUM(stock) as stock FROM existencia WHERE id_producto='.$producto.'');
+                $row_stock_producto = $query_stock_producto->result();
+
+                if(isset($row_stock_producto[0])){
+                       $row_stock_producto = $row_stock_producto[0];
+                        $datos3 = array(
+                          'stock' => $row_stock_producto->stock,
+                        );                    
+
+
+                        $this->db->where('id', $producto);
+                        $this->db->update('productos', $datos3);
+                }
 
                 }
                  $resp['success'] = true;
@@ -300,10 +339,22 @@ class Facturas extends CI_Controller {
                 );
 
                 $this->db->where('id_producto', $producto);
+                $this->db->where('id_bodega', $idbodega);
                 $this->db->update('existencia', $datos3);
 
-                $this->db->where('id', $producto);
-                $this->db->update('productos', $datos);
+                $query_stock_producto = $this->db->query('SELECT SUM(stock) as stock FROM existencia WHERE id_producto='.$producto.'');
+                $row_stock_producto = $query_stock_producto->result();
+
+                if(isset($row_stock_producto[0])){
+                       $row_stock_producto = $row_stock_producto[0];
+                        $datos3 = array(
+                          'stock' => $row_stock_producto->stock,
+                        );                    
+
+
+                        $this->db->where('id', $producto);
+                        $this->db->update('productos', $datos3);
+                }
                 }
             }
 
@@ -386,10 +437,25 @@ class Facturas extends CI_Controller {
                 );
 
                 $this->db->where('id_producto', $producto);
+                $this->db->where('id_bodega', $idbodega);
                 $this->db->update('existencia', $datos3);
 
-                $this->db->where('id', $producto);
-                $this->db->update('productos', $datos2);
+
+                $query_stock_producto = $this->db->query('SELECT SUM(stock) as stock FROM existencia WHERE id_producto='.$producto.'');
+                $row_stock_producto = $query_stock_producto->result();
+
+                if(isset($row_stock_producto[0])){
+                       $row_stock_producto = $row_stock_producto[0];
+                        $datos2 = array(
+                          'stock' => $row_stock_producto->stock,
+                        );                    
+
+
+                        $this->db->where('id', $producto);
+                        $this->db->update('productos', $datos2);
+                }
+
+
                 }
             };                      
             $resp['success'] = true;
@@ -2087,6 +2153,9 @@ class Facturas extends CI_Controller {
 		$resp = array();
 		$factura = $this->input->post('dias');
 		$fechafactura = $this->input->post('fechafactura');
+
+        //var_dump($fechafactura);
+        //var_dump($factura);
 
 		$fechafactura = substr($fechafactura,0,10);
 		$fecha= strtotime("+ $factura days", strtotime ($fechafactura));

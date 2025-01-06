@@ -2489,11 +2489,12 @@ public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
                   $query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, cor.nombre as nom_tipo_movimiento FROM existencia_detalle acc
                   left join productos c on (acc.id_producto = c.id)
                   left join correlativos cor on (acc.id_tipo_movimiento = cor.id)
-                  WHERE acc.id_producto="'.$nombres.'"');
+                  WHERE acc.id_producto="'.$nombres.'" and considera_tarjeta = 1');
                 }else{
                   $query = $this->db->query('SELECT acc.*, c.nombre as nom_producto, cor.nombre as nom_tipo_movimiento FROM existencia_detalle acc
                   left join productos c on (acc.id_producto = c.id)
-                  left join correlativos cor on (acc.id_tipo_movimiento = cor.id) order by acc.id desc
+                  left join correlativos cor on (acc.id_tipo_movimiento = cor.id) 
+                  WHERE and considera_tarjeta = 1 order by acc.id desc
                     limit '.$start.', '.$limit.' ' );
                 }
             $users = $query->result_array();

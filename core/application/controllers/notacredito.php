@@ -881,32 +881,58 @@ class Notacredito extends CI_Controller {
 
                   $query = $this->db->query('SELECT * FROM existencia WHERE id_producto="'.$producto.'" and id_bodega='.$idbodega.'');
                   $row = $query->result();
-                  $row = $row[0];
+                  
 	 
                   if ($query->num_rows()>0){
+                      $row = $row[0];
+                      $stock_existencia = $row->stock;
+                      $stock_existencia = $stock_existencia + $v->cantidad;
 
-                  if ($producto==($row->id_producto)){
-                      $datos3 = array(
-                  	'stock' => $saldo,
-                    'fecha_ultimo_movimiento' => date('Y-m-d H:i:s')
-                  	);
+                        $datos3 = array(
+                          'stock' => $stock_existencia,
+                          'fecha_ultimo_movimiento' => date('Y-m-d H:i:s')
+                        );
 
-                  	$this->db->where('id_producto', $producto);
+                        $this->db->where('id_producto', $producto);
+                        $this->db->where('id_bodega', $idbodega);
 
-                      $this->db->update('existencia', $datos3);
+                        $this->db->update('existencia', $datos3);
+
+
+                      /*if ($producto==($row->id_producto)){
+                          $datos3 = array(
+                      	'stock' => $saldo,
+                        'fecha_ultimo_movimiento' => date('Y-m-d H:i:s')
+                      	);
+
+                      	$this->db->where('id_producto', $producto);
+                        $this->db->where('id_bodega', $idbodega);
+
+                          $this->db->update('existencia', $datos3);
+                      }else{
+
+                      	$datos3 = array(
+                      	'id_producto' => $producto,
+                        'stock' =>  $saldo,
+                        'fecha_ultimo_movimiento' =>date('Y-m-d H:i:s'),
+                        'id_bodega' => $idbodega
+
+                      	);
+                      	$this->db->insert('existencia', $datos3);
+                       	}*/
                   }else{
 
-                  	$datos3 = array(
-                  	'id_producto' => $producto,
-                    'stock' =>  $saldo,
-                    'fecha_ultimo_movimiento' =>date('Y-m-d H:i:s'),
-                    'id_bodega' => 1
 
-                  	);
-                  	$this->db->insert('existencia', $datos3);
-                   	}
-                  }else{
-                        if ($producto==($row->id_producto)){
+                        $datos3 = array(
+                        'id_producto' => $producto,
+                        'stock' =>  $v->cantidad,
+                        'fecha_ultimo_movimiento' =>date('Y-m-d H:i:s'),
+                        'id_bodega' => $idbodega
+
+                        );
+                        $this->db->insert('existencia', $datos3);
+
+                       /* if ($producto==($row->id_producto)){
                             $datos3 = array(
                         	'stock' => $saldo,
                           'fecha_ultimo_movimiento' => date('Y-m-d H:i:s')
@@ -921,11 +947,11 @@ class Notacredito extends CI_Controller {
                               'id_producto' => $producto,
                               'stock' =>  $saldo,
                               'fecha_ultimo_movimiento' =>date('Y-m-d H:i:s'),
-                              'id_bodega' => 1
+                              'id_bodega' => $idbodega
 
                               );
                               $this->db->insert('existencia', $datos3);
-                        }
+                        }*/
                   }
             $datos2 = array(
 
@@ -934,6 +960,7 @@ class Notacredito extends CI_Controller {
             'id_bodega' => $idbodega,
             'id_tipo_movimiento' => $tipodocumento,
             'valor_producto' =>  $v->precio,
+            'lote' => $v->lote,
             'cantidad_entrada' => $v->cantidad,
             'fecha_movimiento' => $fechafactura
             );

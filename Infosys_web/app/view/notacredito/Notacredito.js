@@ -79,13 +79,13 @@ Ext.define('Infosys_web.view.notacredito.Notacredito', {
                                             valueField: 'id',
                                             displayField: 'nombre',
                                             readOnly: true
-                                        },{
+                                        },/*{
                                             xtype: 'textfield',
                                             name: 'Id Bodega',
                                             itemId: 'bodegaId',
                                             hidden: true
                                           
-                                        },{
+                                        },*/{
                                             xtype: 'displayfield',
                                             width: 40                                          
                                         },{
@@ -384,11 +384,11 @@ Ext.define('Infosys_web.view.notacredito.Notacredito', {
                                             //,disabled : true  
                                         },{xtype: 'splitter'},{
                                             xtype: 'combobox',
-                                            width: 400,
+                                            width: 300,
                                             store : tipoNotaCredito,
-                                            fieldLabel: 'TIPO NOTA DE CR&Eacute;DITO',
+                                            fieldLabel: 'TIPO NC',
                                             labelStyle: ' font-weight:bold',
-                                            labelWidth: 200,
+                                            labelWidth: 150,
                                             maxHeight: 25,
                                             emptyText : 'Seleccionar',
                                             editable: false,
@@ -479,7 +479,24 @@ Ext.define('Infosys_web.view.notacredito.Notacredito', {
 
                                                     }
                                                 }                                            
+                                        },
+
+                                        {
+                                            xtype: 'combobox',
+                                            width: 300,
+                                            store : 'Bodegas',
+                                            fieldLabel: 'BODEGA DESTINO',
+                                            labelStyle: ' font-weight:bold',
+                                            labelWidth: 150,
+                                            maxHeight: 25,
+                                            emptyText : 'Seleccionar',
+                                            editable: false,
+                                            itemId : 'bodegaId' ,
+                                            name : 'id_bodega' ,
+                                            displayField : 'nombre',
+                                            valueField : 'id'
                                         }
+
                                     ]
                                     },{
                     xtype: 'fieldset',
