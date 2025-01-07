@@ -73,7 +73,7 @@ Ext.define('Infosys_web.view.productos.detalle_existenciasproductos' ,{
                 itemId: 'stockId',
                 name : 'stock',
                 renderer: function(valor){return Ext.util.Format.number(parseInt(valor),"0,00.00")},
-                width: 160,
+                width: 200,
                 fieldLabel: '<b>Stock</b>',
                 labelAlign: 'right',
                 align: 'top',
