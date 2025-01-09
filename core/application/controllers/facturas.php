@@ -3249,6 +3249,13 @@ class Facturas extends CI_Controller {
 		$numfactura = $this->input->post('numfactura');
 		$idfactura = $this->input->post('idfactura');
 		$idbodega = $this->input->post('idbodega');
+
+
+        // SOLO EN GUIAS DE TRASLADO
+        $idbodega_dest = $this->input->post('idbodega_dest');
+
+
+
 		$fechafactura = $this->input->post('fechafactura');
 		$fechavenc = $this->input->post('fechavenc');
 		$vendedor = $this->input->post('vendedor');
@@ -3273,6 +3280,18 @@ class Facturas extends CI_Controller {
 
     $opedidoextId = $this->input->post('opedidoextId');
 
+     $es_guia_traslado = false;
+     if($idbodega_dest){
+        if($idbodega_dest != $idbodega){
+                $es_guia_traslado = true;       //la guia de traslado genera un aumento de existencia en la bodega destino
+        }
+     }
+
+
+     if(!$es_guia_traslado){
+
+        $idbodega_dest = 0;
+     }
 
 
     if(!$observacion){
@@ -3301,6 +3320,7 @@ class Facturas extends CI_Controller {
 		$factura_cliente = array(
 			'tipo_documento' => $tipodocumento,
 			'id_bodega' => $idbodega,
+            'id_bodega_dest' => $idbodega_dest,
       'id_cliente' => $idcliente,
       'num_factura' => $numfactura,
       'id_vendedor' => $vendedor,
@@ -3389,7 +3409,17 @@ class Facturas extends CI_Controller {
 		$query = $this->db->query('SELECT * FROM productos WHERE id="'.$producto.'"');
     if($query->num_rows()>0){
     	$row = $query->first_row();
-    	$saldo = ($row->stock)-($v->cantidad);
+
+        if(!$es_guia_traslado){
+            $saldo = ($row->stock)-($v->cantidad);    
+
+            
+        }else{
+
+            $saldo_nuevo = $row->stock + $v->cantidad;
+
+        }
+    	
     }; 
 		$datos2 = array(
       'num_movimiento' => $numfactura,
@@ -3407,6 +3437,40 @@ class Facturas extends CI_Controller {
       'transportista' => $transportista
 		);
 		$this->db->insert('existencia_detalle', $datos2);
+
+
+        if($es_guia_traslado){
+
+                $datos3 = array(
+              'num_movimiento' => $numfactura,
+              'id_producto' => $v->id_producto,
+              'id_tipo_movimiento' => $tipodocumento,
+              'valor_producto' =>  $v->precio,
+              'cantidad_entrada' => $v->cantidad,
+              'fecha_movimiento' => $fechafactura,
+              'fecha_vencimiento' => $v->fecha_vencimiento,
+              'lote' => $v->lote,
+              'id_bodega' => $idbodega_dest,
+              'id_cliente' => $idcliente,
+              'p_promedio' => $v->p_promedio,
+              'id_transportista' => $idtransportista,
+              'transportista' => $transportista
+                );
+                $this->db->insert('existencia_detalle', $datos3);
+
+                $this->db->query('update existencia set stock = stock + ' . $v->cantidad . ' where id_producto = ' . $producto . ' and id_bodega = ' . $idbodega_dest); 
+
+
+                $datos_prod = array(
+                  'stock' => $saldo_nuevo,
+                );                    
+
+
+                $this->db->where('id', $producto);
+                $this->db->update('productos', $datos_prod);
+
+        }
+
 		};	
     		
 		if ($tipodocumento != 105){		/******* CUENTAS CORRIENTES ****/

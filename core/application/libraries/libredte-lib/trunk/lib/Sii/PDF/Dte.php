@@ -56,6 +56,8 @@ class Dte extends \sasco\LibreDTE\PDF
     private $vendedor;
     private $detalle_glosa;
 
+    private $bodegaReceptor;
+
     private $resolucion; ///< Arreglo con los datos de la resolución (índices: NroResol y FchResol)
     private $cedible = false; ///< Por defecto DTEs no son cedibles
     protected $papelContinuo = false; ///< Indica si se usa papel continuo o no
@@ -158,6 +160,14 @@ class Dte extends \sasco\LibreDTE\PDF
     {
         $this->direccionEmisor = $direccion;
     }    
+
+
+
+   public function setBodegaReceptor($bodega)
+    {
+        $this->bodegaReceptor = $bodega;
+    }    
+
 
 
  public function setComuna($comuna)
@@ -687,7 +697,7 @@ class Dte extends \sasco\LibreDTE\PDF
         $this->Texto('Dirección', $x);
         $this->Texto(':', $x+$offset);
         $this->setFont('', 'C', 8);
-        $this->MultiTexto($receptor['DirRecep'].', '.$receptor['CmnaRecep'], $x+$offset+2);
+        $this->MultiTexto($receptor['DirRecep'].', '.$receptor['CmnaRecep']. ' ' . $this->bodegaReceptor, $x+$offset+2);
         $contacto = [];
         if (!empty($receptor['Contacto']))
             $contacto[] = $receptor['Contacto'];

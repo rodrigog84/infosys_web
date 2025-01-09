@@ -93,13 +93,13 @@ Ext.define('Infosys_web.view.guiasdespacho.GuiasDespacho', {
                                             itemId: 'idfactura',
                                             hidden: true
                                           
-                                        },{
+                                        }/*,{
                                             xtype: 'textfield',
                                             name: 'id_bodega',
                                             itemId: 'bodegaId',
                                             hidden: true
                                           
-                                        },{
+                                        }*/,{
                                             xtype: 'textfield',
                                             width: 450,
                                             fieldLabel: '<b>DOCUMENTO</b>',
@@ -216,12 +216,29 @@ Ext.define('Infosys_web.view.guiasdespacho.GuiasDespacho', {
                                             fieldLabel: '<b>RAZON SOCIAL</b>',
                                             maxHeight: 25,
                                             labelWidth: 80,
-                                            width: 885,
+                                            width: 500,
                                             itemId: 'nombre_id',
                                             name : 'nombre',
                                             //disabled : true,                                            
                                             readOnly: true
                                             
+                                        },
+
+                                        {
+                                            xtype: 'combobox',
+                                            width: 300,
+                                            store : 'Bodegas',
+                                            fieldLabel: 'BODEGA DESTINO',
+                                            labelStyle: ' font-weight:bold',
+                                            labelWidth: 150,
+                                            maxHeight: 25,
+                                            emptyText : 'Seleccionar',
+                                            editable: false,
+                                            itemId : 'bodegaId' ,
+                                            name : 'id_bodega' ,
+                                            displayField : 'nombre',
+                                            valueField : 'id',
+                                            hidden: true
                                         }
                                     ]
                                 }, {
@@ -309,6 +326,17 @@ Ext.define('Infosys_web.view.guiasdespacho.GuiasDespacho', {
                                             itemId: 'permiteId',
                                             fieldLabel: '<b>permite</b>',
                                             hidden: true
+                                        },{
+                                            xtype: 'textfield',
+                                            fieldCls: 'required',
+                                            maxHeight: 25,
+                                            width: 150,
+                                            name: 'estraslado',
+                                            value: "NO",
+                                            itemId: 'estrasladoId',
+                                            fieldLabel: '<b>TRASLADO</b>',
+                                            hidden: true,
+                                            readOnly: true,
                                         }
                                     ]
                                 },{

@@ -318,6 +318,18 @@ public function consumo_folios_no_enviada(){
 	 }	
 
 
+	public function get_bodega($idbodega)
+    {
+        // envia todo excepto boletas que se envían aparte
+        $facturas = $this->db->select('id, codigo, nombre, direccion')
+            ->from('bodegas b ')
+            ->where('id',$idbodega);
+
+        $query = $facturas->get();
+        return $query->result();
+    } 
+
+
 
 	public function get_boleta_no_enviada()
     {
@@ -379,7 +391,7 @@ public function consumo_folios_no_enviada(){
 	public function datos_dte($idfactura){
 
 
-		$this->db->select('f.id, f.folio, f.path_dte, f.archivo_dte, f.archivo_dte_cliente, f.dte, f.dte_cliente, f.pdf, f.pdf_cedible, f.trackid, c.tipo_caf, tc.nombre as tipo_doc, cae.nombre as giro, cp.nombre as cond_pago, v.nombre as vendedor, fc.neto, fc.iva, fc.totalfactura, fc.forma')
+		$this->db->select('f.id, f.folio, f.path_dte, f.archivo_dte, f.archivo_dte_cliente, f.dte, f.dte_cliente, f.pdf, f.pdf_cedible, f.trackid, c.tipo_caf, tc.nombre as tipo_doc, cae.nombre as giro, cp.nombre as cond_pago, v.nombre as vendedor, fc.neto, fc.iva, fc.totalfactura, fc.forma, fc.id_bodega_dest')
 		  ->from('folios_caf f')
 		  ->join('caf c','f.idcaf = c.id')
 		  ->join('tipo_caf tc','c.tipo_caf = tc.id')
@@ -405,7 +417,7 @@ public function consumo_folios_no_enviada(){
 	}
 
 	public function datos_dte_by_trackid($trackid){
-		$this->db->select('f.id, f.folio, f.path_dte, f.archivo_dte, f.dte, f.pdf, f.pdf_cedible, f.trackid, c.tipo_caf, tc.nombre as tipo_doc, cae.nombre as giro, cp.nombre as cond_pago, v.nombre as vendedor    ')
+		$this->db->select('f.id, f.folio, f.path_dte, f.archivo_dte, f.dte, f.pdf, f.pdf_cedible, f.trackid, c.tipo_caf, tc.nombre as tipo_doc, cae.nombre as giro, cp.nombre as cond_pago, v.nombre as vendedor, fc.id_bodega_dest    ')
 		  ->from('folios_caf f')
 		  ->join('caf c','f.idcaf = c.id')
 		  ->join('tipo_caf tc','c.tipo_caf = tc.id')
@@ -516,6 +528,29 @@ public function consumo_folios_no_enviada(){
 			    if($factura->giro != ""){
 			    	$pdf->setGiroCliente($factura->giro);
 			    }			    
+
+
+			    if($factura->tipo_caf == 52 && $factura->id_bodega_dest != 0){
+
+			    	$bodega_receptor = '';
+			    	$datos_bodega =	 $this->get_bodega($factura->id_bodega_dest);
+			    	if(count($datos_bodega) > 0){
+			    		if(isset($datos_bodega[0])){
+			    				$dato_bodega = $datos_bodega[0];
+			    				$bodega_receptor .= ' BODEGA: ' . $dato_bodega->nombre;
+
+			    				
+			    		}
+			    	}
+			    	
+			    }else{
+			    	$bodega_receptor = '';
+
+			    }
+
+			   // var_dump($direccion_factura); exit;
+
+			    $pdf->setBodegaReceptor($bodega_receptor);
 
 			    $pdf->setCondPago($factura->cond_pago); 
 			    $pdf->setVendedor($factura->vendedor);

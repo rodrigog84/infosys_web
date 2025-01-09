@@ -116,6 +116,11 @@ Ext.define('Infosys_web.view.guiasdespacho.PrincipalguiasDespacho' ,{
                 text : 'Guia Glosa'
             },{
                 xtype: 'button',
+                iconCls: 'icon-add',
+                action: 'mguiastraslado',
+                text : 'Guia Traslado'
+            },{
+                xtype: 'button',
                 iconCls : 'icon-pdf',
                 text: 'Edita / Imprimir PDF',
                 action:'generarguiaspdf2'

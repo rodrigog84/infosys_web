@@ -1316,6 +1316,8 @@ mguiastraslado: function(){
                     view.down('#tipodocumentoId').setValue(nombre);
                     view.down('#tipoDocumentoId').setValue(nombre);                    
                     view.down('#bodegaId').setValue(idbodega);
+                    view.down('#estrasladoId').setValue('SI');
+                    view.down('#bodegaId').show(); // Para mostrarlo
 
                     view.down('#rutId').setValue('965163204');
                     var buscarBtn = view.down('#buscarBtn');
@@ -1594,7 +1596,7 @@ mguiastraslado: function(){
         var view = this.getGuiasprincipaldespacho();
         var tipo_documento = 105;
         var idcliente = viewIngresa.down('#id_cliente').getValue();
-        var idbodega = viewIngresa.down('#bodegaId').getValue();
+        var idbodega_dest = viewIngresa.down('#bodegaId').getValue();
         var idtipo= viewIngresa.down('#tipoDocumentoId').getValue();
         var idsucursal= viewIngresa.down('#id_sucursalID').getValue();
         var idcondventa= viewIngresa.down('#tipocondpagoId').getValue();
@@ -1613,6 +1615,28 @@ mguiastraslado: function(){
         var stItem = this.getProductosItemsStore();
         var stFactura = this.getGuiasdespachoStore();
         var totalfact = viewIngresa.down('#finaltotalId').getValue();
+
+        var estrasladoId = viewIngresa.down('#estrasladoId').getValue();
+
+        var idbodega = view.down('#bodegaId').getValue();
+        if(estrasladoId == 'SI'){ // ES GUIA DE TRASLADO
+
+            if(idbodega_dest == idbodega){
+                //Ext.Msg.alert('Alerta', 'Bodega de Destino no puede ser igual a Bodega Origen');
+
+                Ext.Msg.show({
+                    title: 'Alerta',
+                    msg: 'Bodega de Destino no puede ser igual a Bodega Origen',
+                    buttons: Ext.Msg.OK,
+                    icon: Ext.Msg.WARNING,
+                    width: 500 // Ajusta el ancho según tus necesidades
+                });                
+                return;     
+
+            }
+
+
+        }
 
 
         var id_pedido = viewIngresa.down('#id_pedido').getValue();
@@ -1660,6 +1684,7 @@ mguiastraslado: function(){
                 idfactura: idfactura,                
                 idsucursal: idsucursal,
                 idbodega: idbodega,
+                idbodega_dest: idbodega_dest,
                 idcondventa: idcondventa,
                 idtipo:idtipo,
                 items: Ext.JSON.encode(dataItems),

@@ -914,3 +914,15 @@ ENGINE=InnoDB
 ;
 INSERT INTO `infosys_web`.`tipo_envases` (`codigo`, `nombre`) VALUES ('0001', 'SACO');
 INSERT INTO `infosys_web`.`tipo_envases` (`codigo`, `nombre`) VALUES ('0002', 'GRANEL');
+
+
+
+/***************************************************************************************************/
+
+ALTER TABLE `factura_clientes`
+	ADD COLUMN `id_bodega_dest` INT(11) NOT NULL AFTER `id_bodega`;
+
+ALTER TABLE `factura_clientes`
+	CHANGE COLUMN `id_bodega_dest` `id_bodega_dest` INT(11) NOT NULL DEFAULT '0' AFTER `id_bodega`;
+
+	
