@@ -337,6 +337,17 @@ Ext.define('Infosys_web.view.guiasdespacho.GuiasDespacho', {
                                             fieldLabel: '<b>TRASLADO</b>',
                                             hidden: true,
                                             readOnly: true,
+                                        },{
+                                            xtype: 'textfield',
+                                            fieldCls: 'required',
+                                            maxHeight: 25,
+                                            width: 150,
+                                            name: 'esguiapedido',
+                                            value: "NO",
+                                            itemId: 'esguiapedidoId',
+                                            fieldLabel: '<b>PEDIDO</b>',
+                                            hidden: true,
+                                            readOnly: true,
                                         }
                                     ]
                                 },{

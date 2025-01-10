@@ -1592,8 +1592,21 @@ mguiastraslado: function(){
     },
 
     grabarguiadirecta: function() {
+
         var viewIngresa = this.getGuiasdespachoingresar();
-        var view = this.getGuiasprincipaldespacho();
+
+        var esguiapedido = viewIngresa.down('#esguiapedidoId').getValue();
+        if(esguiapedido == 'SI'){
+            var view = this.getPedidosprincipalformula();
+
+        }else{
+            var view = this.getGuiasprincipaldespacho();
+
+        }
+
+
+
+        
         var tipo_documento = 105;
         var idcliente = viewIngresa.down('#id_cliente').getValue();
         var idbodega_dest = viewIngresa.down('#bodegaId').getValue();
@@ -1616,9 +1629,16 @@ mguiastraslado: function(){
         var stFactura = this.getGuiasdespachoStore();
         var totalfact = viewIngresa.down('#finaltotalId').getValue();
 
-        var estrasladoId = viewIngresa.down('#estrasladoId').getValue();
 
+        var estrasladoId = viewIngresa.down('#estrasladoId').getValue();
+                console.log('llega aqui')
+                console.log(estrasladoId)
+                console.log( view.down('#bodegaId'))
         var idbodega = view.down('#bodegaId').getValue();
+        
+         //var idbodega = 1
+
+        console.log(idbodega)
         if(estrasladoId == 'SI'){ // ES GUIA DE TRASLADO
 
             if(idbodega_dest == idbodega){
@@ -1637,6 +1657,8 @@ mguiastraslado: function(){
 
 
         }
+
+        console.log('llega aca')
 
 
         var id_pedido = viewIngresa.down('#id_pedido').getValue();
@@ -2859,6 +2881,10 @@ seleccionarclienteguias4: function(){
                 
                 view.down('#ordencompraId').setValue(ordencompra);
                 view.down('#ordencompraId').setReadOnly(ordencompra);
+
+
+                view.down('#esguiapedidoId').setValue('SI');
+                
 
                 view.down('#pedidoId').setValue(numpedido);
                 view.down('#pedidoId').setReadOnly(numpedido);
