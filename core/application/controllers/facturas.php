@@ -3776,15 +3776,21 @@ class Facturas extends CI_Controller {
 
                          }else{
 
+                            $IdDoc = array();
+                            $IdDoc['TipoDTE'] = $tipo_caf;
+                            $IdDoc['Folio'] = $numfactura;
+                            $IdDoc['FchEmis'] = substr($fechafactura,0,10);
+
+
+                            if($es_guia_traslado){
+
+                                    $IdDoc['IndTraslado'] = 5;
+                            }
+
 
                           $factura = [
                                   'Encabezado' => [
-                                      'IdDoc' => [
-                                          'TipoDTE' => $tipo_caf,
-                                          'Folio' => $numfactura,
-                                          'FchEmis' => substr($fechafactura,0,10)
-                                          // 'TpoTranVenta' => 4
-                                      ],
+                                      'IdDoc' => $IdDoc,
                                       'Emisor' => [
                                           'RUTEmisor' => $empresa->rut.'-'.$empresa->dv,
                                           'RznSoc' => substr(permite_alfanumerico($empresa->razon_social),0,100), //LARGO DE RAZON SOCIAL NO PUEDE SER SUPERIOR A 100 CARACTERES,
