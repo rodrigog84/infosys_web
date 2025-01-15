@@ -1488,30 +1488,32 @@ class Produccion extends CI_Controller {
 
 		/*
 
-		array(11) {
-		  ["fechaproduccion"]=>
-		  string(10) "2024-03-26"
-		  ["cantidadproduccion"]=>
-		  string(8) "12312321"
-		  ["cantidadproduccioncal"]=>
-		  string(5) "14997"
-		  ["idbodega"]=>
-		  string(1) "1"
-		  ["numproduccion"]=>
-		  string(4) "8893"
-		  ["idproduccion"]=>
-		  string(4) "7752"
-		  ["lote"]=>
-		  string(1) "2"
-		  ["fechavenc"]=>
-		  string(0) ""
-		  ["horatermino"]=>
-		  string(5) "02:00"
-		  ["horainicio"]=>
-		  string(0) ""
-		  ["items"]=>
-		  string(2476) "[{"id":1,"id_producto":"480","id_existencia":"0","id_tipom":"","id_tipomd":"","id_bodegaent":"","cantidad":3705,"cantidad_real":3705,"id_bodega":1,"precio":"","valor_compra":227.74,"valor":"","codigo":"30102002","nom_producto":"AFRECHILLO M. PRIMA","lote":"","fecha":null,"fecha_vencimiento":"2024-03-26T00:00:00"},{"id":2,"id_producto":"841","id_existencia":"0","id_tipom":"","id_tipomd":"","id_bodegaent":"","cantidad":1923,"cantidad_real":1923,"id_bodega":1,"precio":"","valor_compra":103.87,"valor":"","codigo":"30102452","nom_producto":"GRANZA DE TRIGO","lote":"","fecha":null,"fecha_vencimiento":"2024-03-26T00:00:00"},{"id":3,"id_producto":"483","id_existencia":"0","id_tipom":"","id_tipomd":"","id_bodegaent":"","cantidad":712,"cantidad_real":712,"id_bodega":1,"precio":"","valor_compra":188.4,"valor":"","codigo":"30102023","nom_producto":"AVENA M. PRIMA","lote":"","fecha":null,"fecha_vencimiento":"2024-03-26T00:00:00"},{"id":4,"id_producto":"482","id_existencia":"0","id_tipom":"","id_tipomd":"","id_bodegaent":"","cantidad":7267,"cantidad_real":7267,"id_bodega":1,"precio":"","valor_compra":632.34,"valor":"","codigo":"30102008","nom_producto":"MAIZ M.PRIMA","lote":"","fecha":null,"fecha_vencimiento":"2024-03-26T00:00:00"},{"id":5,"id_producto":"501","id_existencia":"0","id_tipom":"","id_tipomd":"","id_bodegaent":"","cantidad":150,"cantidad_real":150,"id_bodega":1,"precio":"","valor_compra":651.91,"valor":"","codigo":"30102300","nom_producto":"ACIDBUF MAT. PRIMA","lote":"","fecha":null,"fecha_vencimiento":"2024-03-26T00:00:00"},{"id":6,"id_producto":"1050","id_existencia":"0","id_tipom":"","id_tipomd":"","id_bodegaent":"","cantidad":600,"cantidad_real":600,"id_bodega":1,"precio":"","valor_compra":502,"valor":"","codigo":"30102482","nom_producto":"INTELISAL LIRCAY","lote":"","fecha":null,"fecha_vencimiento":"2024-03-26T00:00:00"},{"id":7,"id_producto":"1084","id_existencia":"0","id_tipom":"","id_tipomd":"","id_bodegaent":"","cantidad":19,"cantidad_real":19,"id_bodega":1,"precio":"","valor_compra":8506,"valor":"","codigo":"30102492","nom_producto":"MAXFIBER MP","lote":"","fecha":null,"fecha_vencimiento":"2024-03-26T00:00:00"},{"id":8,"id_producto":"972","id_existencia":"0","id_tipom":"","id_tipomd":"","id_bodegaent":"","cantidad":621,"cantidad_real":621,"id_bodega":1,"precio":"","valor_compra":105.59,"valor":"","codigo":"30102471","nom_producto":"NUTRACHIC PROTEINA- VINAZA","lote":"","fecha":null,"fecha_vencimiento":"2024-03-26T00:00:00"}]"
-		}	
+		array(12) {
+			  ["fechaproduccion"]=>
+			  string(10) "2025-01-15"
+			  ["cantidadproduccion"]=>
+			  string(3) "500"
+			  ["cantidadproduccioncal"]=>
+			  string(3) "464"
+			  ["idbodega"]=>
+			  string(1) "1"
+			  ["numproduccion"]=>
+			  string(5) "10111"
+			  ["idproduccion"]=>
+			  string(4) "8853"
+			  ["lote"]=>
+			  string(1) "1"
+			  ["ciclos"]=>
+			  string(1) "1"
+			  ["fechavenc"]=>
+			  string(10) "2026-01-10"
+			  ["horatermino"]=>
+			  string(5) "00:15"
+			  ["horainicio"]=>
+			  string(5) "00:15"
+			  ["items"]=>
+			  string(1823) "[{"id":1,"id_producto":"482","id_existencia":"0","id_tipom":"","id_tipomd":"","id_bodegaent":"","cantidad":216,"cantidad_real":216,"id_bodega":1,"precio":"","valor_compra":130,"valor":"","codigo":"30102008","nom_producto":"MAIZ M.PRIMA","lote":"","fecha":null,"fecha_vencimiento":"2025-01-15T00:00:00"},{"id":2,"id_producto":"483","id_existencia":"0","id_tipom":"","id_tipomd":"","id_bodegaent":"","cantidad":69,"cantidad_real":69,"id_bodega":1,"precio":"","valor_compra":130,"valor":"","codigo":"30102023","nom_producto":"AVENA M. PRIMA","lote":"","fecha":null,"fecha_vencimiento":"2025-01-15T00:00:00"},{"id":3,"id_producto":"480","id_existencia":"0","id_tipom":"","id_tipomd":"","id_bodegaent":"","cantidad":129,"cantidad_real":129,"id_bodega":1,"precio":"","valor_compra":85,"valor":"","codigo":"30102002","nom_producto":"AFRECHILLO M. PRIMA","lote":"","fecha":null,"fecha_vencimiento":"2025-01-15T00:00:00"},{"id":4,"id_producto":"489","id_existencia":"0","id_tipom":"","id_tipomd":"","id_bodegaent":"","cantidad":18,"cantidad_real":18,"id_bodega":1,"precio":"","valor_compra":34,"valor":"","codigo":"30102119","nom_producto":"CARBONATO DE CALCIO M.P.","lote":"","fecha":null,"fecha_vencimiento":"2025-01-15T00:00:00"},{"id":5,"id_producto":"658","id_existencia":"0","id_tipom":"","id_tipomd":"","id_bodegaent":"","cantidad":17,"cantidad_real":17,"id_bodega":1,"precio":"","valor_compra":120,"valor":"","codigo":"30102003","nom_producto":"MELAZA","lote":"","fecha":null,"fecha_vencimiento":"2025-01-15T00:00:00"},{"id":6,"id_producto":"777","id_existencia":"0","id_tipom":"","id_tipomd":"","id_bodegaent":"","cantidad":15,"cantidad_real":15,"id_bodega":1,"precio":"","valor_compra":335.35,"valor":"","codigo":"30201596","nom_producto":"LIRCAY VACA 12","lote":"","fecha":null,"fecha_vencimiento":"2025-01-15T00:00:00"}]"
+			}
 
 		*/
 		//var_dump($_POST); exit;
@@ -1588,32 +1590,34 @@ class Produccion extends CI_Controller {
 		$query = $this->db->get();		
 		$prod_pedido = $query->result();
 
+
+
 		foreach ($prod_pedido as $pedido_detalle) {
 				$idproducto = $pedido_detalle->id_producto;
 
 				$query = $this->db->query('SELECT * FROM productos WHERE id="'.$idproducto.'"');
 				if($query->num_rows()>0){
-				$row = $query->first_row();
-				$query2 = $this->db->query('SELECT * FROM existencia_detalle WHERE id_producto='.$idproducto.' and cantidad_entrada > '.$cero.'');	    	 
-				$ppm=0;
-				$cal = 1;
-				if ($query2->num_rows()>0){
-				foreach ($query2->result() as $r){			 	
-					$ppm = $ppm + ($r->valor_producto);
-					$cal = $cal +1;
-				};
-				$ppm = $ppm + $puc;
-				$ppm = ($ppm / $cal);
-				$saldo = ($row->stock)+($cantidadproduccion);
-				$pmc = ($row->p_may_compra);
-				if ($pmc < $puc){			 		
-					$pmc = $puc;
-				};			 
-				}else{
-					$pmc = $puc;
-					$saldo = $cantidadproduccion;
-					$ppm = $puc; 
-				};                
+					$row = $query->first_row();
+					$query2 = $this->db->query('SELECT * FROM existencia_detalle WHERE id_producto='.$idproducto.' and cantidad_entrada > '.$cero.'');	    	 
+					$ppm=0;
+					$cal = 1;
+					if ($query2->num_rows()>0){
+					foreach ($query2->result() as $r){			 	
+						$ppm = $ppm + ($r->valor_producto);
+						$cal = $cal +1;
+					};
+					$ppm = $ppm + $puc;
+					$ppm = ($ppm / $cal);
+					$saldo = ($row->stock)+($cantidadproduccion);
+					$pmc = ($row->p_may_compra);
+					if ($pmc < $puc){			 		
+						$pmc = $puc;
+					};			 
+					}else{
+						$pmc = $puc;
+						$saldo = $cantidadproduccion;
+						$ppm = $puc; 
+					};                
 				};
 
 				$prod = array(
@@ -1654,9 +1658,9 @@ class Produccion extends CI_Controller {
 					$this->db->insert('existencia', $datos3);
 				};
 
-				$query_detalle = $this->db->query('SELECT * FROM existencia_detalle WHERE id_producto='.$idproducto.' and id_tipo_movimiento = 23 and num_movimiento = "' . $numproduccion . '" AND id_bodega='.$idbodega.'');
+				$query_detalle = $this->db->query('SELECT * FROM existencia_detalle WHERE id_producto='.$idproducto.' and id_tipo_movimiento = 23 and num_movimiento = "' . $numproduccion . '" AND id_bodega='.$idbodega.' AND cantidad_entrada > 0');
+				
 				$row_detalle = $query_detalle->result();
-
 				if($query_detalle->num_rows()==0){
 
 
@@ -1675,7 +1679,6 @@ class Produccion extends CI_Controller {
 					);
 
 					$this->db->insert('existencia_detalle', $datos2);	
-
 				}
 
    
@@ -1840,7 +1843,6 @@ class Produccion extends CI_Controller {
 
 		$this->Bitacora->logger("M", 'produccion', $idproduccion);
 		$this->Bitacora->logger("M", 'produccion_detalle', $idproduccion);    
-
 
 			
         $resp['idproduccion'] = $idproduccion;		
