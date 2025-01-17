@@ -37,13 +37,18 @@ Ext.define('Infosys_web.view.clientefinal.Ingresar', {
                     },
                     {
                         xtype: 'textfield',
-                        name : 'codigo',
-                        fieldLabel: 'codigo'
+                        name : 'rut',
+                        fieldLabel: 'Rut'
                     },    
                     {
                         xtype: 'textfield',
                         name : 'nombre',
-                        fieldLabel: 'Nombre Bodega'
+                        fieldLabel: 'Nombre'
+                    },    
+                    {
+                        xtype: 'textfield',
+                        name : 'direccion',
+                        fieldLabel: 'Direcci&oacute;n'
                     }
                 ]
             }

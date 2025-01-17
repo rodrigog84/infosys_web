@@ -14,13 +14,17 @@ Ext.define('Infosys_web.view.clientefinal.Principal' ,{
 
     },
     columns: [{
-        header: "Codigo",
+        header: "Rut",
         flex: 1,
-        dataIndex: 'codigo'
+        dataIndex: 'rut'
     },{
-        header: "Nombre Tipo Envase",
+        header: "Nombre",
         flex: 1,
         dataIndex: 'nombre'
+    },{
+        header: "Direcci&oacute;n",
+        flex: 1,
+        dataIndex: 'direccion'
     }],
     
     initComponent: function() {

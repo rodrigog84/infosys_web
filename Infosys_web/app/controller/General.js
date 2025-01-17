@@ -2323,11 +2323,12 @@ Ext.define('Infosys_web.controller.General', {
 
     editarclientefinal: function(){
         //getTipoenvasesingresar
-        console.log('skjskskksk')
 
         var view = this.getClientefinalprincipal();
         if (view.getSelectionModel().hasSelection()) {
             var row = view.getSelectionModel().getSelection()[0];
+
+            console.log(row)
             var edit = Ext.create('Infosys_web.view.clientefinal.Ingresar').show();
             edit.down('form').loadRecord(row);
         }else{

@@ -16,15 +16,16 @@ class Clientefinal extends CI_Controller {
 		$id = $data->nombre;
 
 		$data = array(
-	        'nombre' => strtoupper($data->nombre),
-	        'codigo' => $data->codigo
+			'rut' => $data->rut,
+	        'nombre' => $data->nombre,
+	        'direccion' => $data->direccion
 		);
 
-		$this->db->insert('tipo_envases', $data); 
+		$this->db->insert('cliente_final', $data); 
 
         $resp['success'] = true;
 
-        $this->Bitacora->logger("I", 'tipo_envases', $id);
+        $this->Bitacora->logger("I", 'cliente_final', $id);
 
         echo json_encode($resp);
 
@@ -36,16 +37,17 @@ class Clientefinal extends CI_Controller {
 		$data = json_decode($this->input->post('data'));
 		$id = $data->id;
 		$data = array(
-	        'nombre' => strtoupper($data->nombre),
-	        'codigo' => $data->codigo	        
+			'rut' => $data->rut,
+	        'nombre' => $data->nombre,
+	        'direccion' => $data->direccion        
 	    );
 		$this->db->where('id', $id);
 		
-		$this->db->update('tipo_envases', $data); 
+		$this->db->update('cliente_final', $data); 
 
         $resp['success'] = true;
 
-        $this->Bitacora->logger("I", 'tipo_envases', $id);
+        $this->Bitacora->logger("I", 'cliente_final', $id);
 
         echo json_encode($resp);
 
@@ -59,13 +61,13 @@ class Clientefinal extends CI_Controller {
         //filtro por nombre
         $nombre = $this->input->post('nombre');
 
-		$countAll = $this->db->count_all_results("tipo_envases");
+		$countAll = $this->db->count_all_results("cliente_final");
 
 		if($nombre){
-			$query = $this->db->query('SELECT * FROM tipo_envases WHERE nombre like "%'.$nombre.'%" 
+			$query = $this->db->query('SELECT * FROM cliente_final WHERE nombre like "%'.$nombre.'%" 
 			limit '.$start.', '.$limit.'');
 		}else{
-			$query = $this->db->query('SELECT * FROM tipo_envases limit '.$start.', '.$limit.'');
+			$query = $this->db->query('SELECT * FROM cliente_final limit '.$start.', '.$limit.'');
 		}
 
 		$data = array();
