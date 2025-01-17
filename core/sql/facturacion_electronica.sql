@@ -926,3 +926,24 @@ ALTER TABLE `factura_clientes`
 	CHANGE COLUMN `id_bodega_dest` `id_bodega_dest` INT(11) NOT NULL DEFAULT '0' AFTER `id_bodega`;
 
 	
+
+	/**************************************************************************************/
+
+	INSERT INTO `infosys_web`.`accesos` (`codigo`, `reg_estado`, `descripcion`) VALUES ('inv_tg_cfinal', 1, 'inventario->tablas generales->Cliente Final');
+	INSERT INTO `infosys_web`.`rol_acceso` (`id_rol`, `id_acceso`) VALUES (1, 113);
+
+
+	CREATE TABLE `cliente_final` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`rut` VARCHAR(20) NULL DEFAULT NULL COLLATE 'utf8mb4_general_ci',
+	`nombre` VARCHAR(200) NULL DEFAULT NULL COLLATE 'utf8mb4_general_ci',
+	`direccion` VARCHAR(250) NULL DEFAULT NULL COLLATE 'utf8mb4_general_ci',
+	PRIMARY KEY (`id`) USING BTREE
+)
+COLLATE='utf8mb4_general_ci'
+ENGINE=InnoDB
+;
+
+INSERT INTO `infosys_web`.`cliente_final` (`rut`, `nombre`, `direccion`) VALUES ('19', 'PRUEBA', 'DIRECCION PRUEBA');
+
+

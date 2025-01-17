@@ -39,7 +39,8 @@ Ext.define('Infosys_web.controller.General', {
               'Plaza',
               'vendedores.Activo',
               'Tabladescuento',
-              'Tipoenvases'
+              'Tipoenvases',
+              'Clientefinal'
               ],
 
     models: [
@@ -77,7 +78,8 @@ Ext.define('Infosys_web.controller.General', {
               'Plazas.Item',
               'Plaza',
               'Tabladescuento',
-              'Tipoenvase'
+              'Tipoenvase',
+              'Clientefinal'
               ],
 
     views: [
@@ -149,7 +151,9 @@ Ext.define('Infosys_web.controller.General', {
         'Tabladescuento.Principal',
         'usuarios.CambioClave',
         'tipoenvases.Principal',
-        'tipoenvases.Ingresar'
+        'tipoenvases.Ingresar',
+        'clientefinal.Principal',
+        'clientefinal.Ingresar'
          ],
     
     
@@ -214,8 +218,14 @@ Ext.define('Infosys_web.controller.General', {
         ref: 'tipoenvasesprincipal',
         selector: 'tipoenvasesprincipal'
     },{
+        ref: 'clientefinalprincipal',
+        selector: 'clientefinalprincipal'
+    },{
         ref: 'tipoenvasesingresar',
         selector: 'tipoenvasesingresar'
+    },{
+        ref: 'clientefinalingresar',
+        selector: 'clientefinalingresar'
     },{
         ref: 'marcasingresar',
         selector: 'marcasingresar'
@@ -383,7 +393,11 @@ Ext.define('Infosys_web.controller.General', {
 
             'topmenus menuitem[action=mtipoenvases]': {
                 click: this.mtipoenvases
-            },            
+            },      
+
+            'topmenus menuitem[action=mclientefinal]': {
+                click: this.mclientefinal
+            },                       
             'topmenus menuitem[action=mmarcas]': {
                 click: this.mmarcas
             },
@@ -566,6 +580,12 @@ Ext.define('Infosys_web.controller.General', {
             'bodegasprincipal button[action=cerrarbodegas]': {
                 click: this.cerrarbodegas
             },
+
+            'clientefinalprincipal button[action=agregarclientefinal]': {
+                click: this.agregarclientefinal
+            }, 
+
+
             'tipoenvasesprincipal button[action=agregartipoenvase]': {
                 click: this.agregartipoenvase
             }, 
@@ -575,6 +595,14 @@ Ext.define('Infosys_web.controller.General', {
             'tipoenvasesingresar button[action=grabartipoenvases]': {
                 click: this.grabartipoenvases
             },   
+
+            'clientefinalingresar button[action=grabarclientefinal]': {
+                click: this.grabarclientefinal
+            },  
+            'clientefinalprincipal button[action=editarclientefinal]': {
+                click: this.editarclientefinal
+            },     
+
             'tipoenvasesprincipal button[action=editartipoenvases]': {
                 click: this.editartipoenvases
             },                                
@@ -1022,6 +1050,14 @@ Ext.define('Infosys_web.controller.General', {
         var viewport = this.getPanelprincipal();
         viewport.removeAll();
         viewport.add({xtype: 'tipoenvasesprincipal'});
+    },    
+
+
+    mclientefinal: function(){
+      
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'clientefinalprincipal'});
     },    
 
      mmarcas: function(){
@@ -1622,6 +1658,35 @@ Ext.define('Infosys_web.controller.General', {
             st.load();
         }
     },    
+
+
+    grabarclientefinal: function(){
+        var win    = this.getClientefinalingresar(),
+            form   = win.down('form'),
+            record = form.getRecord(),
+            values = form.getValues();
+
+        var st = this.getClientefinalStore();
+        
+        var nuevo = false;
+        
+        if (values.id > 0){
+            record.set(values);
+        } else{
+            record = Ext.create('Infosys_web.model.Clientefinal');
+            record.set(values);
+            st.add(record);
+            nuevo = true;
+        }
+        
+        win.close();
+        st.sync();
+
+        if (nuevo){ 
+            st.load();
+        }
+    },    
+
 
     grabarmarcas : function(){
         var win    = this.getMarcasingresar(),
@@ -2256,6 +2321,21 @@ Ext.define('Infosys_web.controller.General', {
     },
 
 
+    editarclientefinal: function(){
+        //getTipoenvasesingresar
+        console.log('skjskskksk')
+
+        var view = this.getClientefinalprincipal();
+        if (view.getSelectionModel().hasSelection()) {
+            var row = view.getSelectionModel().getSelection()[0];
+            var edit = Ext.create('Infosys_web.view.clientefinal.Ingresar').show();
+            edit.down('form').loadRecord(row);
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }
+
+    },    
 
     editartipoenvases: function(){
         //getTipoenvasesingresar
@@ -2429,6 +2509,12 @@ Ext.define('Infosys_web.controller.General', {
     agregarbodegas: function(){
         Ext.create('Infosys_web.view.bodegas.Ingresar').show();
     },
+
+    agregarclientefinal: function(){
+        Ext.create('Infosys_web.view.clientefinal.Ingresar').show();
+    },    
+
+
 
     agregartipoenvase: function(){
         Ext.create('Infosys_web.view.tipoenvases.Ingresar').show();

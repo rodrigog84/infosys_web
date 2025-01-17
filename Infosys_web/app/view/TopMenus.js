@@ -236,6 +236,13 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                         disabled: true,
                     action: 'mtipoenvases'
 
+                },{
+                    text: 'Cliente Final Pedido',
+                    iconCls: '',
+                        itemId: 'inv_tg_cfinal',
+                        disabled: true,
+                    action: 'mclientefinal'
+
                 }]
 
             },{
