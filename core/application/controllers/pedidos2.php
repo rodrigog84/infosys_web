@@ -1491,6 +1491,10 @@ public function getGuiasRegistroTransporte(){
 		$ubicacion = $this->input->post('ubicacion');
 
 		$tipoenvase = $this->input->post('tipoenvase');
+
+		$clientefinal = $this->input->post('clientefinal');
+
+
 		$tipotransporte = $this->input->post('tipotransporte');
 
 		$opedidoext = $this->input->post('opedidoext');
@@ -1519,7 +1523,8 @@ public function getGuiasRegistroTransporte(){
 	        'ubicacion' => $ubicacion,
 	        'tipoenvase' => $tipoenvase,
 	        'tipotransporte' => $tipotransporte,
-	        'opedidoext' => $opedidoext
+	        'opedidoext' => $opedidoext,
+	        'idclientefinal' => $clientefinal
 		);
 
 		$this->db->insert('pedidos', $pedidos); 

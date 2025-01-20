@@ -4,6 +4,7 @@ Ext.define('Infosys_web.model.Clientefinal', {
     	{name: 'id'},
     	{name: 'rut'},
     	{name: 'nombre'},
-        {name: 'direccion'}
+        {name: 'direccion'},
+        {name: 'rutnombre'}
     	]
 });

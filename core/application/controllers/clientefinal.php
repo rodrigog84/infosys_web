@@ -64,10 +64,10 @@ class Clientefinal extends CI_Controller {
 		$countAll = $this->db->count_all_results("cliente_final");
 
 		if($nombre){
-			$query = $this->db->query('SELECT * FROM cliente_final WHERE nombre like "%'.$nombre.'%" 
+			$query = $this->db->query('SELECT id, rut, nombre, direccion, CONCAT(rut," - ",nombre) AS rutnombre FROM cliente_final WHERE nombre like "%'.$nombre.'%" 
 			limit '.$start.', '.$limit.'');
 		}else{
-			$query = $this->db->query('SELECT * FROM cliente_final limit '.$start.', '.$limit.'');
+			$query = $this->db->query('SELECT id, rut, nombre, direccion, CONCAT(rut," - ",nombre) AS rutnombre FROM cliente_final limit '.$start.', '.$limit.'');
 		}
 
 		$data = array();

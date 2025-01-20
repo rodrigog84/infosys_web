@@ -424,12 +424,15 @@ public function exportarExcelPedidos(){
                                             ,d.nroreceta AS receta
                                             ,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id) as cantidad_productos
                                             ,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos
+                                            ,cf.rut as rutclientefinal
+                                            ,cf.nombre as nombreclientefinal
                                       FROM pedidos acc
                                       INNER JOIN pedidos_detalle d ON acc.id = d.id_pedido
                                       INNER JOIN productos p ON d.id_producto = p.id
                                       left join clientes c on (acc.id_cliente = c.id)
                                       left join vendedores v on (acc.id_vendedor = v.id)
                                       left join correlativos co on (acc.tip_documento = co.id) 
+                                      left join cliente_final cf on (acc.idclientefinal = cf.id) 
                                       WHERE acc.fecha_doc between '".$fecha3."'  AND '".$fecha4."'");
           $users = $query->result_array();
 
@@ -451,6 +454,8 @@ public function exportarExcelPedidos(){
             echo "<td>UBICACION</td>";
             echo "<td>FECHA ENTREGA</td>";
             echo "<td>VENDEDOR</td>";
+            echo "<td>RUT CLIENTE FINAL</td>";
+            echo "<td>NOMBRE CLIENTE FINAL</td>";
             echo "<td>RECETA</td>";
             echo "<td>ESTADO</td>";
                          
@@ -474,6 +479,8 @@ public function exportarExcelPedidos(){
               echo "<td>".$v['ubicacion']."</td>";
               echo "<td>".$v['fecentrega']."</td>";
               echo "<td>".$v['nom_vendedor']."</td>";
+              echo "<td>".$v['rutclientefinal']."</td>";
+              echo "<td>".$v['nombreclientefinal']."</td>";
               echo "<td>".$v['receta']."</td>";
               echo "<td>".$estado_pedido."</td></tr>";
             

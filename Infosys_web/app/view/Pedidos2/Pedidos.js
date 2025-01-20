@@ -349,14 +349,31 @@ Ext.define('Infosys_web.view.Pedidos2.Pedidos', {
                                 align: 'stretch'
                             },
                             items: [{
-                                        xtype: 'displayfield',
-                                        itemId : 'estado_cliente',
-                                        fieldLabel : 'Estado Cliente:',
-                                        labelStyle: ' font-weight:bold',
-                                        fieldStyle: '',
-                                        value : '',
-                                        labelWidth: 200,
-                                    }
+                                        xtype: 'combobox',
+                                        fieldCls: 'required',
+                                        labelWidth: 155,
+                                        width: 550,
+                                        height: 30,
+                                        fieldLabel: '<b>CLIENTE FINAL</b>',
+                                        editable: false,
+                                        store: 'Clientefinal',
+                                        emptyText : 'Seleccionar',
+                                        displayField : 'rutnombre',
+                                        valueField : 'id',                        
+                                        itemId: 'clientefinalId',
+                                        name: 'clientefinal'                            
+                                        },{
+                                            xtype: 'displayfield',
+                                            width: 10                                   
+                                        },{
+                                                xtype: 'displayfield',
+                                                itemId : 'estado_cliente',
+                                                fieldLabel : 'Estado Cliente:',
+                                                labelStyle: ' font-weight:bold',
+                                                fieldStyle: '',
+                                                value : '',
+                                                labelWidth: 200,
+                                            }
                             ]
                         }
                         ,{

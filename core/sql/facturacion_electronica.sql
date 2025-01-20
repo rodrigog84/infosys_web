@@ -947,3 +947,9 @@ ENGINE=InnoDB
 INSERT INTO `infosys_web`.`cliente_final` (`rut`, `nombre`, `direccion`) VALUES ('19', 'PRUEBA', 'DIRECCION PRUEBA');
 
 
+/**********************************************************************************************/
+
+ALTER TABLE `pedidos`
+	ADD COLUMN `idclientefinal` INT NOT NULL DEFAULT 0 AFTER `opedidoext`;
+
+	

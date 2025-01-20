@@ -4,7 +4,8 @@ Ext.define('Infosys_web.controller.Pedidos2', {
     //asociamos vistas, models y stores al controller
 
     models: ['Pedidos',
-             'pedidos.Item'],
+             'pedidos.Item',
+              'Clientefinal'],
 
 
     stores: ['Pedidos.Editar',
@@ -23,7 +24,8 @@ Ext.define('Infosys_web.controller.Pedidos2', {
             'Factura',
             'FormulasPedidos',
             'Vendedores',
-            'Tipoenvases'
+            'Tipoenvases',
+            'Clientefinal'
              ],
 
     
@@ -2316,6 +2318,8 @@ Ext.define('Infosys_web.controller.Pedidos2', {
         var tipoenvaseId = viewIngresa.down('#tipoenvaseId').getValue();
         var tipotransporteId = viewIngresa.down('#tipotransporteId').getValue();
 
+        var clientefinalId = viewIngresa.down('#clientefinalId').getValue();
+
         var opedidoextId = viewIngresa.down('#opedidoextId').getValue();
 
 
@@ -2389,6 +2393,7 @@ Ext.define('Infosys_web.controller.Pedidos2', {
                 numeropedido : numeropedido,
                 ordencompra : ordencompraId,
                 tipoenvase : tipoenvaseId,
+                clientefinal : clientefinalId,
                 tipotransporte : tipotransporteId,
                 ubicacion : ubicacionId,
                 opedidoext: opedidoextId,
