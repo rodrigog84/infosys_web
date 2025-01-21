@@ -2226,10 +2226,25 @@ mguiastraslado: function(){
     buscarproductos7: function(){
 
         var viewIngresa = this.getGuiasdespachoingresar();
+
+
+
+        var esguiapedido = viewIngresa.down('#esguiapedidoId').getValue();
+
+        if(esguiapedido == 'SI'){
+            var view_orig = this.getPedidosprincipalformula();
+
+        }else{
+            var view_orig = this.getGuiasprincipaldespacho();
+
+        }
+         var bodegaid = view_orig.down('#bodegaId').getValue(); 
+
+        
         var tipo = viewIngresa.down('#tipoDocumentoId').getValue();
         var codigo = viewIngresa.down('#codigoId').getValue();
         var id = viewIngresa.down('#productoId').getValue();
-        var bodegaid = viewIngresa.down('#bodegaId').getValue();
+        //var bodegaid = viewIngresa.down('#bodegaId').getValue();
         var id_pedido = viewIngresa.down('#id_pedido').getValue();
         console.log('id pedido:');
         console.log(id_pedido);
