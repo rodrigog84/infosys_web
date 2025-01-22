@@ -2196,7 +2196,25 @@ mguiastraslado: function(){
 
         var view = this.getBuscarproductos25();
         var viewIngresa1 = this.getGuiasdespachoingresar();
-        var bodega = viewIngresa1.down('#bodegaId').getValue();
+
+
+        var esguiapedido = viewIngresa1.down('#esguiapedidoId').getValue();
+
+        if(esguiapedido == 'SI'){
+            var view_orig = this.getPedidosprincipalformula();
+
+        }else{
+            var view_orig = this.getGuiasprincipaldespacho();
+
+        }
+
+
+        //var bodega = viewIngresa1.down('#bodegaId').getValue();
+
+        var bodega = view_orig.down('#bodegaId').getValue(); 
+
+
+
         var tipo = viewIngresa1.down('#tipoDocumentoId').getValue();
         if(!tipo){
             tipo=1;
