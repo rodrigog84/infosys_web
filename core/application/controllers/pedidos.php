@@ -1102,7 +1102,8 @@ class Pedidos extends CI_Controller {
 								,of.destino
 								,of.observacion	
 								,of.empresatransporte
-								,of.transferencia",false)
+								,of.transferencia
+								,of.tipodescarga",false)
 							  ->from('observacion_facturas of')
 							  ->where('of.id_documento',$idguia); 	                  
 			$query = $this->db->get();		
@@ -1111,14 +1112,20 @@ class Pedidos extends CI_Controller {
 			$destino = isset($observacion_guia->destino) ? $observacion_guia->destino : '';
 			$transferencia = isset($observacion_guia->transferencia) ? $observacion_guia->transferencia : '';
 
-			if($observacion_guia->transferencia){
-				$condescarga = $observacion_guia->transferencia == 'ENTREGA CLIENTE' ? 'XX' : '';
-				$sindescarga = $observacion_guia->transferencia == 'BASE RALICURA' ? 'XX' : '';
-
+			if($observacion_guia->tipodescarga){
+					$condescarga = $observacion_guia->tipodescarga == 'CON DESCARGA' ? 'XX' : '';
+					$sindescarga = $observacion_guia->tipodescarga == 'SIN DESCARGA' ? 'XX' : '';
 			}else{
-				$condescarga = '';
-				$sindescarga = '';
+				if($observacion_guia->transferencia){
+					$condescarga = $observacion_guia->transferencia == 'ENTREGA CLIENTE' ? 'XX' : '';
+					$sindescarga = $observacion_guia->transferencia == 'BASE RALICURA' ? 'XX' : '';
+
+				}else{
+					$condescarga = '';
+					$sindescarga = '';
+				}				
 			}
+
 
 			if(isset($observacion_guia->rut)){
 				if($rut_transportista == '' && $observacion_guia->rut != ''){
@@ -2743,7 +2750,7 @@ class Pedidos extends CI_Controller {
 			WHERE acc.id_vendedor = '.$vendedor.' and acc.id_bodega='.$bodega.' AND c.rut = "'.$nombres.'"  ' . $sql_tipo_pedido . '  ' . $sql_estado_pedido . ')a WHERE 1 = 1 ' . $sql_estado . ' order by a.id desc			
 			limit '.$start.', '.$limit.'');
 
-			echo $this->db->last_query();
+			//echo $this->db->last_query();
 
 		};
 
