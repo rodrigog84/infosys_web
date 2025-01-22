@@ -953,3 +953,9 @@ ALTER TABLE `pedidos`
 	ADD COLUMN `idclientefinal` INT NOT NULL DEFAULT 0 AFTER `opedidoext`;
 
 	
+/*********************************************************************************************************/
+
+ALTER TABLE `observacion_facturas`
+	ADD COLUMN `tipodescarga` VARCHAR(100) NOT NULL AFTER `transferencia`;
+
+	

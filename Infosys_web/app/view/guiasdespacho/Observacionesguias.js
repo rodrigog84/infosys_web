@@ -9,7 +9,7 @@ Ext.define('Infosys_web.view.guiasdespacho.Observacionesguias', {
     layout: 'fit',
     autoShow: true,
     width: 380,
-    height: 450,
+    height: 500,
     modal: true,
     iconCls: 'icon-sheet',
 
@@ -23,6 +23,15 @@ Ext.define('Infosys_web.view.guiasdespacho.Observacionesguias', {
                 {"value": 'BASE RALICURA', "nombre":"BASE RALICURA"}
             ]
         });  
+
+
+         var tipodescarga = Ext.create('Ext.data.Store', {
+            fields: ['value', 'nombre'],
+            data : [
+                {"value":'CON DESCARGA', "nombre":"CON DESCARGA"},
+                {"value": 'SIN DESCARGA', "nombre":"SIN DESCARGA"}
+            ]
+        });           
 
         this.items = [
             {
@@ -130,6 +139,20 @@ Ext.define('Infosys_web.view.guiasdespacho.Observacionesguias', {
                         valueField : 'value',                        
                         itemId: 'transferenciaId',
                         name: 'transferencia'                            
+                    },{
+                        xtype: 'combobox',
+                        fieldCls: 'required',
+                        labelWidth: 100,
+                        width: 350,
+                        height: 30,
+                        fieldLabel: 'Tipo Descarga',
+                        editable: false,
+                        store : tipodescarga,
+                        emptyText : 'Seleccionar',
+                        displayField : 'nombre',
+                        valueField : 'value',                        
+                        itemId: 'tipodescargaId',
+                        name: 'tipodescarga'                            
                     },{
                         xtype: 'textfield',
                         fieldCls: 'required',

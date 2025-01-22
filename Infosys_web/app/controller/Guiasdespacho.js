@@ -1442,7 +1442,7 @@ mguiastraslado: function(){
         var numero = view.down('#FactId').getValue(); 
         var empresa = view.down('#empresaId').getValue();     
         var transferencia = view.down('#transferenciaId').getValue();          
-
+        var tipodescarga = view.down('#tipodescargaId').getValue();  
         var permite = "SI"
 
         if (valida == "NO"){
@@ -1473,7 +1473,8 @@ mguiastraslado: function(){
                 idtransportista: idtransportista,
                 numero: numero,
                 empresa: empresa,
-                transferencia: transferencia
+                transferencia: transferencia,
+                tipodescarga: tipodescarga
             },
             success: function(response){
                 var resp = Ext.JSON.decode(response.responseText);

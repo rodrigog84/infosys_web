@@ -69,6 +69,7 @@ class Facturasvizualiza extends CI_Controller {
 		$destino = $this->input->post('destino');
 		$empresa = $this->input->post('empresa');
 		$transferencia = $this->input->post('transferencia');
+		$tipodescarga = $this->input->post('tipodescarga');
 
 
 		if(!$observacion){
@@ -86,7 +87,8 @@ class Facturasvizualiza extends CI_Controller {
 	        'observacion' => $observacion,	          
 	        'destino' => $destino,
 	        'empresatransporte' => $empresa,
-	        'transferencia' => $transferencia          
+	        'transferencia' => $transferencia,        
+	        'tipodescarga' => $tipodescarga
 		);
 
 		$this->db->insert('observacion_facturas', $observa);
