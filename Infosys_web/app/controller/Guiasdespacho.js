@@ -1578,6 +1578,7 @@ mguiastraslado: function(){
                  view.down("#fonoId").setValue(observa.fono);
                  view.down("#empresaId").setValue(observa.empresatransporte);
                  view.down("#transferenciaId").setValue(observa.transferencia);
+                 view.down("#tipodescargaId").setValue(observa.tipodescarga);
                  //view.down("#validaId").setValue(okey);
                  view.down("#observaId").setValue(observa.observacion);
                 }             
