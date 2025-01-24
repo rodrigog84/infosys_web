@@ -1319,11 +1319,11 @@ mguiastraslado: function(){
                     view.down('#estrasladoId').setValue('SI');
                     view.down('#bodegaId').show(); // Para mostrarlo
 
-                    view.down('#rutId').setValue('965163204');
+                    //view.down('#rutId').setValue('965163204');
                     var buscarBtn = view.down('#buscarBtn');
 
                     // Simular el clic llamando al handler o disparando el evento
-                    if (buscarBtn) {
+                    /*if (buscarBtn) {
                         // Si tiene un evento configurado, lo dispara
                         buscarBtn.fireEvent('click', buscarBtn);
 
@@ -1334,7 +1334,7 @@ mguiastraslado: function(){
 
                         // Deshabilitar el botón después de ejecutar la acción
                         buscarBtn.setDisabled(true);
-                    }
+                    }*/
 
 
                     /*view.down('#nombre_id').setValue('AGRICOLA Y COMERCIAL LIRCAY SPA');
