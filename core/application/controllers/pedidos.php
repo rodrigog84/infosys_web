@@ -1000,15 +1000,22 @@ class Pedidos extends CI_Controller {
 							,f.num_factura as numguia			
 							,c.rut
 							,c.nombres
-							,c.direccion",false)
+							,c.direccion
+							,cf.nombre as nombreclientefinal
+							,cf.direccion as direccionclientefinal",false)
 						  ->from('registro_transporte rt')
 						  ->join('pedidos_guias pg','rt.id = pg.idregistrotransporte')
+						  ->join('pedidos p','pg.idpedido = p.id')
+						  ->join('cliente_final cf','p.idclientefinal = cf.id','LEFT')
 						  ->join('factura_clientes f','pg.idguia = f.id')
 						  ->join('clientes c','f.id_cliente = c.id')
 						  ->where('rt.id',$idregistro); 	                  
 		$query = $this->db->get();		
 		$registro = $query->result();
 		//cotizacion header
+
+
+		//echo $this->db->last_query(); exit;
 		$guias = $query->result();
 		//echo '<pre>';
 		//var_dump($guias); exit;
@@ -1046,7 +1053,7 @@ class Pedidos extends CI_Controller {
 		     <p>' . $empresa->razon_social .'</p>
         <p>RUT:' . number_format($empresa->rut,0,".",".").'-' . $empresa->dv . '</p>
         <p>' . $empresa->dir_origen . ' - ' . $empresa->comuna_origen . ' - Chile</p>
-        <p>Fonos: ' . $empresa->fono . '</p>
+        <p>Fonos: ' . $empresa->texto_fono . '</p>
 		    <p>http://www.lircay.cl</p>
 		    </td>
 	    <td width="296px" style="font-size: 16px;text-align:left;vertical-align:text-top"	>
@@ -1063,19 +1070,19 @@ class Pedidos extends CI_Controller {
 		  </tr>
 		  <tr>
 		    <td colspan="3" >
-		    	<table width="950px" cellspacing="0" cellpadding="0" border="1" >
+		    	<table width="750px" cellspacing="0" cellpadding="0" border="1" >
 		      <tr>
 		        <td width="50px"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" rowspan="2"><b>GD</b></td>
-		         <td width="380px"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" rowspan="2"><b>ORDEN CARGA</b></td>
+		         <td width="180px"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" rowspan="2"><b>ORDEN CARGA</b></td>
 		         <td width="340px"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" colspan="2"><b>DESTINO</b></td>
 		         <td width="120px"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" colspan="2"><b>TARIFA FLETE</b></td>
-		         <td width="60x"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" rowspan="2"><b>KILOS</b></td>
+		         <td width="60px"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" rowspan="2"><b>KILOS</b></td>
 		        </tr>
 		       <tr>
-		        <td width="220x"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" ><b>FUNDO</b></td>	
-		        <td width="120x"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" ><b>TRANSFERENCIA</b></td>	
-		        <td width="60x"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" ><b>C/DESCARGA</b></td>	
-		       	<td width="60x"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" ><b>S/DESCARGA</b></td>	
+		        <td width="230px"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" ><b>FUNDO</b></td>	
+		        <td width="110px"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" ><b>TRANSFER.</b></td>	
+		        <td width="60px"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" ><b>C/DESCARGA</b></td>	
+		       	<td width="60px"  style="border-bottom:0.5pt solid black;border-top:1pt solid black;text-align:left;" ><b>S/DESCARGA</b></td>	
 		       			        
 		       </tr>';
 
@@ -1088,6 +1095,7 @@ class Pedidos extends CI_Controller {
 		$patente_camion = '';
 		$patente_carro = '';
 
+		//var_dump($guias); exit;
 		foreach($guias as $guia){	
 
 			$idguia = $guia->idguia;
@@ -1109,7 +1117,8 @@ class Pedidos extends CI_Controller {
 			$query = $this->db->get();		
 			$observacion_guia = $query->row();
 
-			$destino = isset($observacion_guia->destino) ? $observacion_guia->destino : '';
+			$destino = isset($observacion_guia->destino) ? $observacion_guia->destino .'. ' : '';
+			$destino .= $guia->nombreclientefinal.' - ' . $guia->direccionclientefinal;
 			$transferencia = isset($observacion_guia->transferencia) ? $observacion_guia->transferencia : '';
 
 			if($observacion_guia->tipodescarga){
