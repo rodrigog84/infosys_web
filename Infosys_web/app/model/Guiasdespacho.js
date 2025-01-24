@@ -29,7 +29,9 @@ Ext.define('Infosys_web.model.Guiasdespacho', {
         {name: 'precios'},
         {name: 'rut_cliente'},
         {name: 'total'},
-        {name: 'codigo'}
+        {name: 'codigo'},
+        {name: 'tipoguia'}
+               
                
     ]
 });

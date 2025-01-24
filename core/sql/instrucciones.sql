@@ -58,3 +58,11 @@ ENGINE=InnoDB
 ALTER TABLE `empresa`
 	ADD COLUMN `fono` VARCHAR(50) NULL DEFAULT NULL AFTER `logo`;
 	UPDATE `infosys_web`.`empresa` SET `fono`='(71)2 245932-2 2245933' WHERE  `id`=1;
+
+
+/********************************************************************************************/
+
+ALTER TABLE `factura_clientes`
+	ADD COLUMN `guiatraslado` TINYINT NOT NULL DEFAULT 0 AFTER `forma`;
+
+	

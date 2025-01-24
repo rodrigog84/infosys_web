@@ -667,7 +667,9 @@ class Guias extends CI_Controller {
         }
 
         if($opcion == "Rut"){		
-			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor , case when acc.forma = 1 then "GLOSA"
+           when acc.forma = 0 AND guiatraslado = 1 then "TRASLADO"
+            ELSE "PRODUCTOS" END AS tipoguia	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.tipo_documento in ( '.$tipo.') and c.rut = '.$nombres.'
@@ -696,7 +698,9 @@ class Guias extends CI_Controller {
 	        	$sql_nombre .= "and c.nombres like '%".$nombre."%' ";
 	        }
 	        	    	
-			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
+			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor , case when acc.forma = 1 then "GLOSA"
+           when acc.forma = 0 AND guiatraslado = 1 then "TRASLADO"
+            ELSE "PRODUCTOS" END AS tipoguia	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.tipo_documento in ( '.$tipo.') ' . $sql_nombre . '
@@ -717,7 +721,9 @@ class Guias extends CI_Controller {
 	 
 		}else if($opcion == "Todos"){
 
-                  $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
+                  $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor , case when acc.forma = 1 then "GLOSA"
+           when acc.forma = 0 AND guiatraslado = 1 then "TRASLADO"
+            ELSE "PRODUCTOS" END AS tipoguia    FROM factura_clientes acc
                   left join clientes c on (acc.id_cliente = c.id)
                   left join vendedores v on (acc.id_vendedor = v.id)
                   WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.tipo_documento in ( '.$tipo.')
@@ -739,7 +745,9 @@ class Guias extends CI_Controller {
 
 			
 			$data = array();
-                  $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
+                  $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor , case when acc.forma = 1 then "GLOSA"
+           when acc.forma = 0 AND guiatraslado = 1 then "TRASLADO"
+            ELSE "PRODUCTOS" END AS tipoguia    FROM factura_clientes acc
                   left join clientes c on (acc.id_cliente = c.id)
                   left join vendedores v on (acc.id_vendedor = v.id)
                   WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.tipo_documento in ( '.$tipo.')
@@ -754,7 +762,9 @@ class Guias extends CI_Controller {
 
                   
                   $data = array();
-                  $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
+                  $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor , case when acc.forma = 1 then "GLOSA"
+           when acc.forma = 0 AND guiatraslado = 1 then "TRASLADO"
+            ELSE "PRODUCTOS" END AS tipoguia    FROM factura_clientes acc
                   left join clientes c on (acc.id_cliente = c.id)
                   left join vendedores v on (acc.id_vendedor = v.id)
                   WHERE acc.num_factura = '.$nombres.' and acc.estado="" and acc.id_bodega='.$bodega.' and acc.tipo_documento in ( '.$tipo.')
@@ -777,7 +787,9 @@ class Guias extends CI_Controller {
             }else{			
 		$data = array();
 
-            $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
+            $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor , case when acc.forma = 1 then "GLOSA"
+           when acc.forma = 0 AND guiatraslado = 1 then "TRASLADO"
+            ELSE "PRODUCTOS" END AS tipoguia    FROM factura_clientes acc
                   left join clientes c on (acc.id_cliente = c.id)
                   left join vendedores v on (acc.id_vendedor = v.id)
                   WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.tipo_documento in ( '.$tipo.')
@@ -796,7 +808,9 @@ class Guias extends CI_Controller {
                   $countAll = $total;
 
 
-		$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor	FROM factura_clientes acc
+		$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor , case when acc.forma = 1 then "GLOSA"
+           when acc.forma = 0 AND guiatraslado = 1 then "TRASLADO"
+            ELSE "PRODUCTOS" END AS tipoguia	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
 			WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.tipo_documento in ( '.$tipo.')

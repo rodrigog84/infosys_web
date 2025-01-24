@@ -3253,6 +3253,11 @@ class Facturas extends CI_Controller {
 
         // SOLO EN GUIAS DE TRASLADO
         $idbodega_dest = $this->input->post('idbodega_dest');
+        $estraslado = $this->input->post('estraslado');
+
+        
+
+
 
 
 
@@ -3293,6 +3298,8 @@ class Facturas extends CI_Controller {
         $idbodega_dest = 0;
      }
 
+
+     $marcaguiatraslado = $estraslado == 'SI' ? 1 : 0;
 
     if(!$observacion){
     $observacion="";
@@ -3337,7 +3344,8 @@ class Facturas extends CI_Controller {
       'orden_compra' => $ordencompra,
       'num_pedido' => $pedido,
       'id_observa' => $idobserva,
-      'observacion' => $observacion	          
+      'observacion' => $observacion,
+      'guiatraslado' => $marcaguiatraslado        
 		);
 		$this->db->insert('factura_clientes', $factura_cliente); 
 		$idfactura = $this->db->insert_id();

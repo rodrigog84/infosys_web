@@ -27,6 +27,12 @@ Ext.define('Infosys_web.view.guiasdespacho.PrincipalguiasDespacho' ,{
         align: 'right'
                
     },{
+        header: "Tipo Guia",
+        flex: 1,
+        dataIndex: 'tipoguia',
+        align: 'right'
+               
+    },{
         header: "Fecha",
         flex: 1,
         dataIndex: 'fecha_factura',

@@ -1730,7 +1730,8 @@ mguiastraslado: function(){
                 descuentofactura : viewIngresa.down('#descuentovalorId').getValue(),
                 totalfacturas: viewIngresa.down('#finaltotalpostId').getValue(),
                 id_pedido : id_pedido,
-                opedidoextId : opedidoextId
+                opedidoextId : opedidoextId,
+                estraslado : estrasladoId
             },
              success: function(response){
                 var resp = Ext.JSON.decode(response.responseText);
