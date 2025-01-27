@@ -100,7 +100,8 @@ Ext.define('Infosys_web.view.Pedidos2.AdjuntarReceta' ,{
         header: "Carga",
         width: 350,
         renderer: function(value, metaData, record, rowIndex, colIndex, store, view) {
-                    var disabled_file = record.data.permitecargar == 1 ? '' : 'disabled';
+                    //var disabled_file = record.data.permitecargar == 1 ? '' : 'disabled';
+                    var disabled_file = '';
                     return Ext.String.format(
                         '<input type="file" id="fileInput_{0}" name="fileInput_{0}" style="width: 95%" ' + disabled_file + ' >',
                         record.data.id
@@ -110,7 +111,8 @@ Ext.define('Infosys_web.view.Pedidos2.AdjuntarReceta' ,{
         header: "Nro. Receta",
         width: 160,
         renderer: function(value, metaData, record, rowIndex, colIndex, store, view) {
-                    var disabled_file = record.data.permitecargar == 1 ? '' : 'readonly';
+                    //var disabled_file = record.data.permitecargar == 1 ? '' : 'readonly';
+                    var disabled_file = '';
                     var nroreceta = record.data.nroreceta;
                     return Ext.String.format(
                         '<input type="text" id="nroreceta_{0}" name="nroreceta_{0}" style="width: 60%" ' + disabled_file + ' value="' + nroreceta + '">',
