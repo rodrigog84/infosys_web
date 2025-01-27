@@ -208,7 +208,11 @@ Ext.define('Infosys_web.controller.Produccion', {
             },
             'produccionprincipalprod button[action=exportarproduccionsolicitud]': {
                 click: this.exportarproduccionsolicitud
-            },            
+            },      
+
+            'produccionprincipalprod button[action=exportarexcelproduccion]': {
+                click: this.exportarexcelproduccion
+            },                  
             'produccionprincipal button[action=exportarexcelproduccion]': {
                 click: this.exportarexcelproduccion
             },
@@ -550,6 +554,11 @@ Ext.define('Infosys_web.controller.Produccion', {
         var jsonCol = new Array()
         var i = 0;
         var grid =this.getProduccionprincipal()
+
+        if (typeof grid === 'undefined') {
+            var grid = this.getProduccionprincipalprod();    
+        }
+
         Ext.each(grid.columns, function(col, index){
           if(!col.hidden){
               jsonCol[i] = col.dataIndex;
