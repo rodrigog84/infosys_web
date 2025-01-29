@@ -659,8 +659,8 @@ public function reporte_detalle_productos_stock($idproducto,$mes,$anno)
 
 public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
          {
-           // header("Content-type: application/vnd.ms-excel"); 
-           // header("Content-disposition: attachment; filename=reporte_estadisticas_ventas.xls"); 
+            header("Content-type: application/vnd.ms-excel"); 
+            header("Content-disposition: attachment; filename=reporte_estadisticas_ventas.xls"); 
             
 
 
