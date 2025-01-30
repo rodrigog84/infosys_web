@@ -991,7 +991,9 @@ class Pedidos extends CI_Controller {
 						  ->group_by('rt.num_registro')
 						  ->group_by('rt.fecha_genera')
 						  ->order_by('rt.num_registro','desc'); 	                  
-		$query = $this->db->get();		
+		$query = $this->db->get();	
+
+
 		$registros = $query->row();	
 
 		$this->db->select("rt.id as idregistro
@@ -1005,12 +1007,14 @@ class Pedidos extends CI_Controller {
 							,cf.direccion as direccionclientefinal",false)
 						  ->from('registro_transporte rt')
 						  ->join('pedidos_guias pg','rt.id = pg.idregistrotransporte')
-						  ->join('pedidos p','pg.idpedido = p.id')
+						  ->join('pedidos p','pg.idpedido = p.id','LEFT')
 						  ->join('cliente_final cf','p.idclientefinal = cf.id','LEFT')
 						  ->join('factura_clientes f','pg.idguia = f.id')
 						  ->join('clientes c','f.id_cliente = c.id')
 						  ->where('rt.id',$idregistro); 	                  
 		$query = $this->db->get();		
+
+
 		$registro = $query->result();
 		//cotizacion header
 
@@ -1117,15 +1121,16 @@ class Pedidos extends CI_Controller {
 			$query = $this->db->get();		
 			$observacion_guia = $query->row();
 
+
 			$destino = isset($observacion_guia->destino) ? $observacion_guia->destino .'. ' : '';
 			$destino .= $guia->nombreclientefinal.' - ' . $guia->direccionclientefinal;
 			$transferencia = isset($observacion_guia->transferencia) ? $observacion_guia->transferencia : '';
 
-			if($observacion_guia->tipodescarga){
+			if(isset($observacion_guia->tipodescarga)){
 					$condescarga = $observacion_guia->tipodescarga == 'CON DESCARGA' ? 'XX' : '';
 					$sindescarga = $observacion_guia->tipodescarga == 'SIN DESCARGA' ? 'XX' : '';
 			}else{
-				if($observacion_guia->transferencia){
+				if(isset($observacion_guia->transferencia)){
 					$condescarga = $observacion_guia->transferencia == 'ENTREGA CLIENTE' ? 'XX' : '';
 					$sindescarga = $observacion_guia->transferencia == 'BASE RALICURA' ? 'XX' : '';
 
@@ -1138,7 +1143,11 @@ class Pedidos extends CI_Controller {
 
 			if(isset($observacion_guia->rut)){
 				if($rut_transportista == '' && $observacion_guia->rut != ''){
-					$rut_transportista = number_format(substr($observacion_guia->rut,0,strlen($observacion_guia->rut)-1),0,'.','.').'-'.substr($observacion_guia->rut,-1);
+
+					$rut_completo =  str_replace('.','',$observacion_guia->rut);
+
+
+					$rut_transportista = number_format(substr($rut_completo,0,strlen($rut_completo)-1),0,'.','.').'-'.substr($rut_completo,-1);
 					$nombre_transportista = $observacion_guia->nombre;
 					$empresa_transporte = $observacion_guia->empresatransporte;
 					$patente_camion = $observacion_guia->pat_camion;
@@ -1277,6 +1286,7 @@ class Pedidos extends CI_Controller {
 		//==============================================================
 		//==============================================================
 
+		//echo $html; exit;
 		include(dirname(__FILE__)."/../libraries/mpdf60/mpdf.php");
 
 		$mpdf= new mPDF(

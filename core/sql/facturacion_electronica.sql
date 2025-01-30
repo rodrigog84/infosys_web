@@ -959,3 +959,8 @@ ALTER TABLE `observacion_facturas`
 	ADD COLUMN `tipodescarga` VARCHAR(100) NOT NULL AFTER `transferencia`;
 
 	
+/**********************************************************************************************************/
+
+ALTER TABLE pedidos_guias ADD tipo VARCHAR(30)
+UPDATE pedidos_guias  SET tipo = 'pedido' 
+

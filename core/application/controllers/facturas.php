@@ -3351,14 +3351,30 @@ class Facturas extends CI_Controller {
 		$idfactura = $this->db->insert_id();
 
 
-    if($tipodocumento == 105 && $id_pedido != 0){
+    if($tipodocumento == 105){
 
-            $guia_pedido = array(
-                'idpedido' => $id_pedido,
-                'idguia' => $idfactura     
-            );
-            $this->db->insert('pedidos_guias', $guia_pedido); 
-            $idguiapedido = $this->db->insert_id();
+            if($id_pedido != 0){
+
+
+                    $guia_pedido = array(
+                        'idpedido' => $id_pedido,
+                        'idguia' => $idfactura,
+                        'tipo' => 'pedido'     
+                    );
+                    $this->db->insert('pedidos_guias', $guia_pedido); 
+                    $idguiapedido = $this->db->insert_id();               
+            }else{
+                    $guia_pedido = array(
+                        'idpedido' => 0,
+                        'idguia' => $idfactura,
+                        'tipo' => 'guia directa'     
+                    );
+                    $this->db->insert('pedidos_guias', $guia_pedido); 
+                    $idguiapedido = $this->db->insert_id();   
+
+            }
+
+
     }
 
 
