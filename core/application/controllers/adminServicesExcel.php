@@ -2506,6 +2506,7 @@ public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
                 }
             $users = $query->result_array();
             $row = $query->result();
+            //echo $this->db->last_query(); exit;
             $row = $row[0];
 
 
@@ -3334,7 +3335,7 @@ LEFT JOIN detalle_mov_cuenta_corriente dm ON c.idmovimiento = dm.idmovimiento AN
   ORDER BY cli.rut, cli.nombres, c.tipodocumento, c.numdocumento, c.created_at");            */
 
 
-            $query = $this->db->query("SELECT substr(cli.rut,1,length(cli.rut)-1) as rut_cli, substr(cli.rut,-1) as dv, cli.nombres, CONCAT(tc.descripcion,' ',c.numdocumento) AS origen, CONCAT(tc2.descripcion,' ',c.numdocumento_asoc) AS referencia, CONCAT(m.tipo,' ',m.numcomprobante) AS comprobante, if((c.origen='VENTA' and c.tipodocumento in (1,2,19,120,101,103,16)) or (c.origen = 'CTACTE' and c.tipodocumento not in (1,2,19,120,101,103,16)),c.valor,0) AS debe, if((c.origen='CTACTE' and c.tipodocumento in (1,2,19,120,101,103,16)) or (c.origen = 'VENTA' and c.tipodocumento not in (1,2,19,120,101,103,16)),c.valor,0) AS haber, c.glosa, DATE_FORMAT(c.fecvencimiento,'%d/%m/%Y') AS fecvencimiento, DATE_FORMAT(c.fecha,'%d/%m/%Y') AS fecha
+            $query = $this->db->query("SELECT substr(cli.rut,1,length(cli.rut)-1) as rut_cli, substr(cli.rut,-1) as dv, cli.nombres, CONCAT(tc.descripcion,' ',c.numdocumento) AS origen, CONCAT(tc2.descripcion,' ',c.numdocumento_asoc) AS referencia, CONCAT(m.tipo,' ',m.numcomprobante) AS comprobante, if((c.origen='VENTA' and c.tipodocumento in (1,2,19,120,101,103,104,16)) or (c.origen = 'CTACTE' and c.tipodocumento not in (1,2,19,120,101,103,104,16)),c.valor,0) AS debe, if((c.origen='CTACTE' and c.tipodocumento in (1,2,19,120,101,103,104,16)) or (c.origen = 'VENTA' and c.tipodocumento not in (1,2,19,120,101,103,104,16)),c.valor,0) AS haber, c.glosa, DATE_FORMAT(c.fecvencimiento,'%d/%m/%Y') AS fecvencimiento, DATE_FORMAT(c.fecha,'%d/%m/%Y') AS fecha
 FROM cartola_cuenta_corriente c
 INNER JOIN cuenta_corriente cta on c.idctacte  = cta.id
 INNER JOIN clientes cli on cta.idcliente = cli.id
@@ -3416,7 +3417,7 @@ LEFT JOIN detalle_mov_cuenta_corriente dm ON c.idmovimiento = dm.idmovimiento AN
                           ". $sqlCuentaCorriente . " order by c.tipodocumento, c.numdocumento, c.created_at");  */          
 
 
-            $query = $this->db->query("select concat(tc.descripcion,' ',c.numdocumento) as origen, concat(tc2.descripcion,' ',c.numdocumento_asoc) as referencia, if((c.origen='VENTA' and c.tipodocumento in (1,2,19,120,101,103,16)) or (c.origen = 'CTACTE' and c.tipodocumento not in (1,2,19,120,101,103,16)),c.valor,0) as debe,  if((c.origen='CTACTE' and c.tipodocumento in (1,2,19,120,101,103,16)) or (c.origen = 'VENTA' and c.tipodocumento not in (1,2,19,120,101,103,16)),c.valor,0) as haber, c.glosa, DATE_FORMAT(c.fecvencimiento,'%d/%m/%Y') as fecvencimiento, DATE_FORMAT(c.fecha,'%d/%m/%Y') as fecha, concat(m.tipo,' ',m.numcomprobante) as comprobante, m.id as idcomprobante
+            $query = $this->db->query("select concat(tc.descripcion,' ',c.numdocumento) as origen, concat(tc2.descripcion,' ',c.numdocumento_asoc) as referencia, if((c.origen='VENTA' and c.tipodocumento in (1,2,19,120,101,103,104,16)) or (c.origen = 'CTACTE' and c.tipodocumento not in (1,2,19,120,101,103,104,16)),c.valor,0) as debe,  if((c.origen='CTACTE' and c.tipodocumento in (1,2,19,120,101,103,104,16)) or (c.origen = 'VENTA' and c.tipodocumento not in (1,2,19,120,101,103,104,16)),c.valor,0) as haber, c.glosa, DATE_FORMAT(c.fecvencimiento,'%d/%m/%Y') as fecvencimiento, DATE_FORMAT(c.fecha,'%d/%m/%Y') as fecha, concat(m.tipo,' ',m.numcomprobante) as comprobante, m.id as idcomprobante
                           from cartola_cuenta_corriente c 
                           inner join tipo_documento tc on c.tipodocumento = tc.id
                           left join tipo_documento tc2 on c.tipodocumento_asoc = tc2.id

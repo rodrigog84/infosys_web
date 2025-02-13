@@ -143,6 +143,8 @@ class Cuentacorriente extends CI_Controller {
 	public function getAll(){
 		
 		$resp = array();
+        $start = $this->input->get('start');
+        $limit = $this->input->get('limit');		
 		$countAll = $this->db->count_all_results("cuenta_corriente");
 
 		$query = $this->db->query('SELECT cc.id, c.nombres as cliente, c.rut, cco.nombre as cuentacontable, cc.saldo,
@@ -1451,13 +1453,13 @@ class Cuentacorriente extends CI_Controller {
 									");*/
 
 		$query = $this->db->query("select 
-									(select COALESCE(sum(if((c.origen='VENTA' and c.tipodocumento in (1,2,19,120,101,103,16)) or (c.origen = 'CTACTE' and c.tipodocumento not in (1,2,19,120,101,103,16)),c.valor,0)),0) as valor 
+									(select COALESCE(sum(if((c.origen='VENTA' and c.tipodocumento in (1,2,19,120,101,103,104,16)) or (c.origen = 'CTACTE' and c.tipodocumento not in (1,2,19,120,101,103,104,16)),c.valor,0)),0) as valor 
 																	  from cartola_cuenta_corriente c 
 																	  left join detalle_mov_cuenta_corriente dm on c.idmovimiento = dm.idmovimiento and c.idcuenta = dm.idcuenta and c.tipodocumento = dm.tipodocumento and c.numdocumento = dm.numdocumento
 																	where ". $sqlCuentaCorriente . " )
 																	
 									as debe,
-									(select COALESCE(SUM(if((c.origen='CTACTE' and c.tipodocumento in (1,2,19,120,101,103,16)) or (c.origen = 'VENTA' and c.tipodocumento not in (1,2,19,120,101,103,16)),c.valor,0)),0) as valor
+									(select COALESCE(SUM(if((c.origen='CTACTE' and c.tipodocumento in (1,2,19,120,101,103,104,16)) or (c.origen = 'VENTA' and c.tipodocumento not in (1,2,19,120,101,103,104,16)),c.valor,0)),0) as valor
 																	  from cartola_cuenta_corriente c 
 																	  left join detalle_mov_cuenta_corriente dm on c.idmovimiento = dm.idmovimiento and c.idcuenta = dm.idcuenta and c.tipodocumento = dm.tipodocumento and c.numdocumento = dm.numdocumento
 																	where ". $sqlCuentaCorriente . " )
@@ -2759,7 +2761,7 @@ $body_header = '<tr>
 
             $this->load->database();
 
-            $query = $this->db->query("select concat(tc.descripcion,' ',c.numdocumento) as origen, concat(tc2.descripcion,' ',c.numdocumento_asoc) as referencia, if((c.origen='VENTA' and c.tipodocumento in (1,2,19,120,101,103,16)) or (c.origen = 'CTACTE' and c.tipodocumento not in (1,2,19,120,101,103,16)),c.valor,0) as debe, if((c.origen='CTACTE' and c.tipodocumento in (1,2,19,120,101,103,16)) or (c.origen = 'VENTA' and c.tipodocumento not in (1,2,19,120,101,103,16)),c.valor,0) as haber, c.glosa, DATE_FORMAT(c.fecvencimiento,'%d/%m/%Y') as fecvencimiento, DATE_FORMAT(c.fecha,'%d/%m/%Y') as fecha, concat(m.tipo,' ',m.numcomprobante) as comprobante, m.id as idcomprobante
+            $query = $this->db->query("select concat(tc.descripcion,' ',c.numdocumento) as origen, concat(tc2.descripcion,' ',c.numdocumento_asoc) as referencia, if((c.origen='VENTA' and c.tipodocumento in (1,2,19,120,101,103,104,16)) or (c.origen = 'CTACTE' and c.tipodocumento not in (1,2,19,120,101,103,104,16)),c.valor,0) as debe, if((c.origen='CTACTE' and c.tipodocumento in (1,2,19,120,101,103,104,16)) or (c.origen = 'VENTA' and c.tipodocumento not in (1,2,19,120,101,103,104,16)),c.valor,0) as haber, c.glosa, DATE_FORMAT(c.fecvencimiento,'%d/%m/%Y') as fecvencimiento, DATE_FORMAT(c.fecha,'%d/%m/%Y') as fecha, concat(m.tipo,' ',m.numcomprobante) as comprobante, m.id as idcomprobante
                           from cartola_cuenta_corriente c 
                           inner join tipo_documento tc on c.tipodocumento = tc.id
                           left join tipo_documento tc2 on c.tipodocumento_asoc = tc2.id
