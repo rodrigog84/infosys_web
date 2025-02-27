@@ -1627,8 +1627,10 @@ public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
 
                    if ($v['forma']==1){
                       $tipo="GLOSA";
+                  }else if($v['forma']==0 && $v['guiatraslado']==1){
+                      $tipo="TRASLADO";     
                   }else{
-                       $tipo="PRODUCTO";                    
+                       $tipo="PRODUCTOS";                    
                   }
             
 
