@@ -10,6 +10,8 @@ public function __construct()
     $this->load->database();
   }
 
+
+
    public function exportarExcelproducciondiario(){
 
           header("Content-type: application/vnd.ms-excel");
@@ -223,7 +225,8 @@ public function __construct()
              
          }
 
-   public function exportarExcelExistenciaCliente()
+
+ public function exportarExcelExistenciaCliente()
          {
             header("Content-type: application/vnd.ms-excel"); 
             header("Content-disposition: attachment; filename=detalleexistenciacliente.xls"); 
@@ -318,7 +321,8 @@ public function __construct()
             echo '</table>';
         }
 
-public function exportarExcelPedidos(){
+
+  public function exportarExcelPedidos(){
 
           header("Content-type: application/vnd.ms-excel");
           header("Content-disposition: attachment; filename=Pedidos.xls"); 
@@ -426,9 +430,17 @@ public function exportarExcelPedidos(){
                                             ,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos
                                             ,cf.rut as rutclientefinal
                                             ,cf.nombre as nombreclientefinal
+                                            ,fc.num_factura
+                                            ,obsf.destino
+                                            ,acc.tipoenvase
+                                            ,obsf.nombre AS chofer
+                                            ,obsf.pat_camion
                                       FROM pedidos acc
                                       INNER JOIN pedidos_detalle d ON acc.id = d.id_pedido
                                       INNER JOIN productos p ON d.id_producto = p.id
+                                      LEFT JOIN pedidos_guias pg ON acc.id = pg.idpedido
+                                      LEFT JOIN factura_clientes fc ON pg.idguia = fc.id
+                                      LEFT JOIN observacion_facturas obsf ON pg.idguia = obsf.id_documento
                                       left join clientes c on (acc.id_cliente = c.id)
                                       left join vendedores v on (acc.id_vendedor = v.id)
                                       left join correlativos co on (acc.tip_documento = co.id) 
@@ -458,7 +470,14 @@ public function exportarExcelPedidos(){
             echo "<td>NOMBRE CLIENTE FINAL</td>";
             echo "<td>RECETA</td>";
             echo "<td>ESTADO</td>";
-                         
+            echo "<td>GUIA</td>";
+            echo "<td>DESTINO</td>";
+            echo "<td>TIPO ENVASE</td>";
+            echo "<td>CHOFER</td>";
+            echo "<td>PATENTE</td>";
+            
+
+
             foreach($users as $v){
 
               if($v['cantidad_listos']  == 0){
@@ -482,13 +501,16 @@ public function exportarExcelPedidos(){
               echo "<td>".$v['rutclientefinal']."</td>";
               echo "<td>".$v['nombreclientefinal']."</td>";
               echo "<td>".$v['receta']."</td>";
-              echo "<td>".$estado_pedido."</td></tr>";
-            
+              echo "<td>".$estado_pedido."</td>";
+              echo "<td>".$v['num_factura']."</td>";
+              echo "<td>".$v['destino']."</td>";
+              echo "<td>".$v['tipoenvase']."</td>";
+              echo "<td>".$v['chofer']."</td>";
+              echo "<td>".$v['pat_camion']."</td></tr>";
               }
               echo '</table>';
          
-    } 
-
+    }       
 
 public function reporte_stock($familia,$subfamilia,$agrupacion,$marca,$producto)
          {
@@ -705,7 +727,7 @@ public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
 
 
 
-      public function exportarExcellistaProductos()
+public function exportarExcellistaProductos()
          {
             header("Content-type: application/vnd.ms-excel"); 
             header("Content-disposition: attachment; filename=listaproductos.xls"); 
@@ -1175,8 +1197,10 @@ public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
             echo '</table>';
           }
        }
-      
-        public function exportarExcelProductos()
+
+
+
+public function exportarExcelProductos()
          {
             header("Content-type: application/vnd.ms-excel"); 
             header("Content-disposition: attachment; filename=productos.xls"); 
@@ -1483,8 +1507,11 @@ public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
             echo '</table>';
         }
 
-       public function exportarExcelGuias()
+
+public function exportarExcelGuias()
          {
+
+            //exit;
             header("Content-type: application/vnd.ms-excel"); 
             header("Content-disposition: attachment; filename=guias.xls");
             
@@ -1671,7 +1698,8 @@ public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
 
         }
 
-        public function exportarExcellibroBoletas()
+
+ public function exportarExcellibroBoletas()
          {
             header("Content-type: application/vnd.ms-excel"); 
             header("Content-disposition: attachment; filename=LibroBoletas.xls");
@@ -2259,7 +2287,7 @@ public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
             echo '</table>';
         }
 
-        public function exportarExcelNotacredito()
+ public function exportarExcelNotacredito()
          {
             header("Content-type: application/vnd.ms-excel"); 
             header("Content-disposition: attachment; filename=productos.xls");            
@@ -2722,7 +2750,7 @@ public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
             echo '</table>';
         }
 
-        public function exportarExcelProveedor(){
+public function exportarExcelProveedor(){
 
             header("Content-type: application/vnd.ms-excel"); 
             header("Content-disposition: attachment; filename=proveedores.xls"); 
@@ -3070,9 +3098,7 @@ public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
         }
 
 
-
-
-        public function exportarExcelLibroDiario(){
+public function exportarExcelLibroDiario(){
             
             header("Content-type: application/vnd.ms-excel"); 
             header("Content-disposition: attachment; filename=LibroDiario.xls"); 
@@ -3317,7 +3343,12 @@ public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
         }
 
 
-      public function exportarExcelCartolaTotal(){
+
+
+
+
+
+public function exportarExcelCartolaTotal(){
             
             header("Content-type: application/vnd.ms-excel"); 
             header("Content-disposition: attachment; filename=Cartola.xls"); 
@@ -3898,6 +3929,18 @@ LEFT JOIN detalle_mov_cuenta_corriente dm ON c.idmovimiento = dm.idmovimiento AN
               echo '</table>';
              
          }     
+       
+
+
+
+
+
+
+
+
+
+
+
        
       }
  
