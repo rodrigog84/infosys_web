@@ -669,10 +669,11 @@ class Guias extends CI_Controller {
         if($opcion == "Rut"){		
 			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor , case when acc.forma = 1 then "GLOSA"
            when acc.forma = 0 AND guiatraslado = 1 then "TRASLADO"
-            ELSE "PRODUCTOS" END AS tipoguia	FROM factura_clientes acc
+            ELSE "PRODUCTOS" END AS tipoguia,
+            case when acc.estado = 1 then "ANULADA" else "VIGENTE" end as estado_guia	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.tipo_documento in ( '.$tipo.') and c.rut = '.$nombres.'
+			WHERE acc.id_bodega='.$bodega.' and acc.tipo_documento in ( '.$tipo.') and c.rut = '.$nombres.'
 			order by acc.id desc		
 			limit '.$start.', '.$limit.''		 
 
@@ -700,10 +701,11 @@ class Guias extends CI_Controller {
 	        	    	
 			$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor , case when acc.forma = 1 then "GLOSA"
            when acc.forma = 0 AND guiatraslado = 1 then "TRASLADO"
-            ELSE "PRODUCTOS" END AS tipoguia	FROM factura_clientes acc
+            ELSE "PRODUCTOS" END AS tipoguia,
+            case when acc.estado = 1 then "ANULADA" else "VIGENTE" end as estado_guia	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.tipo_documento in ( '.$tipo.') ' . $sql_nombre . '
+			WHERE acc.id_bodega='.$bodega.'  and acc.tipo_documento in ( '.$tipo.') ' . $sql_nombre . '
 			order by acc.id desc		
 			limit '.$start.', '.$limit.''
 						
@@ -723,10 +725,11 @@ class Guias extends CI_Controller {
 
                   $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor , case when acc.forma = 1 then "GLOSA"
            when acc.forma = 0 AND guiatraslado = 1 then "TRASLADO"
-            ELSE "PRODUCTOS" END AS tipoguia    FROM factura_clientes acc
+            ELSE "PRODUCTOS" END AS tipoguia,
+            case when acc.estado = 1 then "ANULADA" else "VIGENTE" end as estado_guia    FROM factura_clientes acc
                   left join clientes c on (acc.id_cliente = c.id)
                   left join vendedores v on (acc.id_vendedor = v.id)
-                  WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.tipo_documento in ( '.$tipo.')
+                  WHERE acc.id_bodega='.$bodega.'  and acc.tipo_documento in ( '.$tipo.')
                   order by acc.id desc' 
 
                   );
@@ -747,10 +750,11 @@ class Guias extends CI_Controller {
 			$data = array();
                   $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor , case when acc.forma = 1 then "GLOSA"
            when acc.forma = 0 AND guiatraslado = 1 then "TRASLADO"
-            ELSE "PRODUCTOS" END AS tipoguia    FROM factura_clientes acc
+            ELSE "PRODUCTOS" END AS tipoguia,
+            case when acc.estado = 1 then "ANULADA" else "VIGENTE" end as estado_guia, ,    FROM factura_clientes acc
                   left join clientes c on (acc.id_cliente = c.id)
                   left join vendedores v on (acc.id_vendedor = v.id)
-                  WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.tipo_documento in ( '.$tipo.')
+                  WHERE acc.id_bodega='.$bodega.'  and acc.tipo_documento in ( '.$tipo.')
                   order by acc.id desc          
                   limit '.$start.', '.$limit.'' 
 
@@ -764,10 +768,10 @@ class Guias extends CI_Controller {
                   $data = array();
                   $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor , case when acc.forma = 1 then "GLOSA"
            when acc.forma = 0 AND guiatraslado = 1 then "TRASLADO"
-            ELSE "PRODUCTOS" END AS tipoguia    FROM factura_clientes acc
+            ELSE "PRODUCTOS" END AS tipoguia, case when acc.estado = 1 then "ANULADA" else "VIGENTE" end as estado_guia    FROM factura_clientes acc
                   left join clientes c on (acc.id_cliente = c.id)
                   left join vendedores v on (acc.id_vendedor = v.id)
-                  WHERE acc.num_factura = '.$nombres.' and acc.estado="" and acc.id_bodega='.$bodega.' and acc.tipo_documento in ( '.$tipo.')
+                  WHERE acc.num_factura = '.$nombres.'  and acc.id_bodega='.$bodega.' and acc.tipo_documento in ( '.$tipo.')
                   order by acc.id desc'   
                   
                   );
@@ -789,10 +793,11 @@ class Guias extends CI_Controller {
 
             $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor , case when acc.forma = 1 then "GLOSA"
            when acc.forma = 0 AND guiatraslado = 1 then "TRASLADO"
-            ELSE "PRODUCTOS" END AS tipoguia    FROM factura_clientes acc
+            ELSE "PRODUCTOS" END AS tipoguia,
+            case when acc.estado = 1 then "ANULADA" else "VIGENTE" end as estado_guia    FROM factura_clientes acc
                   left join clientes c on (acc.id_cliente = c.id)
                   left join vendedores v on (acc.id_vendedor = v.id)
-                  WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.tipo_documento in ( '.$tipo.')
+                  WHERE acc.id_bodega='.$bodega.'  and acc.tipo_documento in ( '.$tipo.')
                   order by acc.id desc' 
 
                   );
@@ -810,10 +815,11 @@ class Guias extends CI_Controller {
 
 		$query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor , case when acc.forma = 1 then "GLOSA"
            when acc.forma = 0 AND guiatraslado = 1 then "TRASLADO"
-            ELSE "PRODUCTOS" END AS tipoguia	FROM factura_clientes acc
+            ELSE "PRODUCTOS" END AS tipoguia,
+            case when acc.estado = 1 then "ANULADA" else "VIGENTE" end as estado_guia	FROM factura_clientes acc
 			left join clientes c on (acc.id_cliente = c.id)
 			left join vendedores v on (acc.id_vendedor = v.id)
-			WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.tipo_documento in ( '.$tipo.')
+			WHERE acc.id_bodega='.$bodega.'  and acc.tipo_documento in ( '.$tipo.')
 			order by acc.id desc		
 			limit '.$start.', '.$limit.''	
 

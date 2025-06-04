@@ -27,6 +27,12 @@ Ext.define('Infosys_web.view.guiasdespacho.PrincipalguiasDespacho' ,{
         align: 'right'
                
     },{
+        header: "Estado Guia",
+        flex: 1,
+        dataIndex: 'estado_guia',
+        align: 'right'
+               
+    },{
         header: "Tipo Guia",
         flex: 1,
         dataIndex: 'tipoguia',

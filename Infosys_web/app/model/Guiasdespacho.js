@@ -30,7 +30,9 @@ Ext.define('Infosys_web.model.Guiasdespacho', {
         {name: 'rut_cliente'},
         {name: 'total'},
         {name: 'codigo'},
-        {name: 'tipoguia'}
+        {name: 'tipoguia'},
+        {name: 'estado_guia'}
+
                
                
     ]
