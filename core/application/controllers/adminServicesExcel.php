@@ -420,8 +420,19 @@ public function __construct()
           $query = $this->db->query("SELECT acc.num_pedido
                                             ,acc.ordencompra AS orden_compra
                                             ,c.nombres as nom_cliente
+                                            ,p.codigo
                                             ,p.nombre AS nomproducto
                                             ,d.cantidad
+                                            ,(SELECT    SUM(cantidad) AS cantidad
+                                              FROM      detalle_factura_cliente
+                                              WHERE     id_factura = fc.id
+                                              AND       id_producto = p.id) as cantidad_guia
+
+                                            ,(SELECT    MAX(precio) AS precio
+                                              FROM      detalle_factura_cliente
+                                              WHERE     id_factura = fc.id
+                                              AND       id_producto = p.id) as precio_guia                                            
+                                            ,p.p_venta
                                             ,DATE_FORMAT(acc.fecha_despacho, '%d/%m/%Y') AS fecentrega
                                             ,acc.ubicacion AS ubicacion
                                             ,v.nombre as nom_vendedor
@@ -430,6 +441,7 @@ public function __construct()
                                             ,(select count(id) as cantidad from pedidos_detalle where id_pedido = acc.id and idestadoproducto in (4,5)) as cantidad_listos
                                             ,cf.rut as rutclientefinal
                                             ,cf.nombre as nombreclientefinal
+                                            ,fc.fecha_factura
                                             ,fc.num_factura
                                             ,obsf.destino
                                             ,acc.tipoenvase
@@ -459,18 +471,21 @@ public function __construct()
             echo "</tr>";                  
             echo "<tr>";
             echo "<td>NRO PEDIDO</td>";
+            echo "<td>GUIA</td>";
             echo "<td align='right'>ORDEN COMPRA</td>";
             echo "<td>CLIENTE</td>";
+            echo "<td>CODIGO</td>";
             echo "<td>PRODUCTO</td>";
             echo "<td>CANTIDAD</td>";
+            echo "<td>PRECIO</td>";
             echo "<td>UBICACION</td>";
             echo "<td>FECHA ENTREGA</td>";
             echo "<td>VENDEDOR</td>";
             echo "<td>RUT CLIENTE FINAL</td>";
             echo "<td>NOMBRE CLIENTE FINAL</td>";
             echo "<td>RECETA</td>";
-            echo "<td>ESTADO</td>";
-            echo "<td>GUIA</td>";
+            echo "<td>ESTADO</td>";       
+            echo "<td>FECHA GUIA</td>";
             echo "<td>DESTINO</td>";
             echo "<td>TIPO ENVASE</td>";
             echo "<td>CHOFER</td>";
@@ -487,22 +502,43 @@ public function __construct()
               }else{
                   $estado_pedido =  'PARCIAL';
               }
+
+
+              if($v['num_factura'] == ''){
+
+                  $cantidad_guia = number_format($v['cantidad'],0,'.','.');
+              }else{
+
+                 $cantidad_guia = number_format($v['cantidad_guia'],0,'.','.');
+              }
+
+
+              if($v['num_factura'] == ''){
+
+                  $precio_guia = number_format($v['p_venta'],2,',','.');
+              }else{
+
+                 $precio_guia = number_format($v['precio_guia'],2,',','.');
+              }              
               
 
               echo "<tr>";
               echo "<td>".$v['num_pedido']."</td>";
+              echo "<td>".$v['num_factura']."</td>";
               echo "<td>".$v['orden_compra']."</td>";
               echo "<td>".$v['nom_cliente']."</td>";
+              echo "<td>".$v['codigo']."</td>";
               echo "<td>".$v['nomproducto']."</td>";
-              echo "<td>".number_format($v['cantidad'],0,'.','.')."</td>";
+              echo "<td>".$cantidad_guia."</td>";
+              echo "<td>".$precio_guia."</td>";
               echo "<td>".$v['ubicacion']."</td>";
               echo "<td>".$v['fecentrega']."</td>";
               echo "<td>".$v['nom_vendedor']."</td>";
               echo "<td>".$v['rutclientefinal']."</td>";
               echo "<td>".$v['nombreclientefinal']."</td>";
               echo "<td>".$v['receta']."</td>";
-              echo "<td>".$estado_pedido."</td>";
-              echo "<td>".$v['num_factura']."</td>";
+              echo "<td>".$estado_pedido."</td>";              
+              echo "<td>".$v['fecha_factura']."</td>";
               echo "<td>".$v['destino']."</td>";
               echo "<td>".$v['tipoenvase']."</td>";
               echo "<td>".$v['chofer']."</td>";
