@@ -54,7 +54,7 @@ Ext.define('Infosys_web.view.clientefinal.Principal' ,{
         },{
             xtype: 'pagingtoolbar',
             dock:'bottom',
-            store: 'Tipoenvases',
+            store: 'Clientefinal',
             displayInfo: true
         }];
         

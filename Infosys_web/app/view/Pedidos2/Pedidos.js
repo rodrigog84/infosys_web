@@ -49,6 +49,21 @@ Ext.define('Infosys_web.view.Pedidos2.Pedidos', {
         }); 
 
 
+         var clientefinal2 = Ext.create('Ext.data.Store', {
+            model: 'Infosys_web.model.Clientefinal',
+            proxy: {
+              type: 'ajax',
+                url : preurl +'clientefinal/getAll2',
+                reader: {
+                    type: 'json',
+                    root: 'data'
+                }
+            },
+            autoLoad: true
+        });   
+
+
+
         var stItms = Ext.getStore('Pedidos.Items');
         stItms.removeAll();
         Ext.applyIf(me, {
@@ -356,7 +371,7 @@ Ext.define('Infosys_web.view.Pedidos2.Pedidos', {
                                         height: 30,
                                         fieldLabel: '<b>CLIENTE FINAL</b>',
                                         editable: false,
-                                        store: 'Clientefinal',
+                                        store: clientefinal2,
                                         emptyText : 'Seleccionar',
                                         displayField : 'rutnombre',
                                         valueField : 'id',                        
