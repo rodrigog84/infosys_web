@@ -364,13 +364,15 @@ Ext.define('Infosys_web.view.Pedidos2.Pedidos', {
                                 align: 'stretch'
                             },
                             items: [{
-                                        xtype: 'combobox',
+                                        xtype: 'combo',
                                         fieldCls: 'required',
                                         labelWidth: 155,
                                         width: 550,
                                         height: 30,
                                         fieldLabel: '<b>CLIENTE FINAL</b>',
-                                        editable: false,
+                                        editable: true,
+                                        forceSelection: true,
+                                        queryMode: 'local',
                                         store: clientefinal2,
                                         emptyText : 'Seleccionar',
                                         displayField : 'rutnombre',
