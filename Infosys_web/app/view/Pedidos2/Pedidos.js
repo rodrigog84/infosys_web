@@ -375,7 +375,7 @@ Ext.define('Infosys_web.view.Pedidos2.Pedidos', {
                                         queryMode: 'local',
                                         store: clientefinal2,
                                         emptyText : 'Seleccionar',
-                                        displayField : 'rutnombre',
+                                        displayField : 'nombre',
                                         valueField : 'id',                        
                                         itemId: 'clientefinalId',
                                         name: 'clientefinal'                            
