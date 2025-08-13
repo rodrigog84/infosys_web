@@ -1011,7 +1011,7 @@ public function consumo_folios_no_enviada(){
 
 	public function get_factura($id_factura){
 
-		$this->db->select('fc.tipo_documento, fc.num_factura, fc.fecha_factura, fc.sub_total, fc.descuento, fc.neto, fc.iva, fc.totalfactura, fc.forma')
+		$this->db->select('fc.tipo_documento, fc.num_factura, fc.fecha_factura, fc.sub_total, fc.descuento, fc.neto, fc.iva, fc.totalfactura, fc.forma, fc.id_factura')
 		  ->from('factura_clientes fc')
 		  ->where('fc.id',$id_factura)
 		  ->limit(1);
@@ -1139,7 +1139,7 @@ public function consumo_folios_no_enviada(){
 							$lista_detalle[$i]['NmbItem'] = $detalle->glosa;
 							$lista_detalle[$i]['QtyItem'] = 1;
 							
-							$lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 || $tipo_caf == 46 || $tipo_caf == 52 ? $detalle->neto : $detalle->total;				
+							$lista_detalle[$i]['PrcItem'] = $tipo_caf == 33 || $tipo_caf == 46 || $tipo_caf == 52 || $tipo_caf == 61 ? $detalle->neto : $detalle->total;				
 							$i++;
 						}
 
@@ -1150,6 +1150,9 @@ public function consumo_folios_no_enviada(){
 
 		//print_r($lista_detalle);
 		//exit;
+
+		$rutCliente = substr($datos_empresa_factura->rut_cliente,0,strlen($datos_empresa_factura->rut_cliente) - 1)."-".substr($datos_empresa_factura->rut_cliente,-1);
+
 
 		if($tipo_caf == 39){
 
@@ -1276,6 +1279,15 @@ public function consumo_folios_no_enviada(){
 		    'NroResol' => $empresa->nro_resolucion
 		];
 
+		$caratula_cliente = [
+			//'RutEnvia' => '11222333-4', // se obtiene de la firma
+			'RutReceptor' => $rutCliente,
+			'FchResol' => $empresa->fec_resolucion,
+			'NroResol' => $empresa->nro_resolucion
+		];  
+		
+
+		//var_dump($caratula_cliente); exit;
 		
 		$Firma = new sasco\LibreDTE\FirmaElectronica($config['firma']); //lectura de certificado digital		
 		
@@ -1304,12 +1316,24 @@ public function consumo_folios_no_enviada(){
 		$EnvioDTE->setCaratula($caratula);
 		$EnvioDTE->generar();		
 
+		
+
 		//var_dump($EnvioDTE->generar()); exit;
 
 		if ($EnvioDTE->schemaValidate()) { // REVISAR PORQUÉ SE CAE CON ESTA VALIDACION
 			
 			$track_id = 0;
 		    $xml_dte = $EnvioDTE->generar();
+
+
+			#GENERACIÓN DTE CLIENTE
+			$EnvioDTE_CLI = new \sasco\LibreDTE\Sii\EnvioDte();
+			$EnvioDTE_CLI->agregar($DTE);
+			$EnvioDTE_CLI->setFirma($Firma);
+			$EnvioDTE_CLI->setCaratula($caratula_cliente);
+			$xml_dte_cliente = $EnvioDTE_CLI->generar(); 
+			
+			//var_dump($xml_dte_cliente); exit;
 
 		    $tipo_envio = $this->busca_parametro_fe('envio_sii'); //ver si está configurado para envío manual o automático
 
@@ -1322,6 +1346,8 @@ public function consumo_folios_no_enviada(){
 			fwrite($f_archivo,$xml_dte);
 			fclose($f_archivo);
 
+			$dte_cliente = $this->facturaelectronica->crea_archivo_dte($xml_dte_cliente,$idfactura,$tipo_caf,'cliente');			
+
 		    if($tipo_envio == 'automatico'){
 			    $track_id = $EnvioDTE->enviar();
 		    }
@@ -1330,10 +1356,12 @@ public function consumo_folios_no_enviada(){
 		    $this->db->where('f.folio', $numfactura);
 		    $this->db->where('c.tipo_caf', $tipo_caf);
 			$this->db->update('folios_caf f inner join caf c on f.idcaf = c.id',array('dte' => $xml_dte,
+																					   'dte_cliente' => $dte_cliente['xml_dte'],
 																					  'estado' => 'O',
 																					  'idfactura' => $idfactura,
 																					  'path_dte' => $path,
 																					  'archivo_dte' => $nombre_dte,
+																					  'archivo_dte_cliente' => $dte_cliente['nombre_dte'],
 																					  'trackid' => $track_id
 																					  )); 
 
