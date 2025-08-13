@@ -53,6 +53,33 @@ class Clientefinal extends CI_Controller {
 
 	}
 
+
+	public function getAll2(){
+		$resp = array();
+
+      
+		$countAll = $this->db->count_all_results("cliente_final");
+
+			$query = $this->db->query('SELECT id, rut, nombre, direccion, CONCAT(rut," - ",nombre) AS rutnombre FROM cliente_final');
+
+
+
+		$data = array();
+		foreach ($query->result() as $row)
+		{
+			$data[] = $row;
+		}
+
+		//echo $this->db->last_query();
+        $resp['success'] = true;
+        $resp['total'] = $countAll;
+        $resp['data'] = $data;
+
+        echo json_encode($resp);
+	}
+
+
+
 	public function getAll(){
 		$resp = array();
 
@@ -70,11 +97,15 @@ class Clientefinal extends CI_Controller {
 			$query = $this->db->query('SELECT id, rut, nombre, direccion, CONCAT(rut," - ",nombre) AS rutnombre FROM cliente_final limit '.$start.', '.$limit.'');
 		}
 
+
+
 		$data = array();
 		foreach ($query->result() as $row)
 		{
 			$data[] = $row;
 		}
+
+		//echo $this->db->last_query();
         $resp['success'] = true;
         $resp['total'] = $countAll;
         $resp['data'] = $data;

@@ -352,6 +352,7 @@ class Reporte extends CI_Model
 											,d.precios as tipo_precio
 											, 'SERVICIOS' as familia 
 											,f.num_factura
+											,0 as id_guia
 								FROM 		(detalle_factura_glosa d) 
 								JOIN 		factura_clientes f ON d.id_factura = f.id 
 								WHERE 		1 = 1 " . $sql_mes . " 
@@ -383,6 +384,7 @@ class Reporte extends CI_Model
 												,0 as tipo_precio
 												, 'SERVICIOS' as familia 
 												,f.num_factura
+												,0 as id_guia
 										FROM factura_clientes f 
 										WHERE 1 = 1 " . $sql_mes . " 
 										"	.		$sql_anno . "
@@ -398,6 +400,7 @@ class Reporte extends CI_Model
 												,0 as tipo_precio
 												, 'SERVICIOS' as familia 
 												,f.num_factura
+												,0 as id_guia
 										FROM factura_clientes f 
 										WHERE 1 = 1 " . $sql_mes . " 
 										"	.		$sql_anno . "
@@ -413,6 +416,7 @@ class Reporte extends CI_Model
 												,0 as tipo_precio
 												, 'SERVICIOS' as familia 
 												,f.num_factura
+												,0 as id_guia
 										FROM factura_clientes f 
 										WHERE 1 = 1 " . $sql_mes . " 
 										"	.		$sql_anno . "
@@ -434,7 +438,9 @@ class Reporte extends CI_Model
 								, b.familia as familia 
 					FROM 	(
 							
-							SELECT 	 p.id
+							SELECT 	 	distinct
+										p.id
+										, 0 AS iddetalle
 										, p.codigo
 										, p.nombre
 										,f.tipo_documento
@@ -443,8 +449,10 @@ class Reporte extends CI_Model
 										,p." . $tipoprecio . " as tipo_precio
 										,tf.nombre as familia 
 										,f.num_factura
+										,0 as id_guia
 							FROM 		(detalle_factura_cliente d) 
 							JOIN 		factura_clientes f ON d.id_factura = f.id 
+							LEFT JOIN factura_clientes fg ON f.id = fg.id_factura
 							left JOIN detalle_factura_glosa g ON f.id = g.id_factura AND g.id_guia != 0
 							JOIN 		productos p ON d.id_producto = p.id 
 							JOIN 		familias tf ON p.id_familia = tf.id 
@@ -452,10 +460,15 @@ class Reporte extends CI_Model
 							"	.		$sql_anno . "
 							" . 		$sql_tipo_documento	."
 							AND 		g.id_factura IS null
+							AND 		CASE WHEN fg.guiatraslado = 1 then 0
+											  ELSE 1
+										END = 1									
 							
 							UNION all
 							
-							SELECT 	 p.id
+							SELECT 	 	distinct
+										p.id
+										, d.id AS iddetalle
 										, p.codigo
 										, p.nombre
 										,f.tipo_documento
@@ -464,16 +477,22 @@ class Reporte extends CI_Model
 										,p." . $tipoprecio . " as tipo_precio
 										,tf.nombre as familia 
 										,f.num_factura
+										,g.id_guia
 							FROM 		(detalle_factura_cliente d) 
 							INNER JOIN detalle_factura_glosa g ON d.id_factura = g.id_guia
 							JOIN 		factura_clientes f ON g.id_factura = f.id 
+							LEFT JOIN factura_clientes fg ON f.id = fg.id_factura
 							JOIN 		productos p ON d.id_producto = p.id 
 							JOIN 		familias tf ON p.id_familia = tf.id 
 							WHERE 		1 = 1 " . $sql_mes . " 
 							"	.		$sql_anno . "
 							" . 		$sql_tipo_documento	."
+							AND 		CASE WHEN fg.guiatraslado = 1 then 0
+											  ELSE 1
+										END = 1							
 							UNION ALL
 							SELECT p.id 
+									, 0 AS iddetalle
 									,p.codigo
 									,p.nombre
 									,f.tipo_documento 
@@ -482,6 +501,7 @@ class Reporte extends CI_Model
 									,p." . $tipoprecio . " as tipo_precio
 									,tf.nombre AS familia
 									,f.num_factura
+									,0 as id_guia
 							FROM (detalle_factura_glosa d)
 							JOIN factura_clientes f ON d.id_factura = f.id
 							JOIN productos p ON d.id_producto = p.id
