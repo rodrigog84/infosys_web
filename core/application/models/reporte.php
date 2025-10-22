@@ -440,7 +440,7 @@ class Reporte extends CI_Model
 							
 							SELECT 	 	distinct
 										p.id
-										, 0 AS iddetalle
+										, d.id AS iddetalle
 										, p.codigo
 										, p.nombre
 										,f.tipo_documento
