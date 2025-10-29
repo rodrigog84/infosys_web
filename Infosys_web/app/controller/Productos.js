@@ -463,6 +463,8 @@ Ext.define('Infosys_web.controller.Productos', {
         var lote = view.down('#loteId').getValue();
         var id = view.down('#idpId').getValue();
         var idbodega = view.down('#bodegaId').getValue();
+        var tipoenvaseId = view.down('#tipoenvaseId').getValue();
+
 
         var bolEnable = true;
 
@@ -603,7 +605,8 @@ Ext.define('Infosys_web.controller.Productos', {
             total: total,
             lote: lote,
             iva: iva,
-            dcto: descuento
+            dcto: descuento,
+            tipoenvase : tipoenvaseId
         }));
         this.recalcularFinal();
 
@@ -618,6 +621,7 @@ Ext.define('Infosys_web.controller.Productos', {
         view.down('#cantidadOriginalId').setValue(cero);
         view.down('#totdescuentoId').setValue(cero1);
         view.down('#DescuentoproId').setValue(cero);
+        view.down('#tipoenvaseId').setValue(cero);
         view.down("#buscarproc").focus();
     },
 

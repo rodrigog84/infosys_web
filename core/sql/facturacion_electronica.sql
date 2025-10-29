@@ -964,3 +964,10 @@ ALTER TABLE `observacion_facturas`
 ALTER TABLE pedidos_guias ADD tipo VARCHAR(30)
 UPDATE pedidos_guias  SET tipo = 'pedido' 
 
+/***********************************************************************************************************/
+
+ALTER TABLE `detalle_factura_cliente`
+	ADD COLUMN `tipoenvase` VARCHAR(100) NOT NULL DEFAULT '' AFTER `num_guia`;
+
+ALTER TABLE `detalle_factura_cliente`
+	CHANGE COLUMN `tipoenvase` `tipoenvase` VARCHAR(100) NULL DEFAULT '' COLLATE 'latin1_swedish_ci' AFTER `num_guia`;

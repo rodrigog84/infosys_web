@@ -1898,6 +1898,7 @@ mguiastraslado: function(){
     var id = view.down('#idpId').getValue();
     var idbodega = view.down('#bodegaId').getValue();
     var id_pedido = view.down('#id_pedido').getValue();
+    var tipoenvaseId = view.down('#tipoenvaseId').getValue();
 
     var bolEnable = true;
 
@@ -2042,7 +2043,8 @@ mguiastraslado: function(){
                 total: total,
                 lote: lote,
                 iva: iva,
-                dcto: descuento
+                dcto: descuento,
+                tipoenvase : tipoenvaseId
             }));
 
             this.recalcularFinal();
@@ -2058,6 +2060,7 @@ mguiastraslado: function(){
             view.down('#cantidadOriginalId').setValue(cero);
             view.down('#totdescuentoId').setValue(cero1);
             view.down('#DescuentoproId').setValue(cero);
+            view.down('#tipoenvaseId').setValue(cero);
             view.down("#buscarproc").focus();  
         },
         scope: this

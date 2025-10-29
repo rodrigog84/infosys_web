@@ -386,7 +386,7 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                             align: 'center',     
                             items: [{
                                 xtype: 'textfield',
-                                width: 140,
+                                width: 120,
                                 labelWidth: 40,
                                 fieldLabel: 'Codigo',
                                 itemId: 'codigoId',
@@ -395,6 +395,7 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                                 xtype: 'textfield',
                                 align: 'center',
                                 labelWidth: 55,
+                                 width: 190,
                                 itemId: 'nombreproductoId',
                                 fieldLabel: 'Producto',
                                 name: 'nomproducto',                                
@@ -403,6 +404,7 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                                 xtype: 'textfield',
                                 align: 'center',
                                 labelWidth: 60,
+
                                 itemId: 'productoId',
                                 fieldLabel: 'Producto',
                                 name: 'Productos',                                
@@ -417,9 +419,9 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                             {xtype: 'splitter'},
                             {
                                 xtype: 'button',
-                                text: 'Buscar Producto',
+                                text: 'Buscar',
                                 maxHeight: 25,
-                                width: 120,
+                                width: 60,
                                 allowBlank: true,
                                 action: 'buscarproductos',
                                 itemId: 'buscarproc'
@@ -427,7 +429,7 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                             {xtype: 'splitter'},
                             {
                                 xtype: 'numberfield',
-                                width: 180,
+                                width: 120,
                                 labelWidth: 40,
                                 fieldLabel: 'Precio',
                                 itemId: 'precioId',
@@ -443,7 +445,7 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                             },{xtype: 'splitter'},
                             {
                                 xtype: 'textfield',
-                                width: 120,
+                                width: 100,
                                 labelWidth: 40,
                                 minValue: 0,
                                 fieldLabel: 'Stock',
@@ -474,7 +476,7 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                             {xtype: 'splitter'},
                             {
                             xtype: 'combo',
-                            width: 190,
+                            width: 150,
                             queryMode: 'local',
                             itemId: 'DescuentoproId',
                             fieldLabel: 'Descto %',
@@ -483,7 +485,19 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                             valueField: 'id',
                             disabled : true,
                             displayField: 'nombre'
-                            },
+                            },{
+                                        xtype: 'combobox',
+                                        labelWidth: 50,
+                                        width: 190,
+                                        fieldLabel: 'Envase',
+                                        editable: false,
+                                        store: 'Tipoenvases',
+                                        emptyText : 'Seleccionar',
+                                        displayField : 'nombre',
+                                        valueField : 'nombre',                        
+                                        itemId: 'tipoenvaseId',
+                                        name: 'tipoenvase'                            
+                                    },
                             {xtype: 'splitter'},
                             {
                                 xtype: 'button',

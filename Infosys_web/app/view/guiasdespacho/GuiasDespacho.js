@@ -497,9 +497,9 @@ Ext.define('Infosys_web.view.guiasdespacho.GuiasDespacho', {
                             {xtype: 'splitter'},
                             {
                                 xtype: 'button',
-                                text: 'Buscar Producto',
+                                text: 'Buscar',
                                 maxHeight: 25,
-                                width: 120,
+                                width: 60,
                                 allowBlank: true,
                                 action: 'buscarproductos7',
                                 itemId: 'buscarproc'
@@ -507,7 +507,7 @@ Ext.define('Infosys_web.view.guiasdespacho.GuiasDespacho', {
                             {xtype: 'splitter'},
                             {
                                 xtype: 'numberfield',
-                                width: 180,
+                                width: 140,
                                 labelWidth: 40,
                                 fieldLabel: 'Precio',
                                 itemId: 'precioId',
@@ -542,6 +542,18 @@ Ext.define('Infosys_web.view.guiasdespacho.GuiasDespacho', {
                                 fieldLabel: 'Cantidad',
                                 itemId: 'cantidadId'
                             },{
+                                        xtype: 'combobox',
+                                        labelWidth: 50,
+                                        width: 250,
+                                        fieldLabel: 'Envase',
+                                        editable: false,
+                                        store: 'Tipoenvases',
+                                        emptyText : 'Seleccionar',
+                                        displayField : 'nombre',
+                                        valueField : 'nombre',                        
+                                        itemId: 'tipoenvaseId',
+                                        name: 'tipoenvase'                            
+                                    },{
                                 xtype: 'numberfield',
                                 width: 120,
                                 labelWidth: 60,

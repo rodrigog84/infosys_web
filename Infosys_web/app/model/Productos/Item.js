@@ -44,6 +44,7 @@ Ext.define('Infosys_web.model.Productos.Item', {
         {name: 'clasificacion'},
         {name: 'stock_critico', decimalPrecision:4},
         {name: 'diasvencimiento'},
+        {name: 'tipoenvase'}
 
         
         
