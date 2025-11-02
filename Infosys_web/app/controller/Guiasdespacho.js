@@ -59,6 +59,7 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
             'guiasdespacho.Anular',
             'guiasdespacho.BuscarTransportista',
             'Pedidos2.Pedidos',
+            'ventas.Exportarenvases',
             'Pedidos2.Principal'],
            
     
@@ -110,6 +111,9 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
     },{
         ref: 'formularioexportarguias',
         selector: 'formularioexportarguias'
+    },{
+        ref: 'formularioexportarenvases',
+        selector: 'formularioexportarenvases'
     },{
         ref: 'formularioexportarguias2',
         selector: 'formularioexportarguias2'
@@ -421,7 +425,14 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
 
             'guiasprincipaldespacho button[action=mguiastraslado]': {
                 click: this.mguiastraslado
-            },                        
+            }, 
+
+
+            'guiasprincipaldespacho button[action=exportarexcelenvases]': {
+                click: this.exportarexcelenvases
+            },   
+
+
             'guiasglosaingresar #rutId': {
                 specialkey: this.special9
             },
@@ -488,6 +499,20 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
 
         });
     },
+
+
+
+
+    exportarexcelenvases: function(){
+
+        //var viewnew =this.getPedidosprincipalformula();       
+        Ext.create('Infosys_web.view.ventas.Exportarenvases').show();
+      
+    
+    },
+
+
+
 
      seleccionarsucursalcliente3: function(){
 

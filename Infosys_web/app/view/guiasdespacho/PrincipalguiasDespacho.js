@@ -141,6 +141,12 @@ Ext.define('Infosys_web.view.guiasdespacho.PrincipalguiasDespacho' ,{
                 iconCls : 'icon-exel',
                 text: 'Exportar EXCEL',
                 action:'exportarexcelguias2'
+            },{
+                xtype: 'button',
+                width: 140,
+                iconCls : 'icon-exel',
+                text: 'Exportar Envases',
+                action:'exportarexcelenvases'
             },'-',{
                 xtype: 'button',
                 iconCls: 'icon-delete',

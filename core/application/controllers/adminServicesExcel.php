@@ -398,6 +398,80 @@ public function __construct()
 
 
 
+
+  public function exportarExcelEnvases(){
+
+          header("Content-type: application/vnd.ms-excel");
+          header("Content-disposition: attachment; filename=Envases.xls"); 
+      
+          
+          $columnas = json_decode($this->input->get('cols'));
+          
+          $fecha = $this->input->get('fecha');
+          list($dia, $mes, $anio) = explode("/",$fecha);
+          $fecha3 = $anio ."-". $mes ."-". $dia;
+          $fecha2 = $this->input->get('fecha2');
+          list($dia, $mes, $anio) = explode("/",$fecha2);
+          $fecha4 = $anio ."-". $mes ."-". $dia;
+
+          $this->load->database();
+
+          $query = $this->db->query('SELECT   td.descripcion AS tipodoc
+                                    ,fc.num_factura
+                                    ,fc.fecha_factura
+                                    ,p.codigo AS codproducto
+                                    ,p.nombre AS nomproducto
+                                    ,d.cantidad
+                                    ,d.tipoenvase
+                                    ,d.neto
+                                    ,d.iva
+                                    ,d.totalproducto
+                            FROM      detalle_factura_cliente d
+                            INNER JOIN  factura_clientes fc ON d.id_factura = fc.id
+                            INNER JOIN  tipo_documento td ON fc.tipo_documento = td.id
+                            INNER JOIN  productos p ON d.id_producto = p.id
+                            WHERE     d.tipoenvase != ""
+                            AND       fc.fecha_factura  BETWEEN "'.$fecha3.'"  AND "'.$fecha4.'"');
+
+          $users = $query->result_array();
+                                   
+            echo '<table>';
+            echo "<tr>";
+            echo "<td>TIPO DOC</td>";
+            echo "<td>NUM DOC</td>";
+            echo "<td>FECHA DOC</td>";
+            echo "<td>COD PRODUCTO</td>";
+            echo "<td>NOM PRODUCTO</td>";
+            echo "<td>CANTIDAD</td>";
+            echo "<td>TIPO ENVASE</td>";
+            echo "<td>NETO</td>";
+            echo "<td>IVA</td>";
+            echo "<td>TOTAL</td>";
+            echo "</tr>";
+
+
+                         
+            foreach($users as $v){
+
+              echo "<tr>";
+              echo "<td>".$v['tipodoc']."</td>";
+              echo "<td>".$v['num_factura']."</td>";
+              echo "<td>".$v['fecha_factura']."</td>";
+              echo "<td>".$v['codproducto']."</td>";
+              echo "<td>".$v['nomproducto']."</td>";
+              echo "<td>".$v['cantidad']."</td>";
+              echo "<td>".$v['tipoenvase']."</td>";
+              echo "<td>".number_format($v['neto'],0,".",".")."</td>";
+              echo "<td>".number_format($v['iva'],0,".",".")."</td>";
+              echo "<td>".number_format($v['totalproducto'],0,".",".")."</td>";
+              echo "</tr>";
+              }
+              echo '</table>';
+         
+    }
+
+
+
    public function exportarExcelPedidos2(){
 
 

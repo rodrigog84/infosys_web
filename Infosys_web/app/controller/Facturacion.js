@@ -51,6 +51,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
              'facturaelectronica.HistLibroCompraVenta',
              'facturaelectronica.Emails',                        
              'ventas.Exportar',
+             'ventas.Exportarenvases',
              'ventas.Observaciones',
              'ventas.Facturaseditar',
              'ventas.detalle_stock'],
@@ -85,6 +86,9 @@ Ext.define('Infosys_web.controller.Facturacion', {
     },{
         ref: 'formularioexportar',
         selector: 'formularioexportar'
+    },{
+        ref: 'formularioexportarenvases',
+        selector: 'formularioexportarenvases'
     },{
         ref: 'formularioexportarpdf',
         selector: 'formularioexportarpdf'
@@ -139,6 +143,10 @@ Ext.define('Infosys_web.controller.Facturacion', {
             'facturasprincipal button[action=mfactura]': {
                 click: this.mfactura
             },
+
+            'facturasprincipal button[action=exportarexcelenvases]': {
+                click: this.exportarexcelenvases
+            },            
            
             'topmenus menuitem[action=mejemplo]': {
                 click: this.mejemplo
@@ -246,6 +254,11 @@ Ext.define('Infosys_web.controller.Facturacion', {
             'formularioexportar button[action=exportarExcelFormulario]': {
                 click: this.exportarExcelFormulario
             },
+
+            'formularioexportarenvases button[action=exportarExcelFormularioenvases]': {
+                click: this.exportarExcelFormularioenvases
+            },
+
             'formularioexportarpdf button[action=exportarPdfFormulario]': {
                 click: this.exportarPdfFormulario
             },            
@@ -328,6 +341,18 @@ Ext.define('Infosys_web.controller.Facturacion', {
 
         });
     },
+
+
+
+
+    exportarexcelenvases: function(){
+
+        //var viewnew =this.getPedidosprincipalformula();       
+        Ext.create('Infosys_web.view.ventas.Exportarenvases').show();
+      
+    
+    },
+
 
     cancelar: function(){
 
@@ -944,6 +969,31 @@ Ext.define('Infosys_web.controller.Facturacion', {
        
  
     },
+
+
+
+    exportarExcelFormularioenvases: function(){
+
+        console.log('llega aca')
+        
+        var view =this.getFormularioexportarenvases()
+
+        var fecha = view.down('#fechaId').getSubmitValue();
+        
+        var fecha2 = view.down('#fecha2Id').getSubmitValue();
+
+        console.log(fecha)
+        console.log(fecha2)
+                
+
+
+        window.open(preurl + 'adminServicesExcel/exportarExcelEnvases?fecha='+fecha+'&fecha2='+fecha2);
+        view.close();    
+
+
+       
+ 
+    },    
 
     exportarPdfFormulario: function(){
         
