@@ -2198,7 +2198,7 @@ $header = '
 		$saldodocto = 0;      	
 		foreach($datas as $data){
 			if($data['rut'] != $rutcliente){
-
+					$saldoacumulado = 0;    
                  	if($rutcliente != ""){
 
 
@@ -2241,7 +2241,7 @@ $header = '
 					        <td width="109px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Saldo por Vencer</td>
 					        <td width="109px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Saldo Vencido</td>
 					        <td width="109px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Dias Morosidad</td>
-					        <td width="109px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Saldo Documento</td>
+					        <td width="109px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" >Saldo Acumulado</td>
 					      </tr>';
 
              // $saldoporvencer = 0;
@@ -2249,7 +2249,7 @@ $header = '
              // $saldodocto = 0;
           }
 
-
+          		$saldoacumulado += $data['saldodocto'];
 				$body_data .= '<tr>
 				<td style="text-align:left">'.$data['cuentacontable'].'</td>			
 				<td style="text-align:left">'.$data['documento'].'</td>
@@ -2258,7 +2258,7 @@ $header = '
 				<td align="right">$ '.number_format($data['saldoporvencer'], 0, '.', ',').'</td>
 				<td align="right">$ '.number_format($data['saldovencido'], 0, '.', ',').'</td>
 				<td align="right">'.$data['dias'].'</td>
-				<td align="right">$ '.number_format($data['saldodocto'], 0, '.', ',').'</td>
+				<td align="right">$ '.number_format($saldoacumulado, 0, '.', ',').'</td>
 				</tr>';
 
 
