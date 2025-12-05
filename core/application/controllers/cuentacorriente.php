@@ -2164,7 +2164,7 @@ $header = '
 		<title>Untitled Document</title>
 		<style type="text/css">
 		td {
-			font-size: 16px;
+			font-size: 13px;
 		}
 		p {
 		}
@@ -2272,7 +2272,7 @@ $header = '
 					  </tr>
 					  <tr>
 					  	<td colspan="3" >
-					    	<table width="987px" cellspacing="0" cellpadding="0" >
+					    	<table width="987px" style="font-size: 8px;" cellspacing="0" cellpadding="0" >
 					      <tr>
 					        <td width="551px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:left;" ><b>Totales</b></td>
 					        <td width="109px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" ><b>$ '.number_format($saldoporvencer, 0, ',', '.').'</b></td>
