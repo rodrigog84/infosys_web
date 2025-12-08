@@ -1351,6 +1351,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
         var formadepago = viewIngresa.down('#tipocondpagoId').getValue();
         var fechafactura = viewIngresa.down('#fechafacturaId').getValue();
         var fechavenc = viewIngresa.down('#fechavencId').getValue();
+        var facturaAnticipada = viewIngresa.down('#facturaAnticipadaId').getValue();
         var stItem = this.getProductosItemsStore();
         var stFactura = this.getFacturaStore();
         viewIngresa.down("#grabarfactura").setDisabled(true);
@@ -1408,7 +1409,8 @@ Ext.define('Infosys_web.controller.Facturacion', {
                 imptofactura: 0,//viewIngresa.down('#imptoId').getValue(),
                 afectofactura: viewIngresa.down('#finalafectoId').getValue(),
                 descuentofactura : viewIngresa.down('#descuentovalorId').getValue(),
-                totalfacturas: viewIngresa.down('#finaltotalpostId').getValue()
+                totalfacturas: viewIngresa.down('#finaltotalpostId').getValue(),
+                facturaAnticipada: facturaAnticipada,
             },
              success: function(response){
                 var resp = Ext.JSON.decode(response.responseText);

@@ -3241,8 +3241,8 @@ class Facturas extends CI_Controller {
 
     public function save(){
         
-        //echo '<pre>';
-        //var_dump($_POST); exit;
+       // echo '<pre>';
+       // var_dump($_POST); exit;
         set_time_limit(0);
         $resp = array();
         $idcliente = $this->input->post('idcliente');
@@ -3284,6 +3284,9 @@ class Facturas extends CI_Controller {
     $id_pedido = $this->input->post('id_pedido');
 
     $opedidoextId = $this->input->post('opedidoextId');
+
+    $facturaAnticipada = $this->input->post('facturaAnticipada');
+
 
      $es_guia_traslado = false;
      if($idbodega_dest){
@@ -3345,7 +3348,8 @@ class Facturas extends CI_Controller {
       'num_pedido' => $pedido,
       'id_observa' => $idobserva,
       'observacion' => $observacion,
-      'guiatraslado' => $marcaguiatraslado        
+      'guiatraslado' => $marcaguiatraslado,
+      'facturaanticipada' => $facturaAnticipada
         );
         $this->db->insert('factura_clientes', $factura_cliente); 
         $idfactura = $this->db->insert_id();
@@ -3435,7 +3439,7 @@ class Facturas extends CI_Controller {
     if($query->num_rows()>0){
         $row = $query->first_row();
 
-        if(!$es_guia_traslado){
+        if(!$es_guia_traslado && $facturaAnticipada != 'SI'){
             $saldo = ($row->stock)-($v->cantidad);    
 
             
@@ -3446,6 +3450,9 @@ class Facturas extends CI_Controller {
         }
         
     }; 
+
+    if($facturaAnticipada != 'SI'){
+
         $datos2 = array(
       'num_movimiento' => $numfactura,
       'id_producto' => $v->id_producto,
@@ -3462,6 +3469,10 @@ class Facturas extends CI_Controller {
       'transportista' => $transportista
         );
         $this->db->insert('existencia_detalle', $datos2);
+
+
+    }
+
 
 
         if($es_guia_traslado){
@@ -3486,6 +3497,15 @@ class Facturas extends CI_Controller {
                 $this->db->query('update existencia set stock = stock + ' . $v->cantidad . ' where id_producto = ' . $producto . ' and id_bodega = ' . $idbodega_dest); 
 
 
+                $datos_prod = array(
+                  'stock' => $saldo_nuevo,
+                );                    
+
+
+                $this->db->where('id', $producto);
+                $this->db->update('productos', $datos_prod);
+
+        }else if($facturaAnticipada == 'SI'){
                 $datos_prod = array(
                   'stock' => $saldo_nuevo,
                 );                    

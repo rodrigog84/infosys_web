@@ -194,12 +194,26 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                                             fieldLabel: '<b>RAZON SOCIAL</b>',
                                             maxHeight: 25,
                                             labelWidth: 80,
-                                            width: 885,
+                                            width: 500,
                                             itemId: 'nombre_id',
                                             name : 'nombre',
                                             //disabled : true,                                            
                                             readOnly: true
                                             
+                                        },{
+                                            xtype: 'displayfield',
+                                            width: 20
+                                           
+                                        },{
+                                            xtype: 'combo',
+                                            fieldLabel: '<b>FACTURA ANTICIPADA</b>',
+                                            store: ['SI', 'NO'], // Los valores posibles
+                                            value: 'NO', // Valor por defecto
+                                            editable: false, // No se permite escribir valores fuera de los definidos
+                                            width: 300,
+                                            labelWidth: 150,
+                                            itemId: 'facturaAnticipadaId',
+                                            name: 'facturaAnticipada'
                                         }
                                     ]
                                 }, {

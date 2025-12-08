@@ -971,3 +971,11 @@ ALTER TABLE `detalle_factura_cliente`
 
 ALTER TABLE `detalle_factura_cliente`
 	CHANGE COLUMN `tipoenvase` `tipoenvase` VARCHAR(100) NULL DEFAULT '' COLLATE 'latin1_swedish_ci' AFTER `num_guia`;
+
+/**************************************************************************************************************/
+
+ALTER TABLE `factura_clientes`
+	ADD COLUMN `facturaanticipada` ENUM('SI','NO') NOT NULL AFTER `documref`;
+
+ALTER TABLE `factura_clientes`
+	CHANGE COLUMN `facturaanticipada` `facturaanticipada` ENUM('SI','NO') NOT NULL DEFAULT 'NO' COLLATE 'latin1_swedish_ci' AFTER `documref`;
