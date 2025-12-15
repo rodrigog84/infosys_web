@@ -37,6 +37,7 @@ Ext.define('Infosys_web.controller.Pedidos2', {
             'Pedidos2.Editarpedidos',
             'Pedidos2.BuscarProductos',
             'Pedidos2.BuscarFormulas',
+            'Pedidos2.BuscarClientefinal',
             'ventas.BuscarSucursales',
             'Pedidos2.Observaciones',
             'Pedidos2.Observaciones2',
@@ -99,6 +100,9 @@ Ext.define('Infosys_web.controller.Pedidos2', {
     },{
         ref: 'buscarformulas2',
         selector: 'buscarformulas2'
+    },{
+        ref: 'buscarclientefinal',
+        selector: 'buscarclientefinal'
     },{
         ref: 'estadopedidos2',
         selector: 'estadopedidos2'
@@ -181,6 +185,9 @@ Ext.define('Infosys_web.controller.Pedidos2', {
             'pedidosingresar2 button[action=buscarformula]': {
                 click: this.buscarformula
             },
+            'pedidosingresar2 button[action=buscarClientePedido]': {
+                click: this.buscarclientefinal
+            },            
             'editarpedidos button[action=buscarproductos2]': {
                 click: this.buscarproductos2
             },
@@ -298,6 +305,12 @@ Ext.define('Infosys_web.controller.Pedidos2', {
             'buscarformulas2 button[action=buscarformulas]': {
                 click: this.buscarformulas
             },
+            'buscarclientefinal button[action=buscarclientefinal2]': {
+                click: this.buscarclientefinal2
+            },
+            'buscarclientefinal button[action=seleccionarclientefinal]': {
+                click: this.seleccionarclientefinal
+            },                        
             'pedidosingresar2 #rutId': {
                 specialkey: this.special
             },
@@ -513,6 +526,20 @@ Ext.define('Infosys_web.controller.Pedidos2', {
         st.load();        
     },
 
+
+    buscarclientefinal2: function(){
+
+        var view = this.getBuscarclientefinal();
+        var st = this.getClientefinalStore();
+        var cero="";
+        var nombre = view.down('#nombreId').getValue();
+        if (nombre){
+            view.down("#nombreId").setValue(cero);            
+        };
+        st.proxy.extraParams = {nombre : nombre}
+        st.load();        
+    },    
+
     special: function(f,e){
         if (e.getKey() == e.ENTER) {
             this.validarut()
@@ -601,6 +628,23 @@ Ext.define('Infosys_web.controller.Pedidos2', {
             viewIngresa.down('#nombreformulaId').setValue(row.data.nombre_formula);
             viewIngresa.down('#cantidadformId').setValue(row.data.cantidad);
             viewIngresa.down('#cantidadId').setValue(row.data.cantidad);
+            view.close();
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }        
+    },
+
+
+    seleccionarclientefinal: function(){
+
+        var view = this.getBuscarclientefinal();
+        var viewIngresa = this.getPedidosingresar2();
+        var grid  = view.down('grid');
+        if (grid.getSelectionModel().hasSelection()) {
+            var row = grid.getSelectionModel().getSelection()[0];
+            viewIngresa.down('#clientefinalNombre').setValue(row.data.rutnombre);
+            viewIngresa.down('#clientefinalId').setValue(row.data.id);
             view.close();
         }else{
             Ext.Msg.alert('Alerta', 'Selecciona un registro.');
@@ -1957,6 +2001,24 @@ Ext.define('Infosys_web.controller.Pedidos2', {
         }          
         
     },
+
+
+    buscarclientefinal: function(){
+          
+        var view = this.getPedidosingresar2();
+       
+        var idcliente = view.down('#id_cliente').getValue()
+        if(!idcliente){
+             Ext.Msg.alert('Alerta', 'Selecciona un Cliente para el pedido.');
+            return;        
+        }else{
+            
+
+            Ext.create('Infosys_web.view.Pedidos2.BuscarClientefinal').show();            
+        }          
+        
+    },
+
 
     buscarproductos: function(){
           

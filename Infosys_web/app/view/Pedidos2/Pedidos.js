@@ -364,21 +364,32 @@ Ext.define('Infosys_web.view.Pedidos2.Pedidos', {
                                 align: 'stretch'
                             },
                             items: [{
-                                        xtype: 'combo',
+                                        xtype: 'textfield',
                                         fieldCls: 'required',
                                         labelWidth: 155,
                                         width: 550,
                                         height: 30,
                                         fieldLabel: '<b>CLIENTE FINAL</b>',
-                                        editable: true,
-                                        forceSelection: true,
-                                        queryMode: 'local',
-                                        store: clientefinal2,
-                                        emptyText : 'Seleccionar',
-                                        displayField : 'nombre',
-                                        valueField : 'id',                        
-                                        itemId: 'clientefinalId',
+                                        readOnly: true,
+                                        itemId: 'clientefinalNombre',
                                         name: 'clientefinal'                            
+                                        },{
+                                    xtype: 'textfield',
+                                    itemId: 'clientefinalId',
+                                    name : 'id_clientefinal',
+                                    fieldLabel: 'Id Formula',
+                                    hidden: true
+                                }
+                                        ,{
+                                            xtype: 'displayfield',
+                                            width: 10                                   
+                                        },{
+                                            xtype: 'button',
+                                            text: 'Buscar Cliente',
+                                            maxHeight: 25,
+                                            width: 120,                                                                        
+                                            action: 'buscarClientePedido',
+                                            itemId: 'buscarBtnC'
                                         },{
                                             xtype: 'displayfield',
                                             width: 10                                   
