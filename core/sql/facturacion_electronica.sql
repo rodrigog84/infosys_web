@@ -979,3 +979,10 @@ ALTER TABLE `factura_clientes`
 
 ALTER TABLE `factura_clientes`
 	CHANGE COLUMN `facturaanticipada` `facturaanticipada` ENUM('SI','NO') NOT NULL DEFAULT 'NO' COLLATE 'latin1_swedish_ci' AFTER `documref`;
+
+
+/******************************************************************************************************************/
+
+ALTER TABLE `factura_clientes`
+	ADD COLUMN `numfacturaanticipada` INT NOT NULL DEFAULT 0 AFTER `facturaanticipada`;
+	

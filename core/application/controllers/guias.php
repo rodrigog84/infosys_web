@@ -1332,6 +1332,93 @@ class Guias extends CI_Controller {
         echo json_encode($resp);
 	}
 
+
+
+public function get_factura_anticipada(){
+        
+      $resp = array();
+      $start = $this->input->get('start');
+        $limit = $this->input->get('limit');
+        $opcion = $this->input->get('opcion');
+        $nombres = $this->input->get('nombre');
+        $idsucursal = $this->input->get('idsucursal');
+        $idcliente = $this->input->get('idcliente');
+        $tipo = 101;
+        $bodega = $this->input->get('idbodega');
+        $countAll = $this->db->count_all_results("factura_clientes");
+
+        //var_dump($bodega); exit;
+      $data = array();
+      $total = 0;
+         if(!$tipo){
+              $tipo=0;
+        }
+        if(!$bodega){
+              $bodega=1;
+        }
+
+
+          $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
+          left join clientes c on (acc.id_cliente = c.id)
+          left join vendedores v on (acc.id_vendedor = v.id)
+          WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.forma = 0 and acc.tipo_documento in ('.$tipo.') and c.id = '.$nombres.'
+          and acc.id_factura = 0
+          and acc.facturaanticipada = "SI"
+          order by acc.id desc          
+          limit '.$start.', '.$limit.'' );       
+
+          foreach ($query->result() as $row)
+              {
+                    $total = $total +1;
+              
+              }
+
+              $countAll = $total;
+
+
+        
+        foreach ($query->result() as $row)
+        {
+            $rutautoriza = $row->rut_cliente;
+            if (strlen($rutautoriza) == 8){
+              $ruta1 = substr($rutautoriza, -1);
+              $ruta2 = substr($rutautoriza, -4, 3);
+              $ruta3 = substr($rutautoriza, -7, 3);
+              $ruta4 = substr($rutautoriza, -8, 1);
+              $row->rut_cliente = ($ruta4.".".$ruta3.".".$ruta2."-".$ruta1);
+            };
+            if (strlen($rutautoriza) == 9){
+              $ruta1 = substr($rutautoriza, -1);
+              $ruta2 = substr($rutautoriza, -4, 3);
+              $ruta3 = substr($rutautoriza, -7, 3);
+              $ruta4 = substr($rutautoriza, -9, 2);
+              $row->rut_cliente = ($ruta4.".".$ruta3.".".$ruta2."-".$ruta1);
+           
+            };
+            if (strlen($rutautoriza) == 2){
+              $ruta1 = substr($rutautoriza, -1);
+              $ruta2 = substr($rutautoriza, -4, 1);
+              $row->rut_cliente = ($ruta2."-".$ruta1);
+             
+            };
+            $total = $total +1;
+            
+         
+            $data[] = $row;
+        }
+
+        //echo $this->db->last_query();
+
+        //$countAll = $total;
+        $resp['success'] = true;
+        $resp['total'] = $countAll;
+        $resp['data'] = $data;
+
+        echo json_encode($resp);
+    }
+
+
+
 	public function save(){
 		
 		$resp = array();

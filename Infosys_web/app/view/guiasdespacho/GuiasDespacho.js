@@ -208,7 +208,7 @@ Ext.define('Infosys_web.view.guiasdespacho.GuiasDespacho', {
                                             itemId: 'buscarBtn'
                                         },{
                                             xtype: 'displayfield',
-                                            width: 50
+                                            width: 25
                                            
                                         },{
                                             xtype: 'textfield',
@@ -216,13 +216,40 @@ Ext.define('Infosys_web.view.guiasdespacho.GuiasDespacho', {
                                             fieldLabel: '<b>RAZON SOCIAL</b>',
                                             maxHeight: 25,
                                             labelWidth: 80,
-                                            width: 500,
+                                            width: 400,
                                             itemId: 'nombre_id',
                                             name : 'nombre',
                                             //disabled : true,                                            
                                             readOnly: true
                                             
-                                        },
+                                        },{
+                                            xtype: 'displayfield',
+                                            width: 25
+                                           
+                                        },{
+                                                    xtype: 'textfield',
+                                                    width: 220,
+                                                    fieldLabel: '<b>Factura Anticipada</b>',
+                                                    itemId: 'numfacturaanticipadaId',
+                                                    maxHeight: 25,
+                                                    readOnly: true
+                                                },{
+                                                xtype: 'numberfield',
+
+                                                fieldLabel: 'Guia',
+                                                itemId: 'idfacturaAnticipadaId',
+                                                style: 'font-weight: bold;',
+                                                hidden: true
+                                            },{xtype: 'splitter'},
+                                            {
+                                                xtype: 'button',
+                                                text: 'Buscar Factura Anticipada',
+                                                iconCls: 'icon-plus',
+                                                maxHeight: 25,
+                                                width: 200,
+                                                allowBlank: true,
+                                                action: 'buscarfacturaanticipada'
+                                            },
 
                                         {
                                             xtype: 'combobox',

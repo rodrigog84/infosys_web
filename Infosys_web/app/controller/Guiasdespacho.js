@@ -5,6 +5,7 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
 
     stores: ['Guiasdespacho',
              'Guiasdespachopendientes',
+             'Facturaanticipada',
              'Guiasdespachopendientes2',
              'guiasdespacho.Items',
              'Clientes',
@@ -35,6 +36,7 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
             'guiasdespacho.BuscarClientes2',
             'guiasdespacho.BuscarClientes3',
             'guiasdespacho.BuscarGuias',
+            'guiasdespacho.BuscarFacturasanticipadas',
             'guiasdespacho.Observaciones',
             'guiasdespacho.Despachafactura',
             'guiasdespacho.BuscarFacturas',
@@ -93,6 +95,9 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
     },{
         ref: 'buscarguias',
         selector: 'buscarguias'
+    },{
+        ref: 'buscarfacturaanticipada',
+        selector: 'buscarfacturaanticipada'
     },{
         ref: 'observacionesfacturasguias',
         selector: 'observacionesfacturasguias'
@@ -230,15 +235,27 @@ Ext.define('Infosys_web.controller.Guiasdespacho', {
             'buscarguias button[action=seleccionarguias]': {
                 click: this.seleccionarguias
             },
+
+            'buscarfacturaanticipada button[action=seleccionarfacturaanticipada]': {
+                click: this.seleccionarfacturaanticipada
+            },            
             'buscarguias button[action=buscarguiasdespacho]': {
                 click: this.buscarguias2
             },
+
+            'buscarfacturaanticipada button[action=buscarfacturaanticipada]': {
+                click: this.buscarfacturaanticipada2
+            },            
             'buscarguias button[action=seleccionartodas]': {
                 click: this.seleccionartodas
             },
             'facturaguias button[action=buscarguias]': {
                 click: this.buscarguias
             },
+
+            'guiasdespachoingresar button[action=buscarfacturaanticipada]': {
+                click: this.buscarfacturaanticipada
+            },            
             'guiasdespachobuscarclientes button[action=buscarclientes]': {
                 click: this.buscarclientes
             },
@@ -1655,7 +1672,7 @@ mguiastraslado: function(){
         var stItem = this.getProductosItemsStore();
         var stFactura = this.getGuiasdespachoStore();
         var totalfact = viewIngresa.down('#finaltotalId').getValue();
-
+        var numfacturaanticipada = viewIngresa.down('#numfacturaanticipadaId').getValue();
 
         var estrasladoId = viewIngresa.down('#estrasladoId').getValue();
                 console.log('llega aqui')
@@ -1756,7 +1773,8 @@ mguiastraslado: function(){
                 totalfacturas: viewIngresa.down('#finaltotalpostId').getValue(),
                 id_pedido : id_pedido,
                 opedidoextId : opedidoextId,
-                estraslado : estrasladoId
+                estraslado : estrasladoId,
+                numfacturaanticipada: numfacturaanticipada
             },
              success: function(response){
                 var resp = Ext.JSON.decode(response.responseText);
@@ -4188,8 +4206,28 @@ seleccionarclienteguias4: function(){
         }
     },   
 
-    buscarguias : function() {
 
+    seleccionarfacturaanticipada: function(){
+
+        var view = this.getBuscarfacturaanticipada();
+        var viewIngresa = this.getGuiasdespachoingresar();
+        var grid  = view.down('grid');
+        if (grid.getSelectionModel().hasSelection()) {
+            var row = grid.getSelectionModel().getSelection()[0];
+            //viewIngresa.down('#idguiaId').setValue(row.data.id);
+            viewIngresa.down('#numfacturaanticipadaId').setValue(row.data.num_factura);
+            //viewIngresa.down('#netoId').setValue(row.data.neto);
+            //viewIngresa.down('#ivaId').setValue(row.data.iva);
+            //viewIngresa.down('#totalId').setValue(row.data.totalfactura);
+            grid.getStore().remove(row);
+            view.close(); 
+        }else{
+            Ext.Msg.alert('Alerta', 'Selecciona un registro.');
+            return;
+        }
+    },      
+
+    buscarguias : function() {
        var busca = this.getFacturaguias()
        var nombre = busca.down('#id_cliente').getValue();
        var bodega = busca.down('#bodegaId').getValue();
@@ -4211,6 +4249,110 @@ seleccionarclienteguias4: function(){
        }
 
     },
+
+    buscarfacturaanticipada : function() {
+        console.log('llega')
+       //var busca = this.getFacturaguias()
+       var busca = this.getGuiasdespachoingresar()
+       var nombre = busca.down('#id_cliente').getValue();
+       var bodega = busca.down('#bodegaId').getValue();
+
+       console.log(nombre)
+
+
+       var opcion = "Id";
+       if (nombre){
+          var st = this.getFacturaanticipadaStore();          
+
+          st.proxy.extraParams = {nombre : nombre,
+                                  opcion : opcion,
+                                  idbodega : bodega};
+
+
+            st.load();
+
+
+          var edit =  Ext.create('Infosys_web.view.guiasdespacho.BuscarFacturasanticipadas').show();
+          edit.down('#clienteId').setValue(nombre);
+
+           
+            
+
+
+       }else {
+          Ext.Msg.alert('Alerta', 'Debe seleccionar Cliente.');
+            return;
+       }
+
+    },
+   /* buscarfacturaanticipada : function() {
+        console.log('llega')
+       //var busca = this.getFacturaguias()
+       var busca = this.getGuiasdespachoingresar()
+       var nombre = busca.down('#id_cliente').getValue();
+       var bodega = busca.down('#bodegaId').getValue();
+
+       console.log(nombre)
+
+
+       var opcion = "Id";
+       if (nombre){
+          //var st = this.getGuiasdespachopendientesStore();          
+
+        // Creamos un nuevo store dinámicamente
+        var st = Ext.create('Ext.data.Store', {
+            model: 'Infosys_web.model.Guiasdespachopendientes',  // Asegúrate de usar el modelo correcto
+            proxy: {
+                type: 'ajax',
+                url: preurl + 'guias/get_factura_anticipada',  // Asegúrate de que esta URL sea la correcta
+                extraParams: {
+                    nombre: nombre,
+                    idbodega : bodega,
+                    opcion: opcion
+                },
+                reader: {
+                    type: 'json',
+                    root: 'data'
+                }
+            },
+            autoLoad: true  // Carga el store de inmediato
+        });
+
+          var edit =  Ext.create('Infosys_web.view.guiasdespacho.BuscarFacturasanticipadas').show();
+
+            edit.down('#clienteId').setValue(nombre);
+            
+            // Asignamos el store al grid de la ventana
+            var grid = edit.down('grid');
+            grid.reconfigure(st);  // Reconfigura el grid con el nuevo store dinámico
+
+
+       }else {
+          Ext.Msg.alert('Alerta', 'Debe seleccionar Cliente.');
+            return;
+       }
+
+    },   
+    */ 
+
+
+    buscarfacturaanticipada2 : function() {
+
+       var busca = this.getBuscarfacturasanticipadas()
+       var id_cliente = busca.down('#clienteId').getValue();
+       var nombre = busca.down('#nombreId').getValue();
+       var opcion = "Numero";
+       if (nombre){
+          var st = this.getGuiasdespachopendientesStore();
+          st.proxy.extraParams = {nombre : nombre,
+                                  opcion : opcion,
+                                  idcliente: id_cliente};
+          st.load();
+       }
+
+    },
+
+
 
     buscarguias2 : function() {
 

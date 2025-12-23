@@ -3241,8 +3241,8 @@ class Facturas extends CI_Controller {
 
     public function save(){
         
-       // echo '<pre>';
-       // var_dump($_POST); exit;
+        //echo '<pre>';
+        //var_dump($_POST); exit;
         set_time_limit(0);
         $resp = array();
         $idcliente = $this->input->post('idcliente');
@@ -3286,6 +3286,15 @@ class Facturas extends CI_Controller {
     $opedidoextId = $this->input->post('opedidoextId');
 
     $facturaAnticipada = $this->input->post('facturaAnticipada');
+    $numfacturaanticipada = $this->input->post('numfacturaanticipada');
+
+
+    $es_guia_factura_anticipada = false;
+    if(($numfacturaanticipada != '' && $numfacturaanticipada != 0) && $tipodocumento == 105){
+        $es_guia_factura_anticipada = true;
+
+    }
+
 
 
      $es_guia_traslado = false;
@@ -3349,7 +3358,8 @@ class Facturas extends CI_Controller {
       'id_observa' => $idobserva,
       'observacion' => $observacion,
       'guiatraslado' => $marcaguiatraslado,
-      'facturaanticipada' => $facturaAnticipada
+      'facturaanticipada' => $facturaAnticipada,
+      'numfacturaanticipada' => $numfacturaanticipada,
         );
         $this->db->insert('factura_clientes', $factura_cliente); 
         $idfactura = $this->db->insert_id();
@@ -3827,7 +3837,7 @@ class Facturas extends CI_Controller {
                             $IdDoc['FchEmis'] = substr($fechafactura,0,10);
 
 
-                            if($es_guia_traslado){
+                            if($es_guia_traslado || $es_guia_factura_anticipada){
 
                                     $IdDoc['IndTraslado'] = 5;
                             }
