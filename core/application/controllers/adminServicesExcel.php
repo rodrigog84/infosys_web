@@ -2621,7 +2621,7 @@ public function exportarExcelGuias()
 
         public function exportarExcelExistenciadetalle()
          {
-            header("Content-type: application/vnd.ms-excel"); 
+           header("Content-type: application/vnd.ms-excel"); 
             header("Content-disposition: attachment; filename=detalleexistencia.xls"); 
             
             $columnas = json_decode($this->input->get('cols'));
@@ -2669,6 +2669,7 @@ public function exportarExcelGuias()
                     echo "<td>NUMERO</td>";
                     echo "<td>ENTRADA</td>";
                     echo "<td>SALIDA</td>";
+                    echo "<td>BODEGA</td>";
                     echo "<td>FECHA</td>";
                     echo "<td>TRANSPORTISTA</td>";
                     echo "<td>SALDO</td>";
@@ -2689,6 +2690,7 @@ public function exportarExcelGuias()
                       echo "<td>".$v['num_movimiento']."</td>";
                       echo "<td>".number_format($v['cantidad_entrada_tarjeta'],2,",",".")."</td>";
                       echo "<td>".number_format($v['cantidad_salida_tarjeta'],2,",",".")."</td>";
+                      echo "<td>".$v['id_bodega']."</td>";
                       echo "<td>".$v['fecha_movimiento']."</td>";
                       echo "<td>".$v['transportista']."</td>";
                       echo "<td>".number_format($v['saldo'],2,",",".")."</td>";
