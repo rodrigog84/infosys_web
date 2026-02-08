@@ -27,6 +27,22 @@ Ext.define('Infosys_web.view.guiasdespacho.GuiasDespacho', {
 
     initComponent: function() {
         var me = this;
+
+         var VendedoresCombo = Ext.create('Ext.data.Store', {
+                model: 'Infosys_web.model.Vendedor',
+                autoLoad: true,
+                proxy: {
+                    type: 'ajax',
+                    url: preurl + 'vendedores/getAll',
+                    reader: {
+                        type: 'json',
+                        root: 'data'
+                    }
+                }
+        });   
+
+
+         
         var stItms = Ext.getStore('productos.Items');
         stItms.removeAll();
         Ext.applyIf(me, {
@@ -430,7 +446,7 @@ Ext.define('Infosys_web.view.guiasdespacho.GuiasDespacho', {
                                             valueField : 'id',
                                             displayField : 'nombre',
                                             emptyText : "Seleccione",
-                                            store : 'Vendedores',
+                                            store : VendedoresCombo,
                                             //disabled : true, 
                                         },{
                                             xtype: 'displayfield',

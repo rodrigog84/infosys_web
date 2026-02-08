@@ -210,17 +210,31 @@ class Vendedores extends CI_Controller {
         $limit = $this->input->post('limit');
 
 
+        //var_dump($start);
+        //var_dump($limit); exit;
+
+
         //filtro por nombre
         $nombre = $this->input->get('nombre');
 
 		$countAll = $this->db->count_all_results("vendedores");
 
 		if($nombre){
-			$query = $this->db->query('SELECT * FROM vendedores WHERE nombre like "%'.$nombre.'%"
-			limit '.$start.', '.$limit.'');
+
+			if(!$start || !$limit){
+				$query = $this->db->query('SELECT * FROM vendedores WHERE nombre like "%'.$nombre.'%"');		
+			}else{
+				$query = $this->db->query('SELECT * FROM vendedores WHERE nombre like "%'.$nombre.'%"
+				limit '.$start.', '.$limit.'');			
+			}
+
 		}else{
+			if(!$start || !$limit){
+				$query = $this->db->query('SELECT * FROM vendedores');
+			}else{
+				$query = $this->db->query('SELECT * FROM vendedores limit '.$start.', '.$limit.'');	
+			}
 			
-			$query = $this->db->query('SELECT * FROM vendedores limit '.$start.', '.$limit.'');
 			
 		}
 
