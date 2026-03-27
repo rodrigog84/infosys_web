@@ -492,6 +492,7 @@ public function __construct()
           $this->load->database();
 
           $query = $this->db->query("SELECT acc.num_pedido
+                                            ,b.nombre as bodega
                                             ,acc.ordencompra AS orden_compra
                                             ,c.nombres as nom_cliente
                                             ,p.codigo
@@ -521,7 +522,9 @@ public function __construct()
                                             ,acc.tipoenvase
                                             ,obsf.nombre AS chofer
                                             ,obsf.pat_camion
+                                            ,acc.idestadopedido
                                       FROM pedidos acc
+                                      INNER JOIN bodegas b ON acc.id_bodega = b.id
                                       INNER JOIN pedidos_detalle d ON acc.id = d.id_pedido
                                       INNER JOIN productos p ON d.id_producto = p.id
                                       LEFT JOIN pedidos_guias pg ON acc.id = pg.idpedido
@@ -531,7 +534,7 @@ public function __construct()
                                       left join vendedores v on (acc.id_vendedor = v.id)
                                       left join correlativos co on (acc.tip_documento = co.id) 
                                       left join cliente_final cf on (acc.idclientefinal = cf.id) 
-                                      WHERE acc.fecha_doc between '".$fecha3."'  AND '".$fecha4."'");
+                                      WHERE fc.fecha_factura between '".$fecha3."'  AND '".$fecha4."'");
           $users = $query->result_array();
 
             echo '<table>';
@@ -545,6 +548,7 @@ public function __construct()
             echo "</tr>";                  
             echo "<tr>";
             echo "<td>NRO PEDIDO</td>";
+            echo "<td>BODEGA</td>";
             echo "<td>GUIA</td>";
             echo "<td align='right'>ORDEN COMPRA</td>";
             echo "<td>CLIENTE</td>";
@@ -564,6 +568,7 @@ public function __construct()
             echo "<td>TIPO ENVASE</td>";
             echo "<td>CHOFER</td>";
             echo "<td>PATENTE</td>";
+            echo "<td>SITUACION</td>";
             
 
 
@@ -596,8 +601,18 @@ public function __construct()
               }              
               
 
+            if($v['idestadopedido'] == 6){
+                $situacionpedido = 'Pendiente Autorización Cliente';
+            }else{
+
+                $situacionpedido = 'Listos ( ' . $v['cantidad_listos'] . ' / ' . $v['cantidad_productos'] . ' )';
+
+            }
+
+
               echo "<tr>";
               echo "<td>".$v['num_pedido']."</td>";
+              echo "<td>".$v['bodega']."</td>";
               echo "<td>".$v['num_factura']."</td>";
               echo "<td>".$v['orden_compra']."</td>";
               echo "<td>".$v['nom_cliente']."</td>";
@@ -616,7 +631,8 @@ public function __construct()
               echo "<td>".$v['destino']."</td>";
               echo "<td>".$v['tipoenvase']."</td>";
               echo "<td>".$v['chofer']."</td>";
-              echo "<td>".$v['pat_camion']."</td></tr>";
+              echo "<td>".$v['pat_camion']."</td>";
+              echo "<td>".$situacionpedido."</td></tr>";
               }
               echo '</table>';
          
