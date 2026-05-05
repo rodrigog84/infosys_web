@@ -21,6 +21,145 @@ class Procesos extends CI_Controller {
 	}
 
 
+
+
+   public function cuentacorrienteporfecha(){
+   	     set_time_limit(0);
+   	     $this->load->model('facturaelectronica');
+          //header("Content-type: application/vnd.ms-excel");
+          //header("Content-disposition: attachment; filename=CuentaCorriente.xls"); 
+
+		$lista_informes = $this->db->query("SELECT id, fecha FROM `informe_cuentas_corrientes` WHERE enviado is null order by id LIMIT 1");
+		//echo $this->db->last_query();
+		$informes = $lista_informes->result();
+		//echo '<pre>';
+		//var_dump($informes); exit;
+		foreach($informes as $informe){
+
+        	$fecha = $informe->fecha;
+        	$id_informe = $informe->id;
+            $query = $this->db->query("SELECT 			cco.nombre as cuentacontable
+														,dcc.numdocumento as documento
+														#,dcc.idctacte
+														,dcc.fecha
+														, dcc.fechavencimiento
+														, if(datediff('" . $fecha . "',dcc.fechavencimiento)<=0,(dcc.saldo + ifnull(can.cancelacion,0)),0) as saldoporvencer_fechacalculo
+														, if(datediff('" . $fecha . "',dcc.fechavencimiento)>0,(dcc.saldo + ifnull(can.cancelacion,0)),0) as saldovencido_fechacalculo
+														, if(datediff('" . $fecha . "',dcc.fechavencimiento)>0,datediff('" . $fecha . "',dcc.fechavencimiento),0) as dias_fechacalculo
+														, dcc.saldoinicial
+														, dcc.saldo as saldodocto_hoy
+														, ifnull(can.cancelacion,0) as cancelaciones_posteriores
+														, (dcc.saldo + ifnull(can.cancelacion,0)) AS saldo_fechacalculo
+														, c.rut
+														, c.nombres as cliente 
+									FROM 				cuenta_corriente cc 
+									inner JOIN 		detalle_cuenta_corriente dcc on dcc.idctacte = cc.id 
+									inner JOIN 		clientes c on cc.idcliente = c.id 
+									inner JOIN 		cuenta_contable cco on cc.idcuentacontable = cco.id 
+									LEFT JOIN 		(
+															SELECT 	d.idctacte
+																							,d.tipodocumento
+																							,d.numdocumento
+																							,SUM(d.haber) AS cancelacion
+															#SELECT 	*
+															FROM 		detalle_mov_cuenta_corriente d
+															INNER JOIN movimiento_cuenta_corriente m ON d.idmovimiento = m.id
+															INNER JOIN cartola_cuenta_corriente c ON d.idctacte = c.idctacte AND d.idcuenta = c.idcuenta AND d.tipodocumento = c.tipodocumento AND d.numdocumento = c.numdocumento AND d.tipo = c.origen
+															WHERE 	d.tipo = 'CTACTE'
+															AND 		LEFT(c.fecha ,10) > '" . $fecha . "'
+															GROUP BY	d.idctacte
+																							,d.tipodocumento
+																							,d.numdocumento
+
+														) can ON dcc.idctacte = can.idctacte AND dcc.tipodocumento = can.tipodocumento AND dcc.numdocumento = can.numdocumento
+									WHERE 			cco.id IN ('16' ,'18')
+									#cco.id IN ('16' ,'18','26','27') # CAVAL
+									#AND 				cc.idcliente = 4280
+									AND 				dcc.tipodocumento not in (11,102) 
+									AND 				dcc.fecha <= '" . $fecha . "'
+									AND 				(dcc.saldo + ifnull(can.cancelacion,0)) > 0
+									AND 				c.rut != '19'
+									order BY 		c.nombres, cco.id, c.id, dcc.id");            
+
+            $users = $query->result_array();
+
+		    $html = '<table border="1">';
+		    $html .= "<tr>
+		        <td>CUENTA CONTABLE</td>
+		        <td>NUM DOC</td>
+		        <td>FECHA DOC</td>
+		        <td>FECHA VENCIMIENTO</td>
+		        <td>SALDO POR VENCER</td>
+		        <td>SALDO VENCIDO</td>
+		        <td>DIAS</td>
+		        <td>SALDO INICIAL</td>
+		        <td>SALDO HOY</td>
+		        <td>CANCELACIONES</td>
+		        <td>SALDO</td>
+		        <td>RUT</td>
+		        <td>NOMBRE CLIENTE</td>
+		    </tr>";
+
+                         
+            foreach($users as $v){
+
+			        $html .= "<tr>
+			            <td>{$v['cuentacontable']}</td>
+			            <td>{$v['documento']}</td>
+			            <td>{$v['fecha']}</td>
+			            <td>{$v['fechavencimiento']}</td>
+			            <td>{$v['saldoporvencer_fechacalculo']}</td>
+			            <td>{$v['saldovencido_fechacalculo']}</td>
+			            <td>{$v['dias_fechacalculo']}</td>
+			            <td>{$v['saldoinicial']}</td>
+			            <td>{$v['saldodocto_hoy']}</td>
+			            <td>{$v['cancelaciones_posteriores']}</td>
+			            <td>{$v['saldo_fechacalculo']}</td>
+			            <td>{$v['rut']}</td>
+			            <td>{$v['cliente']}</td>
+			        </tr>";
+              }
+              $html .= '</table>';
+
+
+		    // Ruta donde guardar
+            $nomarchivo = "cuentacorriente_".date('Y-m-d') . "_".$fecha.".xls";
+		    $ruta = "./produccion/" . $nomarchivo;
+
+
+		    // Guardar archivo
+		    file_put_contents($ruta, $html);
+
+			$attachments = array();   
+            /*$array_archivo = array('archivo' => $ruta,
+                                   'name' => $nomarchivo);*/
+            array_push($attachments,$ruta);
+            //var_dump($attachments); exit;
+            
+
+		    //echo "Archivo generado en: " . $ruta;
+
+		   $this->db->query("UPDATE `informe_cuentas_corrientes` SET creado = '" . date('Y-m-d H:i:s') . "', archivo = '" . $ruta . "' WHERE id = " . $id_informe);
+
+		   $array_email = array('rodrigo.gonzalez@arnou.cl','rodrigog.84@gmail.com');
+		   $mensaje="Con fecha " . date('Y-m-d') . " se adjunta informe de Cuentas corrientes al " . $fecha;
+
+
+
+		   $this->facturaelectronica->envia_mail_sb('enviodte@arnou.cl',$array_email,'Informe Cuentas Corrientes' . $fecha,$mensaje,'html','Arnou Alertas', $attachments);	
+		   $this->db->query("UPDATE `informe_cuentas_corrientes` SET enviado = '" . date('Y-m-d H:i:s') . "' WHERE id = " . $id_informe);
+      
+
+
+		}   	     
+          
+         
+    
+
+         }
+
+
+
 	public function lectura_csv_fe_manual(){
 
 			$archivo = "./facturacion_electronica/csv/procesados/FACT_PROC_2016084114.CSV";
@@ -374,6 +513,59 @@ array(6) { ["rut_emisor"]=> string(10) "96516320-4" ["rut_envia"]=> string(10) "
 		$this->facturaelectronica->envio_mail_dte(4810);
 
 	}
+
+
+	public function envia_email_factura_procesos(){
+		$this->load->model('facturaelectronica');
+       	$neto_productos = $this->db->query("SELECT * FROM `factura_clientes` WHERE id_cliente = 3055  and id in (60303
+,60218
+,60153
+,60152
+,60121
+,60095
+,60067
+,60046
+,59966
+,59965
+,59925
+,59819
+,59787
+,59729
+,59711
+,59593
+,59560
+,59537
+,59498
+,59496
+,59471
+,59454
+,59448
+,59424
+,59409
+,59403
+,59352
+,59238
+,59220
+,59188
+,59180
+) ORDER BY `num_factura` DESC");
+		//echo $this->db->last_query();
+		$facturas = $neto_productos->result();
+		echo '<pre>';
+		//var_dump($facturas); exit;
+		foreach($facturas as $factura){
+
+			var_dump($factura->id);
+			$this->facturaelectronica->envio_mail_dte($factura->id);
+		}
+
+		/*	
+		$this->load->model('facturaelectronica');
+		$this->facturaelectronica->envio_mail_dte(4810);*/
+
+	}
+
+
 
 	public function envio_programado_consumo_folios(){
 		set_time_limit(0);
