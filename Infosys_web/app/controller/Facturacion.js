@@ -32,6 +32,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
              'ventas.Adicional',
              'ventas.ResumenVentas',
              'ventas.EstadisticasVentas',
+             'ventas.EstadisticasVentasRut',
              'ventas.InformeStock',
              'ventas.Saldodocfecha',
              'notacredito.Principal',
@@ -162,6 +163,9 @@ Ext.define('Infosys_web.controller.Facturacion', {
             'topmenus menuitem[action=estadisticasventas]': {
                 click: this.estadisticasventas
             },
+            'topmenus menuitem[action=estadisticasventasrut]': {
+                click: this.estadisticasventasrut
+            },
             'topmenus menuitem[action=saldodocfecha]': {
                 click: this.saldodocfecha
             },
@@ -184,6 +188,10 @@ Ext.define('Infosys_web.controller.Facturacion', {
 
 
             'estadisticasventas button[action=cerrarfactura]': {
+                click: this.cerrarfactura
+            },
+
+            'estadisticasventasrut button[action=cerrarfactura]': {
                 click: this.cerrarfactura
             },
 
@@ -2005,6 +2013,13 @@ Ext.define('Infosys_web.controller.Facturacion', {
         var viewport = this.getPanelprincipal();
         viewport.removeAll();
         viewport.add({xtype: 'estadisticasventas'});
+        
+    },  
+
+    estadisticasventasrut: function(){
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'estadisticasventasrut'});
         
     },  
 

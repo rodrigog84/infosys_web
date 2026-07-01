@@ -638,6 +638,136 @@ public function reporte_detalle_productos_stock($idproducto,$mes,$anno){
       $this->mpdf->Output("InformeEstadisticasVenta.pdf", "I");      
       exit;
          }
+
+
+    public function reporte_estadisticas_ventas_rut($rut,$mes,$anno,$tipoprecio){
+
+    ini_set('memory_limit','512M');
+
+    $rut  = $rut  == 0 ? '' : $rut;
+    $mes  = $mes  == 0 ? '' : $mes;
+    $anno = $anno == 0 ? '' : $anno;
+
+    $this->load->model('reporte');
+    $detalle_estadistica_venta = $this->reporte->reporte_estadisticas_ventas_rut(null,null,$mes,$anno,$tipoprecio,$rut);
+
+      $this->load->model('facturaelectronica');
+    $empresa = $this->facturaelectronica->get_empresa();
+
+    $logo =  PATH_FILES."facturacion_electronica/images/".$empresa->logo; 
+    $fecha = date('d/m/Y');
+
+      $encabezado_pdf = '
+    <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    <html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>Untitled Document</title>
+    <style type="text/css">
+    td {
+      font-size: 16px;
+    }
+    p {
+    }
+    </style>
+    </head>
+
+    <body>
+    <table width="987px" height="602" border="0">
+      <tr>
+      <td width="197px"><img src="' . $logo . '" width="150" height="136" /></td>
+        <td width="493px" style="font-size: 14px;text-align:center;vertical-align:text-top" >
+        <p>' . $empresa->razon_social .'</p>
+        <p>RUT:' . number_format($empresa->rut,0,".",".").'-' . $empresa->dv . '</p>
+        <p>' . $empresa->dir_origen . ' - ' . $empresa->comuna_origen . ' - Chile</p>
+        <p>Fonos: ' . $empresa->fono . '</p>
+        <p>&nbsp;</p>
+        </td>
+        <td width="296px" style="font-size: 16px;text-align:left;vertical-align:text-top" >
+              <p>&nbsp;</p>
+              <p>FECHA EMISION : '.$fecha.'</p>
+      </td>
+      </tr>
+      <tr><td>&nbsp;</td></tr>
+      <tr><td>&nbsp;</td></tr>
+      <tr><td>&nbsp;</td></tr>
+      <tr>
+      <td style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:center;" colspan="3"><h2>Detalle Estadísticas Ventas - RUT ' . htmlspecialchars($rut) . ' - ' . month2string((int)$mes)." de " . $anno . '</h2></td>
+      </tr>
+      <tr><td>&nbsp;</td></tr>
+      <tr><td>&nbsp;</td></tr>      
+      <tr>
+        <td colspan="3" width="987px" >
+      </td>
+      </tr>';
+
+      $formato_tabla_detalle = '
+      <tr>
+        <td colspan="3" >
+          <table width="987px" cellspacing="0" cellpadding="0" border="0">
+          <tr>
+            <td width="50px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:center;" ><b>#</b></td>
+            <td width="100px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:center;" ><b>Cod. Productos</b></td>
+            <td width="327px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:center;" ><b>Desc. Producto</b></td>
+            <td width="60px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:center" ><b>Unidades</b></td>
+            <td width="120px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right" ><b>Venta Neta</b></td>
+            <td width="120px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" ><b>Costo Venta</b></td>
+            <td width="120px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" ><b>Margen Neto</b></td>
+            <td width="90px"  style="border-bottom:1pt solid black;border-top:1pt solid black;text-align:right;" ><b>% Margen</b></td>
+          </tr>';
+
+          $fin_pagina = '</table></td></tr></table></body></html>';
+
+      $this->load->library("mpdf");
+
+      $mpdf= new mPDF(
+        '',
+        '',
+        0,
+        '',
+        15,
+        15,
+        16,
+        16,
+        9,
+        9,
+        'L'
+        );  
+
+    $cantidad_hoja = 50;
+      $fila = 1;
+      $num_final = 1;
+      $this->mpdf->SetHeader('Estadísticas Ventas por RUT - ' . $rut);
+      $this->mpdf->setFooter('{PAGENO}');         
+      foreach ($detalle_estadistica_venta['data'] as $detalle_estadistica) {
+        if($fila == 1){
+          $this->mpdf->WriteHTML($encabezado_pdf.$formato_tabla_detalle);    
+        }
+        $detail_row = '<tr>
+        <td style="text-align:left">'.$num_final.'</td>      
+        <td style="text-align:left">'.$detalle_estadistica->codigo.'</td> 
+        <td style="text-align:right">'.$detalle_estadistica->nombre.'</td> 
+        <td style="text-align:right">'.$detalle_estadistica->unidades.'</td> 
+        <td align="right">'.number_format($detalle_estadistica->ventaneta, 0, '.', '.').'</td>
+        <td align="right">'.number_format($detalle_estadistica->costo, 0, '.', '.').'</td>
+        <td style="text-align:right">'.$detalle_estadistica->margen.'</td> 
+        <td style="text-align:right">'.$detalle_estadistica->porcmargen.'</td> 
+        </tr>';
+
+        $this->mpdf->WriteHTML($detail_row);
+
+        if(($fila % $cantidad_hoja) == 0 ){
+            $this->mpdf->WriteHTML($fin_pagina);
+            $fila = 0;            
+            $this->mpdf->AddPage();
+        }   
+        $fila++;
+        $num_final++;
+      }
+      $this->mpdf->WriteHTML($fin_pagina);
+      $this->mpdf->Output("InformeEstadisticasVentaRut.pdf", "I");      
+      exit;
+         }
        
 
 

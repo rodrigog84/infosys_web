@@ -153,7 +153,8 @@ Ext.define('Infosys_web.controller.General', {
         'tipoenvases.Principal',
         'tipoenvases.Ingresar',
         'clientefinal.Principal',
-        'clientefinal.Ingresar'
+        'clientefinal.Ingresar',
+        'simulador.Principal'
          ],
     
     
@@ -453,6 +454,10 @@ Ext.define('Infosys_web.controller.General', {
             'topmenus menuitem[action=cc_rep_saldosdocumentos]': {
                 click: this.cc_rep_saldosdocumentos
             }, 
+
+            'topmenus menuitem[action=mSimuladorIntereses]': {
+                click: this.mSimuladorIntereses
+            },
 
             'ubicacionesprincipal button[action=buscarubicacion]': {
                 click: this.buscarubicacion
@@ -1199,6 +1204,12 @@ Ext.define('Infosys_web.controller.General', {
         var viewport = this.getPanelprincipal();
         viewport.removeAll();
         viewport.add({xtype: 'saldodocumentosprincipal'});
+    },
+
+    mSimuladorIntereses: function(){
+        var viewport = this.getPanelprincipal();
+        viewport.removeAll();
+        viewport.add({xtype: 'simuladorinteresesprincipal'});
     },
 
 

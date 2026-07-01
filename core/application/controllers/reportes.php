@@ -264,8 +264,53 @@ class Reportes extends CI_Controller {
 
 	 	
 	 	 
-		
+	
 
+	}
+
+
+	public function reporte_estadisticas_ventas_rut(){
+
+		$start = $this->input->get('start');
+        $limit = $this->input->get('limit');
+        $mes = $this->input->get('mes');
+        $anno = $this->input->get('anno');
+        $tipoprecio = $this->input->get('tipoprecio');
+        $rut = $this->input->get('rut');
+
+        if($rut != '' && $mes != '' && $anno != '' && $tipoprecio != ''){
+			$this->load->model('reporte');
+			$detalle_estadistica_venta = $this->reporte->reporte_estadisticas_ventas_rut($start,$limit,$mes,$anno,$tipoprecio,$rut);
+
+	 		$i = $start + 1;
+
+			foreach ($detalle_estadistica_venta['data'] as $detalle_estadistica) {
+				
+				$detalle_estadistica->num = $i;
+
+				$detalle_estadistica->ventaneta = number_format($detalle_estadistica->ventaneta,0,".",".");
+				$detalle_estadistica->costo = number_format($detalle_estadistica->costo,0,".",".");
+
+				$i++;
+			}
+
+		 	$resp['success'] = true;
+		 	$resp['periodo'] = "Estad&iacute;sticas Ventas por RUT " . $rut . "  - " .month2string((int)$mes)." de " . $anno;
+		 	$resp['mes'] = $mes;
+		 	$resp['anno'] = $anno;
+		 	$resp['rut'] = $rut;
+		 	$resp['data'] = $detalle_estadistica_venta['data'];
+		 	$resp['total'] = $detalle_estadistica_venta['cantidad'];
+	        echo json_encode($resp);
+
+        }else{
+
+		 	$resp['success'] = true;
+		 	$resp['periodo'] = "";
+		 	$resp['data'] = array();
+		 	$resp['total'] = 0;
+	        echo json_encode($resp);        	
+        }
 	}
 
 }

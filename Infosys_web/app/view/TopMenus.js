@@ -744,6 +744,10 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                             iconCls: '',
                             action: 'estadisticasventas'
                         },{
+                            text: 'Estad&iacute;stica de Ventas Mensuales por RUT',
+                            iconCls: '',
+                            action: 'estadisticasventasrut'
+                        },{
                             text: 'Saldos Documentos por Fecha',
                             iconCls: '',
                             action: 'saldodocfecha'
@@ -914,6 +918,12 @@ Ext.define('Infosys_web.view.TopMenus' ,{
                         itemId: 'cc_rep_saldocontable',
                         disabled: true,
                         action: ''
+                },{
+                        text: 'Simulador de Intereses',
+                        iconCls: '',
+                        itemId: 'cc_rep_simuladorintereses',
+                        disabled: true,
+                        action: 'mSimuladorIntereses'
                 }]
             },{
                 text: 'Procesos',

@@ -548,27 +548,27 @@ public function __construct()
             echo "</tr>";                  
             echo "<tr>";
             echo "<td>NRO PEDIDO</td>";
-            echo "<td>BODEGA</td>";
             echo "<td>GUIA</td>";
             echo "<td align='right'>ORDEN COMPRA</td>";
             echo "<td>CLIENTE</td>";
+            echo "<td>NOMBRE CLIENTE FINAL</td>";
+            echo "<td>DESTINO</td>";
             echo "<td>CODIGO</td>";
             echo "<td>PRODUCTO</td>";
             echo "<td>CANTIDAD</td>";
             echo "<td>PRECIO</td>";
-            echo "<td>UBICACION</td>";
-            echo "<td>FECHA ENTREGA</td>";
-            echo "<td>VENDEDOR</td>";
-            echo "<td>RUT CLIENTE FINAL</td>";
-            echo "<td>NOMBRE CLIENTE FINAL</td>";
-            echo "<td>RECETA</td>";
-            echo "<td>ESTADO</td>";       
-            echo "<td>FECHA GUIA</td>";
-            echo "<td>DESTINO</td>";
             echo "<td>TIPO ENVASE</td>";
+            echo "<td>FECHA GUIA</td>";
+            echo "<td>VENDEDOR</td>";
+            echo "<td>RECETA</td>";
             echo "<td>CHOFER</td>";
             echo "<td>PATENTE</td>";
             echo "<td>SITUACION</td>";
+            echo "<td>BODEGA</td>";
+            echo "<td>UBICACION</td>";
+            echo "<td>FECHA ENTREGA</td>";
+            echo "<td>RUT CLIENTE FINAL</td>";
+            echo "<td>ESTADO</td>";       
             
 
 
@@ -612,27 +612,27 @@ public function __construct()
 
               echo "<tr>";
               echo "<td>".$v['num_pedido']."</td>";
-              echo "<td>".$v['bodega']."</td>";
               echo "<td>".$v['num_factura']."</td>";
               echo "<td>".$v['orden_compra']."</td>";
               echo "<td>".$v['nom_cliente']."</td>";
+              echo "<td>".$v['nombreclientefinal']."</td>";
+              echo "<td>".$v['destino']."</td>";
               echo "<td>".$v['codigo']."</td>";
               echo "<td>".$v['nomproducto']."</td>";
               echo "<td>".$cantidad_guia."</td>";
               echo "<td>".$precio_guia."</td>";
-              echo "<td>".$v['ubicacion']."</td>";
-              echo "<td>".$v['fecentrega']."</td>";
-              echo "<td>".$v['nom_vendedor']."</td>";
-              echo "<td>".$v['rutclientefinal']."</td>";
-              echo "<td>".$v['nombreclientefinal']."</td>";
-              echo "<td>".$v['receta']."</td>";
-              echo "<td>".$estado_pedido."</td>";              
-              echo "<td>".$v['fecha_factura']."</td>";
-              echo "<td>".$v['destino']."</td>";
               echo "<td>".$v['tipoenvase']."</td>";
+              echo "<td>".$v['fecha_factura']."</td>";
+              echo "<td>".$v['nom_vendedor']."</td>";
+              echo "<td>".$v['receta']."</td>";
               echo "<td>".$v['chofer']."</td>";
               echo "<td>".$v['pat_camion']."</td>";
-              echo "<td>".$situacionpedido."</td></tr>";
+              echo "<td>".$situacionpedido."</td>";
+              echo "<td>".$v['bodega']."</td>";
+              echo "<td>".$v['ubicacion']."</td>";
+              echo "<td>".$v['fecentrega']."</td>";
+              echo "<td>".$v['rutclientefinal']."</td>";
+              echo "<td>".$estado_pedido."</td></tr>";              
               }
               echo '</table>';
          
@@ -821,6 +821,51 @@ public function reporte_estadisticas_ventas($mes,$anno,$tipoprecio)
             
             echo '<table>';
             echo "<tr><td colspan='8'><b>Detalle Estadisticas Ventas - " . month2string((int)$mes)." de " . $anno . "</b></td></tr>";
+            echo "<tr>";
+            echo "<td><b>#</b></td>";
+            echo "<td><b>Cod. Productos</b></td>";
+            echo "<td><b>Familia</b></td>";
+            echo "<td><b>Desc. Producto</b></td>";
+            echo "<td><b>Unidades</b></td>";
+            echo "<td><b>Venta Neta</b></td>";
+            echo "<td><b>Costo Venta</b></td>";
+            echo "<td><b>Margen Neto</b></td>";
+            echo "<td><b>% Margen</b></td>";
+            echo "</tr>";
+              $i = 1;              
+              foreach($detalle_estadistica_venta['data'] as $detalle_estadistica){
+                 echo "<tr>";
+                 echo "<td>".$i."</td>";
+                 echo "<td>".$detalle_estadistica->codigo."</td>";
+                 echo "<td>".$detalle_estadistica->familia."</td>";
+                 echo "<td>".$detalle_estadistica->nombre."</td>";
+                 echo "<td>".str_replace('.',',',$detalle_estadistica->unidades)."</td>";
+                 echo "<td>".number_format($detalle_estadistica->ventaneta,0,".",".")."</td>";
+                 echo "<td>".number_format($detalle_estadistica->costo,0,".",".")."</td>";
+                 echo "<td>".$detalle_estadistica->margen."</td>";
+                 echo "<td>".$detalle_estadistica->porcmargen."</td>";
+                 echo "</tr>";
+
+                  $i++;
+            }
+            echo '</table>';
+        }
+
+
+public function reporte_estadisticas_ventas_rut($rut,$mes,$anno,$tipoprecio)
+         {
+            header("Content-type: application/vnd.ms-excel"); 
+            header("Content-disposition: attachment; filename=reporte_estadisticas_ventas_rut.xls"); 
+
+            $rut  = $rut  == 0 ? '' : $rut;
+            $mes  = $mes  == 0 ? '' : $mes;
+            $anno = $anno == 0 ? '' : $anno;
+
+            $this->load->model('reporte');
+            $detalle_estadistica_venta = $this->reporte->reporte_estadisticas_ventas_rut(null,null,$mes,$anno,$tipoprecio,$rut);
+                  
+            echo '<table>';
+            echo "<tr><td colspan='9'><b>Detalle Estadisticas Ventas - RUT " . htmlspecialchars($rut) . " - " . month2string((int)$mes)." de " . $anno . "</b></td></tr>";
             echo "<tr>";
             echo "<td><b>#</b></td>";
             echo "<td><b>Cod. Productos</b></td>";
