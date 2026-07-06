@@ -3,6 +3,17 @@
 
 class Simulador_intereses extends CI_Controller {
 
+	/**
+	 * Formatea un RUT sin guión (123456789) a 12.345.678-9
+	 */
+	private function format_rut($rut) {
+		$rut = preg_replace('/[^0-9kK]/', '', $rut);
+		if (strlen($rut) < 2) { return $rut; }
+		$dv  = strtoupper(substr($rut, -1));
+		$num = number_format((int)substr($rut, 0, -1), 0, ',', '.');
+		return $num . '-' . $dv;
+	}
+
 	public function __construct()
 	{
 		parent::__construct();
@@ -78,6 +89,7 @@ class Simulador_intereses extends CI_Controller {
 				DATE_FORMAT(fc.fecha_factura, '%d/%m/%Y')   AS fecha_emision_fmt,
 				DATE_FORMAT(fc.fecha_venc,    '%d/%m/%Y')   AS fecha_venc_fmt,
 				fc.fecha_venc,
+				fc.id                                       AS id_factura,
 				dc.saldo
 			 FROM detalle_cuenta_corriente dc
 			 INNER JOIN tipo_documento     t  ON dc.tipodocumento = t.id
@@ -116,12 +128,9 @@ class Simulador_intereses extends CI_Controller {
 					$dias_cobro
 				);
 
-				$interes_con_iva = round($interes_neto * FACTOR_SUMA_IVA, 0);
-				$total_documento  = $row->saldo + $interes_con_iva;
-
-				$row->dias_mora       = $dias_mora;
-				$row->interes         = $interes_con_iva;
-				$row->total_documento = $total_documento;
+			$row->dias_mora       = $dias_mora;
+			$row->interes         = round($interes_neto, 0);
+			$row->interes_con_iva = round($interes_neto * FACTOR_SUMA_IVA, 0);
 
 				$data[] = $row;
 			}
@@ -178,12 +187,14 @@ class Simulador_intereses extends CI_Controller {
 		$qDocs = $this->db->query(
 			"SELECT
 				dc.id,
+				t.id            AS tipodocumento,
 				t.descripcion   AS tipo_desc,
 				dc.numdocumento,
 				CONCAT(t.descripcion, ' ', dc.numdocumento) AS nombre_documento,
 				DATE_FORMAT(fc.fecha_factura, '%d/%m/%Y')   AS fecha_emision_fmt,
 				DATE_FORMAT(fc.fecha_venc,    '%d/%m/%Y')   AS fecha_venc_fmt,
 				fc.fecha_venc,
+				fc.id                                       AS id_factura,
 				dc.saldo
 			 FROM detalle_cuenta_corriente dc
 			 INNER JOIN tipo_documento   t  ON dc.tipodocumento = t.id
@@ -193,9 +204,11 @@ class Simulador_intereses extends CI_Controller {
 			 WHERE dc.id IN (" . $ids_sql . ")"
 		);
 
-		$total_saldo   = 0;
-		$total_interes = 0;
-		$filas_docs    = '';
+		$total_saldo          = 0;
+		$total_interes_neto   = 0;
+		$total_interes_con_iva = 0;
+		$filas_docs           = '';
+		$fila_num             = 0;
 
 		foreach ($qDocs->result() as $doc) {
 			$fecha_venc_val = !empty($doc->fecha_venc) ? $doc->fecha_venc : $fecha_simulacion;
@@ -213,28 +226,30 @@ class Simulador_intereses extends CI_Controller {
 			$interes_neto    = $this->ctacte->calcula_interes_factura(
 				$fecha_venc_val, $fecha_simulacion, $doc->saldo, $tasa_interes, $dias_cobro
 			);
+			$interes_sin_iva = round($interes_neto, 0);
 			$interes_con_iva = round($interes_neto * FACTOR_SUMA_IVA, 0);
-			$total_doc       = $doc->saldo + $interes_con_iva;
 
-			$total_saldo   += $doc->saldo;
-			$total_interes += $interes_con_iva;
+			$total_saldo           += $doc->saldo;
+			$total_interes_neto    += $interes_sin_iva;
+			$total_interes_con_iva += $interes_con_iva;
 
 			$color_mora    = $dias_mora > 0 ? 'color:#c0392b;font-weight:bold;' : '';
-			$color_interes = $interes_con_iva > 0 ? 'color:#c0392b;' : '';
+			$color_interes = $interes_sin_iva > 0 ? 'color:#c0392b;' : '';
+			$fila_num++;
+			$bg_fila = ($fila_num % 2 === 0) ? 'background-color:#f2f2f2;' : '';
 
 			$filas_docs .= '
-			<tr>
+			<tr style="' . $bg_fila . '">
 				<td style="padding:4px 6px;">'  . htmlspecialchars($doc->nombre_documento) . '</td>
 				<td style="text-align:center;padding:4px 6px;">' . ($doc->fecha_emision_fmt ?: '-') . '</td>
 				<td style="text-align:center;padding:4px 6px;">' . ($doc->fecha_venc_fmt    ?: '-') . '</td>
 				<td style="text-align:right;padding:4px 6px;">$ '  . number_format($doc->saldo, 0, ',', '.') . '</td>
 				<td style="text-align:center;padding:4px 6px;' . $color_mora    . '">' . $dias_mora . '</td>
-				<td style="text-align:right;padding:4px 6px;'  . $color_interes . '">$ ' . number_format($interes_con_iva, 0, ',', '.') . '</td>
-				<td style="text-align:right;padding:4px 6px;font-weight:bold;">$ ' . number_format($total_doc, 0, ',', '.') . '</td>
+				<td style="text-align:right;padding:4px 6px;'  . $color_interes . '">$ ' . number_format($interes_sin_iva, 0, ',', '.') . '</td>
 			</tr>';
 		}
 
-		$total_pagar = $total_saldo + $total_interes;
+		$total_pagar = $total_saldo + $total_interes_con_iva;
 
 		// ── Datos empresa (logo + razón social) ───────────────────────────────
 		$this->load->model('facturaelectronica');
@@ -261,7 +276,7 @@ class Simulador_intereses extends CI_Controller {
   }
   .tbl-header th.r { text-align: right; }
   .tbl-header th.c { text-align: center; }
-  .tbl-body tr:nth-child(even) td { background-color: #f2f2f2; }
+  .tbl-body td { border-bottom: 1px solid #e8e8e8; }
   .box-cliente {
     border: 1px solid #2c3e50;
     padding: 8px 12px;
@@ -282,26 +297,14 @@ class Simulador_intereses extends CI_Controller {
   }
   .lbl        { color: #555; font-size: 10px; }
   .val        { font-weight: bold; font-size: 11px; }
-  .box-interes {
-    background: #c0392b;
-    color: #fff;
-    padding: 10px 16px;
-    text-align: center;
-    margin-top: 8px;
-    font-size: 14px;
-    font-weight: bold;
-    border-radius: 3px;
-  }
-  .box-total-pagar {
-    background: #1a5276;
-    color: #fff;
-    padding: 10px 16px;
-    text-align: center;
-    margin-top: 6px;
-    font-size: 16px;
-    font-weight: bold;
-    border-radius: 3px;
-  }
+  .tbl-totales            { width: 100%; border-collapse: collapse; margin-top: 4px; }
+  .tbl-totales td         { padding: 0; white-space: nowrap; }
+  .tbl-totales .lbl-cell  { padding: 7px 12px; font-size: 11px; font-weight: bold; }
+  .tbl-totales .mnt-cell  { padding: 7px 14px; font-size: 11px; font-weight: bold;
+                             text-align: right; white-space: nowrap; width: 110px; }
+  .row-saldo    td        { border-bottom: 1px solid #aaa; }
+  .row-interes  td        { background: #c0392b; color: #fff; font-size: 13px; }
+  .row-total    td        { background: #1a5276; color: #fff; font-size: 15px; }
   .sep { height: 10px; }
 </style>
 </head>
@@ -319,8 +322,7 @@ class Simulador_intereses extends CI_Controller {
     <td width="160" style="text-align:right;vertical-align:top;font-size:10px;">
       <b>Fecha emisión:</b> ' . date('d/m/Y') . '<br/>
       <b>Fecha simulación:</b> ' . date('d/m/Y', strtotime($fecha_simulacion)) . '<br/>
-      <b>Tasa mensual:</b> ' . number_format($tasa_interes, 2, ',', '.') . ' %<br/>
-      <b>Días de gracia:</b> ' . $dias_cobro . '
+      <b>Tasa mensual:</b> ' . number_format($tasa_interes, 2, ',', '.') . ' %
     </td>
   </tr>
 </table>
@@ -341,7 +343,7 @@ class Simulador_intereses extends CI_Controller {
     <tr>
       <td width="50%">
         <span class="lbl">RUT Cliente:</span><br/>
-        <span class="val">' . htmlspecialchars($cliente->rut) . '</span>
+        <span class="val">' . $this->format_rut($cliente->rut) . '</span>
       </td>
       <td width="50%">
         <span class="lbl">Nombre:</span><br/>
@@ -350,7 +352,7 @@ class Simulador_intereses extends CI_Controller {
     </tr>
     <tr><td colspan="2" style="padding-top:6px;">
       <div class="box-credito">
-        <span class="lbl">Crédito Utilizado:</span>&nbsp;&nbsp;
+        <span class="lbl">Línea de Crédito Utilizada:</span>&nbsp;&nbsp;
         <span style="font-size:13px;font-weight:bold;color:#e67e22;">
           $ ' . number_format($cliente->cred_util, 0, ',', '.') . '
         </span>
@@ -368,8 +370,7 @@ class Simulador_intereses extends CI_Controller {
       <th class="c">F. Vencimiento</th>
       <th class="r">Saldo</th>
       <th class="c">Días Mora</th>
-      <th class="r">Interés c/IVA</th>
-      <th class="r">Total Documento</th>
+      <th class="r">Interés s/IVA</th>
     </tr>
   </thead>
   <tbody class="tbl-body">
@@ -381,25 +382,28 @@ class Simulador_intereses extends CI_Controller {
 <div class="box-totales">
   <table>
     <tr>
-      <td width="60%">&nbsp;</td>
-      <td width="40%">
+      <td width="55%">&nbsp;</td>
+      <td width="45%">
 
-        <table style="width:100%;font-size:11px;">
-          <tr>
-            <td style="padding:3px 8px;"><b>Total deuda (saldo documentos):</b></td>
-            <td style="text-align:right;padding:3px 8px;"><b>$ ' . number_format($total_saldo, 0, ',', '.') . '</b></td>
+        <table class="tbl-totales">
+          <tr class="row-saldo">
+            <td class="lbl-cell">Total deuda (saldo documentos):</td>
+            <td class="mnt-cell">$ ' . number_format($total_saldo, 0, ',', '.') . '</td>
+          </tr>
+          <tr class="row-saldo">
+            <td class="lbl-cell">Total intereses s/IVA:</td>
+            <td class="mnt-cell">$ ' . number_format($total_interes_neto, 0, ',', '.') . '</td>
+          </tr>
+          <tr class="row-interes">
+            <td class="lbl-cell">INTERESES A PAGAR (c/IVA)</td>
+            <td class="mnt-cell">$ ' . number_format($total_interes_con_iva, 0, ',', '.') . '</td>
+          </tr>
+          <tr style="height:4px;"><td colspan="2"></td></tr>
+          <tr class="row-total">
+            <td class="lbl-cell" style="font-size:15px;">TOTAL A PAGAR</td>
+            <td class="mnt-cell" style="font-size:15px;">$ ' . number_format($total_pagar, 0, ',', '.') . '</td>
           </tr>
         </table>
-
-        <div class="box-interes">
-          INTERESES A PAGAR (c/IVA)&nbsp;&nbsp;&nbsp;
-          $ ' . number_format($total_interes, 0, ',', '.') . '
-        </div>
-
-        <div class="box-total-pagar">
-          TOTAL A PAGAR&nbsp;&nbsp;&nbsp;
-          $ ' . number_format($total_pagar, 0, ',', '.') . '
-        </div>
 
       </td>
     </tr>
@@ -410,6 +414,9 @@ class Simulador_intereses extends CI_Controller {
 </html>';
 
 		// ── Generar PDF ────────────────────────────────────────────────────────
+		// Limpiar cualquier output previo (notices, warnings) que corrompa el PDF
+		if (ob_get_level()) { ob_end_clean(); }
+
 		$this->load->library('mpdf');
 		$this->mpdf->mPDF('', 'A4', 0, '', 12, 12, 16, 16, 9, 9, 'P');
 		$this->mpdf->WriteHTML($html);

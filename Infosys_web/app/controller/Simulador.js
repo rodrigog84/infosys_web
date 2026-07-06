@@ -33,8 +33,12 @@ Ext.define('Infosys_web.controller.Simulador', {
             'simuladorinteresesprincipal #rutBusqueda': {
                 specialkey: function(field, e) {
                     if (e.getKey() === e.ENTER) {
+                        this.formatearRutDisplay(field);
                         this.buscarCliente();
                     }
+                },
+                blur: function(field) {
+                    this.formatearRutDisplay(field);
                 }
             },
             'simuladorinteresesprincipal button[action=calcularIntereses]': {
@@ -58,6 +62,28 @@ Ext.define('Infosys_web.controller.Simulador', {
                 }
             }
         });
+    },
+
+    // ── Utilidades RUT ─────────────────────────────────────────────────────────
+    // Deja solo dígitos y K/k
+    stripRut: function(rut) {
+        return rut.replace(/[^0-9kK]/g, '');
+    },
+
+    // Formatea para mostrar: 12345678-9
+    formatRut: function(rut) {
+        rut = rut.replace(/[^0-9kK]/g, '');
+        if (rut.length < 2) { return rut; }
+        return rut.slice(0, -1) + '-' + rut.slice(-1).toUpperCase();
+    },
+
+    // Aplica el formato visual al campo sin alterar lo que se enviará al server
+    formatearRutDisplay: function(field) {
+        var raw = field.getValue();
+        if (!raw) { return; }
+        var formatted = this.formatRut(raw);
+        // Actualiza solo la presentación visual del campo
+        field.setRawValue(formatted);
     },
 
     // ── Reset al abrir el módulo ────────────────────────────────────────────────
@@ -88,11 +114,13 @@ Ext.define('Infosys_web.controller.Simulador', {
         var view = me.getSimuladorinteresesprincipal();
         if (!view) { return; }
 
-        var rut = view.down('#rutBusqueda').getValue();
-        if (!rut) {
+        var rutRaw = view.down('#rutBusqueda').getValue();
+        if (!rutRaw) {
             Ext.Msg.alert('Atención', 'Ingrese el RUT del cliente.');
             return;
         }
+        // Quitar guión y espacios antes de enviar al servidor
+        var rut = this.stripRut(rutRaw);
 
         view.down('#nombreClienteDisplay').setValue('Buscando...');
         view.down('#rutConfirmado').setValue('');
@@ -207,19 +235,22 @@ Ext.define('Infosys_web.controller.Simulador', {
         var view = me.getSimuladorinteresesprincipal();
         if (!view) { return; }
 
-        var totalSaldo   = 0;
-        var totalInteres = 0;
+        var totalSaldo         = 0;
+        var totalInteres       = 0;
+        var totalInteresConIva = 0;
 
         Ext.Array.each(selected, function(rec) {
-            totalSaldo   += rec.get('saldo')   || 0;
-            totalInteres += rec.get('interes') || 0;
+            totalSaldo         += rec.get('saldo')           || 0;
+            totalInteres       += rec.get('interes')         || 0;
+            totalInteresConIva += rec.get('interes_con_iva') || 0;
         });
 
-        var totalPagar = totalSaldo + totalInteres;
+        var totalPagar = totalSaldo + totalInteresConIva;
         var fmt = function(n) { return '$ ' + Ext.util.Format.number(n, '0,000.'); };
 
         view.down('#totalSaldoDisplay').setValue(fmt(totalSaldo));
         view.down('#totalInteresDisplay').setValue(fmt(totalInteres));
+        view.down('#totalInteresIvaDisplay').setValue(fmt(totalInteresConIva));
         view.down('#totalPagarDisplay').setValue(fmt(totalPagar));
     },
 

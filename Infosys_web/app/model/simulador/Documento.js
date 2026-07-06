@@ -12,6 +12,7 @@ Ext.define('Infosys_web.model.simulador.Documento', {
         { name: 'saldo',           type: 'float'  },
         { name: 'dias_mora',       type: 'int'    },
         { name: 'interes',         type: 'float'  },
-        { name: 'total_documento', type: 'float'  }
+        { name: 'interes_con_iva', type: 'float'  },
+        { name: 'id_factura',      type: 'int'    }
     ]
 });
