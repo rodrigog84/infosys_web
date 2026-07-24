@@ -196,6 +196,11 @@ Ext.define('Infosys_web.view.simulador.Principal', {
                     text: 'Exportar PDF',
                     iconCls: 'icon-pdf',
                     action: 'exportarPDFSimulador'
+                },{
+                    xtype: 'button',
+                    text: 'Exportar Excel',
+                    iconCls: 'icon-exel',
+                    action: 'exportarExcelSimulador'
                 },'->',{
                     xtype: 'button',
                     text: 'Cerrar',

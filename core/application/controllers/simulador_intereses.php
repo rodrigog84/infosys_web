@@ -423,4 +423,176 @@ class Simulador_intereses extends CI_Controller {
 		$this->mpdf->Output('SimuladorIntereses_' . date('Ymd_His') . '.pdf', 'I');
 		exit;
 	}
+
+	/**
+	 * Genera Excel de simulación con los documentos seleccionados.
+	 * Mismos parámetros GET que exportarPDF.
+	 */
+	public function exportarExcel(){
+
+		$rut              = $this->input->get('rut');
+		$fecha_simulacion = substr(trim($this->input->get('fecha_simulacion')), 0, 10);
+		$tasa_interes     = (float)str_replace(',', '.', $this->input->get('tasa_interes'));
+		$dias_cobro       = (int)$this->input->get('dias_cobro');
+		$ids_raw          = $this->input->get('ids');
+
+		// Sanitizar IDs
+		$ids_arr = array();
+		foreach (explode(',', $ids_raw) as $id) {
+			$id = (int)trim($id);
+			if ($id > 0) { $ids_arr[] = $id; }
+		}
+		if (empty($ids_arr)) { echo 'No hay documentos seleccionados.'; return; }
+		$ids_sql = implode(',', $ids_arr);
+
+		// ── Datos del cliente ──────────────────────────────────────────────────
+		$qCliente = $this->db->query(
+			"SELECT c.rut, c.nombres, c.cred_util
+			 FROM clientes c
+			 WHERE c.rut = '" . $this->db->escape_str($rut) . "' LIMIT 1"
+		);
+		$cliente = $qCliente->num_rows() > 0 ? $qCliente->row() : null;
+		if (!$cliente) { echo 'Cliente no encontrado.'; return; }
+
+		// ── Documentos seleccionados ───────────────────────────────────────────
+		$qDocs = $this->db->query(
+			"SELECT dc.id, t.id AS tipodocumento,
+				CONCAT(t.descripcion, ' ', dc.numdocumento) AS nombre_documento,
+				DATE_FORMAT(fc.fecha_factura, '%d/%m/%Y') AS fecha_emision_fmt,
+				DATE_FORMAT(fc.fecha_venc,    '%d/%m/%Y') AS fecha_venc_fmt,
+				fc.fecha_venc, dc.saldo
+			 FROM detalle_cuenta_corriente dc
+			 INNER JOIN tipo_documento   t  ON dc.tipodocumento = t.id
+			 INNER JOIN cuenta_corriente cc ON dc.idctacte = cc.id
+			 LEFT  JOIN factura_clientes fc ON dc.numdocumento = fc.num_factura
+			                              AND dc.tipodocumento = fc.tipo_documento
+			 WHERE dc.id IN (" . $ids_sql . ")"
+		);
+
+		$total_saldo           = 0;
+		$total_interes_neto    = 0;
+		$total_interes_con_iva = 0;
+		$filas = '';
+
+		foreach ($qDocs->result() as $doc) {
+			$fecha_venc_val = !empty($doc->fecha_venc) ? $doc->fecha_venc : $fecha_simulacion;
+			$date_venc = new DateTime($fecha_venc_val);
+			$date_sim  = new DateTime($fecha_simulacion);
+
+			$dias_mora = 0;
+			if ($date_venc <= $date_sim) {
+				$diff      = $date_venc->diff($date_sim);
+				$dias_mora = max(0, $diff->days - $dias_cobro);
+			}
+
+			$interes_neto    = $this->ctacte->calcula_interes_factura(
+				$fecha_venc_val, $fecha_simulacion, $doc->saldo, $tasa_interes, $dias_cobro
+			);
+			$interes_sin_iva = round($interes_neto, 0);
+			$interes_con_iva = round($interes_neto * FACTOR_SUMA_IVA, 0);
+
+			$total_saldo           += $doc->saldo;
+			$total_interes_neto    += $interes_sin_iva;
+			$total_interes_con_iva += $interes_con_iva;
+
+			$filas .= '<tr>
+				<td>' . htmlspecialchars($doc->nombre_documento) . '</td>
+				<td>' . ($doc->fecha_emision_fmt ?: '-') . '</td>
+				<td>' . ($doc->fecha_venc_fmt    ?: '-') . '</td>
+				<td align="right">' . $doc->saldo . '</td>
+				<td align="center">' . $dias_mora . '</td>
+				<td align="right">' . $interes_sin_iva . '</td>
+				<td align="right">' . $interes_con_iva . '</td>
+			</tr>';
+		}
+
+		$total_pagar = $total_saldo + $total_interes_con_iva;
+
+		// ── Headers Excel ──────────────────────────────────────────────────────
+		if (ob_get_level()) { ob_end_clean(); }
+
+		header('Content-Type: application/vnd.ms-excel');
+		header('Content-Disposition: attachment; filename="SimuladorIntereses_' . date('Ymd_His') . '.xls"');
+		header('Cache-Control: max-age=0');
+
+		echo '<html><head><meta charset="UTF-8"></head><body>';
+
+		// Encabezado
+		echo '<table>';
+		echo '<tr><td colspan="7" style="font-size:16px;font-weight:bold;">SIMULACIÓN DE INTERESES</td></tr>';
+		echo '<tr><td colspan="7"></td></tr>';
+		echo '<tr>
+			<td><b>RUT Cliente:</b></td>
+			<td colspan="2">' . $this->format_rut($cliente->rut) . '</td>
+			<td><b>Nombre:</b></td>
+			<td colspan="3">' . htmlspecialchars($cliente->nombres) . '</td>
+		</tr>';
+		echo '<tr>
+			<td><b>Línea de Crédito Utilizada:</b></td>
+			<td colspan="2">' . $cliente->cred_util . '</td>
+			<td><b>Fecha Simulación:</b></td>
+			<td>' . date('d/m/Y', strtotime($fecha_simulacion)) . '</td>
+			<td><b>Tasa Mensual:</b></td>
+			<td>' . number_format($tasa_interes, 2, ',', '.') . ' %</td>
+		</tr>';
+		echo '<tr><td colspan="7"></td></tr>';
+
+		// Encabezado tabla documentos
+		$s_hdr = 'background:#2c3e50;color:#ffffff;font-weight:bold;';
+		echo '<tr>
+			<td style="' . $s_hdr . '">Documento</td>
+			<td style="' . $s_hdr . '">F. Emisión</td>
+			<td style="' . $s_hdr . '">F. Vencimiento</td>
+			<td style="' . $s_hdr . '" align="right">Saldo</td>
+			<td style="' . $s_hdr . '" align="center">Días Mora</td>
+			<td style="' . $s_hdr . '" align="right">Interés s/IVA</td>
+			<td style="' . $s_hdr . '" align="right">Interés c/IVA</td>
+		</tr>';
+
+		// Filas documentos
+		echo $filas;
+
+		// Totales — cada td con estilo individual para que el color no se extienda más allá de la columna G
+		$td_vacio  = '<td></td>';
+		echo '<tr>' . $td_vacio . $td_vacio . $td_vacio . $td_vacio . $td_vacio . $td_vacio . $td_vacio . '</tr>';
+
+		echo '<tr>
+			<td></td><td></td><td></td>
+			<td><b>Total deuda (saldo):</b></td>
+			<td></td><td></td>
+			<td align="right"><b>' . $total_saldo . '</b></td>
+		</tr>';
+
+		echo '<tr>
+			<td></td><td></td><td></td>
+			<td><b>Total intereses s/IVA:</b></td>
+			<td></td><td></td>
+			<td align="right"><b>' . $total_interes_neto . '</b></td>
+		</tr>';
+
+		$s_rojo = 'background:#c0392b;color:#ffffff;';
+		echo '<tr>
+			<td style="' . $s_rojo . '"></td>
+			<td style="' . $s_rojo . '"></td>
+			<td style="' . $s_rojo . '"></td>
+			<td style="' . $s_rojo . '"><b>INTERESES A PAGAR (c/IVA):</b></td>
+			<td style="' . $s_rojo . '"></td>
+			<td style="' . $s_rojo . '"></td>
+			<td style="' . $s_rojo . '" align="right"><b>' . $total_interes_con_iva . '</b></td>
+		</tr>';
+
+		$s_azul = 'background:#1a5276;color:#ffffff;font-size:14px;';
+		echo '<tr>
+			<td style="' . $s_azul . '"></td>
+			<td style="' . $s_azul . '"></td>
+			<td style="' . $s_azul . '"></td>
+			<td style="' . $s_azul . '"><b>TOTAL A PAGAR:</b></td>
+			<td style="' . $s_azul . '"></td>
+			<td style="' . $s_azul . '"></td>
+			<td style="' . $s_azul . '" align="right"><b>' . $total_pagar . '</b></td>
+		</tr>';
+
+		echo '</table></body></html>';
+		exit;
+	}
 }

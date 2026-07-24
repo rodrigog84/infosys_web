@@ -53,6 +53,9 @@ Ext.define('Infosys_web.controller.Simulador', {
             'simuladorinteresesprincipal button[action=exportarPDFSimulador]': {
                 click: this.exportarPDFSimulador
             },
+            'simuladorinteresesprincipal button[action=exportarExcelSimulador]': {
+                click: this.exportarExcelSimulador
+            },
             'simuladorinteresesprincipal button[action=cerrarpantalla]': {
                 click: this.cerrarpantalla
             },
@@ -294,6 +297,42 @@ Ext.define('Infosys_web.controller.Simulador', {
             + '&fecha_simulacion=' + encodeURIComponent(fechaEnvio)
             + '&tasa_interes='     + encodeURIComponent(tasa)
             + '&dias_cobro='       + encodeURIComponent(diasCobro)
+            + '&ids='              + encodeURIComponent(ids.join(','));
+
+        window.open(url);
+    },
+
+    // ── Exportar Excel ─────────────────────────────────────────────────────────
+    exportarExcelSimulador: function() {
+        var me   = this;
+        var view = me.getSimuladorinteresesprincipal();
+        if (!view) { return; }
+
+        var rut = view.down('#rutConfirmado').getValue();
+        if (!rut) {
+            Ext.Msg.alert('Atención', 'Primero debe buscar un cliente y calcular los intereses.');
+            return;
+        }
+
+        var grid     = view.down('#documentosGrid');
+        var selected = grid.getSelectionModel().getSelection();
+
+        if (!selected || selected.length === 0) {
+            Ext.Msg.alert('Atención', 'Debe seleccionar al menos un documento para exportar.');
+            return;
+        }
+
+        var ids    = Ext.Array.map(selected, function(rec) { return rec.get('id'); });
+        var partes = view.down('#fechaSimulacion').getRawValue().split('/');
+        var fechaEnvio = partes.length === 3
+            ? partes[2] + '-' + partes[1] + '-' + partes[0]
+            : view.down('#fechaSimulacion').getRawValue();
+
+        var url = preurl + 'simulador_intereses/exportarExcel'
+            + '?rut='              + encodeURIComponent(rut)
+            + '&fecha_simulacion=' + encodeURIComponent(fechaEnvio)
+            + '&tasa_interes='     + encodeURIComponent(view.down('#tasaInteres').getValue())
+            + '&dias_cobro='       + encodeURIComponent(view.down('#diasCobro').getValue() || 0)
             + '&ids='              + encodeURIComponent(ids.join(','));
 
         window.open(url);
