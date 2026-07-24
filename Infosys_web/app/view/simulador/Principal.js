@@ -201,6 +201,13 @@ Ext.define('Infosys_web.view.simulador.Principal', {
                     text: 'Exportar Excel',
                     iconCls: 'icon-exel',
                     action: 'exportarExcelSimulador'
+                },'-',{
+                    xtype: 'button',
+                    text: 'Historial',
+                    iconCls: 'icon-grid',
+                    action: 'verHistorialSimulador',
+                    itemId: 'btnHistorial',
+                    disabled: true
                 },'->',{
                     xtype: 'button',
                     text: 'Cerrar',

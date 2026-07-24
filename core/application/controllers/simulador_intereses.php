@@ -425,6 +425,75 @@ class Simulador_intereses extends CI_Controller {
 	}
 
 	/**
+	 * Guarda una entrada en el log de simulaciones.
+	 * POST params: rut, nombre_cliente, fecha_simulacion, tasa_interes, dias_cobro,
+	 *              total_saldo, total_interes_neto, total_interes_con_iva, total_pagar,
+	 *              ids_documentos, tipo_exportacion (PDF|EXCEL)
+	 */
+	public function guardarSimulacion(){
+		$id_usuario = $this->session->userdata('id_usu');
+
+		$data = array(
+			'rut'                   => $this->input->post('rut'),
+			'nombre_cliente'        => $this->input->post('nombre_cliente'),
+			'fecha_simulacion'      => $this->input->post('fecha_simulacion'),
+			'tasa_interes'          => (float)str_replace(',', '.', $this->input->post('tasa_interes')),
+			'dias_cobro'            => (int)$this->input->post('dias_cobro'),
+			'total_saldo'           => (int)$this->input->post('total_saldo'),
+			'total_interes_neto'    => (int)$this->input->post('total_interes_neto'),
+			'total_interes_con_iva' => (int)$this->input->post('total_interes_con_iva'),
+			'total_pagar'           => (int)$this->input->post('total_pagar'),
+			'ids_documentos'        => $this->input->post('ids_documentos'),
+			'tipo_exportacion'      => $this->input->post('tipo_exportacion'),
+			'fecha_ejecucion'       => date('Y-m-d H:i:s'),
+			'id_usuario'            => $id_usuario ? $id_usuario : null
+		);
+
+		$this->db->insert('simulador_log', $data);
+		$resp = array('success' => true, 'id' => $this->db->insert_id());
+		echo json_encode($resp);
+	}
+
+	/**
+	 * Retorna el historial de simulaciones de un cliente.
+	 * GET params: rut
+	 */
+	public function getLogSimulaciones(){
+		$rut   = $this->db->escape_str($this->input->get('rut'));
+		$start = (int)$this->input->get('start');
+		$limit = (int)$this->input->get('limit');
+		if ($limit <= 0) { $limit = 20; }
+
+		// Total de registros para paginación
+		$countQuery = $this->db->query(
+			"SELECT COUNT(*) AS total FROM simulador_log WHERE rut = '$rut'"
+		);
+		$total = (int)$countQuery->row()->total;
+
+		$query = $this->db->query(
+			"SELECT sl.id, sl.rut, sl.nombre_cliente,
+				DATE_FORMAT(sl.fecha_simulacion, '%d/%m/%Y') AS fecha_simulacion_fmt,
+				sl.fecha_simulacion,
+				sl.tasa_interes, sl.dias_cobro,
+				sl.total_saldo, sl.total_interes_neto,
+				sl.total_interes_con_iva, sl.total_pagar,
+				sl.ids_documentos, sl.tipo_exportacion,
+				DATE_FORMAT(sl.fecha_ejecucion, '%d/%m/%Y %H:%i') AS fecha_ejecucion_fmt,
+				IFNULL(u.nombre, 'Sistema') AS nombre_usuario
+			 FROM simulador_log sl
+			 LEFT JOIN usuario u ON sl.id_usuario = u.id
+			 WHERE sl.rut = '$rut'
+			 ORDER BY sl.fecha_ejecucion DESC
+			 LIMIT $start, $limit"
+		);
+
+		$resp['success'] = true;
+		$resp['total']   = $total;
+		$resp['data']    = $query->result();
+		echo json_encode($resp);
+	}
+
+	/**
 	 * Genera Excel de simulación con los documentos seleccionados.
 	 * Mismos parámetros GET que exportarPDF.
 	 */

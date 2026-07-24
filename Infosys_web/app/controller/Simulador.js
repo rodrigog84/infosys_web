@@ -2,15 +2,18 @@ Ext.define('Infosys_web.controller.Simulador', {
     extend: 'Ext.app.Controller',
 
     stores: [
-        'simulador.Documentos'
+        'simulador.Documentos',
+        'simulador.Log'
     ],
 
     models: [
-        'simulador.Documento'
+        'simulador.Documento',
+        'simulador.Log'
     ],
 
     views: [
-        'simulador.Principal'
+        'simulador.Principal',
+        'simulador.LogPanel'
     ],
 
     refs: [{
@@ -55,6 +58,9 @@ Ext.define('Infosys_web.controller.Simulador', {
             },
             'simuladorinteresesprincipal button[action=exportarExcelSimulador]': {
                 click: this.exportarExcelSimulador
+            },
+            'simuladorinteresesprincipal button[action=verHistorialSimulador]': {
+                click: this.verHistorialSimulador
             },
             'simuladorinteresesprincipal button[action=cerrarpantalla]': {
                 click: this.cerrarpantalla
@@ -109,6 +115,10 @@ Ext.define('Infosys_web.controller.Simulador', {
 
         // Limpiar totales
         me.actualizarTotales([]);
+
+        // Deshabilitar botón de historial
+        var btnHistorial = view.down('#btnHistorial');
+        if (btnHistorial) { btnHistorial.setDisabled(true); }
     },
 
     // ── Buscar cliente por RUT ──────────────────────────────────────────────────
@@ -138,6 +148,9 @@ Ext.define('Infosys_web.controller.Simulador', {
                     view.down('#rutConfirmado').setValue(obj.data.rut);
                     var credUtil = obj.data.cred_util || 0;
                     view.down('#credUtilizadoDisplay').setValue('$ ' + Ext.util.Format.number(credUtil, '0,000.'));
+                    // Habilitar botón historial para este cliente
+                    var btnH = view.down('#btnHistorial');
+                    if (btnH) { btnH.setDisabled(false); }
                     // Lanzar cálculo automáticamente al encontrar el cliente
                     me.calcularIntereses();
                 } else {
@@ -291,6 +304,9 @@ Ext.define('Infosys_web.controller.Simulador', {
         var tasa      = view.down('#tasaInteres').getValue();
         var diasCobro = view.down('#diasCobro').getValue() || 0;
 
+        // Guardar log antes de abrir
+        me._guardarLogSimulacion(view, selected, fechaEnvio, tasa, diasCobro, ids, 'PDF');
+
         // Abrir PDF en nueva pestaña usando GET (mismo patrón del sistema)
         var url = preurl + 'simulador_intereses/exportarPDF'
             + '?rut='              + encodeURIComponent(rut)
@@ -328,14 +344,78 @@ Ext.define('Infosys_web.controller.Simulador', {
             ? partes[2] + '-' + partes[1] + '-' + partes[0]
             : view.down('#fechaSimulacion').getRawValue();
 
+        var tasa2      = view.down('#tasaInteres').getValue();
+        var diasCobro2 = view.down('#diasCobro').getValue() || 0;
+
+        // Guardar log antes de abrir
+        me._guardarLogSimulacion(view, selected, fechaEnvio, tasa2, diasCobro2, ids, 'EXCEL');
+
         var url = preurl + 'simulador_intereses/exportarExcel'
             + '?rut='              + encodeURIComponent(rut)
             + '&fecha_simulacion=' + encodeURIComponent(fechaEnvio)
-            + '&tasa_interes='     + encodeURIComponent(view.down('#tasaInteres').getValue())
-            + '&dias_cobro='       + encodeURIComponent(view.down('#diasCobro').getValue() || 0)
+            + '&tasa_interes='     + encodeURIComponent(tasa2)
+            + '&dias_cobro='       + encodeURIComponent(diasCobro2)
             + '&ids='              + encodeURIComponent(ids.join(','));
 
         window.open(url);
+    },
+
+    // ── Guardar log de simulación (silencioso) ─────────────────────────────────
+    _guardarLogSimulacion: function(view, selected, fechaSimulacion, tasa, diasCobro, ids, tipo) {
+        var rut           = view.down('#rutConfirmado').getValue();
+        var nombreCliente = view.down('#nombreClienteDisplay').getValue();
+
+        var totalSaldo = 0, totalInteres = 0, totalInteresConIva = 0;
+        Ext.Array.each(selected, function(rec) {
+            totalSaldo         += rec.get('saldo')           || 0;
+            totalInteres       += rec.get('interes')         || 0;
+            totalInteresConIva += rec.get('interes_con_iva') || 0;
+        });
+        var totalPagar = totalSaldo + totalInteresConIva;
+
+        Ext.Ajax.request({
+            url:    preurl + 'simulador_intereses/guardarSimulacion',
+            method: 'POST',
+            params: {
+                rut:                   rut,
+                nombre_cliente:        nombreCliente,
+                fecha_simulacion:      fechaSimulacion,
+                tasa_interes:          tasa,
+                dias_cobro:            diasCobro,
+                total_saldo:           Math.round(totalSaldo),
+                total_interes_neto:    Math.round(totalInteres),
+                total_interes_con_iva: Math.round(totalInteresConIva),
+                total_pagar:           Math.round(totalPagar),
+                ids_documentos:        ids.join(','),
+                tipo_exportacion:      tipo
+            }
+            // Sin handlers: guardado silencioso
+        });
+    },
+
+    // ── Historial de simulaciones ──────────────────────────────────────────────
+    verHistorialSimulador: function() {
+        var me   = this;
+        var view = me.getSimuladorinteresesprincipal();
+        if (!view) { return; }
+
+        var rut    = view.down('#rutConfirmado').getValue();
+        var nombre = view.down('#nombreClienteDisplay').getValue();
+        if (!rut) {
+            Ext.Msg.alert('Atención', 'Primero debe buscar un cliente.');
+            return;
+        }
+
+        var logStore = me.getSimuladorLogStore();
+        logStore.getProxy().extraParams = { rut: rut };
+        logStore.removeAll();
+        logStore.load();
+
+        var win = Ext.widget('simuladorlogpanel', {
+            title:    'Historial de Simulaciones — ' + nombre + ' (' + me.formatRut(rut) + ')',
+            logStore: logStore
+        });
+        win.show();
     },
 
     // ── Helpers ────────────────────────────────────────────────────────────────
