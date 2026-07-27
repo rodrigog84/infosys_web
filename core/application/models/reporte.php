@@ -576,7 +576,8 @@ class Reporte extends CI_Model
 		$sql_tipo_documento =  "and f.tipo_documento in (101,120,102,104,106)";
 		$sql_mes = $mes != '' ? "and month(f.fecha_factura) = '" . $mes . "'" : "";
 		$sql_anno = $anno != '' ? "and year(f.fecha_factura) = '" . $anno . "'" : "";
-		$sql_rut = $rut != '' ? "and f.rut = '" . $this->db->escape_str($rut) . "'" : "";
+		$rut_escaped = $this->db->escape_str($rut);
+		$sql_rut = $rut != '' ? "and f.id_cliente IN (SELECT id FROM clientes WHERE rut = '" . $rut_escaped . "')" : "";
 
 		$data_detalle = $this->db->select("count(distinct p.id) as cantidad",false)
 		  ->from('detalle_factura_cliente d')
@@ -586,7 +587,7 @@ class Reporte extends CI_Model
 		$data_detalle = $mes != '' ? $data_detalle->where('month(f.fecha_factura)',$mes) : $data_detalle;
 		$data_detalle = $anno != '' ? $data_detalle->where('year(f.fecha_factura)',$anno) : $data_detalle;
 		$data_detalle = $tipo != '' ? $data_detalle->where('f.tipo_documento',$tipo,$tipo2,$tipo3) : $data_detalle;
-		if($rut != '') $data_detalle = $data_detalle->where('f.rut', $this->db->escape_str($rut));
+		if($rut != '') $data_detalle = $data_detalle->where("f.id_cliente IN (SELECT id FROM clientes WHERE rut = '$rut_escaped')", null, false);
 
 		$query = $this->db->get();
 		$result_cantidad = $query->row()->cantidad;
