@@ -203,6 +203,14 @@ Ext.define('Infosys_web.view.simulador.Principal', {
                     action: 'exportarExcelSimulador'
                 },'-',{
                     xtype: 'button',
+                    text: 'Generar Factura',
+                    iconCls: 'icon-save',
+                    action: 'generarFacturaSimulador',
+                    itemId: 'btnGenerarFactura',
+                    disabled: true,
+                    tooltip: 'Genera Factura Electrónica de Glosa por los intereses seleccionados'
+                },{
+                    xtype: 'button',
                     text: 'Historial',
                     iconCls: 'icon-grid',
                     action: 'verHistorialSimulador',

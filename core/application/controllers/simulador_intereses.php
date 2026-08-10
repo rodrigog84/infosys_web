@@ -425,6 +425,79 @@ class Simulador_intereses extends CI_Controller {
 	}
 
 	/**
+	 * Retorna todos los datos necesarios para crear una factura de glosa
+	 * a partir de un RUT de cliente.
+	 * GET params: rut
+	 */
+	public function prepararFactura(){
+		// Acepta tanto GET como POST
+		$rut = trim($this->input->get('rut') ?: $this->input->post('rut'));
+		$rut = $this->db->escape_str($rut);
+
+		// Misma estructura que validaRut en clientes.php
+		$qCliente = $this->db->query(
+			"SELECT c.id, c.rut, c.nombres, c.direccion,
+				c.id_vendedor, c.id_pago,
+				g.nombre AS giro,
+				ciu.nombre AS ciudad,
+				com.nombre AS comuna
+			 FROM clientes c
+			 LEFT JOIN cod_activ_econ g   ON c.id_giro   = g.id
+			 LEFT JOIN ciudad ciu          ON c.id_ciudad = ciu.id
+			 LEFT JOIN comuna com          ON c.id_comuna = com.id
+			 WHERE c.rut = '$rut'
+			 LIMIT 1"
+		);
+		if ($qCliente->num_rows() === 0) {
+			echo json_encode(array('success' => false, 'message' => 'Cliente no encontrado'));
+			return;
+		}
+		$cliente = $qCliente->row();
+
+		// Bodega y sucursal por defecto (primera disponible)
+		$qBodega = $this->db->query("SELECT id FROM bodegas LIMIT 1");
+		$idBodega = $qBodega->num_rows() > 0 ? $qBodega->row()->id : 1;
+
+		$qSucursal = $this->db->query("SELECT id FROM sucursales LIMIT 1");
+		$idSucursal = $qSucursal->num_rows() > 0 ? $qSucursal->row()->id : 1;
+
+		// Tipo de gasto por defecto (primero disponible — usar el mismo que se usa en facturaglosa)
+		$qGasto = $this->db->query("SELECT id FROM tipo_gasto ORDER BY id LIMIT 1");
+		$idTipoGasto = $qGasto->num_rows() > 0 ? $qGasto->row()->id : 1;
+
+		echo json_encode(array(
+			'success'       => true,
+			'cliente'       => $cliente,
+			'id_bodega'     => $idBodega,
+			'id_sucursal'   => $idSucursal,
+			'id_tipo_gasto' => $idTipoGasto
+		));
+	}
+
+	/**
+	 * Vincula una factura generada a un registro del log de simulaciones.
+	 * POST params: id_log, id_factura, num_factura
+	 */
+	public function vincularFactura(){
+		$id_log       = (int)$this->input->post('id_log');
+		$id_factura   = (int)$this->input->post('id_factura');
+		$num_factura  = $this->input->post('num_factura');
+
+		if (!$id_log || !$id_factura) {
+			echo json_encode(array('success' => false, 'message' => 'Parámetros inválidos'));
+			return;
+		}
+
+		$this->db->where('id', $id_log);
+		$this->db->update('simulador_log', array(
+			'id_factura_generada'  => $id_factura,
+			'num_factura_generada' => $num_factura
+		));
+
+		echo json_encode(array('success' => true));
+	}
+
+	/**
 	 * Guarda una entrada en el log de simulaciones.
 	 * POST params: rut, nombre_cliente, fecha_simulacion, tasa_interes, dias_cobro,
 	 *              total_saldo, total_interes_neto, total_interes_con_iva, total_pagar,
@@ -479,7 +552,9 @@ class Simulador_intereses extends CI_Controller {
 				sl.total_interes_con_iva, sl.total_pagar,
 				sl.ids_documentos, sl.tipo_exportacion,
 				DATE_FORMAT(sl.fecha_ejecucion, '%d/%m/%Y %H:%i') AS fecha_ejecucion_fmt,
-				IFNULL(u.nombre, 'Sistema') AS nombre_usuario
+				IFNULL(u.nombre, 'Sistema') AS nombre_usuario,
+				sl.id_factura_generada,
+				sl.num_factura_generada
 			 FROM simulador_log sl
 			 LEFT JOIN usuario u ON sl.id_usuario = u.id
 			 WHERE sl.rut = '$rut'

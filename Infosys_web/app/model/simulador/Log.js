@@ -14,7 +14,9 @@ Ext.define('Infosys_web.model.simulador.Log', {
         { name: 'total_pagar',           type: 'float'  },
         { name: 'ids_documentos',        type: 'string' },
         { name: 'tipo_exportacion',      type: 'string' },
-        { name: 'fecha_ejecucion_fmt',   type: 'string' },
-        { name: 'nombre_usuario',        type: 'string' }
+        { name: 'fecha_ejecucion_fmt',    type: 'string' },
+        { name: 'nombre_usuario',         type: 'string' },
+        { name: 'id_factura_generada',    type: 'int'    },
+        { name: 'num_factura_generada',   type: 'string' }
     ]
 });

@@ -13,7 +13,8 @@ Ext.define('Infosys_web.controller.Simulador', {
 
     views: [
         'simulador.Principal',
-        'simulador.LogPanel'
+        'simulador.LogPanel',
+        'simulador.FacturaDialog'
     ],
 
     refs: [{
@@ -61,6 +62,12 @@ Ext.define('Infosys_web.controller.Simulador', {
             },
             'simuladorinteresesprincipal button[action=verHistorialSimulador]': {
                 click: this.verHistorialSimulador
+            },
+            'simuladorinteresesprincipal button[action=generarFacturaSimulador]': {
+                click: this.generarFacturaSimulador
+            },
+            'simuladorfacturadialog button[itemId=btnConfirmarFactura]': {
+                click: this.confirmarGenerarFactura
             },
             'simuladorinteresesprincipal button[action=cerrarpantalla]': {
                 click: this.cerrarpantalla
@@ -116,9 +123,12 @@ Ext.define('Infosys_web.controller.Simulador', {
         // Limpiar totales
         me.actualizarTotales([]);
 
-        // Deshabilitar botón de historial
+        // Deshabilitar botones contextuales y limpiar log id
         var btnHistorial = view.down('#btnHistorial');
         if (btnHistorial) { btnHistorial.setDisabled(true); }
+        var btnFactura = view.down('#btnGenerarFactura');
+        if (btnFactura) { btnFactura.setDisabled(true); }
+        me._lastLogId = null;
     },
 
     // ── Buscar cliente por RUT ──────────────────────────────────────────────────
@@ -148,7 +158,7 @@ Ext.define('Infosys_web.controller.Simulador', {
                     view.down('#rutConfirmado').setValue(obj.data.rut);
                     var credUtil = obj.data.cred_util || 0;
                     view.down('#credUtilizadoDisplay').setValue('$ ' + Ext.util.Format.number(credUtil, '0,000.'));
-                    // Habilitar botón historial para este cliente
+                    // Habilitar historial; factura solo se habilita tras exportar
                     var btnH = view.down('#btnHistorial');
                     if (btnH) { btnH.setDisabled(false); }
                     // Lanzar cálculo automáticamente al encontrar el cliente
@@ -360,8 +370,223 @@ Ext.define('Infosys_web.controller.Simulador', {
         window.open(url);
     },
 
+    // ── Generar Factura desde la pantalla principal ────────────────────────────
+    generarFacturaSimulador: function() {
+        var me   = this;
+        var view = me.getSimuladorinteresesprincipal();
+        if (!view) { return; }
+
+        var rut    = view.down('#rutConfirmado').getValue();
+        var nombre = view.down('#nombreClienteDisplay').getValue();
+        if (!rut) {
+            Ext.Msg.alert('Atención', 'Primero debe buscar un cliente.');
+            return;
+        }
+
+        var grid     = view.down('#documentosGrid');
+        var selected = grid.getSelectionModel().getSelection();
+        if (!selected || selected.length === 0) {
+            Ext.Msg.alert('Atención', 'Debe seleccionar al menos un documento.');
+            return;
+        }
+
+        // Calcular interés neto de los documentos seleccionados
+        var netoInteres = 0;
+        Ext.Array.each(selected, function(rec) {
+            netoInteres += rec.get('interes') || 0;
+        });
+        netoInteres = Math.round(netoInteres);
+
+        if (netoInteres <= 0) {
+            Ext.Msg.alert('Atención', 'El interés calculado es cero. No es posible generar la factura.');
+            return;
+        }
+
+        var ids         = Ext.Array.map(selected, function(r) { return r.get('id'); });
+        var fechaSimRaw = view.down('#fechaSimulacion').getRawValue();
+
+        me._abrirDialogoFactura({
+            rut:              rut,
+            rut_fmt:          me.formatRut(rut),
+            nombre:           nombre,
+            neto_interes:     netoInteres,
+            ids_documentos:   ids.join(', '),
+            fecha_simulacion: fechaSimRaw,
+            id_log:           me._lastLogId || null
+        });
+    },
+
+    // ── Abrir diálogo de confirmación (reutilizable desde historial) ──────────
+    _abrirDialogoFactura: function(data) {
+        var me = this;
+
+        // Primero obtener defaults del servidor
+        Ext.Ajax.request({
+            url:    preurl + 'simulador_intereses/prepararFactura',
+            params: { rut: data.rut },
+            success: function(response) {
+                var obj = Ext.decode(response.responseText);
+                if (!obj.success) {
+                    Ext.Msg.alert('Error', obj.message || 'No se pudo obtener datos del cliente.');
+                    return;
+                }
+
+                // Obtener folio electrónico
+                var folioResp = Ext.Ajax.request({
+                    async: false,
+                    url: preurl + 'facturas/folio_documento_electronico/101'
+                });
+                var folioObj = Ext.decode(folioResp.responseText);
+
+                if (folioObj.valida === 'SI') {
+                    Ext.Msg.alert('Atención', 'Los folios electrónicos están vencidos. Renueve el CAF.');
+                    return;
+                }
+                if (!folioObj.folio || folioObj.folio === 0) {
+                    Ext.Msg.alert('Atención', 'No hay folios electrónicos disponibles para Factura (tipo 101).');
+                    return;
+                }
+
+                // Guardar datos del servidor en la config del diálogo
+                data._serverData = {
+                    cliente:      obj.cliente,
+                    id_bodega:    obj.id_bodega,
+                    id_sucursal:  obj.id_sucursal,
+                    id_tipo_gasto:obj.id_tipo_gasto,
+                    folio:        folioObj.folio,
+                    fecha_venc:   folioObj.fecha_venc,
+                    id_folio:     folioObj.idfolio
+                };
+
+                var win = Ext.widget('simuladorfacturadialog', {
+                    simulacionData: data
+                });
+
+                // Pasar contexto al botón de confirmación
+                win.down('#btnConfirmarFactura')._simulData  = data;
+                win.down('#btnConfirmarFactura')._serverData = data._serverData;
+                win.show();
+            },
+            failure: function() {
+                Ext.Msg.alert('Error', 'No se pudo conectar con el servidor.');
+            }
+        });
+    },
+
+    // ── Confirmar y enviar la factura a facturaglosa/save ────────────────────
+    confirmarGenerarFactura: function(btn) {
+        var me  = this;
+        var win = btn.up('window');
+        var sd  = btn._simulData;
+        var srv = btn._serverData;
+
+        var glosa           = win.down('#glosaField').getValue();
+        var fechaFacturaObj = win.down('#fechaFacturaField').getValue();
+        var fechaVencObj    = win.down('#fechaVencField').getValue();
+        var fechaFactura    = Ext.Date.format(fechaFacturaObj, 'Y-m-d');
+        var fechaVenc       = Ext.Date.format(fechaVencObj,    'Y-m-d');
+        var neto            = win.down('#netoHidden').getValue();
+        var iva          = win.down('#ivaHidden').getValue();
+        var total        = win.down('#totalHidden').getValue();
+
+        if (!glosa) {
+            Ext.Msg.alert('Atención', 'Ingrese el texto de la glosa.');
+            return;
+        }
+
+        var cliente  = srv.cliente;
+        var dataItems = [{
+            glosa: glosa,
+            neto:  neto,
+            iva:   iva,
+            total: total,
+            id_producto: 0,
+            kilos: 0
+        }];
+
+        var dataCliente = Ext.JSON.encode({
+            id:       cliente.id,
+            nombres:  cliente.nombres,
+            rut:      cliente.rut,
+            giro:     cliente.giro      || '',
+            direccion:cliente.direccion  || '',
+            ciudad:   cliente.ciudad     || '',
+            comuna:   cliente.comuna     || ''
+        });
+
+        var mask = new Ext.LoadMask(Ext.getBody(), { msg: 'Generando Factura Electrónica...' });
+        mask.show();
+
+        Ext.Ajax.request({
+            url:    preurl + 'facturaglosa/save',
+            method: 'POST',
+            params: {
+                idcliente:     cliente.id,
+                numdocumento:  srv.folio,
+                idsucursal:    srv.id_sucursal,
+                idcondventa:   cliente.id_pago || 1,
+                idtipogasto:   srv.id_tipo_gasto,
+                idbodega:      srv.id_bodega,
+                ordencompra:   '',
+                items:         Ext.JSON.encode(dataItems),
+                vendedor:      cliente.id_vendedor || 1,
+                fechafactura:  fechaFactura,
+                fechavenc:     fechaVenc,
+                tipodocumento: 101,
+                netofactura:   neto,
+                ivafactura:    iva,
+                afectofactura: neto,
+                totalfacturas: total,
+                datacliente:   dataCliente,
+                observacion:   '',
+                idobserva:     ''
+            },
+            success: function(response) {
+                mask.hide();
+                var obj = Ext.decode(response.responseText);
+                var idFactura  = obj.idfactura;
+                var numFactura = srv.folio;
+
+                // Vincular con el log si viene de historial (id_log conocido)
+                if (sd.id_log) {
+                    Ext.Ajax.request({
+                        url:    preurl + 'simulador_intereses/vincularFactura',
+                        method: 'POST',
+                        params: { id_log: sd.id_log, id_factura: idFactura, num_factura: numFactura }
+                    });
+
+                    // Actualizar la fila en pantalla de inmediato, sin esperar recarga
+                    var logStore = me.getSimuladorLogStore();
+                    if (logStore) {
+                        var rec = logStore.getById(sd.id_log);
+                        if (rec) {
+                            rec.set('id_factura_generada',  idFactura);
+                            rec.set('num_factura_generada', numFactura);
+                            rec.commit();
+                        }
+                    }
+                }
+
+                win.close();
+                Ext.Msg.confirm('Factura Generada',
+                    'Factura N° ' + numFactura + ' creada correctamente. ¿Desea ver el PDF?',
+                    function(btn2) {
+                        if (btn2 === 'yes') {
+                            window.open(preurl + 'facturaglosa/exportPDF/?idfactura=' + idFactura);
+                        }
+                    }
+                );
+            },
+            failure: function() {
+                mask.hide();
+                Ext.Msg.alert('Error', 'No se pudo generar la factura. Revise la consola del servidor.');
+            }
+        });
+    },
+
     // ── Guardar log de simulación (silencioso) ─────────────────────────────────
     _guardarLogSimulacion: function(view, selected, fechaSimulacion, tasa, diasCobro, ids, tipo) {
+        var me            = this;
         var rut           = view.down('#rutConfirmado').getValue();
         var nombreCliente = view.down('#nombreClienteDisplay').getValue();
 
@@ -388,8 +613,21 @@ Ext.define('Infosys_web.controller.Simulador', {
                 total_pagar:           Math.round(totalPagar),
                 ids_documentos:        ids.join(','),
                 tipo_exportacion:      tipo
+            },
+            success: function(response) {
+                // Habilitar botón siempre que el guardado sea exitoso (HTTP 200)
+                var v = me.getSimuladorinteresesprincipal();
+                if (v) {
+                    var btnF = v.down('#btnGenerarFactura');
+                    if (btnF) { btnF.setDisabled(false); }
+                }
+                // Intentar extraer el id del log para vincular la futura factura
+                try {
+                    var text = Ext.String.trim(response.responseText);
+                    var obj  = Ext.decode(text);
+                    if (obj && obj.id) { me._lastLogId = obj.id; }
+                } catch(e) {}
             }
-            // Sin handlers: guardado silencioso
         });
     },
 
@@ -413,7 +651,19 @@ Ext.define('Infosys_web.controller.Simulador', {
 
         var win = Ext.widget('simuladorlogpanel', {
             title:    'Historial de Simulaciones — ' + nombre + ' (' + me.formatRut(rut) + ')',
-            logStore: logStore
+            logStore: logStore,
+            // Callback para el botón de facturar en el historial
+            onGenerarFactura: function(rec) {
+                me._abrirDialogoFactura({
+                    rut:             rut,
+                    rut_fmt:         me.formatRut(rut),
+                    nombre:          nombre,
+                    neto_interes:    rec.get('total_interes_neto'),
+                    ids_documentos:  rec.get('ids_documentos'),
+                    fecha_simulacion: rec.get('fecha_simulacion_fmt'),
+                    id_log:          rec.get('id')
+                });
+            }
         });
         win.show();
     },
