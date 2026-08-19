@@ -85,6 +85,7 @@ Ext.define('Infosys_web.controller.General', {
     views: [
         'Main',
         'TopMenus',
+        'Viewport',
         'Login',
         'cajeros.BuscarCajeros',
         'cajeros.BusquedaCajeros',
@@ -1311,10 +1312,12 @@ Ext.define('Infosys_web.controller.General', {
     
     changemenuTopMenu:  function(modules, mtop){
 
-        if(modules){
+        if(modules && mtop){
             for(var i=0;i<modules.length;i++){
-			console.log('#'+modules[i].codigo);
-                    mtop.down('#'+modules[i].codigo).setDisabled(false)
+                var item = mtop.down('#'+modules[i].codigo);
+                if (item) {
+                    item.setDisabled(false);
+                }
             }  
         }
 
@@ -1327,31 +1330,40 @@ Ext.define('Infosys_web.controller.General', {
         var me = this
 
         form.submit({
-            url: '/Infosys_web/core/index.php/login/ingreso',
+            url: preurl + 'login/ingreso',
             success: function(s, o) {
                 var objs = Ext.JSON.decode(o.response.responseText);
 
                 if(objs.success == true){
+                    // Quitar el viewport de login ANTES de crear el principal.
+                    // Si queda, tapa el menú y parece que "no carga".
+                    if (view) {
+                        view.close();
+                    }
+                    var loginVp = Ext.getCmp('widloginprin');
+                    if (loginVp) {
+                        loginVp.destroy();
+                    }
+
                     var vport = Ext.create('Infosys_web.view.Viewport');
-                    var mtop = vport.down("topmenus")
-                    var modules = objs.modules
+                    var mtop = vport.down("topmenus");
+                    var modules = objs.modules;
                     var resp = objs.resp;
                     var nombre = objs.nombre;
                     data_sess.modules = modules;
                     me.modules_security(modules, mtop);
-                    mtop.down('#IdUsuario').setValue(resp);
-                    mtop.down('#Usnombre').setValue(nombre);
-                    data_sess.modules = modules
-                    me.modules_security(modules, mtop)
-                    view.close();
+                    if (mtop) {
+                        if (mtop.down('#IdUsuario')) {
+                            mtop.down('#IdUsuario').setValue(resp);
+                        }
+                        if (mtop.down('#Usnombre')) {
+                            mtop.down('#Usnombre').setValue(nombre);
+                        }
+                    }
                 }else{
                     Ext.Msg.alert('Alerta', 'Usuario/Contraseña Invalidos.');
                     return;
                 }
-
-                
-                //Ext.getCmp('widlogin').close()
-                Ext.getCmp('widloginprin').remove()
                                          
             },
 
