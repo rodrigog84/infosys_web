@@ -358,6 +358,20 @@ class Simulador_intereses extends CI_Controller {
         </span>
       </div>
     </td></tr>
+    <tr><td colspan="2" style="padding-top:8px;">
+      <table style="width:100%;border:1px solid #2c3e50;background:#eaf0fb;">
+        <tr>
+          <td style="padding:5px 10px;width:50%;">
+            <span class="lbl">Fecha de Simulación:</span>&nbsp;
+            <span style="font-weight:bold;font-size:12px;">' . date('d/m/Y', strtotime($fecha_simulacion)) . '</span>
+          </td>
+          <td style="padding:5px 10px;width:50%;">
+            <span class="lbl">Tasa Mensual de Interés:</span>&nbsp;
+            <span style="font-weight:bold;font-size:12px;">' . number_format($tasa_interes, 2, ',', '.') . ' %</span>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
   </table>
 </div>
 
@@ -517,6 +531,7 @@ class Simulador_intereses extends CI_Controller {
 			'total_interes_con_iva' => (int)$this->input->post('total_interes_con_iva'),
 			'total_pagar'           => (int)$this->input->post('total_pagar'),
 			'ids_documentos'        => $this->input->post('ids_documentos'),
+			'nums_documentos'       => $this->input->post('nums_documentos'),
 			'tipo_exportacion'      => $this->input->post('tipo_exportacion'),
 			'fecha_ejecucion'       => date('Y-m-d H:i:s'),
 			'id_usuario'            => $id_usuario ? $id_usuario : null
@@ -550,7 +565,7 @@ class Simulador_intereses extends CI_Controller {
 				sl.tasa_interes, sl.dias_cobro,
 				sl.total_saldo, sl.total_interes_neto,
 				sl.total_interes_con_iva, sl.total_pagar,
-				sl.ids_documentos, sl.tipo_exportacion,
+				sl.ids_documentos, sl.nums_documentos, sl.tipo_exportacion,
 				DATE_FORMAT(sl.fecha_ejecucion, '%d/%m/%Y %H:%i') AS fecha_ejecucion_fmt,
 				IFNULL(u.nombre, 'Sistema') AS nombre_usuario,
 				sl.id_factura_generada,
@@ -673,11 +688,16 @@ class Simulador_intereses extends CI_Controller {
 		</tr>';
 		echo '<tr>
 			<td><b>Línea de Crédito Utilizada:</b></td>
-			<td colspan="2">' . $cliente->cred_util . '</td>
-			<td><b>Fecha Simulación:</b></td>
-			<td>' . date('d/m/Y', strtotime($fecha_simulacion)) . '</td>
-			<td><b>Tasa Mensual:</b></td>
-			<td>' . number_format($tasa_interes, 2, ',', '.') . ' %</td>
+			<td colspan="6">' . $cliente->cred_util . '</td>
+		</tr>';
+	$s_param = 'background:#eaf0fb;font-weight:bold;padding:4px 8px;';
+	echo '<tr>
+			<td style="' . $s_param . '">Fecha de Simulación:</td>
+			<td style="' . $s_param . '">' . date('d/m/Y', strtotime($fecha_simulacion)) . '</td>
+			<td></td>
+			<td style="' . $s_param . '">Tasa Mensual de Interés:</td>
+			<td style="' . $s_param . '">' . number_format($tasa_interes, 2, ',', '.') . ' %</td>
+			<td></td><td></td>
 		</tr>';
 		echo '<tr><td colspan="7"></td></tr>';
 

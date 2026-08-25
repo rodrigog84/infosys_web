@@ -278,6 +278,12 @@ Ext.define('Infosys_web.controller.Simulador', {
         view.down('#totalInteresDisplay').setValue(fmt(totalInteres));
         view.down('#totalInteresIvaDisplay').setValue(fmt(totalInteresConIva));
         view.down('#totalPagarDisplay').setValue(fmt(totalPagar));
+
+        // Guardar valores crudos (sin formato) para que el log siempre use lo que está en pantalla
+        view.down('#rawTotalSaldo').setValue(totalSaldo);
+        view.down('#rawTotalInteres').setValue(totalInteres);
+        view.down('#rawTotalInteresConIva').setValue(totalInteresConIva);
+        view.down('#rawTotalPagar').setValue(totalPagar);
     },
 
     // ── Exportar PDF ───────────────────────────────────────────────────────────
@@ -315,7 +321,8 @@ Ext.define('Infosys_web.controller.Simulador', {
         var diasCobro = view.down('#diasCobro').getValue() || 0;
 
         // Guardar log antes de abrir
-        me._guardarLogSimulacion(view, selected, fechaEnvio, tasa, diasCobro, ids, 'PDF');
+        var numsDocPdf = Ext.Array.map(selected, function(r) { return r.get('numdocumento'); });
+        me._guardarLogSimulacion(view, selected, fechaEnvio, tasa, diasCobro, ids, numsDocPdf, 'PDF');
 
         // Abrir PDF en nueva pestaña usando GET (mismo patrón del sistema)
         var url = preurl + 'simulador_intereses/exportarPDF'
@@ -358,7 +365,8 @@ Ext.define('Infosys_web.controller.Simulador', {
         var diasCobro2 = view.down('#diasCobro').getValue() || 0;
 
         // Guardar log antes de abrir
-        me._guardarLogSimulacion(view, selected, fechaEnvio, tasa2, diasCobro2, ids, 'EXCEL');
+        var numsDocXls = Ext.Array.map(selected, function(r) { return r.get('numdocumento'); });
+        me._guardarLogSimulacion(view, selected, fechaEnvio, tasa2, diasCobro2, ids, numsDocXls, 'EXCEL');
 
         var url = preurl + 'simulador_intereses/exportarExcel'
             + '?rut='              + encodeURIComponent(rut)
@@ -403,6 +411,7 @@ Ext.define('Infosys_web.controller.Simulador', {
         }
 
         var ids         = Ext.Array.map(selected, function(r) { return r.get('id'); });
+        var numsDoc     = Ext.Array.map(selected, function(r) { return r.get('numdocumento'); });
         var fechaSimRaw = view.down('#fechaSimulacion').getRawValue();
 
         me._abrirDialogoFactura({
@@ -410,7 +419,7 @@ Ext.define('Infosys_web.controller.Simulador', {
             rut_fmt:          me.formatRut(rut),
             nombre:           nombre,
             neto_interes:     netoInteres,
-            ids_documentos:   ids.join(', '),
+            ids_documentos:   numsDoc.join(', '),
             fecha_simulacion: fechaSimRaw,
             id_log:           me._lastLogId || null
         });
@@ -585,18 +594,19 @@ Ext.define('Infosys_web.controller.Simulador', {
     },
 
     // ── Guardar log de simulación (silencioso) ─────────────────────────────────
-    _guardarLogSimulacion: function(view, selected, fechaSimulacion, tasa, diasCobro, ids, tipo) {
+    _guardarLogSimulacion: function(view, selected, fechaSimulacion, tasa, diasCobro, ids, numsDoc, tipo) {
         var me            = this;
         var rut           = view.down('#rutConfirmado').getValue();
         var nombreCliente = view.down('#nombreClienteDisplay').getValue();
 
-        var totalSaldo = 0, totalInteres = 0, totalInteresConIva = 0;
-        Ext.Array.each(selected, function(rec) {
-            totalSaldo         += rec.get('saldo')           || 0;
-            totalInteres       += rec.get('interes')         || 0;
-            totalInteresConIva += rec.get('interes_con_iva') || 0;
-        });
-        var totalPagar = totalSaldo + totalInteresConIva;
+        // Leer totales desde los hidden fields (actualizados en actualizarTotales)
+        // para garantizar que coincidan exactamente con lo que se muestra en pantalla.
+        // NO leer de rec.get('interes') del store porque puede estar desactualizado
+        // si el usuario cambió tasa/fecha sin haber recalculado.
+        var totalSaldo         = parseFloat(view.down('#rawTotalSaldo').getValue())        || 0;
+        var totalInteres       = parseFloat(view.down('#rawTotalInteres').getValue())       || 0;
+        var totalInteresConIva = parseFloat(view.down('#rawTotalInteresConIva').getValue()) || 0;
+        var totalPagar         = parseFloat(view.down('#rawTotalPagar').getValue())         || 0;
 
         Ext.Ajax.request({
             url:    preurl + 'simulador_intereses/guardarSimulacion',
@@ -612,6 +622,7 @@ Ext.define('Infosys_web.controller.Simulador', {
                 total_interes_con_iva: Math.round(totalInteresConIva),
                 total_pagar:           Math.round(totalPagar),
                 ids_documentos:        ids.join(','),
+                nums_documentos:       numsDoc.join(','),
                 tipo_exportacion:      tipo
             },
             success: function(response) {
@@ -654,15 +665,15 @@ Ext.define('Infosys_web.controller.Simulador', {
             logStore: logStore,
             // Callback para el botón de facturar en el historial
             onGenerarFactura: function(rec) {
-                me._abrirDialogoFactura({
-                    rut:             rut,
-                    rut_fmt:         me.formatRut(rut),
-                    nombre:          nombre,
-                    neto_interes:    rec.get('total_interes_neto'),
-                    ids_documentos:  rec.get('ids_documentos'),
-                    fecha_simulacion: rec.get('fecha_simulacion_fmt'),
-                    id_log:          rec.get('id')
-                });
+                    me._abrirDialogoFactura({
+                        rut:             rut,
+                        rut_fmt:         me.formatRut(rut),
+                        nombre:          nombre,
+                        neto_interes:    rec.get('total_interes_neto'),
+                        ids_documentos:  rec.get('nums_documentos') || rec.get('ids_documentos'),
+                        fecha_simulacion: rec.get('fecha_simulacion_fmt'),
+                        id_log:          rec.get('id')
+                    });
             }
         });
         win.show();

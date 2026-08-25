@@ -277,7 +277,20 @@ Ext.define('Infosys_web.view.simulador.Principal', {
             ]
         });
 
-        me.items = [ topPanel, grid, totalesPanel ];
+        // Campos ocultos para guardar valores crudos de totales (usados al guardar el log)
+        var hiddenTotals = Ext.create('Ext.panel.Panel', {
+            hidden: true,
+            height: 0,
+            border: false,
+            items: [
+                { xtype: 'hiddenfield', itemId: 'rawTotalSaldo',         value: 0 },
+                { xtype: 'hiddenfield', itemId: 'rawTotalInteres',        value: 0 },
+                { xtype: 'hiddenfield', itemId: 'rawTotalInteresConIva',  value: 0 },
+                { xtype: 'hiddenfield', itemId: 'rawTotalPagar',          value: 0 }
+            ]
+        });
+
+        me.items = [ topPanel, grid, totalesPanel, hiddenTotals ];
 
         me.callParent(arguments);
     }
