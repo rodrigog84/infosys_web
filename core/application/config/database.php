@@ -48,13 +48,13 @@
 $active_group = 'default';
 $active_record = TRUE;
 
-$db['default']['hostname'] = 'localhost';
-$db['default']['username'] = 'root'; //'chilefor_admin21'
-$db['default']['password'] = ''; //'^o6_5+TGP8JK';
-$db['default']['database'] = 'infosys_web'; // 'chilefor_cf_ctz';
+$db['default']['hostname'] = getenv('DB_HOST') ? getenv('DB_HOST') : 'localhost';
+$db['default']['username'] = getenv('DB_USER') ? getenv('DB_USER') : 'root'; //'chilefor_admin21'
+$db['default']['password'] = getenv('DB_PASSWORD') !== false ? getenv('DB_PASSWORD') : ''; //'^o6_5+TGP8JK';
+$db['default']['database'] = getenv('DB_NAME') ? getenv('DB_NAME') : 'infosys_web'; // 'chilefor_cf_ctz';
 $db['default']['dbdriver'] = 'mysql';
 $db['default']['dbprefix'] = '';
-$db['default']['pconnect'] = TRUE;
+$db['default']['pconnect'] = FALSE;
 $db['default']['db_debug'] = TRUE;
 $db['default']['cache_on'] = FALSE;
 $db['default']['cachedir'] = '';
