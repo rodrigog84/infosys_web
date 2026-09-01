@@ -5,7 +5,8 @@ Ext.define('Infosys_web.view.Viewport', {
     requires:[
         'Ext.tab.Panel',
         'Ext.layout.container.Border',
-        'Infosys_web.view.Login'
+        'Infosys_web.view.Main',
+        'Infosys_web.view.TopMenus'
     ],
 
     layout: 'border',
