@@ -1,6 +1,28 @@
 Ext.define('Infosys_web.controller.Simulador', {
     extend: 'Ext.app.Controller',
 
+    // Cambiar a true cuando el cliente habilite facturación desde el simulador
+    FACTURA_SIMULADOR_HABILITADA: false,
+
+    MENSAJE_FACTURA_NO_DISPONIBLE:
+        'La generación de facturas desde el Simulador de Intereses no está disponible en este momento.',
+
+    facturaSimuladorHabilitada: function() {
+        return this.FACTURA_SIMULADOR_HABILITADA === true;
+    },
+
+    avisarFacturaNoDisponible: function() {
+        Ext.Msg.alert('Funcionalidad no disponible', this.MENSAJE_FACTURA_NO_DISPONIBLE);
+    },
+
+    bloquearFacturaSimulador: function() {
+        if (this.facturaSimuladorHabilitada()) {
+            return false;
+        }
+        this.avisarFacturaNoDisponible();
+        return true;
+    },
+
     stores: [
         'simulador.Documentos',
         'simulador.Log'
@@ -128,7 +150,12 @@ Ext.define('Infosys_web.controller.Simulador', {
         var btnHistorial = view.down('#btnHistorial');
         if (btnHistorial) { btnHistorial.setDisabled(true); }
         var btnFactura = view.down('#btnGenerarFactura');
-        if (btnFactura) { btnFactura.setDisabled(true); }
+        if (btnFactura) {
+            btnFactura.setDisabled(true);
+            btnFactura.setTooltip(me.facturaSimuladorHabilitada()
+                ? 'Genera Factura Electrónica de Glosa por los intereses seleccionados'
+                : 'Generación de facturas no disponible en este momento');
+        }
         me._lastLogId = null;
     },
 
@@ -383,6 +410,8 @@ Ext.define('Infosys_web.controller.Simulador', {
 
     // ── Generar Factura desde la pantalla principal ────────────────────────────
     generarFacturaSimulador: function() {
+        if (this.bloquearFacturaSimulador()) { return; }
+
         var me   = this;
         var view = me.getSimuladorinteresesprincipal();
         if (!view) { return; }
@@ -430,6 +459,8 @@ Ext.define('Infosys_web.controller.Simulador', {
 
     // ── Abrir diálogo de confirmación (reutilizable desde historial) ──────────
     _abrirDialogoFactura: function(data) {
+        if (this.bloquearFacturaSimulador()) { return; }
+
         var me = this;
 
         // Primero obtener defaults del servidor
@@ -494,6 +525,8 @@ Ext.define('Infosys_web.controller.Simulador', {
 
     // ── Confirmar y enviar la factura a facturaglosa/save ────────────────────
     confirmarGenerarFactura: function(btn) {
+        if (this.bloquearFacturaSimulador()) { return; }
+
         var me  = this;
         var win = btn.up('window');
         var sd  = btn._simulData  || (win && win.simulacionData);

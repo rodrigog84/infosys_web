@@ -1,6 +1,9 @@
 <?php header('Access-Control-Allow-Origin: *'); ?>
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
+// Cambiar a true cuando el cliente habilite facturación desde el simulador
+defined('SIMULADOR_FACTURA_HABILITADA') OR define('SIMULADOR_FACTURA_HABILITADA', false);
+
 class Simulador_intereses extends CI_Controller {
 
 	/**
@@ -12,6 +15,20 @@ class Simulador_intereses extends CI_Controller {
 		$dv  = strtoupper(substr($rut, -1));
 		$num = number_format((int)substr($rut, 0, -1), 0, ',', '.');
 		return $num . '-' . $dv;
+	}
+
+	/**
+	 * Bloquea endpoints de facturación cuando el módulo no está habilitado.
+	 */
+	private function factura_simulador_bloqueada() {
+		if (SIMULADOR_FACTURA_HABILITADA) {
+			return false;
+		}
+		echo json_encode(array(
+			'success' => false,
+			'message' => 'La generación de facturas desde el Simulador de Intereses no está disponible en este momento.'
+		));
+		return true;
 	}
 
 	public function __construct()
@@ -453,6 +470,8 @@ class Simulador_intereses extends CI_Controller {
 	 * GET params: rut
 	 */
 	public function prepararFactura(){
+		if ($this->factura_simulador_bloqueada()) { return; }
+
 		// Acepta tanto GET como POST
 		$rut = trim($this->input->get('rut') ?: $this->input->post('rut'));
 		$rut = $this->db->escape_str($rut);
@@ -502,6 +521,8 @@ class Simulador_intereses extends CI_Controller {
 	 * POST params: id_log, id_factura, num_factura
 	 */
 	public function vincularFactura(){
+		if ($this->factura_simulador_bloqueada()) { return; }
+
 		$id_log       = (int)$this->input->post('id_log');
 		$id_factura   = (int)$this->input->post('id_factura');
 		$num_factura  = $this->input->post('num_factura');
