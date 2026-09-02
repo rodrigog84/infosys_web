@@ -99,8 +99,7 @@ Ext.define('Infosys_web.view.simulador.FacturaDialog', {
         me.buttons = [{
             text:    'Generar Factura',
             iconCls: 'icon-save',
-            itemId:  'btnConfirmarFactura',
-            formBind: true
+            itemId:  'btnConfirmarFactura'
         },{
             text:    'Cancelar',
             handler: function() { me.close(); }

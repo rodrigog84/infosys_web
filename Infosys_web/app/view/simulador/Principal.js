@@ -12,7 +12,7 @@ Ext.define('Infosys_web.view.simulador.Principal', {
         // ── Panel superior: búsqueda + parámetros ──────────────────────────────
         var topPanel = Ext.create('Ext.form.Panel', {
             region: 'north',
-            height: 80,
+            height: 110,
             bodyPadding: '8 8 0 8',
             border: false,
             layout: 'anchor',
@@ -44,6 +44,14 @@ Ext.define('Infosys_web.view.simulador.Principal', {
                         labelWidth: 65,
                         value: '',
                         width: 320,
+                        margin: '0 0 0 14'
+                    },{
+                        xtype: 'displayfield',
+                        itemId: 'credAprobadoDisplay',
+                        fieldLabel: '<b>Línea de Crédito Aprobada:</b>',
+                        labelWidth: 175,
+                        value: '',
+                        width: 220,
                         margin: '0 0 0 14'
                     },{
                         xtype: 'displayfield',
@@ -98,7 +106,12 @@ Ext.define('Infosys_web.view.simulador.Principal', {
                         action: 'calcularIntereses',
                         margin: '0 0 0 14'
                     }]
-                }
+                },
+                // Valores crudos de totales (usados al guardar el log)
+                { xtype: 'hiddenfield', itemId: 'rawTotalSaldo',         value: 0 },
+                { xtype: 'hiddenfield', itemId: 'rawTotalInteres',        value: 0 },
+                { xtype: 'hiddenfield', itemId: 'rawTotalInteresConIva',  value: 0 },
+                { xtype: 'hiddenfield', itemId: 'rawTotalPagar',          value: 0 }
             ]
         });
 
@@ -277,20 +290,7 @@ Ext.define('Infosys_web.view.simulador.Principal', {
             ]
         });
 
-        // Campos ocultos para guardar valores crudos de totales (usados al guardar el log)
-        var hiddenTotals = Ext.create('Ext.panel.Panel', {
-            hidden: true,
-            height: 0,
-            border: false,
-            items: [
-                { xtype: 'hiddenfield', itemId: 'rawTotalSaldo',         value: 0 },
-                { xtype: 'hiddenfield', itemId: 'rawTotalInteres',        value: 0 },
-                { xtype: 'hiddenfield', itemId: 'rawTotalInteresConIva',  value: 0 },
-                { xtype: 'hiddenfield', itemId: 'rawTotalPagar',          value: 0 }
-            ]
-        });
-
-        me.items = [ topPanel, grid, totalesPanel, hiddenTotals ];
+        me.items = [ topPanel, grid, totalesPanel ];
 
         me.callParent(arguments);
     }

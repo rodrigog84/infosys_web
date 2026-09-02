@@ -115,6 +115,7 @@ Ext.define('Infosys_web.controller.Simulador', {
         view.down('#rutBusqueda').setValue('');
         view.down('#rutConfirmado').setValue('');
         view.down('#nombreClienteDisplay').setValue('');
+        view.down('#credAprobadoDisplay').setValue('');
         view.down('#credUtilizadoDisplay').setValue('');
         view.down('#fechaSimulacion').setValue(new Date());
         view.down('#tasaInteres').setValue(2.0);
@@ -157,6 +158,8 @@ Ext.define('Infosys_web.controller.Simulador', {
                     view.down('#nombreClienteDisplay').setValue(obj.data.nombres);
                     view.down('#rutConfirmado').setValue(obj.data.rut);
                     var credUtil = obj.data.cred_util || 0;
+                    var credAprob = obj.data.uf_cred || 0;
+                    view.down('#credAprobadoDisplay').setValue(Ext.util.Format.number(credAprob, '0,000.') + ' UF');
                     view.down('#credUtilizadoDisplay').setValue('$ ' + Ext.util.Format.number(credUtil, '0,000.'));
                     // Habilitar historial; factura solo se habilita tras exportar
                     var btnH = view.down('#btnHistorial');
@@ -471,9 +474,16 @@ Ext.define('Infosys_web.controller.Simulador', {
                     simulacionData: data
                 });
 
-                // Pasar contexto al botón de confirmación
-                win.down('#btnConfirmarFactura')._simulData  = data;
-                win.down('#btnConfirmarFactura')._serverData = data._serverData;
+                win.simulacionData = data;
+                win.serverData   = data._serverData;
+
+                // Handler explícito: el control() del controller no siempre enlaza botones del fbar
+                var btn = win.down('#btnConfirmarFactura');
+                btn._simulData  = data;
+                btn._serverData = data._serverData;
+                btn.setHandler(function() {
+                    me.confirmarGenerarFactura(btn);
+                });
                 win.show();
             },
             failure: function() {
@@ -486,12 +496,23 @@ Ext.define('Infosys_web.controller.Simulador', {
     confirmarGenerarFactura: function(btn) {
         var me  = this;
         var win = btn.up('window');
-        var sd  = btn._simulData;
-        var srv = btn._serverData;
+        var sd  = btn._simulData  || (win && win.simulacionData);
+        var srv = btn._serverData || (win && win.serverData);
+
+        if (!sd || !srv || !srv.cliente) {
+            Ext.Msg.alert('Error', 'Faltan datos para generar la factura. Cierre el diálogo y vuelva a intentarlo.');
+            return;
+        }
 
         var glosa           = win.down('#glosaField').getValue();
         var fechaFacturaObj = win.down('#fechaFacturaField').getValue();
         var fechaVencObj    = win.down('#fechaVencField').getValue();
+
+        if (!fechaFacturaObj || !fechaVencObj) {
+            Ext.Msg.alert('Atención', 'Ingrese fecha de factura y fecha de vencimiento.');
+            return;
+        }
+
         var fechaFactura    = Ext.Date.format(fechaFacturaObj, 'Y-m-d');
         var fechaVenc       = Ext.Date.format(fechaVencObj,    'Y-m-d');
         var neto            = win.down('#netoHidden').getValue();
@@ -552,7 +573,17 @@ Ext.define('Infosys_web.controller.Simulador', {
             },
             success: function(response) {
                 mask.hide();
-                var obj = Ext.decode(response.responseText);
+                var obj;
+                try {
+                    obj = Ext.decode(response.responseText);
+                } catch (e) {
+                    Ext.Msg.alert('Error', 'Respuesta inválida del servidor al generar la factura.');
+                    return;
+                }
+                if (!obj || !obj.idfactura) {
+                    Ext.Msg.alert('Error', 'No se pudo crear la factura. Revise los logs del servidor.');
+                    return;
+                }
                 var idFactura  = obj.idfactura;
                 var numFactura = srv.folio;
 

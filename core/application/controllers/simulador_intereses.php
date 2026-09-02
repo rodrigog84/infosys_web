@@ -32,7 +32,7 @@ class Simulador_intereses extends CI_Controller {
 		$resp = array();
 
 		$query = $this->db->query(
-			"SELECT c.id, c.rut, c.nombres, c.cred_util, cc.id as id_ctacte
+			"SELECT c.id, c.rut, c.nombres, c.cred_util, c.uf_cred, cc.id as id_ctacte
 			 FROM clientes c
 			 INNER JOIN cuenta_corriente cc ON cc.idcliente = c.id
 			 WHERE c.rut = '" . $this->db->escape_str($rut) . "'
@@ -175,7 +175,7 @@ class Simulador_intereses extends CI_Controller {
 
 		// ── Datos del cliente ──────────────────────────────────────────────────
 		$qCliente = $this->db->query(
-			"SELECT c.rut, c.nombres, c.cred_util
+			"SELECT c.rut, c.nombres, c.cred_util, c.uf_cred
 			 FROM clientes c
 			 WHERE c.rut = '" . $this->db->escape_str($rut) . "'
 			 LIMIT 1"
@@ -321,8 +321,7 @@ class Simulador_intereses extends CI_Controller {
     </td>
     <td width="160" style="text-align:right;vertical-align:top;font-size:10px;">
       <b>Fecha emisión:</b> ' . date('d/m/Y') . '<br/>
-      <b>Fecha simulación:</b> ' . date('d/m/Y', strtotime($fecha_simulacion)) . '<br/>
-      <b>Tasa mensual:</b> ' . number_format($tasa_interes, 2, ',', '.') . ' %
+      <b>Fecha simulación:</b> ' . date('d/m/Y', strtotime($fecha_simulacion)) . '
     </td>
   </tr>
 </table>
@@ -351,21 +350,31 @@ class Simulador_intereses extends CI_Controller {
       </td>
     </tr>
     <tr><td colspan="2" style="padding-top:6px;">
-      <div class="box-credito">
-        <span class="lbl">Línea de Crédito Utilizada:</span>&nbsp;&nbsp;
-        <span style="font-size:13px;font-weight:bold;color:#e67e22;">
-          $ ' . number_format($cliente->cred_util, 0, ',', '.') . '
-        </span>
-      </div>
+      <table style="width:100%;">
+        <tr>
+          <td width="50%" style="padding-right:8px;">
+            <div class="box-credito">
+              <span class="lbl">Línea de Crédito Aprobada:</span>&nbsp;&nbsp;
+              <span style="font-size:13px;font-weight:bold;color:#2980b9;">
+                ' . number_format($cliente->uf_cred, 0, ',', '.') . ' UF
+              </span>
+            </div>
+          </td>
+          <td width="50%" style="padding-left:8px;">
+            <div class="box-credito">
+              <span class="lbl">Línea de Crédito Utilizada:</span>&nbsp;&nbsp;
+              <span style="font-size:13px;font-weight:bold;color:#e67e22;">
+                $ ' . number_format($cliente->cred_util, 0, ',', '.') . '
+              </span>
+            </div>
+          </td>
+        </tr>
+      </table>
     </td></tr>
     <tr><td colspan="2" style="padding-top:8px;">
       <table style="width:100%;border:1px solid #2c3e50;background:#eaf0fb;">
         <tr>
-          <td style="padding:5px 10px;width:50%;">
-            <span class="lbl">Fecha de Simulación:</span>&nbsp;
-            <span style="font-weight:bold;font-size:12px;">' . date('d/m/Y', strtotime($fecha_simulacion)) . '</span>
-          </td>
-          <td style="padding:5px 10px;width:50%;">
+          <td style="padding:5px 10px;">
             <span class="lbl">Tasa Mensual de Interés:</span>&nbsp;
             <span style="font-weight:bold;font-size:12px;">' . number_format($tasa_interes, 2, ',', '.') . ' %</span>
           </td>
@@ -606,7 +615,7 @@ class Simulador_intereses extends CI_Controller {
 
 		// ── Datos del cliente ──────────────────────────────────────────────────
 		$qCliente = $this->db->query(
-			"SELECT c.rut, c.nombres, c.cred_util
+			"SELECT c.rut, c.nombres, c.cred_util, c.uf_cred
 			 FROM clientes c
 			 WHERE c.rut = '" . $this->db->escape_str($rut) . "' LIMIT 1"
 		);
@@ -679,6 +688,13 @@ class Simulador_intereses extends CI_Controller {
 		// Encabezado
 		echo '<table>';
 		echo '<tr><td colspan="7" style="font-size:16px;font-weight:bold;">SIMULACIÓN DE INTERESES</td></tr>';
+		echo '<tr>
+			<td colspan="4"></td>
+			<td colspan="3" align="right">
+				<b>Fecha emisión:</b> ' . date('d/m/Y') . '<br/>
+				<b>Fecha simulación:</b> ' . date('d/m/Y', strtotime($fecha_simulacion)) . '
+			</td>
+		</tr>';
 		echo '<tr><td colspan="7"></td></tr>';
 		echo '<tr>
 			<td><b>RUT Cliente:</b></td>
@@ -687,17 +703,16 @@ class Simulador_intereses extends CI_Controller {
 			<td colspan="3">' . htmlspecialchars($cliente->nombres) . '</td>
 		</tr>';
 		echo '<tr>
+			<td><b>Línea de Crédito Aprobada:</b></td>
+			<td colspan="2">' . number_format($cliente->uf_cred, 0, ',', '.') . ' UF</td>
 			<td><b>Línea de Crédito Utilizada:</b></td>
-			<td colspan="6">' . $cliente->cred_util . '</td>
+			<td colspan="3">$ ' . number_format($cliente->cred_util, 0, ',', '.') . '</td>
 		</tr>';
 	$s_param = 'background:#eaf0fb;font-weight:bold;padding:4px 8px;';
 	echo '<tr>
-			<td style="' . $s_param . '">Fecha de Simulación:</td>
-			<td style="' . $s_param . '">' . date('d/m/Y', strtotime($fecha_simulacion)) . '</td>
-			<td></td>
 			<td style="' . $s_param . '">Tasa Mensual de Interés:</td>
 			<td style="' . $s_param . '">' . number_format($tasa_interes, 2, ',', '.') . ' %</td>
-			<td></td><td></td>
+			<td colspan="5"></td>
 		</tr>';
 		echo '<tr><td colspan="7"></td></tr>';
 
