@@ -1,3 +1,17 @@
+function formatFechaSaldoDocumentos(value) {
+    if (!value) {
+        return '';
+    }
+    if (Ext.isDate(value)) {
+        return Ext.Date.format(value, 'd/m/Y');
+    }
+    var match = String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (match) {
+        return match[3] + '/' + match[2] + '/' + match[1];
+    }
+    return Ext.util.Format.date(value, 'd/m/Y');
+}
+
 Ext.define('Infosys_web.view.cuentascorrientes.SaldoDocumentosPrincipal' ,{
     extend: 'Ext.grid.Panel',
     alias : 'widget.saldodocumentosprincipal',
@@ -34,12 +48,12 @@ Ext.define('Infosys_web.view.cuentascorrientes.SaldoDocumentosPrincipal' ,{
         header: "Fecha",
         flex: 1,
         dataIndex: 'fecha',
-        renderer: Ext.util.Format.dateRenderer('d/m/Y')
+        renderer: formatFechaSaldoDocumentos
     },{
         header: "Fecha Venc.",
         flex: 1,
         dataIndex: 'fechavencimiento',
-        renderer: Ext.util.Format.dateRenderer('d/m/Y')
+        renderer: formatFechaSaldoDocumentos
     },{
         header: "Saldo por Vencer",
         flex: 1,

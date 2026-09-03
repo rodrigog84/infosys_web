@@ -3,8 +3,8 @@ Ext.define('Infosys_web.model.cuentacorriente.Saldodocumentos', {
     fields: [
         {name: 'cuentacontable'},
         {name: 'documento'},
-    	{name: 'fecha'},
-    	{name: 'fechavencimiento'},
+    	{name: 'fecha', type: 'date', dateFormat: 'Y-m-d'},
+    	{name: 'fechavencimiento', type: 'date', dateFormat: 'Y-m-d'},
     	{name: 'saldoporvencer'},
     	{name: 'saldovencido'},
     	{name: 'dias'},
