@@ -148,12 +148,15 @@ Ext.define('Infosys_web.view.simulador.Principal', {
             },{
                 header: 'Días Mora',
                 dataIndex: 'dias_mora',
-                width: 80,
+                width: 85,
                 align: 'center',
                 renderer: function(val) {
-                    return val > 0
-                        ? '<span style="color:#c0392b;font-weight:bold;">' + val + '</span>'
-                        : val;
+                    if (val > 0) {
+                        return '<span style="color:#c0392b;font-weight:bold;">' + val + ' días</span>';
+                    } else if (val < 0) {
+                        return '<span style="color:#27ae60;font-weight:bold;" title="Pago anticipado">' + Math.abs(val) + ' ant.</span>';
+                    }
+                    return val;
                 }
             },{
                 header: 'Interés s/IVA',
@@ -161,9 +164,12 @@ Ext.define('Infosys_web.view.simulador.Principal', {
                 width: 115,
                 align: 'right',
                 renderer: function(val) {
-                    return val > 0
-                        ? '<span style="color:#c0392b;">$ ' + Ext.util.Format.number(val, '0,000.') + '</span>'
-                        : '$ ' + Ext.util.Format.number(val, '0,000.');
+                    if (val > 0) {
+                        return '<span style="color:#c0392b;">$ ' + Ext.util.Format.number(val, '0,000.') + '</span>';
+                    } else if (val < 0) {
+                        return '<span style="color:#27ae60;font-weight:bold;" title="Descuento por pago anticipado">-$ ' + Ext.util.Format.number(Math.abs(val), '0,000.') + '</span>';
+                    }
+                    return '$ 0';
                 }
             },{
                 xtype: 'actioncolumn',

@@ -302,18 +302,49 @@ Ext.define('Infosys_web.controller.Simulador', {
         });
 
         var totalPagar = totalSaldo + totalInteresConIva;
-        var fmt = function(n) { return '$ ' + Ext.util.Format.number(n, '0,000.'); };
+
+        // Formateador: maneja valores negativos (descuentos por anticipo)
+        var fmt = function(n) {
+            if (n < 0) { return '-$ ' + Ext.util.Format.number(Math.abs(n), '0,000.'); }
+            return '$ ' + Ext.util.Format.number(n, '0,000.');
+        };
 
         view.down('#totalSaldoDisplay').setValue(fmt(totalSaldo));
         view.down('#totalInteresDisplay').setValue(fmt(totalInteres));
         view.down('#totalInteresIvaDisplay').setValue(fmt(totalInteresConIva));
         view.down('#totalPagarDisplay').setValue(fmt(totalPagar));
 
-        // Guardar valores crudos (sin formato) para que el log siempre use lo que está en pantalla
+        // Guardar valores crudos para el log
         view.down('#rawTotalSaldo').setValue(totalSaldo);
         view.down('#rawTotalInteres').setValue(totalInteres);
         view.down('#rawTotalInteresConIva').setValue(totalInteresConIva);
         view.down('#rawTotalPagar').setValue(totalPagar);
+
+        // ── Validación: bloquear exportar/facturar si interés neto total <= 0 ────
+        // (los descuentos por pago anticipado igualan o superan los intereses por mora)
+        var interesNeto       = totalInteres; // suma de todos los intereses s/IVA seleccionados
+        var exportBloqueado   = (selected.length > 0 && interesNeto <= 0);
+
+        var btnPDF    = view.down('button[action=exportarPDFSimulador]');
+        var btnExcel  = view.down('button[action=exportarExcelSimulador]');
+        var btnFactura = view.down('#btnGenerarFactura');
+
+        if (btnPDF)     { btnPDF.setDisabled(exportBloqueado); }
+        if (btnExcel)   { btnExcel.setDisabled(exportBloqueado); }
+        // Factura solo se reactiva después de exportar; aquí solo bloqueamos si hay saldo negativo
+        if (exportBloqueado && btnFactura) { btnFactura.setDisabled(true); }
+
+        // Avisar visualmente en el panel de totales cuando está bloqueado
+        var panelTotal = view.down('#totalPagarDisplay');
+        if (panelTotal) {
+            if (exportBloqueado) {
+                panelTotal.setFieldStyle('color:#e67e22;font-size:15px;font-weight:bold;padding:0 0 0 6px;');
+                panelTotal.setValue('Simulación no permitida (interés neto ≤ 0)');
+            } else {
+                panelTotal.setFieldStyle('color:#ffffff;font-size:18px;font-weight:bold;padding:0 0 0 6px;');
+                panelTotal.setValue(fmt(totalPagar));
+            }
+        }
     },
 
     // ── Exportar PDF ───────────────────────────────────────────────────────────

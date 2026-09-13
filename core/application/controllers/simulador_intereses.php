@@ -18,6 +18,37 @@ class Simulador_intereses extends CI_Controller {
 	}
 
 	/**
+	 * Calcula los días de mora extendido:
+	 *   - Positivo: días vencido (menos días de cobro/gracia)
+	 *   - Negativo: días anticipados al vencimiento (sin descontar días de cobro)
+	 *   - Cero: dentro del período de gracia o exactamente en la fecha de vencimiento
+	 */
+	private function calcular_dias_mora_ext($fecha_venc, $fecha_simulacion, $dias_cobro = 0) {
+		$date_venc = new DateTime($fecha_venc);
+		$date_sim  = new DateTime($fecha_simulacion);
+		$diff      = $date_venc->diff($date_sim);
+
+		if ($date_venc > $date_sim) {
+			// Pago anticipado: negativo
+			return -$diff->days;
+		} else {
+			// Pago tardío o igual: positivo, descontando días de gracia
+			return max(0, $diff->days - $dias_cobro);
+		}
+	}
+
+	/**
+	 * Calcula interés extendido (puede ser negativo para pago anticipado).
+	 * Fórmula: saldo * (tasa/100) / 30 * dias_mora_ext
+	 */
+	private function calcular_interes_ext($fecha_venc, $fecha_simulacion, $saldo, $tasa_interes, $dias_cobro = 0) {
+		$tasa          = (float)str_replace(',', '.', $tasa_interes);
+		$dias          = $this->calcular_dias_mora_ext($fecha_venc, $fecha_simulacion, $dias_cobro);
+		$interes_diario = $saldo * ($tasa / 100) / 30;
+		return $interes_diario * $dias; // negativo si anticipado
+	}
+
+	/**
 	 * Bloquea endpoints de facturación cuando el módulo no está habilitado.
 	 */
 	private function factura_simulador_bloqueada() {
@@ -118,44 +149,35 @@ class Simulador_intereses extends CI_Controller {
 			   AND c.rut = '" . $this->db->escape_str($rut) . "'"
 		);
 
-		$data = array();
+		$data              = array();
+		$total_interes_neto = 0;
 
 		if ($query->num_rows() > 0) {
 			foreach ($query->result() as $row) {
 
-				// Calcular días de mora respecto a la fecha de simulación
 				$fecha_venc_val = !empty($row->fecha_venc) ? $row->fecha_venc : $fecha_simulacion;
 
-				$date_venc = new DateTime($fecha_venc_val);
-				$date_sim  = new DateTime($fecha_simulacion);
+				// Cálculo extendido: positivo = mora, negativo = pago anticipado
+				$dias_mora    = $this->calcular_dias_mora_ext($fecha_venc_val, $fecha_simulacion, $dias_cobro);
+				$interes_neto = $this->calcular_interes_ext($fecha_venc_val, $fecha_simulacion, $row->saldo, $tasa_interes, $dias_cobro);
 
-				if ($date_venc > $date_sim) {
-					$dias_mora = 0;
-				} else {
-					$diff      = $date_venc->diff($date_sim);
-					$dias_mora = max(0, $diff->days - $dias_cobro);
-				}
+				$row->dias_mora       = $dias_mora;
+				$row->interes         = round($interes_neto, 0);
+				$row->interes_con_iva = round($interes_neto * FACTOR_SUMA_IVA, 0);
+				$row->es_anticipado   = ($dias_mora < 0) ? true : false;
 
-				// Calcular interés (modelo ctacte)
-				$interes_neto = $this->ctacte->calcula_interes_factura(
-					$fecha_venc_val,
-					$fecha_simulacion,
-					$row->saldo,
-					$tasa_interes,
-					$dias_cobro
-				);
-
-			$row->dias_mora       = $dias_mora;
-			$row->interes         = round($interes_neto, 0);
-			$row->interes_con_iva = round($interes_neto * FACTOR_SUMA_IVA, 0);
+				$total_interes_neto += $interes_neto;
 
 				$data[] = $row;
 			}
 		}
 
-		$resp['success'] = true;
-		$resp['total']   = count($data);
-		$resp['data']    = $data;
+		$resp['success']            = true;
+		$resp['total']              = count($data);
+		$resp['data']               = $data;
+		// total_interes_neto_global: suma neta de todos los documentos,
+		// el frontend lo usa para bloquear exportación si es <= 0
+		$resp['total_interes_neto_global'] = round($total_interes_neto, 0);
 
 		echo json_encode($resp);
 	}
@@ -221,28 +243,18 @@ class Simulador_intereses extends CI_Controller {
 			 WHERE dc.id IN (" . $ids_sql . ")"
 		);
 
-		$total_saldo          = 0;
-		$total_interes_neto   = 0;
+		$total_saldo           = 0;
+		$total_interes_neto    = 0;
 		$total_interes_con_iva = 0;
-		$filas_docs           = '';
-		$fila_num             = 0;
+		$filas_docs            = '';
+		$fila_num              = 0;
 
 		foreach ($qDocs->result() as $doc) {
 			$fecha_venc_val = !empty($doc->fecha_venc) ? $doc->fecha_venc : $fecha_simulacion;
 
-			$date_venc = new DateTime($fecha_venc_val);
-			$date_sim  = new DateTime($fecha_simulacion);
-
-			if ($date_venc > $date_sim) {
-				$dias_mora = 0;
-			} else {
-				$diff      = $date_venc->diff($date_sim);
-				$dias_mora = max(0, $diff->days - $dias_cobro);
-			}
-
-			$interes_neto    = $this->ctacte->calcula_interes_factura(
-				$fecha_venc_val, $fecha_simulacion, $doc->saldo, $tasa_interes, $dias_cobro
-			);
+			// Cálculo extendido: positivo = mora, negativo = pago anticipado
+			$dias_mora       = $this->calcular_dias_mora_ext($fecha_venc_val, $fecha_simulacion, $dias_cobro);
+			$interes_neto    = $this->calcular_interes_ext($fecha_venc_val, $fecha_simulacion, $doc->saldo, $tasa_interes, $dias_cobro);
 			$interes_sin_iva = round($interes_neto, 0);
 			$interes_con_iva = round($interes_neto * FACTOR_SUMA_IVA, 0);
 
@@ -250,8 +262,25 @@ class Simulador_intereses extends CI_Controller {
 			$total_interes_neto    += $interes_sin_iva;
 			$total_interes_con_iva += $interes_con_iva;
 
-			$color_mora    = $dias_mora > 0 ? 'color:#c0392b;font-weight:bold;' : '';
-			$color_interes = $interes_sin_iva > 0 ? 'color:#c0392b;' : '';
+			// Estilos: rojo = mora, verde = anticipo, neutro = sin interés
+			if ($dias_mora > 0) {
+				$color_mora    = 'color:#c0392b;font-weight:bold;';
+				$color_interes = 'color:#c0392b;';
+			} elseif ($dias_mora < 0) {
+				$color_mora    = 'color:#27ae60;font-weight:bold;';
+				$color_interes = 'color:#27ae60;font-weight:bold;';
+			} else {
+				$color_mora    = '';
+				$color_interes = '';
+			}
+
+			$label_dias = $dias_mora < 0
+				? abs($dias_mora) . ' días ant.'
+				: $dias_mora;
+
+			$signo_interes = $interes_sin_iva < 0 ? '-' : '';
+			$interes_fmt   = $signo_interes . '$ ' . number_format(abs($interes_sin_iva), 0, ',', '.');
+
 			$fila_num++;
 			$bg_fila = ($fila_num % 2 === 0) ? 'background-color:#f2f2f2;' : '';
 
@@ -261,9 +290,19 @@ class Simulador_intereses extends CI_Controller {
 				<td style="text-align:center;padding:4px 6px;">' . ($doc->fecha_emision_fmt ?: '-') . '</td>
 				<td style="text-align:center;padding:4px 6px;">' . ($doc->fecha_venc_fmt    ?: '-') . '</td>
 				<td style="text-align:right;padding:4px 6px;">$ '  . number_format($doc->saldo, 0, ',', '.') . '</td>
-				<td style="text-align:center;padding:4px 6px;' . $color_mora    . '">' . $dias_mora . '</td>
-				<td style="text-align:right;padding:4px 6px;'  . $color_interes . '">$ ' . number_format($interes_sin_iva, 0, ',', '.') . '</td>
+				<td style="text-align:center;padding:4px 6px;' . $color_mora    . '">' . $label_dias . '</td>
+				<td style="text-align:right;padding:4px 6px;'  . $color_interes . '">' . $interes_fmt . '</td>
 			</tr>';
+		}
+
+		// Bloquear generación de PDF si el interés total es <= 0
+		if ($total_interes_neto <= 0) {
+			echo '<html><body style="font-family:sans-serif;padding:30px;">';
+			echo '<h3 style="color:#c0392b;">Simulación no permitida</h3>';
+			echo '<p>El interés neto total de los documentos seleccionados es <b>$\u00a0' . number_format($total_interes_neto, 0, ',', '.') . '</b>.</p>';
+			echo '<p>Cuando los descuentos por pago anticipado superan o igualan los intereses por mora, no se puede generar una simulación de cobro de intereses.</p>';
+			echo '</body></html>';
+			return;
 		}
 
 		$total_pagar = $total_saldo + $total_interes_con_iva;
@@ -665,18 +704,10 @@ class Simulador_intereses extends CI_Controller {
 
 		foreach ($qDocs->result() as $doc) {
 			$fecha_venc_val = !empty($doc->fecha_venc) ? $doc->fecha_venc : $fecha_simulacion;
-			$date_venc = new DateTime($fecha_venc_val);
-			$date_sim  = new DateTime($fecha_simulacion);
 
-			$dias_mora = 0;
-			if ($date_venc <= $date_sim) {
-				$diff      = $date_venc->diff($date_sim);
-				$dias_mora = max(0, $diff->days - $dias_cobro);
-			}
-
-			$interes_neto    = $this->ctacte->calcula_interes_factura(
-				$fecha_venc_val, $fecha_simulacion, $doc->saldo, $tasa_interes, $dias_cobro
-			);
+			// Cálculo extendido: positivo = mora, negativo = pago anticipado
+			$dias_mora       = $this->calcular_dias_mora_ext($fecha_venc_val, $fecha_simulacion, $dias_cobro);
+			$interes_neto    = $this->calcular_interes_ext($fecha_venc_val, $fecha_simulacion, $doc->saldo, $tasa_interes, $dias_cobro);
 			$interes_sin_iva = round($interes_neto, 0);
 			$interes_con_iva = round($interes_neto * FACTOR_SUMA_IVA, 0);
 
@@ -684,15 +715,44 @@ class Simulador_intereses extends CI_Controller {
 			$total_interes_neto    += $interes_sin_iva;
 			$total_interes_con_iva += $interes_con_iva;
 
+			// Estilos en Excel: rojo mora / verde anticipo
+			if ($dias_mora > 0) {
+				$s_mora    = 'color:#c0392b;font-weight:bold;';
+				$s_interes = 'color:#c0392b;';
+				$label_dias = $dias_mora;
+			} elseif ($dias_mora < 0) {
+				$s_mora    = 'color:#27ae60;font-weight:bold;';
+				$s_interes = 'color:#27ae60;font-weight:bold;';
+				$label_dias = abs($dias_mora) . ' ant.';
+			} else {
+				$s_mora = $s_interes = '';
+				$label_dias = 0;
+			}
+
+			$signo  = $interes_sin_iva < 0 ? '-' : '';
+			$interes_fmt_neto = $signo . number_format(abs($interes_sin_iva), 0, ',', '.');
+			$signo2 = $interes_con_iva < 0 ? '-' : '';
+			$interes_fmt_iva  = $signo2 . number_format(abs($interes_con_iva), 0, ',', '.');
+
 			$filas .= '<tr>
 				<td>' . htmlspecialchars($doc->nombre_documento) . '</td>
 				<td>' . ($doc->fecha_emision_fmt ?: '-') . '</td>
 				<td>' . ($doc->fecha_venc_fmt    ?: '-') . '</td>
-				<td align="right">' . $doc->saldo . '</td>
-				<td align="center">' . $dias_mora . '</td>
-				<td align="right">' . $interes_sin_iva . '</td>
-				<td align="right">' . $interes_con_iva . '</td>
+				<td align="right">' . number_format($doc->saldo, 0, ',', '.') . '</td>
+				<td align="center" style="' . $s_mora    . '">' . $label_dias . '</td>
+				<td align="right"  style="' . $s_interes . '">' . $interes_fmt_neto . '</td>
+				<td align="right"  style="' . $s_interes . '">' . $interes_fmt_iva  . '</td>
 			</tr>';
+		}
+
+		// Bloquear generación de Excel si el interés total es <= 0
+		if ($total_interes_neto <= 0) {
+			echo '<html><head><meta charset="UTF-8"></head><body style="font-family:sans-serif;padding:30px;">';
+			echo '<h3 style="color:#c0392b;">Simulación no permitida</h3>';
+			echo '<p>El interés neto total de los documentos seleccionados es <b>$ ' . number_format($total_interes_neto, 0, ',', '.') . '</b>.</p>';
+			echo '<p>Cuando los descuentos por pago anticipado superan o igualan los intereses por mora, no se puede generar una simulación de cobro de intereses.</p>';
+			echo '</body></html>';
+			return;
 		}
 
 		$total_pagar = $total_saldo + $total_interes_con_iva;
