@@ -1361,7 +1361,7 @@ public function get_factura_anticipada(){
           $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor    FROM factura_clientes acc
           left join clientes c on (acc.id_cliente = c.id)
           left join vendedores v on (acc.id_vendedor = v.id)
-          WHERE acc.id_bodega='.$bodega.' and acc.estado="" and acc.forma = 0 and acc.tipo_documento in ('.$tipo.') and c.id = '.$nombres.'
+          WHERE acc.estado="" and acc.forma = 0 and acc.tipo_documento in ('.$tipo.') and c.id = '.$nombres.'
           and acc.id_factura = 0
           and acc.facturaanticipada = "SI"
           order by acc.id desc          
