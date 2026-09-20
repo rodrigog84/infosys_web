@@ -3612,6 +3612,8 @@ class Facturas extends CI_Controller {
                   header('Content-type: text/plain; charset=ISO-8859-1');
                   $this->load->model('facturaelectronica');
                   $config = $this->facturaelectronica->genera_config();
+
+                 // var_dump($config); exit;
                   include $this->facturaelectronica->ruta_libredte();
 
 
@@ -3837,9 +3839,10 @@ class Facturas extends CI_Controller {
                             $IdDoc['FchEmis'] = substr($fechafactura,0,10);
 
 
-                            if($es_guia_traslado || $es_guia_factura_anticipada){
-
+                            if($es_guia_traslado){
                                     $IdDoc['IndTraslado'] = 5;
+                            }else if($es_guia_factura_anticipada){
+                                    $IdDoc['IndTraslado'] = 6;
                             }
 
 
