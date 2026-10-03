@@ -687,9 +687,19 @@ Ext.define('Infosys_web.view.ventas.Facturas', {
                             labelAlign: 'top'
                             //renderer: function(valor){return Ext.util.Format.number(parseInt(iva),"0.000")} 
                         },{xtype: 'splitter'},{
+                            xtype: 'numberfield',
+                            width: 140,
+                            fieldCls: 'required',
+                            name : 'impto',
+                            itemId: 'imptoId',
+                            value: 0,
+                            readOnly: true,
+                            fieldLabel: '<b>IMP. CARNE</b>',
+                            labelAlign: 'top'
+                        },{xtype: 'splitter'},{
                             xtype: 'textfield',
                             fieldCls: 'required',
-                            width: 230,
+                            width: 180,
                             name : 'total',
                             itemId: 'finaltotalId',
                             readOnly: true,

@@ -371,16 +371,46 @@ class Dte extends \sasco\LibreDTE\PDF
         
         if (!empty($dte['DscRcgGlobal']))
             $this->agregarDescuentosRecargos($dte['DscRcgGlobal']);
-        $this->agregarTotales($dte['Encabezado']['Totales']);
 
-        //AGREGAR RECUADRO PARA DATOS DEL DESTINATARIO
+        $tipoDte = $dte['Encabezado']['IdDoc']['TipoDTE'];
+        $totalesDoc = $dte['Encabezado']['Totales'];
+        $impuestos = array();
+        if (!empty($totalesDoc['ImptoReten'])) {
+            $impuestos = $totalesDoc['ImptoReten'];
+            if (!isset($impuestos[0])) {
+                $impuestos = array($impuestos);
+            }
+        }
 
         $y = 190;
-        //$y = $dte['Encabezado']['IdDoc']['TipoDTE'] == 34 ? $y + 5 : $y;
-        //var_dump($dte['Encabezado']['IdDoc']['TipoDTE']); exit;
-        $h = $dte['Encabezado']['IdDoc']['TipoDTE'] == 61 ? 16 : 13;
+        $xGlosa = 145;
+        $offsetMontos = 25;
+        $wGlosa = 30;
+        $boxX = 155;
+        $boxW = 45;
+        $h = $tipoDte == 61 ? 16 : 13;
 
-        $this->Rect(155, $y, 45, $h, 'D', ['all' => ['width' => 0.1, 'color' => [0, 0, 0]]]);
+        if (count($impuestos) > 0) {
+            $this->setFont('', 'B', 8);
+            $anchoTexto = $this->GetStringWidth('Total $ :');
+            foreach ($impuestos as $imp) {
+                $glosaImp = \sasco\LibreDTE\Sii\ImpuestosAdicionales::getGlosa($imp['TipoImp']).' ('.$imp['TasaImp'].'%) $ :';
+                $anchoTexto = max($anchoTexto, $this->GetStringWidth($glosaImp));
+            }
+            $anchoTexto += 2;
+            $wMontos = 30;
+            $pad = 2;
+            $boxW = max(45, $pad + $anchoTexto + $wMontos + $pad);
+            $boxX = 200 - $boxW;
+            $xGlosa = $boxX + $pad;
+            $wGlosa = $anchoTexto;
+            $offsetMontos = $wGlosa;
+            $h += 4 * count($impuestos);
+        }
+
+        $this->agregarTotales($totalesDoc, $y, $xGlosa, $offsetMontos, $wGlosa);
+
+        $this->Rect($boxX, $y, $boxW, $h, 'D', ['all' => ['width' => 0.1, 'color' => [0, 0, 0]]]);
        // $this->Rect(155, $y, 45, 15, 'D', ['all' => ['width' => 0.1, 'color' => [0, 0, 0]]]);
 
 
@@ -949,7 +979,7 @@ class Dte extends \sasco\LibreDTE\PDF
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
      * @version 2016-03-10
      */
-    private function agregarTotales(array $totales, $y = 190, $x = 145, $offset = 25)
+    private function agregarTotales(array $totales, $y = 190, $x = 145, $offset = 25, $wGlosa = 30)
     {
         // normalizar totales
         $totales = array_merge([
@@ -997,13 +1027,13 @@ class Dte extends \sasco\LibreDTE\PDF
                 $y = $this->GetY();
                 if (!$this->cedible or $this->papelContinuo) {
                     $this->setFont('', 'B');
-                    $this->Texto($glosas[$key].' :', $x, null, 'R', 30);
+                    $this->Texto($glosas[$key].' :', $x, null, 'R', $wGlosa);
                     $this->setFont('', 'C');
                     $this->Texto($this->num($total), $x+$offset, $y, 'R', 30);
                     $this->Ln();
                 } else {
                     $this->setFont('', 'B');
-                    $this->MultiTexto($glosas[$key].' :', $x, null, 'R', 30);
+                    $this->MultiTexto($glosas[$key].' :', $x, null, 'R', $wGlosa);
                     $y_new = $this->GetY();
                     $this->setFont('', 'C');
                     $this->Texto($this->num($total), $x+$offset, $y, 'R', 30);

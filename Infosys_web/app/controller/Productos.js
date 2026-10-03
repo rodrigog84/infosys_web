@@ -397,7 +397,7 @@ Ext.define('Infosys_web.controller.Productos', {
         
         view.down('#finaltotalId').setValue(Ext.util.Format.number(pretotalfinal, '0,000'));
         view.down('#finaltotalpostId').setValue(Ext.util.Format.number(pretotalfinal, '0'));
-        //view.down('#imptoId').setValue(Ext.util.Format.number(impto, '0'));
+        view.down('#imptoId').setValue(impto);
         
         view.down('#finaltotalnetoId').setValue(Ext.util.Format.number(neto, '0'));
         view.down('#finaltotalivaId').setValue(Ext.util.Format.number(iva, '0'));

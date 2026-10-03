@@ -1414,7 +1414,7 @@ Ext.define('Infosys_web.controller.Facturacion', {
                 tipodocumento : tipo_documento.getValue(),
                 netofactura: viewIngresa.down('#finaltotalnetoId').getValue(),
                 ivafactura: viewIngresa.down('#finaltotalivaId').getValue(),
-                imptofactura: 0,//viewIngresa.down('#imptoId').getValue(),
+                imptofactura: viewIngresa.down('#imptoId').getValue() || 0,
                 afectofactura: viewIngresa.down('#finalafectoId').getValue(),
                 descuentofactura : viewIngresa.down('#descuentovalorId').getValue(),
                 totalfacturas: viewIngresa.down('#finaltotalpostId').getValue(),

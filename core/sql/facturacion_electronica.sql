@@ -986,3 +986,5 @@ ALTER TABLE `factura_clientes`
 ALTER TABLE `factura_clientes`
 	ADD COLUMN `numfacturaanticipada` INT NOT NULL DEFAULT 0 AFTER `facturaanticipada`;
 	
+/******************************************************************************************************************/
+ALTER TABLE factura_clientes ADD COLUMN impuesto int(20) NOT NULL DEFAULT 0 AFTER iva;

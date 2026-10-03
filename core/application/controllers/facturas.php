@@ -283,8 +283,8 @@ class Facturas extends CI_Controller {
               ->limit(1);
             $query = $this->db->get();
             $datos = $query->row();
-            $impto = $datos->imp_adicional;
-            
+            $impto = ($datos && isset($datos->imp_adicional)) ? $datos->imp_adicional : 0;
+
             $respuesta = $impto == 5 ? 'SI' : $respuesta;
 
         }
@@ -3273,8 +3273,7 @@ class Facturas extends CI_Controller {
         $neto = $this->input->post('netofactura');
         $formadepago = $this->input->post('formadepago');
         $fiva = $this->input->post('ivafactura');
-   // $fimptofactura = $this->input->post('imptofactura');
-    $fimptofactura = 0;
+        $fimptofactura = (int) $this->input->post('imptofactura');
         $fafecto = $this->input->post('afectofactura');
         $ftotal = $this->input->post('totalfacturas');
         $tipodocumento = $this->input->post('tipodocumento');
@@ -3349,7 +3348,7 @@ class Facturas extends CI_Controller {
       'descuento' => ($neto - $fafecto),
       'neto' => $neto,
       'iva' => $fiva,
-      //'impuesto' => $fimptofactura,
+      'impuesto' => $fimptofactura,
       'totalfactura' => $ftotal,
       'fecha_factura' => $fechafactura,
       'fecha_venc' => $fechavenc,
@@ -3797,7 +3796,8 @@ class Facturas extends CI_Controller {
                           $totales_xml['ImptoReten'] = array('TipoImp' => '18',
                                                              'TasaImp' => '5',
                                                              'MontoImp' => $fimptofactura);
-
+                          // LibreDTE suma el impuesto adicional al total. El total guardado ya lo incluye.
+                          $totales_xml['MntTotal'] = intval($totales_xml['MntNeto']) + intval($totales_xml['IVA']);
 
                         }
 
