@@ -454,6 +454,57 @@ public function consumo_folios_no_enviada(){
 	}
 
 
+	/**
+	 * En las facturas de carne (con IVA anticipado carne, codigo de impuesto 18) el detalle del PDF
+	 * no debe mostrar la fecha de vencimiento (" VENC dd/mm/aaaa" al final del nombre del item).
+	 * Solo afecta lo que se imprime en el PDF: el XML guardado no se modifica.
+	 */
+	public function quita_vencimiento_carne($datos){
+
+		if(!isset($datos['Detalle'])){
+			return $datos;
+		}
+
+		// detectar impuesto 18 en los totales o en el detalle
+		$es_carne = false;
+		if(!empty($datos['Encabezado']['Totales']['ImptoReten'])){
+			$impuestos = $datos['Encabezado']['Totales']['ImptoReten'];
+			if(!isset($impuestos[0])){
+				$impuestos = array($impuestos);
+			}
+			foreach($impuestos as $impuesto){
+				if(isset($impuesto['TipoImp']) && $impuesto['TipoImp'] == 18){
+					$es_carne = true;
+				}
+			}
+		}
+
+		$un_solo_item = !isset($datos['Detalle'][0]);
+		$detalle = $un_solo_item ? array($datos['Detalle']) : $datos['Detalle'];
+
+		if(!$es_carne){
+			foreach($detalle as $item){
+				if(isset($item['CodImpAdic']) && $item['CodImpAdic'] == 18){
+					$es_carne = true;
+				}
+			}
+		}
+
+		if(!$es_carne){
+			return $datos;
+		}
+
+		foreach($detalle as $i => $item){
+			if(isset($item['NmbItem'])){
+				$detalle[$i]['NmbItem'] = preg_replace('/\s+VENC\s+\d{2}\/\d{2}\/\d{4}\s*$/', '', $item['NmbItem']);
+			}
+		}
+
+		$datos['Detalle'] = $un_solo_item ? $detalle[0] : $detalle;
+		return $datos;
+	}
+
+
 	 public function exportFePDF($idfactura,$tipo_consulta,$cedible = null){
 
 	 	/*print_r($idfactura);
@@ -670,7 +721,7 @@ public function consumo_folios_no_enviada(){
 			    /*if(!is_null($cedible)){
 			    	$pdf->setCedible(true);
 			    }*/
-			    $pdf->agregar($DTE->getDatos(), $DTE->getTED());
+			    $pdf->agregar($this->quita_vencimiento_carne($DTE->getDatos()), $DTE->getTED());
 
  				/*$archivo_envio = 'dte_'.$Caratula['RutEmisor'].'_'.$DTE->getID().'_Envio';
 			    $nombre_archivo_envio = $archivo_envio.".pdf";
@@ -680,11 +731,11 @@ public function consumo_folios_no_enviada(){
 				*/
 
 			    if($factura->tipo_caf == 52){
-			    	$pdf->agregar($DTE->getDatos(), $DTE->getTED());
+			    	$pdf->agregar($this->quita_vencimiento_carne($DTE->getDatos()), $DTE->getTED());
 			    }
 			    if($factura->tipo_caf == 33 || $factura->tipo_caf == 34 || $factura->tipo_caf == 52){
 				    $pdf->setCedible(true);
-				    $pdf->agregar($DTE->getDatos(), $DTE->getTED());			    	
+				    $pdf->agregar($this->quita_vencimiento_carne($DTE->getDatos()), $DTE->getTED());			    	
 			    }
 
 
@@ -866,7 +917,7 @@ public function consumo_folios_no_enviada(){
 			    /*if(!is_null($cedible)){
 			    	$pdf->setCedible(true);
 			    }*/
-			    $pdf->agregar($DTE->getDatos(), $DTE->getTED());
+			    $pdf->agregar($this->quita_vencimiento_carne($DTE->getDatos()), $DTE->getTED());
 			   
 
 			    //$pdf->Output('facturacion_electronica/pdf/'.$factura->path_dte.'dte_'.$Caratula['RutEmisor'].'_'.$DTE->getID().'.pdf', 'FI');
