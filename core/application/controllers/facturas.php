@@ -3710,8 +3710,11 @@ class Facturas extends CI_Controller {
                   $lista_detalle = array();
                   $i = 0;
                   foreach ($detalle_factura as $detalle) {
-                        // en facturas de carne (con IVA anticipado carne) no se muestra la fecha de vencimiento en el detalle
-                        $lista_detalle[$i]['NmbItem'] = ($tipo_caf == 39 || $fimptofactura > 0) ? $detalle->nombre : $detalle->nombre." VENC ".substr($detalle->fecha_vencimiento,8,2)."/".substr($detalle->fecha_vencimiento,5,2)."/".substr($detalle->fecha_vencimiento,0,4);
+                        // sin fecha de vencimiento en el detalle: facturas de carne (IVA anticipado carne)
+                        // y productos cuyo codigo parte con 9 o 4
+                        $codigo_sin_venc = trim((string)$detalle->codigo);
+                        $sin_vencimiento = $fimptofactura > 0 || ($codigo_sin_venc !== '' && ($codigo_sin_venc[0] == '9' || $codigo_sin_venc[0] == '4'));
+                        $lista_detalle[$i]['NmbItem'] = ($tipo_caf == 39 || $sin_vencimiento) ? $detalle->nombre : $detalle->nombre." VENC ".substr($detalle->fecha_vencimiento,8,2)."/".substr($detalle->fecha_vencimiento,5,2)."/".substr($detalle->fecha_vencimiento,0,4);
                         $lista_detalle[$i]['QtyItem'] = $detalle->cantidad;
                         $lista_detalle[$i]['CdgItem'] = $detalle->codigo;
                         $lista_detalle[$i]['UnmdItem'] = substr($detalle->lote,-4);
