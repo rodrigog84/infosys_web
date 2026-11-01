@@ -3874,6 +3874,15 @@ class Facturas extends CI_Controller {
                                     'Referencia' => $referencia
                               ];
 
+                          // Resolucion Exenta SII 154: las guias de despacho llevan en el XML los datos del traslado
+                          // (patente, RUT empresa de transporte, chofer, destino, fecha/hora de salida y fecha de llegada)
+                          if($tipo_caf == 52){
+                              $transporte_xml = $this->facturaelectronica->armar_transporte_xml($idfactura, $dir_cliente, $nombre_comuna);
+                              if($transporte_xml){
+                                  $factura['Encabezado']['Transporte'] = $transporte_xml;
+                              }
+                          }
+
 
                          }
 

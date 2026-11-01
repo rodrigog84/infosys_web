@@ -51,6 +51,7 @@ class Dte extends \sasco\LibreDTE\PDF
     private $textoGuia; //Fono de emisor completo
 
     private $transporte;
+    private $filasDetalle = 25; ///< Filas de la tabla de detalle (se reduce en guías con detalle de transporte para no pasar sobre el timbre)
 
     private $condpago;
     private $vendedor;
@@ -324,11 +325,26 @@ class Dte extends \sasco\LibreDTE\PDF
            // $Transporte['Chofer']="Rodrigo";
             $Transporte['Chofer']['NombreChofer']="Rodrigo";*/
 
+        if ($dte['Encabezado']['IdDoc']['TipoDTE'] == 52 && is_array($this->transporte) && !empty($this->transporte['Destino']) && empty($this->transporte['CmnaDest'])
+            && !empty($dte['Encabezado']['Receptor']['CmnaRecep'])) {
+            $this->transporte['CmnaDest'] = $dte['Encabezado']['Receptor']['CmnaRecep'];
+        }
+        $yAntesTraslado = $this->getY();
         $this->agregarTraslado(
             !empty($dte['Encabezado']['IdDoc']['IndTraslado']) ? $dte['Encabezado']['IdDoc']['IndTraslado'] : null,
             //!empty($dte['Encabezado']['Transporte']) ? $dte['Encabezado']['Transporte'] : null
-            $this->transporte
+            $this->transporte,
+            10, 22,
+            $dte['Encabezado']['IdDoc']['TipoDTE']
         );
+        $altoTraslado = $this->getY() - $yAntesTraslado; // alto de las líneas de traslado/transporte impresas
+        // guías con detalle de transporte: se quitan filas en blanco a la tabla (una por cada línea extra de transporte)
+        // para que la tabla no termine sobre el timbre y los totales
+        $this->filasDetalle = 25;
+        if ($dte['Encabezado']['IdDoc']['TipoDTE'] == 52 && $altoTraslado > 0) {
+            $lineasTraslado = (int)round($altoTraslado / $this->lasth);
+            $this->filasDetalle = max(15, 25 - max(0, $lineasTraslado - 1));
+        }
         $this->agregarCondPago();
         $this->agregarVendedor();
         
@@ -336,6 +352,7 @@ class Dte extends \sasco\LibreDTE\PDF
        // print_r($dte['Referencia']); exit;
             $this->agregarReferencia($dte['Referencia']);
 
+        $yFinTexto = $this->getY(); // posición donde termina el texto del recuadro (antes de la tabla de detalle)
         $h = $this->transporte['RUTTrans'] == null ? 29 : 36    ;
         //AGREGAR RECUADRO PARA DATOS DEL DESTINATARIO
         $y = 50;
@@ -354,6 +371,11 @@ class Dte extends \sasco\LibreDTE\PDF
                 if($dte['Encabezado']['IdDoc']['FchVenc'] != ''){
                     $h = $h + 5;
                 }
+        }
+
+        // guías de despacho con detalle de transporte: el recuadro llega hasta el inicio de la tabla de detalle
+        if($dte['Encabezado']['IdDoc']['TipoDTE'] == 52 && $altoTraslado > 0){
+                $h = ($yFinTexto + $this->lasth) - $y;
         }
 
        
@@ -750,7 +772,7 @@ class Dte extends \sasco\LibreDTE\PDF
      * @author Esteban De La Fuente Rubio, DeLaF (esteban[at]sasco.cl)
      * @version 2016-03-10
      */
-    private function agregarTraslado($IndTraslado, array $Transporte = null, $x = 10, $offset = 22)
+    private function agregarTraslado($IndTraslado, array $Transporte = null, $x = 10, $offset = 22, $tipoDte = null)
     {
 
 
@@ -764,6 +786,12 @@ class Dte extends \sasco\LibreDTE\PDF
         }
         // agregar información de transporte
         if ($Transporte) {
+            // guías de despacho: detalle de transporte según Resolución Exenta SII N° 154
+            if ($tipoDte == 52) {
+                $this->agregarTransporteGuia($Transporte, $x, $offset);
+                return;
+            }
+            // resto de los documentos: formato original
             $transporte = '';
             if (!empty($Transporte['DirDest']) and !empty($Transporte['CmnaDest'])) {
                 $transporte .= 'a '.$Transporte['DirDest'].', '.$Transporte['CmnaDest'].' ';
@@ -774,7 +802,7 @@ class Dte extends \sasco\LibreDTE\PDF
                 $transporte .= ' en vehículo '.$Transporte['Patente'];
             if (!empty($Transporte['Patente_Carro']))
                 $transporte .= ' con Carro '.$Transporte['Patente_Carro'];            
-            if (is_array($Transporte['Chofer'])) {
+            if (isset($Transporte['Chofer']) and is_array($Transporte['Chofer'])) {
                 if (!empty($Transporte['Chofer']['NombreChofer']))
                     $transporte .= ' con chofer '.$Transporte['Chofer']['NombreChofer'];
                 if (!empty($Transporte['Chofer']['RUTChofer']))
@@ -789,6 +817,69 @@ class Dte extends \sasco\LibreDTE\PDF
                 $this->setFont('', 'C', 8);
                 $this->MultiTexto(ucfirst(trim($transporte)), $x+$offset+2);
             }
+        }
+    }
+
+    /**
+     * Método que agrega el detalle de transporte de la guía de despacho (Resolución Exenta SII N° 154):
+     * transportista, chofer, vehículo, destino y tiempos del traslado
+     * @param Transporte Arreglo con los datos de transporte
+     * @param x Posición horizontal de inicio en el PDF
+     */
+    private function agregarTransporteGuia(array $Transporte, $x = 10, $offset = 22)
+    {
+        $lineas = [];
+        // empresa de transporte (nombre y RUT)
+        $transportista = [];
+        if (!empty($Transporte['NombreTrans']))
+            $transportista[] = $Transporte['NombreTrans'];
+        if (!empty($Transporte['RUTTrans']))
+            $transportista[] = 'RUT '.$Transporte['RUTTrans'];
+        if (!empty($transportista))
+            $lineas['Transportista'] = implode(' - ', $transportista);
+        // chofer (nombre y RUT)
+        if (isset($Transporte['Chofer']) and is_array($Transporte['Chofer'])) {
+            $chofer = [];
+            if (!empty($Transporte['Chofer']['NombreChofer']))
+                $chofer[] = $Transporte['Chofer']['NombreChofer'];
+            if (!empty($Transporte['Chofer']['RUTChofer']))
+                $chofer[] = 'RUT '.$Transporte['Chofer']['RUTChofer'];
+            if (!empty($chofer))
+                $lineas['Chofer'] = implode(' - ', $chofer);
+        }
+        // vehículo (patente camión y carro/remolque)
+        $vehiculo = [];
+        if (!empty($Transporte['Patente']))
+            $vehiculo[] = 'Patente '.$Transporte['Patente'];
+        if (!empty($Transporte['Patente_Carro']))
+            $vehiculo[] = 'Carro '.$Transporte['Patente_Carro'];
+        if (!empty($vehiculo))
+            $lineas['Vehículo'] = implode(' - ', $vehiculo);
+        // destino
+        $destino = [];
+        if (!empty($Transporte['Destino']))
+            $destino[] = $Transporte['Destino'];
+        else if (!empty($Transporte['DirDest']))
+            $destino[] = $Transporte['DirDest'];
+        if (!empty($Transporte['CmnaDest']))
+            $destino[] = $Transporte['CmnaDest'];
+        if (!empty($destino))
+            $lineas['Destino'] = implode(', ', $destino);
+        // tiempos del traslado: fecha y hora de salida, fecha estimada de llegada
+        $tiempos = [];
+        if (!empty($Transporte['FchSalida']))
+            $tiempos[] = date('d/m/Y H:i', strtotime($Transporte['FchSalida'])).' hrs.';
+        if (!empty($Transporte['FchLlegada']))
+            $tiempos[] = 'Llegada estimada: '.date('d/m/Y', strtotime($Transporte['FchLlegada']));
+        if (!empty($tiempos))
+            $lineas[empty($Transporte['FchSalida']) ? 'Llegada' : 'Salida'] = implode('   -   ', $tiempos);
+        // imprimir cada línea
+        foreach ($lineas as $titulo => $texto) {
+            $this->setFont('', 'B', 8);
+            $this->Texto($titulo, $x);
+            $this->Texto(':', $x+$offset);
+            $this->setFont('', 'C', 8);
+            $this->MultiTexto($texto, $x+$offset+2);
         }
     }
 
@@ -900,7 +991,7 @@ class Dte extends \sasco\LibreDTE\PDF
            // print_r($detalle); exit;
         }
         // opciones
-        $options = ['align'=>[]];
+        $options = ['align'=>[], 'min_rows'=>$this->filasDetalle];
         $i = 0;
         foreach ($this->detalle_cols as $info) {
             if (isset($info['width']))

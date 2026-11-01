@@ -446,11 +446,175 @@ public function consumo_folios_no_enviada(){
 
 
 	public function datos_dte_transporte($idfactura){
-		$this->db->select('d.rut, d.nombre, d.pat_camion, d.pat_carro, d.observacion, d.destino ',false)
+		$this->db->select('d.rut, d.nombre, d.pat_camion, d.pat_carro, d.observacion, d.destino, d.comuna_destino, d.empresatransporte, d.rut_empresatransporte, d.fecha_salida, d.fecha_llegada ',false)
 		  ->from('observacion_facturas d')
 		  ->where('d.id_documento',$idfactura);
 		$query = $this->db->get();
 		return $query->row();
+	}
+
+	// Da formato 12.345.678-9 a un rut guardado sin puntos ni guion (ej: 123456789)
+	public function formatea_rut($rut){
+		$rut = strtoupper(str_replace(array('.', '-', ' '), '', trim($rut)));
+		if(strlen($rut) < 2){
+			return $rut;
+		}
+		return number_format((int)substr($rut, 0, -1), 0, '', '.') . '-' . substr($rut, -1);
+	}
+
+	/**
+	 * Arma los datos de traslado que se muestran en el PDF. Para guias de despacho (tipo 52) incluye el detalle
+	 * pedido por la Resolucion Exenta SII 154; para el resto de los documentos mantiene el formato original.
+	 * Guia de despacho:
+	 * (Resolucion Exenta SII 154): transportista, chofer, vehiculo, destino y tiempos del traslado.
+	 *   RUTTrans / NombreTrans     => empresa de transporte
+	 *   Chofer[RUTChofer|NombreChofer] => chofer
+	 *   FchSalida (Y-m-d H:i) / FchLlegada (Y-m-d) => tiempos del traslado
+	 */
+	public function armar_transporte_pdf($idfactura, $tipo_caf = null){
+
+		// resto de los documentos (no guias de despacho): formato original, sin cambios
+		if($tipo_caf != 52){
+			$transporte = array(
+				'RUTTrans' => null,
+				'Chofer' => array('NombreChofer' => null),
+				'Patente' => null,
+				'Patente_Carro' => null,
+				'Destino' => null
+			);
+			$datos_transporte = $this->datos_dte_transporte($idfactura);
+			if(count($datos_transporte) > 0){
+				$transporte['RUTTrans'] = $datos_transporte->rut;
+				$transporte['Chofer']['NombreChofer'] = $datos_transporte->nombre;
+				$transporte['Patente'] = $datos_transporte->pat_camion;
+				$transporte['Patente_Carro'] = $datos_transporte->pat_carro;
+				$transporte['Destino'] = $datos_transporte->destino;
+			}
+			return $transporte;
+		}
+
+		$transporte = array(
+			'RUTTrans' => null,
+			'NombreTrans' => null,
+			'Chofer' => array('RUTChofer' => null, 'NombreChofer' => null),
+			'Patente' => null,
+			'Patente_Carro' => null,
+			'Destino' => null,
+			'CmnaDest' => null,
+			'FchSalida' => null,
+			'FchLlegada' => null
+		);
+
+		$datos_transporte = $this->datos_dte_transporte($idfactura);
+
+		if(count($datos_transporte) > 0){
+			$transporte['RUTTrans'] = $datos_transporte->rut_empresatransporte != '' ? $this->formatea_rut($datos_transporte->rut_empresatransporte) : null;
+			$transporte['NombreTrans'] = $datos_transporte->empresatransporte;
+			$transporte['Chofer']['RUTChofer'] = $datos_transporte->rut != '' ? $this->formatea_rut($datos_transporte->rut) : null;
+			$transporte['Chofer']['NombreChofer'] = $datos_transporte->nombre;
+			$transporte['Patente'] = $datos_transporte->pat_camion;
+			$transporte['Patente_Carro'] = $datos_transporte->pat_carro;
+			$transporte['Destino'] = $datos_transporte->destino;
+			$transporte['CmnaDest'] = $datos_transporte->comuna_destino;
+			$transporte['FchSalida'] = $datos_transporte->fecha_salida ? substr($datos_transporte->fecha_salida, 0, 16) : null;
+			$transporte['FchLlegada'] = $datos_transporte->fecha_llegada ? substr($datos_transporte->fecha_llegada, 0, 10) : null;
+		}
+
+		return $transporte;
+	}
+
+
+	/**
+	 * Normaliza un RUT al formato del XML del SII (sin puntos, con guion, K mayuscula): 12345678-9
+	 * Devuelve null si el RUT no cumple el formato esperado por el schema (SiiDte:RUTType).
+	 */
+	public function rut_para_xml($rut){
+		$rut = strtoupper(str_replace(array('.', '-', ' '), '', trim((string)$rut)));
+		if(strlen($rut) < 2){
+			return null;
+		}
+		$rut = substr($rut, 0, -1) . '-' . substr($rut, -1);
+		return preg_match('/^[0-9]+-[0-9K]$/', $rut) && strlen($rut) <= 10 ? $rut : null;
+	}
+
+	/**
+	 * Arma el nodo Encabezado/Transporte del XML de una guia de despacho (tipo 52) segun la
+	 * Resolucion Exenta SII 154. Los datos salen de la observacion (observacion_facturas) ligada al documento.
+	 * Las claves se entregan en el mismo orden que exige el schema DTE_v10.xsd:
+	 *   Patente, PatenteCarro, RUTTrans, Chofer[RUTChofer, NombreChofer], DirDest, CmnaDest, FchSalida, HraSalida, FchLlegada
+	 * Retorna false si no hay ningun dato de transporte (en ese caso no se agrega el nodo al XML).
+	 * @param int    $idfactura  id del documento (factura_clientes.id)
+	 * @param string $dir_dest   direccion de destino por defecto (si la observacion no trae destino)
+	 * @param string $cmna_dest  comuna de destino
+	 */
+	public function armar_transporte_xml($idfactura, $dir_dest = '', $cmna_dest = ''){
+
+		$d = $this->datos_dte_transporte($idfactura);
+		if(!$d){
+			return false;
+		}
+
+		$limpia = function($txt, $largo){
+			return substr(strtoupper(preg_replace('/[^0-9a-zA-Z]/', '', (string)$txt)), 0, $largo);
+		};
+
+		$transporte = array();
+
+		// vehiculo
+		$patente = $limpia($d->pat_camion, 8);
+		if($patente != ''){
+			$transporte['Patente'] = $patente;
+		}
+		$patente_carro = $limpia($d->pat_carro, 8);
+		if($patente_carro != ''){
+			$transporte['PatenteCarro'] = $patente_carro;
+		}
+
+		// empresa de transporte (RUT)
+		$rut_trans = $this->rut_para_xml($d->rut_empresatransporte);
+		if($rut_trans){
+			$transporte['RUTTrans'] = $rut_trans;
+		}
+
+		// chofer: el schema exige RUTChofer y NombreChofer (max 30) juntos
+		$rut_chofer = $this->rut_para_xml($d->rut);
+		$nombre_chofer = trim(substr(permite_alfanumerico($d->nombre), 0, 30));
+		if($rut_chofer && $nombre_chofer != ''){
+			$transporte['Chofer'] = array(
+				'RUTChofer' => $rut_chofer,
+				'NombreChofer' => $nombre_chofer
+			);
+		}
+
+		// destino (si la observacion trae un destino se usa como direccion de destino)
+		$destino = trim(substr(permite_alfanumerico($d->destino), 0, 70));
+		$dir_dest = $destino != '' ? $destino : trim(substr($dir_dest, 0, 70));
+		// comuna: la capturada en la observacion; si no hay, la del receptor
+		$comuna_obs = trim(substr(permite_alfanumerico($d->comuna_destino), 0, 20));
+		$cmna_dest = $comuna_obs != '' ? $comuna_obs : trim(substr($cmna_dest, 0, 20));
+		if($dir_dest != ''){
+			$transporte['DirDest'] = $dir_dest;
+			if($cmna_dest != ''){
+				$transporte['CmnaDest'] = $cmna_dest;
+			}
+		}
+
+		// salida y llegada
+		if($d->fecha_salida && substr($d->fecha_salida, 0, 10) != '0000-00-00'){
+			$transporte['FchSalida'] = substr($d->fecha_salida, 0, 10);
+			$hora = strlen($d->fecha_salida) >= 16 ? substr($d->fecha_salida, 11, 8) : '';
+			if(strlen($hora) == 5){
+				$hora .= ':00';
+			}
+			if($hora != ''){
+				$transporte['HraSalida'] = $hora;
+			}
+		}
+		if($d->fecha_llegada && substr($d->fecha_llegada, 0, 10) != '0000-00-00'){
+			$transporte['FchLlegada'] = substr($d->fecha_llegada, 0, 10);
+		}
+
+		return count($transporte) > 0 ? $transporte : false;
 	}
 
 
@@ -681,24 +845,7 @@ public function consumo_folios_no_enviada(){
 				}
 
 
-				$datos_transporte = $this->datos_dte_transporte($idfactura);
-				
-				if(count($datos_transporte) > 0){
-					$transporte['RUTTrans'] = $datos_transporte->rut;
-					$transporte['Chofer']['NombreChofer'] = $datos_transporte->nombre;
-					$transporte['Patente'] = $datos_transporte->pat_camion;
-					$transporte['Patente_Carro'] = $datos_transporte->pat_carro;
-					$transporte['Destino'] = $datos_transporte->destino;
-
-				}else{
-					$transporte['RUTTrans'] = null;
-					$transporte['Chofer']['NombreChofer'] = null;
-					$transporte['Patente'] = null;
-					$transporte['Patente_Carro'] = null;
-					$transporte['Destino'] = null;
-
-				}
-
+				$transporte = $this->armar_transporte_pdf($idfactura, $factura->tipo_caf);
 				
 				$pdf->setTransporte($transporte);
 
@@ -877,24 +1024,7 @@ public function consumo_folios_no_enviada(){
 
 
 
-				$datos_transporte = $this->datos_dte_transporte($idfactura);
-				
-				if(count($datos_transporte) > 0){
-					$transporte['RUTTrans'] = $datos_transporte->rut;
-					$transporte['Chofer']['NombreChofer'] = $datos_transporte->nombre;
-					$transporte['Patente'] = $datos_transporte->pat_camion;
-					$transporte['Patente_Carro'] = $datos_transporte->pat_carro;
-					$transporte['Destino'] = $datos_transporte->destino;
-
-				}else{
-					$transporte['RUTTrans'] = null;
-					$transporte['Chofer']['NombreChofer'] = null;
-					$transporte['Patente'] = null;
-					$transporte['Patente_Carro'] = null;
-					$transporte['Destino'] = null;
-
-				}
-
+				$transporte = $this->armar_transporte_pdf($idfactura, $factura->tipo_caf);
 				
 				$pdf->setTransporte($transporte);
 

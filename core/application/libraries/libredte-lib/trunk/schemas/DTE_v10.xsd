@@ -670,6 +670,16 @@ Descuento Recargo Global : se incorporar restricción en Tipo de Movimiento
 															</xs:restriction>
 														</xs:simpleType>
 													</xs:element>
+													<xs:element name="PatenteCarro" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Patente de Carro o remolque</xs:documentation>
+														</xs:annotation>
+														<xs:simpleType>
+															<xs:restriction base="xs:string">
+																<xs:maxLength value="8"/>
+															</xs:restriction>
+														</xs:simpleType>
+													</xs:element>
 													<xs:element name="RUTTrans" type="SiiDte:RUTType" minOccurs="0">
 														<xs:annotation>
 															<xs:documentation>RUT del Transportista</xs:documentation>
@@ -1039,6 +1049,37 @@ según tabla Países aduana</xs:documentation>
 																</xs:element>
 															</xs:sequence>
 														</xs:complexType>
+													</xs:element>
+													<xs:element name="FchSalida" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Fecha de Salida</xs:documentation>
+														</xs:annotation>
+														<xs:simpleType>
+															<xs:restriction base="SiiDte:FechaType">
+																<xs:minInclusive value="2003-04-01"/>
+															</xs:restriction>
+														</xs:simpleType>
+													</xs:element>
+													<xs:element name="HraSalida" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Hora de Salida</xs:documentation>
+														</xs:annotation>
+														<xs:simpleType>
+															<xs:restriction base="SiiDte:HoraType">
+																<xs:minInclusive value="00:00:00"/>
+																<xs:maxInclusive value="23:59:59"/>
+															</xs:restriction>
+														</xs:simpleType>
+													</xs:element>
+													<xs:element name="FchLlegada" minOccurs="0">
+														<xs:annotation>
+															<xs:documentation>Fecha de Llegada</xs:documentation>
+														</xs:annotation>
+														<xs:simpleType>
+															<xs:restriction base="SiiDte:FechaType">
+																<xs:minInclusive value="2003-04-01"/>
+															</xs:restriction>
+														</xs:simpleType>
 													</xs:element>
 												</xs:sequence>
 											</xs:complexType>

@@ -221,7 +221,9 @@ class PDF extends \TCPDF
         }
 
         //RELLENAR CON FILAS EN BLANCO (PERSONALIZADO A INFOSYS)
-        while($num_filas < 25){
+        // cantidad de filas de la tabla: 25 por defecto (opción min_rows permite cambiarla)
+        $min_filas = isset($options['min_rows']) ? (int)$options['min_rows'] : 25;
+        while($num_filas < $min_filas){
             $buffer .= '<tr>';
             foreach ($headers as &$col) {
                 $width = ($w and isset($w[$i])) ? (';width:'.$w[$i].'mm') : '';

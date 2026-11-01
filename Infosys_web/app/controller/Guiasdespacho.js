@@ -1478,6 +1478,7 @@ mguiastraslado: function(){
         var carro = view.down('#carroId').getValue();
         var observa = view.down('#observaId').getValue();
         var destino = view.down('#destinoId').getValue();
+        var comunadestino = Ext.String.trim(view.down('#comunadestinoId').getValue() || '');
         var idtransportista = view.down('#transportistaId').getValue();
         //var idobserva = view.down('#obsId').getValue();
         var valida = view.down('#validaId').getValue();
@@ -1485,6 +1486,10 @@ mguiastraslado: function(){
         var empresa = view.down('#empresaId').getValue();     
         var transferencia = view.down('#transferenciaId').getValue();          
         var tipodescarga = view.down('#tipodescargaId').getValue();  
+        var rutempresa = Ext.String.trim(view.down('#rutempresaId').getValue() || '');
+        var fechasalida = view.down('#fechasalidaId').getValue();
+        var horasalida = view.down('#horasalidaId').getValue();
+        var fechallegada = view.down('#fechallegadaId').getValue();
         var permite = "SI"
 
         if (valida == "NO"){
@@ -1500,6 +1505,32 @@ mguiastraslado: function(){
              Ext.Msg.alert('Alerta', 'Debe Ingresar Nombre');
                  return;
         };
+
+        // Resolucion Exenta SII 154: datos del transporte y tiempos del traslado
+        if (!empresa){
+             Ext.Msg.alert('Alerta', 'Debe Ingresar Empresa de Transporte');
+                 return;
+        };
+        if (!rutempresa){
+             Ext.Msg.alert('Alerta', 'Debe Ingresar Rut de la Empresa de Transporte');
+                 return;
+        };
+        if (!this.validaRutChileno(rutempresa)){
+             Ext.Msg.alert('Alerta', 'Rut de la Empresa de Transporte Incorrecto');
+                 return;
+        };
+        if (!fechasalida || !horasalida){
+             Ext.Msg.alert('Alerta', 'Debe Ingresar Fecha y Hora de Salida');
+                 return;
+        };
+        if (!fechallegada){
+             Ext.Msg.alert('Alerta', 'Debe Ingresar Fecha Estimada de Llegada');
+                 return;
+        };
+        if (Ext.Date.clearTime(fechallegada, true) < Ext.Date.clearTime(fechasalida, true)){
+             Ext.Msg.alert('Alerta', 'La Fecha de Llegada no puede ser anterior a la Fecha de Salida');
+                 return;
+        };
        
        
         Ext.Ajax.request({
@@ -1512,11 +1543,16 @@ mguiastraslado: function(){
                 fono : fono,
                 observa : observa,
                 destino: destino, 
+                comunadestino: comunadestino,
                 idtransportista: idtransportista,
                 numero: numero,
                 empresa: empresa,
+                rutempresa: rutempresa,
                 transferencia: transferencia,
-                tipodescarga: tipodescarga
+                tipodescarga: tipodescarga,
+                fechasalida: Ext.Date.format(fechasalida, 'Y-m-d'),
+                horasalida: Ext.Date.format(horasalida, 'H:i'),
+                fechallegada: Ext.Date.format(fechallegada, 'Y-m-d')
             },
             success: function(response){
                 var resp = Ext.JSON.decode(response.responseText);
@@ -1531,6 +1567,25 @@ mguiastraslado: function(){
             }
            
         });
+    },
+
+    // Valida un RUT chileno (con o sin puntos y guion) usando el digito verificador (modulo 11)
+    validaRutChileno: function(rut){
+        rut = String(rut || '').replace(/\./g, '').replace(/-/g, '').toUpperCase();
+        if (!/^\d{1,8}[0-9K]$/.test(rut)){
+            return false;
+        }
+        var cuerpo = rut.slice(0, -1);
+        var dv = rut.slice(-1);
+        var suma = 0;
+        var factor = 2;
+        for (var i = cuerpo.length - 1; i >= 0; i--){
+            suma += parseInt(cuerpo.charAt(i), 10) * factor;
+            factor = factor == 7 ? 2 : factor + 1;
+        }
+        var resto = 11 - (suma % 11);
+        var esperado = resto == 11 ? '0' : (resto == 10 ? 'K' : String(resto));
+        return dv == esperado;
     },
 
     special8: function(f,e){
@@ -1567,6 +1622,8 @@ mguiastraslado: function(){
                          view.down("#rutmId").setValue(rut);
                          view.down("#camionId").setValue(observa.pat_camion);
                          view.down("#carroId").setValue(observa.pat_carro);
+                         view.down("#empresaId").setValue(observa.empresatransporte);
+                         view.down("#rutempresaId").setValue(observa.rut_empresatransporte);
                          view.down("#fonoId").setValue(observa.fono);
                          view.down("#validaId").setValue(okey);
                          view.down("#observaId").focus();
@@ -1619,8 +1676,19 @@ mguiastraslado: function(){
                  view.down("#carroId").setValue(observa.pat_carro);
                  view.down("#fonoId").setValue(observa.fono);
                  view.down("#empresaId").setValue(observa.empresatransporte);
+                 view.down("#destinoId").setValue(observa.destino);
+                 view.down("#comunadestinoId").setValue(observa.comuna_destino);
+                 view.down("#rutempresaId").setValue(observa.rut_empresatransporte);
                  view.down("#transferenciaId").setValue(observa.transferencia);
                  view.down("#tipodescargaId").setValue(observa.tipodescarga);
+                 // fechas guardadas (si el registro es anterior a la resolucion quedan los valores por defecto)
+                 if (observa.fecha_salida_f){
+                     view.down("#fechasalidaId").setValue(Ext.Date.parse(observa.fecha_salida_f, 'Y-m-d'));
+                     view.down("#horasalidaId").setValue(Ext.Date.parse(observa.hora_salida_f, 'H:i'));
+                 }
+                 if (observa.fecha_llegada){
+                     view.down("#fechallegadaId").setValue(Ext.Date.parse(observa.fecha_llegada, 'Y-m-d'));
+                 }
                  //view.down("#validaId").setValue(okey);
                  view.down("#observaId").setValue(observa.observacion);
                 }             

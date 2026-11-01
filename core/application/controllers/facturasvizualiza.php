@@ -67,9 +67,23 @@ class Facturasvizualiza extends CI_Controller {
 		$numero = $this->input->post('numero');
 		$observacion = $this->input->post('observa');
 		$destino = $this->input->post('destino');
+		$comunadestino = substr(trim($this->input->post('comunadestino')), 0, 20);
 		$empresa = $this->input->post('empresa');
 		$transferencia = $this->input->post('transferencia');
 		$tipodescarga = $this->input->post('tipodescarga');
+
+		// Resolucion Exenta SII 154: rut empresa de transporte y tiempos del traslado
+		$rutempresa = strtoupper(str_replace(array('.', '-', ' '), '', trim($this->input->post('rutempresa'))));
+		$fechasalida = $this->input->post('fechasalida');
+		$horasalida = $this->input->post('horasalida');
+		$fechallegada = $this->input->post('fechallegada');
+
+		$fecha_salida = null;
+		if($fechasalida && preg_match('/^\d{4}-\d{2}-\d{2}$/', $fechasalida)){
+			$hora = ($horasalida && preg_match('/^\d{1,2}:\d{2}$/', $horasalida)) ? $horasalida : '00:00';
+			$fecha_salida = $fechasalida . ' ' . $hora . ':00';
+		}
+		$fecha_llegada = ($fechallegada && preg_match('/^\d{4}-\d{2}-\d{2}$/', $fechallegada)) ? $fechallegada : null;
 
 
 		if(!$observacion){
@@ -86,9 +100,13 @@ class Facturasvizualiza extends CI_Controller {
 	        'pat_carro' => $carro,
 	        'observacion' => $observacion,	          
 	        'destino' => $destino,
+	        'comuna_destino' => $comunadestino,
 	        'empresatransporte' => $empresa,
 	        'transferencia' => $transferencia,        
-	        'tipodescarga' => $tipodescarga
+	        'tipodescarga' => $tipodescarga,
+	        'rut_empresatransporte' => $rutempresa,
+	        'fecha_salida' => $fecha_salida,
+	        'fecha_llegada' => $fecha_llegada
 		);
 
 		$this->db->insert('observacion_facturas', $observa);
@@ -225,6 +243,9 @@ class Facturasvizualiza extends CI_Controller {
 			{
 			$rutautoriza = $row->rut;
 			$row->rutm = $row->rut; 
+			// fecha y hora de salida separadas para cargar el formulario
+			$row->fecha_salida_f = !empty($row->fecha_salida) ? substr($row->fecha_salida, 0, 10) : '';
+			$row->hora_salida_f = !empty($row->fecha_salida) ? substr($row->fecha_salida, 11, 5) : '';
 			if (strlen($rutautoriza) == 8){
 			$ruta1 = substr($rutautoriza, -1);
 			$ruta2 = substr($rutautoriza, -4, 3);

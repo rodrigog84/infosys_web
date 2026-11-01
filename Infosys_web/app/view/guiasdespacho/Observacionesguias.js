@@ -9,7 +9,7 @@ Ext.define('Infosys_web.view.guiasdespacho.Observacionesguias', {
     layout: 'fit',
     autoShow: true,
     width: 380,
-    height: 500,
+    height: 660,
     modal: true,
     iconCls: 'icon-sheet',
 
@@ -118,6 +118,15 @@ Ext.define('Infosys_web.view.guiasdespacho.Observacionesguias', {
                         name: 'destino'                            
                     },{
                         xtype: 'textfield',
+                        labelWidth: 100,
+                        width: 350,
+                        height: 30,
+                        maxLength: 20,
+                        fieldLabel: 'Comuna Destino',
+                        itemId: 'comunadestinoId',
+                        name: 'comuna_destino'
+                    },{
+                        xtype: 'textfield',
                         fieldCls: 'required',
                         labelWidth: 100,
                         width: 350,
@@ -125,6 +134,17 @@ Ext.define('Infosys_web.view.guiasdespacho.Observacionesguias', {
                         fieldLabel: 'Empresa de Transporte',
                         itemId: 'empresaId',
                         name: 'empresa'                            
+                    },{
+                        xtype: 'textfield',
+                        fieldCls: 'required',
+                        labelWidth: 100,
+                        width: 250,
+                        height: 30,
+                        fieldLabel: 'Rut Empresa Transp.',
+                        emptyText: 'Ej: 76123456-7',
+                        enableKeyEvents: true,
+                        itemId: 'rutempresaId',
+                        name: 'rut_empresa'                            
                     },{
                         xtype: 'combobox',
                         fieldCls: 'required',
@@ -177,6 +197,49 @@ Ext.define('Infosys_web.view.guiasdespacho.Observacionesguias', {
                         fieldLabel: 'Fono',
                         itemId: 'fonoId',
                         name: 'fono'                            
+                    },{
+                        xtype: 'fieldcontainer',
+                        layout: 'hbox',
+                        height: 30,
+                        items: [{
+                            xtype: 'datefield',
+                            fieldCls: 'required',
+                            labelWidth: 100,
+                            width: 235,
+                            height: 25,
+                            fieldLabel: 'Fecha Salida',
+                            format: 'd/m/Y',
+                            submitFormat: 'Y-m-d',
+                            value: new Date(),
+                            itemId: 'fechasalidaId',
+                            name: 'fecha_salida'
+                        },{
+                            xtype: 'splitter'
+                        },{
+                            xtype: 'timefield',
+                            fieldCls: 'required',
+                            labelWidth: 35,
+                            width: 105,
+                            height: 25,
+                            fieldLabel: 'Hora',
+                            format: 'H:i',
+                            increment: 15,
+                            value: new Date(),
+                            itemId: 'horasalidaId',
+                            name: 'hora_salida'
+                        }]
+                    },{
+                        xtype: 'datefield',
+                        fieldCls: 'required',
+                        labelWidth: 100,
+                        width: 235,
+                        height: 25,
+                        fieldLabel: 'Llegada Estimada',
+                        format: 'd/m/Y',
+                        submitFormat: 'Y-m-d',
+                        value: new Date(),
+                        itemId: 'fechallegadaId',
+                        name: 'fecha_llegada'
                     },{
                         xtype: 'textareafield',
                         fieldCls: 'required',

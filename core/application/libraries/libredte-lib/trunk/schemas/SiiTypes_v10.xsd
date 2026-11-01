@@ -885,4 +885,13 @@ ImpAdicDTEType	: se agregan el codigo de impuesto 271 (SDI-9342)
 			</xs:enumeration>
 		</xs:restriction>
 	</xs:simpleType>
+	<xs:simpleType name="HoraType">
+		<xs:annotation>
+			<xs:documentation>Hora entre 00:00:00 y 23:59:59</xs:documentation>
+		</xs:annotation>
+		<xs:restriction base="xs:time">
+			<xs:minInclusive value="00:00:00"/>
+			<xs:maxInclusive value="23:59:59"/>
+		</xs:restriction>
+	</xs:simpleType>
 </xs:schema>
