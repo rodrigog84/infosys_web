@@ -1988,6 +1988,14 @@ public function exportarExcelGuias()
             $opcion = $this->input->get('opcion');
             //$tipo = 1;
             $tipo2 = 102;
+            // notas de debito (104 electronica, 16 manual): se incluyen en el libro de facturas (tipo 101)
+            $incluye_nd = ($tipo == 101);
+            $tipos_nd = '104,16';
+            $totalnd = 0;
+            $totalafnd = 0;
+            $totalnetond = 0;
+            $totalivand = 0;
+            $cantnd = 0;
             $totalnc = 0;
             $totalafnc = 0;
             $totalnetonc = 0;
@@ -2010,7 +2018,7 @@ public function exportarExcelGuias()
                 $query = $this->db->query('SELECT acc.*, c.nombres as nombre_cliente, c.rut as rut_cliente, v.nombre as nom_vendedor  FROM factura_clientes acc
                 left join clientes c on (acc.id_cliente = c.id)
                 left join vendedores v on (acc.id_vendedor = v.id)
-                WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.') and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
+                WHERE acc.tipo_documento in ( '.$tipo.','.$tipo2.($incluye_nd ? ','.$tipos_nd : '').') and acc.fecha_factura between "'.$fecha3.'"  AND "'.$fecha4.'"
                 order by acc.fecha_factura, acc.tipo_documento, acc.num_factura' 
                 
                 );
@@ -2024,7 +2032,7 @@ public function exportarExcelGuias()
             echo '<table>';
             echo "<td></td>";
             echo "<td>LIBRO DE VENTAS</td>";
-            echo "<td>FACTURAS / NOTAS DE CREDITO</td>";
+            echo "<td>".($incluye_nd ? "FACTURAS / NOTAS DE CREDITO / NOTAS DE DEBITO" : "FACTURAS / NOTAS DE CREDITO")."</td>";
             echo "<tr>";
                 echo "<td>NUMERO</td>";
                 echo "<td>FECHA</td>";
@@ -2055,6 +2063,15 @@ public function exportarExcelGuias()
                   $totalafnc = $totalafnc + $afecto;
                   $totalnetonc = $totalnetonc + $neto;
                   $totaliva = $totaliva + $iva;
+
+                 }else if($incluye_nd && ($v['tipo_documento']==104 || $v['tipo_documento']==16)){
+
+                  // nota de debito: suma (valores positivos)
+                  $cantnd = $cantnd + 1;
+                  $totalnd = $totalnd + $total;
+                  $totalafnd = $totalafnd + $afecto;
+                  $totalnetond = $totalnetond + $neto;
+                  $totalivand = $totalivand + $iva;
 
                  }else{
 
@@ -2117,9 +2134,21 @@ public function exportarExcelGuias()
                    echo "<td>".$otros."</td>";
                    echo "<td>".$totalnc."</td>";
             echo "</tr>";
-             $totalafecto = $totalaffa + $totalafnc;
-             $totalivafin = $totalivafa + $totaliva;
-             $totalfinala = $totalfa + $totalnc;
+            if($incluye_nd){
+            echo "<tr>";
+                   echo "<td>NOTAS DEBITO</td>";
+                   echo "<td>".$cantnd."</td>";
+                   echo "<td>".$otros."</td>";
+                   echo "<td>".$totalafnd."</td>";
+                   echo "<td>".$otros."</td>";
+                   echo "<td>".$totalivand."</td>";
+                   echo "<td>".$otros."</td>";
+                   echo "<td>".$totalnd."</td>";
+            echo "</tr>";
+            }
+             $totalafecto = $totalaffa + $totalafnc + $totalafnd;
+             $totalivafin = $totalivafa + $totaliva + $totalivand;
+             $totalfinala = $totalfa + $totalnc + $totalnd;
              
             echo "<tr>";
                 echo "<td>-------------</td>";
