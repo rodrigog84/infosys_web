@@ -1996,6 +1996,10 @@ public function exportarExcelGuias()
             $totalnetond = 0;
             $totalivand = 0;
             $cantnd = 0;
+            // otros impuestos (IVA anticipado carne 5%): columna `impuesto` de factura_clientes
+            $totalimpfa = 0;
+            $totalimpnc = 0;
+            $totalimpnd = 0;
             $totalnc = 0;
             $totalafnc = 0;
             $totalnetonc = 0;
@@ -2043,6 +2047,7 @@ public function exportarExcelGuias()
                 echo "<td>DESCUENTO</td>";
                 echo "<td>NETO</td>";
                 echo "<td>IVA</td>";
+                echo "<td>IMP. CARNE 5%</td>";
                 echo "<td>TOTAL</td>";
                 echo "<tr>";
               
@@ -2052,12 +2057,15 @@ public function exportarExcelGuias()
                  $afecto = $v['sub_total'];
                  $neto = $v['neto'];
                  $iva = $v['iva'];
+                 $impto = isset($v['impuesto']) ? $v['impuesto'] : 0;
                  if ($v['tipo_documento']==102){
 
                   $total = ($v['totalfactura']/-1);
                   $afecto = ($v['sub_total']/-1);
                   $neto = ($v['neto']/-1);
                   $iva = $v['iva']/-1;
+                  $impto = $impto/-1;
+                  $totalimpnc = $totalimpnc + $impto;
                   $cantnc = $cantnc + 1;
                   $totalnc = $totalnc + $total;
                   $totalafnc = $totalafnc + $afecto;
@@ -2067,6 +2075,7 @@ public function exportarExcelGuias()
                  }else if($incluye_nd && ($v['tipo_documento']==104 || $v['tipo_documento']==16)){
 
                   // nota de debito: suma (valores positivos)
+                  $totalimpnd = $totalimpnd + $impto;
                   $cantnd = $cantnd + 1;
                   $totalnd = $totalnd + $total;
                   $totalafnd = $totalafnd + $afecto;
@@ -2075,6 +2084,7 @@ public function exportarExcelGuias()
 
                  }else{
 
+                  $totalimpfa = $totalimpfa + $impto;
                   $totalfa = $totalfa + $total;
                   $totalaffa = $totalaffa + $afecto;
                   $totalnetofa = $totalnetofa + $neto;
@@ -2093,6 +2103,7 @@ public function exportarExcelGuias()
                    echo "<td>".$v['descuento']."</td>";
                    echo "<td>".$neto."</td>";
                    echo "<td>".$iva."</td>";
+                   echo "<td>".$impto."</td>";
                    echo "<td>".$total."</td>";
                 echo "</tr>";
             }
@@ -2121,7 +2132,7 @@ public function exportarExcelGuias()
                    echo "<td>".$totalaffa."</td>";
                    echo "<td>".$otros."</td>";
                    echo "<td>".$totalivafa."</td>";
-                   echo "<td>".$otros."</td>";
+                   echo "<td>".$totalimpfa."</td>";
                    echo "<td>".$totalfa."</td>";
             echo "</tr>";
             echo "<tr>";
@@ -2131,7 +2142,7 @@ public function exportarExcelGuias()
                    echo "<td>".$totalafnc."</td>";
                    echo "<td>".$otros."</td>";
                    echo "<td>".$totaliva."</td>";
-                   echo "<td>".$otros."</td>";
+                   echo "<td>".$totalimpnc."</td>";
                    echo "<td>".$totalnc."</td>";
             echo "</tr>";
             if($incluye_nd){
@@ -2142,7 +2153,7 @@ public function exportarExcelGuias()
                    echo "<td>".$totalafnd."</td>";
                    echo "<td>".$otros."</td>";
                    echo "<td>".$totalivand."</td>";
-                   echo "<td>".$otros."</td>";
+                   echo "<td>".$totalimpnd."</td>";
                    echo "<td>".$totalnd."</td>";
             echo "</tr>";
             }
@@ -2166,7 +2177,7 @@ public function exportarExcelGuias()
                    echo "<td>".$totalafecto."</td>";
                    echo "<td>".$otros."</td>";
                    echo "<td>".$totalivafin."</td>";
-                   echo "<td>".$otros."</td>";
+                   echo "<td>".($totalimpfa + $totalimpnc + $totalimpnd)."</td>";
                    echo "<td>".$totalfinala."</td>";                  
             echo "</tr>";
 
