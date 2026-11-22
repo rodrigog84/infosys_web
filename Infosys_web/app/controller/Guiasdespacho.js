@@ -1239,6 +1239,8 @@ adjuntarReceta: function(r){
                          view.down("#rutmId").setValue(rut);
                          view.down("#camionId").setValue(observa.pat_camion);
                          view.down("#carroId").setValue(observa.pat_carro);
+                         view.down("#empresaId").setValue(observa.empresatransporte);
+                         view.down("#rutempresaId").setValue(observa.rut_empresatransporte);
                          view.down("#fonoId").setValue(observa.fono);
                          view.down("#validaId").setValue(okey);
                          view.down("#observaId").focus();
@@ -1422,6 +1424,12 @@ mguiastraslado: function(){
         var carro = view.down('#carroId').getValue();
         var observa = view.down('#observaId').getValue();
         var destino = view.down('#destinoId').getValue();
+        var comunadestino = Ext.String.trim(view.down('#comunadestinoId').getValue() || '');
+        var empresa = view.down('#empresaId').getValue();
+        var rutempresa = Ext.String.trim(view.down('#rutempresaId').getValue() || '');
+        var fechasalida = view.down('#fechasalidaId').getValue();
+        var horasalida = view.down('#horasalidaId').getValue();
+        var fechallegada = view.down('#fechallegadaId').getValue();
         var valida = view.down('#validaId').getValue();
         var numero = view.down('#FactId').getValue();      
         
@@ -1440,6 +1448,32 @@ mguiastraslado: function(){
              Ext.Msg.alert('Alerta', 'Debe Ingresar Nombre');
                  return;
         };
+
+        // Resolucion Exenta SII 154: datos del transporte y tiempos del traslado
+        if (!empresa){
+             Ext.Msg.alert('Alerta', 'Debe Ingresar Empresa de Transporte');
+                 return;
+        };
+        if (!rutempresa){
+             Ext.Msg.alert('Alerta', 'Debe Ingresar Rut de la Empresa de Transporte');
+                 return;
+        };
+        if (!this.validaRutChileno(rutempresa)){
+             Ext.Msg.alert('Alerta', 'Rut de la Empresa de Transporte Incorrecto');
+                 return;
+        };
+        if (!fechasalida || !horasalida){
+             Ext.Msg.alert('Alerta', 'Debe Ingresar Fecha y Hora de Salida');
+                 return;
+        };
+        if (!fechallegada){
+             Ext.Msg.alert('Alerta', 'Debe Ingresar Fecha Estimada de Llegada');
+                 return;
+        };
+        if (Ext.Date.clearTime(fechallegada, true) < Ext.Date.clearTime(fechasalida, true)){
+             Ext.Msg.alert('Alerta', 'La Fecha de Llegada no puede ser anterior a la Fecha de Salida');
+                 return;
+        };
        
        
         Ext.Ajax.request({
@@ -1452,6 +1486,12 @@ mguiastraslado: function(){
                 fono : fono,
                 observa : observa,
                 destino: destino, 
+                comunadestino: comunadestino,
+                empresa: empresa,
+                rutempresa: rutempresa,
+                fechasalida: Ext.Date.format(fechasalida, 'Y-m-d'),
+                horasalida: Ext.Date.format(horasalida, 'H:i'),
+                fechallegada: Ext.Date.format(fechallegada, 'Y-m-d'),
                 numero: numero
             },
             success: function(response){

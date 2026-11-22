@@ -301,6 +301,15 @@ class Facturaglosa extends CI_Controller {
 				'Referencia' => $referencia
 			];
 
+			// Resolucion Exenta SII 154: las guias de despacho llevan en el XML los datos del traslado
+			// (patente, RUT empresa de transporte, chofer, destino, fecha/hora de salida y fecha de llegada)
+			if($tipo_caf == 52){
+				$transporte_xml = $this->facturaelectronica->armar_transporte_xml($idfactura, $dir_cliente, $nombre_comuna);
+				if($transporte_xml){
+					$factura['Encabezado']['Transporte'] = $transporte_xml;
+				}
+			}
+
 			//FchResol y NroResol deben cambiar con los datos reales de producción
 			$caratula = [
 			    //'RutEnvia' => '11222333-4', // se obtiene de la firma
